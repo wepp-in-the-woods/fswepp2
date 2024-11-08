@@ -1,15 +1,13 @@
 {
   "name": "fswepp2 Codespace",
-  "image": "ubuntu:latest",
-  "features": {
-    "docker-in-docker": "latest"
-  },
-  "postCreateCommand": "./setup.sh",
+  "image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu",
+  "postCreateCommand": ".devcontainer/setup.sh",
   "customizations": {
     "vscode": {
       "extensions": [
         "ms-vscode.cpptools",
-        "ms-python.python"
+        "ms-python.python",
+        "esbenp.prettier-vscode"
       ]
     }
   }

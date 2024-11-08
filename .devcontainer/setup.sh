@@ -1,13 +1,13 @@
 #!/bin/bash
-# Install necessary packages
-sudo apt-get update
-sudo apt-get install -y build-essential util-linux
+sudo apt-get update && sudo apt-get upgrade -y
+sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
 
-# Copy your Linux binaries to a suitable location (adjust as needed)
-cp /workspaces/fswepp2/bin/* /usr/local/bin/
+sudo apt-get install -y python3 python3-pip
 
-# Set up a ramdisk (e.g., at /mnt/ramdisk)
-sudo mkdir -p /mnt/ramdisk
-sudo mount -t tmpfs -o size=1G tmpfs /mnt/ramdisk
+sudo mkdir /ramdisk && mount -t tmpfs -o size=1G tmpfs /ramdisk
 
-echo "Ramdisk mounted at /mnt/ramdisk with 1GB size."
+pip3 install -r app/requirements.txt 
+
+cd app
+uvicorn main:app --host 0.0.0.0 --port 8080 --reload &
+echo "Uvicorn started and running in the background."
