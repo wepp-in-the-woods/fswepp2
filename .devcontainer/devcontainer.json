@@ -1,0 +1,16 @@
+{
+  "name": "fswepp2 Codespace",
+  "image": "ubuntu:latest",
+  "features": {
+    "docker-in-docker": "latest"
+  },
+  "postCreateCommand": "./setup.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-python.python"
+      ]
+    }
+  }
+}
