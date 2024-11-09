@@ -1,11 +1,29 @@
-from fastapi import FastAPI, Query
-from typing import Optional
-
-from app.wepproad import router as wepproad_router
-from app.rockclim import router as rockclim_router
+from fastapi import FastAPI, Request, Response
+from starlette.middleware.wsgi import WSGIMiddleware
+from api.wepproad import router as wepproad_router
+from api.rockclim import router as rockclim_router
+from frontend.flask_app import flask_app
+import uuid
 
 app = FastAPI()
 
-# Include the routers
+@app.middleware("http")
+async def ensure_user_id_middleware(request: Request, call_next):
+    response: Response = await call_next(request)
+    
+    if not request.cookies.get("user_id"):
+        user_id = str(uuid.uuid4())
+        response.set_cookie(
+            key="user_id",
+            value=user_id,
+            path="/"
+        )
+        
+        print(f"user_id: {user_id}")
+    
+    return response
+
 app.include_router(wepproad_router, prefix="/api")
 app.include_router(rockclim_router, prefix="/api")
+
+app.mount("/fswepp2", WSGIMiddleware(flask_app))

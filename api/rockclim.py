@@ -3,7 +3,7 @@ from os.path import join as _join
 import enum
 import math
 
-from fastapi import APIRouter, Query, Response
+from fastapi import APIRouter, Query, Response, Request
 from typing import Optional
 from pydantic import BaseModel
 
@@ -62,7 +62,6 @@ def get_station_par_monthlies(climate_pars: ClimatePars):
     station = stationManager.get_station_fromid(climate_pars.par_id)
     return station.as_dict(include_monthlies=True)
 
-
 @router.post("/rockclim/GET/climate")
 def get_climate(climate_pars: ClimatePars):
     """
@@ -93,5 +92,13 @@ def get_climate(climate_pars: ClimatePars):
         contents = file.read()
     return Response(content=contents, media_type="application/text")
 
+
+@router.post("/rockclim/MOD/station_par")
+def get_climate(climate_pars: ClimatePars, request: Request):
+    user_id = request.cookies.get("user_id")
+    if not user_id:
+        return {"error": "User ID not found in cookies"}
+    
+    return {"user_id": user_id}
 
 

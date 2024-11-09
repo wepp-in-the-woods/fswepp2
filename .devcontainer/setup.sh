@@ -8,7 +8,7 @@ sudo apt-get install -y gdal-bin libgdal-dev
 sudo mkdir /ramdisk && sudo mount -t tmpfs -o size=1G tmpfs /ramdisk
 sudo chown $(whoami):$(whoami) /ramdisk
 
-pip3 install -r app/requirements.txt
+pip3 install -r requirements.txt
 
 sudo mkdir -p /usr/lib/python3/dist-packages/all_your_base
 sudo git clone https://github.com/rogerlew/all_your_base /usr/lib/python3/dist-packages/all_your_base
@@ -20,6 +20,4 @@ sudo chown -R $(whoami):$(whoami) /usr/lib/python3/dist-packages/wepppy2
 sudo chmod +x /usr/lib/python3/dist-packages/wepppy2/climates/cligen/bin/cligen532
 sudo chmod +x /usr/lib/python3/dist-packages/wepppy2/climates/cligen/bin/cligen43
 
-
-#uvicorn main:app --host 0.0.0.0 --port 8080 --reload &
-#echo "Uvicorn started and running in the background."
+#uvicorn main:app --host 0.0.0.0 --port 8080 --reload
