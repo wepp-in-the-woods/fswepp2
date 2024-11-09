@@ -1,2 +1,9 @@
 fastapi
 uvicorn
+scipy
+matplotlib
+pandas
+utm
+deprecated
+rasterio
+requests
