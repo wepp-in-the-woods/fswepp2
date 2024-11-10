@@ -20,5 +20,4 @@ sudo chown -R $(whoami):$(whoami) /usr/lib/python3/dist-packages/wepppy2
 sudo chmod +x /usr/lib/python3/dist-packages/wepppy2/climates/cligen/bin/cligen532
 sudo chmod +x /usr/lib/python3/dist-packages/wepppy2/climates/cligen/bin/cligen43
 
-
 # uvicorn main:app --host 0.0.0.0 --port 8080 --reload

@@ -4,7 +4,7 @@ from os.path import join as _join
 import enum
 import math
 
-from fastapi import APIRouter, Query, Response, Request, HTTPException
+from fastapi import APIRouter, Query, Response, Request, HTTPException, Body
 from typing import Optional
 from pydantic import BaseModel, conlist
 
@@ -67,7 +67,14 @@ class ClimatePars(BaseModel):
     
     
 @router.post("/rockclim/GET/stations_in_state")
-def stations_in_state(climate_pars: ClimatePars):
+def stations_in_state(
+    climate_pars: ClimatePars = Body(
+        ...,
+        example={
+            'state_code': 'WA'
+        }
+    )
+):
     stationManager = CligenStationsManager(climate_pars.database)
 
     if climate_pars.state is None:
@@ -79,7 +86,17 @@ def stations_in_state(climate_pars: ClimatePars):
 
 
 @router.post("/rockclim/GET/get_closest_stations")
-def get_closest_stations(climate_pars: ClimatePars):
+def get_closest_stations(
+    climate_pars: ClimatePars = Body(
+        ...,
+        example={
+            'location': {
+                'longitude': -116,
+                'latitude': 47
+            }
+        }
+    )
+):
     if climate_pars.location is None:
         return  {"error": "Location is required"}
     
@@ -110,19 +127,46 @@ def get_station(climate_pars: ClimatePars):
     return station
     
 @router.post("/rockclim/GET/station_par")
-def get_station_par(climate_pars: ClimatePars):
+def get_station_par(
+    climate_pars: ClimatePars = Body(
+        ...,
+        example={
+            'par_id': 'WA459074'
+        }
+    )
+):
     station = get_station(climate_pars)
     return Response(content=station.contents, media_type="application/text")
 
 
 @router.post("/rockclim/GET/station_par_monthlies")
-def get_station_par_monthlies(climate_pars: ClimatePars):
+def get_station_par_monthlies(
+    climate_pars: ClimatePars = Body(
+        ...,
+        example={
+            'par_id': 'WA459074',
+            'location': {
+                'longitude': -117.0,
+                'latitude': 47.0
+            },
+            'use_prism': True
+        }
+    )
+):
     station = get_station(climate_pars)
     return station.get_monthlies()
 
 
 @router.post("/rockclim/GET/climate")
-def get_climate(climate_pars: ClimatePars):
+def get_climate(
+    climate_pars: ClimatePars = Body(
+        ...,
+        example={
+            'par_id': 'WA459074',
+            'input_years': 10
+        }
+    )
+):
     """
     Endpoint to get climate data for a specific station.
     This function handles a POST request to retrieve climate data for a specific station
@@ -164,8 +208,22 @@ def save_user_data(filepath, data):
         json.dump(data, file, indent=4)
 
 
-@router.post("/rockclim/MOD/station_par")
-def save_user_defined_par_mod(climate_pars: ClimatePars, request: Request):
+@router.post("/rockclim/PUT/user_defined_par")
+def save_user_defined_par_mod(
+    request: Request,
+    climate_pars: ClimatePars = Body(
+        ...,
+        example={
+            'par_id': 'WA459074',
+            'user_defined_par_mod': {
+                'description': 'my custom par',
+                'ppts': [0.34, 0.36, 0.48, 0.54, 0.53, 0.4, 0.45, 0.26, 0.28, 0.43, 0.34, 0.33],
+                'tmaxs': [36.31, 40.42, 47.86, 55.38, 64.82, 70.74, 82.29, 83.43, 73.74, 58.84, 43.67, 35.31],
+                'tmins': [24.55, 25.54, 29.29, 33.7, 39.99, 44.99, 48.65, 47.92, 41.87, 35.02, 29.38, 24.04]
+            }
+        }
+    )
+):
     user_id = request.cookies.get("user_id")
     
     if not user_id:
@@ -191,8 +249,23 @@ def save_user_defined_par_mod(climate_pars: ClimatePars, request: Request):
     else:
         return {"message": f"Entry already exists with key: {par_mod_key}"}
 
-@router.post("/rockclim/DEL/station_par")
-def del_user_defined_par_mod(climate_pars: ClimatePars, request: Request):
+
+@router.post("/rockclim/DEL/user_defined_par")
+def del_user_defined_par_mod(
+    request: Request,
+    climate_pars: ClimatePars = Body(
+        ...,
+        example={
+            'par_id': 'WA459074',
+            'user_defined_par_mod': {
+                'description': 'my custom par',
+                'ppts': [0.34, 0.36, 0.48, 0.54, 0.53, 0.4, 0.45, 0.26, 0.28, 0.43, 0.34, 0.33],
+                'tmaxs': [36.31, 40.42, 47.86, 55.38, 64.82, 70.74, 82.29, 83.43, 73.74, 58.84, 43.67, 35.31],
+                'tmins': [24.55, 25.54, 29.29, 33.7, 39.99, 44.99, 48.65, 47.92, 41.87, 35.02, 29.38, 24.04]
+            }
+        }
+    )
+):
     user_id = request.cookies.get("user_id")
     
     if not user_id:
@@ -211,3 +284,21 @@ def del_user_defined_par_mod(climate_pars: ClimatePars, request: Request):
         return {"message": f"New entry deleted with key: {par_mod_key}"}
     else:
         return {"message": f"Entry not found: {par_mod_key}"}
+
+@router.get("/rockclim/GET/user_defined_pars")
+def list_user_defined_pars(request: Request):
+    user_id = request.cookies.get("user_id")
+    
+    if not user_id:
+        raise HTTPException(status_code=400, detail="User ID not found in cookies")
+    
+    user_custom_db_path = _join(_thisdir, f'db/users/rockclim/{user_id}.json')
+    
+    # Load existing data
+    user_data = load_user_data(user_custom_db_path)
+    
+    if not user_data:
+        return user_data
+    
+    # Return the list of user-defined parameters
+    return user_data

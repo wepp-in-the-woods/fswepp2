@@ -362,17 +362,7 @@ def get_slope(state: WeppRoadState):
         return {"error": str(e)}
     
     
-@router.get("/wepproad/GET/climate")
-def get_climate(database: str = Query(...), par: str = Query(...), input_years: int = Query(...)):
-    return {
-        "climate": {
-            "database": database,
-            "par": par,
-            "input_years": input_years
-        }
-    }
-
-@router.get("/wepproad/GET/wepp")
+@router.post("/wepproad/GET/wepp")
 def get_wepp(
     road_gradient: Optional[int] = Query(None),
     road_length_ft: Optional[float] = Query(None),
