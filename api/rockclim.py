@@ -1,20 +1,32 @@
 import os
+import json
 from os.path import join as _join
 import enum
 import math
 
-from fastapi import APIRouter, Query, Response, Request
+from fastapi import APIRouter, Query, Response, Request, HTTPException
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, conlist
 
 from wepppy2.climates.cligen import CligenStationsManager, Cligen
 
 router = APIRouter()
 
+_thisdir = os.path.dirname(os.path.abspath(__file__))
 
 class Location(BaseModel):
     longitude: float
     latitude: float
+
+
+class UserDefinedParMod(BaseModel):
+    description: str
+    ppts: conlist(float, min_length=12, max_length=12)
+    tmaxs: conlist(float, min_length=12, max_length=12)
+    tmins: conlist(float, min_length=12, max_length=12)
+    
+    def __hash__(self):
+        return hash((self.description, tuple(self.ppts), tuple(self.tmaxs), tuple(self.tmins)))
 
 
 class ClimatePars(BaseModel):
@@ -40,10 +52,18 @@ class ClimatePars(BaseModel):
     input_years: Optional[int] = 100
     cligen_version: Optional[str] = "5.3.2"
     location: Optional[Location] = None
-    use_prism: Optional[bool] = None 
+    use_prism: Optional[bool] = False
+    user_defined_par_mod: Optional[UserDefinedParMod] = None
     
     def __hash__(self):
-        return hash((self.database, self.state_code, self.par_id, self.input_years, self.cligen_version))
+        return hash((self.database, 
+                     self.state_code, 
+                     self.par_id,
+                     self.input_years, 
+                     self.cligen_version, 
+                     self.location, 
+                     self.use_prism, 
+                     self.user_defined_par_mod))
     
     
 @router.post("/rockclim/GET/stations_in_state")
@@ -80,6 +100,12 @@ def get_station(climate_pars: ClimatePars):
         station = station.prism_mod(
             climate_pars.location.longitude, 
             climate_pars.location.latitude)
+        
+    if climate_pars.user_defined_par_mod is not None:    
+        station = station.mod(
+            climate_pars.user_defined_par_mod.ppts,
+            climate_pars.user_defined_par_mod.tmaxs,
+            climate_pars.user_defined_par_mod.tmins)
         
     return station
     
@@ -125,12 +151,63 @@ def get_climate(climate_pars: ClimatePars):
     return Response(content=contents, media_type="application/text")
 
 
+def load_user_data(filepath):
+    if os.path.exists(filepath):
+        with open(filepath, 'r') as file:
+            return json.load(file)
+    return {}
+
+
+def save_user_data(filepath, data):
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    with open(filepath, 'w') as file:
+        json.dump(data, file, indent=4)
+
+
 @router.post("/rockclim/MOD/station_par")
-def get_climate(climate_pars: ClimatePars, request: Request):
+def save_user_defined_par_mod(climate_pars: ClimatePars, request: Request):
     user_id = request.cookies.get("user_id")
-    if not user_id:
-        return {"error": "User ID not found in cookies"}
     
-    return {"user_id": user_id}
+    if not user_id:
+        raise HTTPException(status_code=400, detail="User ID not found in cookies")
+    
+    if climate_pars.user_defined_par_mod is None:
+        raise HTTPException(status_code=400, detail="User-defined parameters are required")
+    
+    try:
+        get_station(climate_pars)
+    except:
+        raise HTTPException(status_code=400, detail="ClimatePars is not valid")
+    
+    user_custom_db_path = _join(_thisdir, f'db/users/rockclim/{user_id}.json')
+    user_data = load_user_data(user_custom_db_path)
+    par_mod_key = str(hash(climate_pars.user_defined_par_mod))
 
+    # Check if the entry already exists
+    if par_mod_key not in user_data:
+        user_data[par_mod_key] = climate_pars.user_defined_par_mod.dict()
+        save_user_data(user_custom_db_path, user_data)
+        return {"message": f"New entry added with key: {par_mod_key}"}
+    else:
+        return {"message": f"Entry already exists with key: {par_mod_key}"}
 
+@router.post("/rockclim/DEL/station_par")
+def del_user_defined_par_mod(climate_pars: ClimatePars, request: Request):
+    user_id = request.cookies.get("user_id")
+    
+    if not user_id:
+        raise HTTPException(status_code=400, detail="User ID not found in cookies")
+    
+    if climate_pars.user_defined_par_mod is None:
+        raise HTTPException(status_code=400, detail="User-defined parameters are required")
+    
+    user_custom_db_path = _join(_thisdir, f'db/users/rockclim/{user_id}.json')
+    user_data = load_user_data(user_custom_db_path)
+    par_mod_key = str(hash(climate_pars.user_defined_par_mod))
+
+    if par_mod_key in user_data:
+        del user_data[par_mod_key]
+        save_user_data(user_custom_db_path, user_data)
+        return {"message": f"New entry deleted with key: {par_mod_key}"}
+    else:
+        return {"message": f"Entry not found: {par_mod_key}"}
