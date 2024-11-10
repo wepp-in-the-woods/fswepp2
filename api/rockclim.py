@@ -71,7 +71,7 @@ def get_closest_stations(climate_pars: ClimatePars):
     return [s.as_dict() for s in stations]
 
 
-def get_station_par(climate_pars: ClimatePars):
+def get_station(climate_pars: ClimatePars):
     stationManager = CligenStationsManager(climate_pars.database)
     stationMeta = stationManager.get_station_fromid(climate_pars.par_id)
     station = stationMeta.get_station()
@@ -85,13 +85,13 @@ def get_station_par(climate_pars: ClimatePars):
     
 @router.post("/rockclim/GET/station_par")
 def get_station_par(climate_pars: ClimatePars):
-    station = get_station_par(climate_pars)
+    station = get_station(climate_pars)
     return Response(content=station.contents, media_type="application/text")
 
 
 @router.post("/rockclim/GET/station_par_monthlies")
 def get_station_par_monthlies(climate_pars: ClimatePars):
-    station = get_station_par(climate_pars)
+    station = get_station(climate_pars)
     return station.get_monthlies()
 
 
@@ -110,7 +110,7 @@ def get_climate(climate_pars: ClimatePars):
         Response: A Response object containing the contents of the generated climate file 
                 with media type "application/text".
     """
-    station = get_station_par(climate_pars)
+    station = get_station(climate_pars)
     
     os.makedirs("/ramdisk/rockclim/", exist_ok=True)
 
