@@ -77,10 +77,10 @@ def stations_in_state(
 ):
     stationManager = CligenStationsManager(climate_pars.database)
 
-    if climate_pars.state is None:
-        return {"error": "State is required"}
+    if climate_pars.state_code is None:
+        return {"error": "State Code is required"}
     
-    stations = stationManager.get_stations_in_state(climate_pars.state)
+    stations = stationManager.get_stations_in_state(climate_pars.state_code)
 
     return [s.as_dict() for s in stations]
 
@@ -157,8 +157,24 @@ def get_station_par_monthlies(
     return station.get_monthlies()
 
 
+def get_climate(climate_pars: ClimatePars):
+    wd="/ramdisk/rockclim/"
+    
+    station = get_station(climate_pars)
+    
+    os.makedirs(wd, exist_ok=True)
+
+    _hash = hash(climate_pars)
+    cli_fname = f"{_hash}.cli"
+    
+    cligen = Cligen(station, wd, cliver=climate_pars.cligen_version)
+    cligen.run_multiple_year(climate_pars.input_years, cli_fname=cli_fname)
+    
+    return _join(wd, cli_fname)
+
+
 @router.post("/rockclim/GET/climate")
-def get_climate(
+def get_climate_route(
     climate_pars: ClimatePars = Body(
         ...,
         example={
@@ -180,17 +196,9 @@ def get_climate(
         Response: A Response object containing the contents of the generated climate file 
                 with media type "application/text".
     """
-    station = get_station(climate_pars)
+    cli_fn = get_climate(climate_pars)
     
-    os.makedirs("/ramdisk/rockclim/", exist_ok=True)
-
-    _hash = hash(climate_pars)
-    cli_fname = f"{_hash}.cli"
-    
-    cligen = Cligen(station, wd="/ramdisk/rockclim/", cliver=climate_pars.cligen_version)
-    cligen.run_multiple_year(climate_pars.input_years, cli_fname=cli_fname)
-    
-    with open(f"/ramdisk/rockclim/{cli_fname}", "r") as file:
+    with open(cli_fn, "r") as file:
         contents = file.read()
     return Response(content=contents, media_type="application/text")
 
