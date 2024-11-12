@@ -1,0 +1,113 @@
+# Soil parameter database for Disturbed WEPP
+#
+#  Sandy Loams
+#
+sand:
+  Skid:
+    - "'skid' 'sandy loam' 1 0.2 0.75 400000 0.0001 2 10"
+    - "300 65 10 5 15 {rfg}"
+  HighFire:
+    - "'HIGH' 'sandy loam' 1 0.1 0.75 400000 0.00014 2 15"
+    - "400 65 10 5 15 {rfg}"
+  LowFire:
+    - "'LOW' 'sandy loam' 1 0.15 0.75 400000 0.00012 2 20"
+    - "400 65 10 5 15 {rfg}"
+  Sod:
+    - "'SHORT' 'sandy loam' 1 0.15 0.75 400000 0.0001 2 25"
+    - "400 65 10 5 15 {rfg}"
+  Bunchgrass:
+    - "'TALL' 'sandy loam' 1 0.15 0.75 400000 0.0001 2 30"
+    - "400 65 10 5 15 {rfg}"
+  Shrub:
+    - "'shrub' 'sandy loam' 1 0.15 0.75 400000 0.0001 2 40"
+    - "500 65 10 5 15 {rfg}"
+  YoungForest:
+    - "'YoungF' 'sandy loam' 1 0.06 0.5 400000 0.00009 2 50"
+    - "600 65 10 5 15 {rfg}"
+  OldForest:
+    - "'OldF' 'sandy loam' 1 0.06 0.5 400000 0.00008 2 60"
+    - "800 65 10 5 15 {rfg}"
+#
+#  Silt Loams
+#
+silt:
+  Skid:
+    - "'skid' 'silt loam' 1 0.2 0.75 1000000 0.00008 1.5 6"
+    - "300 25 15 5 15 {rfg}"
+  HighFire:
+    - "'HIGH' 'silt loam' 1 0.1 0.75 1000000 0.00012 1.5 10"
+    - "400 25 15 5 15 {rfg}"
+  LowFire:
+    - "'LOW' 'silt loam' 1 0.15 0.75 1000000 0.0001 1.5 13"
+    - "400 25 15 5 15 {rfg}"
+  Sod:
+    - "'SHORT' 'silt loam' 1 0.15 0.75 1000000 0.00008 1.5 15"
+    - "400 25 15 5 15 {rfg}"
+  Bunchgrass:
+    - "'TALL' 'silt loam' 1 0.15 0.75 1000000 0.00008 1.5 20"
+    - "400 25 15 5 15 {rfg}"
+  Shrub:
+    - "'shrub' 'silt loam' 1 0.15 0.75 1000000 0.00007 1.5 25"
+    - "500 25 15 5 15 {rfg}"
+  YoungForest:
+    - "'YoungF' 'silt loam' 1 0.06 0.5 1000000 0.00006 1.5 30"
+    - "600 25 15 5 15 {rfg}"
+  OldForest:
+    - "'OldF' 'silt loam' 1 0.06 0.5 1000000 0.00005 1.5 40"
+    - "800 25 15 5 15 {rfg}"
+#
+#  Clay Loams
+#
+clay:
+  Skid:
+    - "'skid' 'clay loam' 1 0.2 0.75 1500000 0.00005 0.5 6"
+    - "300 25 30 5 25 {rfg}"
+  HighFire:
+    - "'HIGH' 'clay loam' 1 0.1 0.75 1500000 0.00006 0.5 14"
+    - "400 25 30 5 25 {rfg}"
+  LowFire:
+    - "'LOW' 'clay loam' 1 0.15 0.75 1500000 0.00005 0.5 18"
+    - "400 25 30 5 25 {rfg}"
+  Sod:
+    - "'SHORT' 'clay loam' 1 0.15 0.75 1500000 0.00004 0.5 20"
+    - "400 25 30 5 25 {rfg}"
+  Bunchgrass:
+    - "'TALL' 'clay loam' 1 0.15 0.75 1500000 0.00004 0.5 24"
+    - "400 25 30 5 25 {rfg}"
+  Shrub:
+    - "'shrub' 'clay loam' 1 0.15 0.75 1500000 0.00003 0.5 28"
+    - "500 25 30 5 25 {rfg}"
+  YoungForest:
+    - "'YoungF' 'clay loam' 1 0.06 0.5 400000 0.00003 0.5 33"
+    - "600 25 30 5 25 {rfg}"
+  OldForest:
+    - "'OldF' 'clay loam' 1 0.06 0.5 400000 0.00002 0.5 35"
+    - "800 25 30 5 25 {rfg}"
+#
+#  Loams
+#
+loam:
+  Skid:
+    - "'skid' 'loam' 1 0.2 0.75 1000000 0.00006 1 10"
+    - "300 45 20 5 20 {rfg}"
+  HighFire:
+    - "'HIGH' 'loam' 1 0.1 0.75 1000000 0.0001 1 15"
+    - "400 45 20 5 20 {rfg}"
+  LowFire:
+    - "'LOW' 'loam' 1 0.15 0.75 1000000 0.00008 1 20"
+    - "400 45 20 5 20 {rfg}"
+  Sod:
+    - "'SHORT' 'loam' 1 0.15 0.75 1000000 0.00006 1 25"
+    - "400 45 20 5 20 {rfg}"
+  Bunchgrass:
+    - "'TALL' 'loam' 1 0.15 0.75 1000000 0.00006 1 30"
+    - "400 45 20 5 20 {rfg}"
+  Shrub:
+    - "'shrub' 'loam' 1 0.15 0.75 1000000 0.00005 1 35"
+    - "500 45 20 5 20 {rfg}"
+  YoungForest:
+    - "'YoungF' 'loam' 1 0.06 0.5 400000 0.00004 1 40"
+    - "600 45 20 5 20 {rfg}"
+  OldForest:
+    - "'OldF' 'loam' 1 0.06 0.5 400000 0.00003 1 50"
+    - "800 45 20 5 20 {rfg}"

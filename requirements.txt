@@ -9,3 +9,4 @@ rasterio
 requests
 Flask
 werkzeug
+pyyaml

@@ -1,6 +1,8 @@
 import os
 from os.path import join as _join
 from os.path import split as _split
+from os.path import exists as _exists
+
 import shutil
 
 import enum
@@ -11,6 +13,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 from .rockclim import ClimatePars
+from .shared_models import SoilTexture
 
 router = APIRouter()
 
@@ -37,15 +40,6 @@ class RoadSurface(enum.Enum):
     __str__ = lambda self: self.value
     __hash__ = lambda self: hash(self.value)
 
-
-class SoilTexture(enum.Enum):
-    CLAY = 'clay'
-    SILT = 'silt'
-    SAND = 'sand'
-    LOAM = 'loam'
-    
-    __str__ = lambda self: self.value
-    __hash__ = lambda self: hash(self.value)
 
 
 class TrafficLevel(enum.Enum):
@@ -165,9 +159,10 @@ class WepproadPars(BaseModel):
 class WeppRoadState(BaseModel):
     climate: ClimatePars
     wepproad_pars: WepproadPars
+    wepp_version: str = "wepp2010"
     
     def __hash__(self):
-        return hash((self.climate, self.wepproad_pars))
+        return hash((self.climate, self.wepproad_pars, self.wepp_version))
     
 
 def get_soil_file_template(state: WeppRoadState):
@@ -195,10 +190,10 @@ def get_soil_file_template(state: WeppRoadState):
 
     # Construct soil file name
     soil_file = f"3{surf}{soil_texture}{tau_c}.sol"
-    soil_file_path = os.path.join(soil_data_dir, soil_file)
+    soil_file_path = _join(soil_data_dir, soil_file)
 
     # Check if soil file exists
-    if not os.path.exists(soil_file_path):
+    if not _exists(soil_file_path):
         raise FileNotFoundError(f"Soil file {soil_file_path} does not exist")
 
     return soil_file_path
@@ -216,10 +211,10 @@ def create_soil_file(state: WeppRoadState):
     
     urr_ref, ufr_ref = None, None
  
-    if not os.path.exists(soil_file_template_path):
+    if not _exists(soil_file_template_path):
         raise FileNotFoundError(f"Soil file {soil_file_template_path} does not exist")
 
-    if os.path.exists(new_soil_file):
+    if _exists(new_soil_file):
         return new_soil_file
     
     os.makedirs(os.path.dirname(new_soil_file), exist_ok=True)
@@ -274,7 +269,7 @@ def create_soil_file(state: WeppRoadState):
                 line = f"{left}{ubr}{right}"
             new_soil.write(line)
 
-    if not os.path.exists(new_soil_file):
+    if not _exists(new_soil_file):
         raise FileNotFoundError(f"Soil file {new_soil_file} does not exist")
 
     return new_soil_file
@@ -302,9 +297,9 @@ def get_management_file(state: WeppRoadState):
         elif man_file == '3outrut.man':
             man_file = '3outrutn.man'
 
-    man_file_path = os.path.join(management_data_dir, man_file)
+    man_file_path = _join(management_data_dir, man_file)
 
-    if not os.path.exists(man_file_path):
+    if not _exists(man_file_path):
         raise FileNotFoundError(f"I can't open file {man_file_path}")
 
     return man_file_path
@@ -320,7 +315,7 @@ def create_slope_file(state: WeppRoadState):
     _hash = hash(state.wepproad_pars)
     slope_file = f"/ramdisk/wepproad/wr_{_hash}.slp"
     
-    if os.path.exists(slope_file):
+    if _exists(slope_file):
         return slope_file
     
     os.makedirs(os.path.dirname(slope_file), exist_ok=True)
@@ -456,8 +451,8 @@ def get_management(state: WeppRoadState = Body(
     )
 ):
     try:
-        soil_file_path = get_management_file(state)
-        contents = open(soil_file_path).read()
+        man_file_path = get_management_file(state)
+        contents = open(man_file_path).read()
         return Response(content=contents, media_type="application/text")
     except ValueError as e:
         return {"error": str(e)}
@@ -483,6 +478,7 @@ def get_slope(state: WeppRoadState = Body(
 
 def run_wepproad(state: WeppRoadState):
     
+    import subprocess
     from .rockclim import get_climate
     slope_fn = create_slope_file(state)
     _slope_fn = _split(slope_fn)[1]
@@ -536,8 +532,10 @@ def run_wepproad(state: WeppRoadState):
     with open(run_fn, 'w') as fp:
         fp.write(content)
         
-    weppversion = '/usr/lib/python3/dist-packages/wepppy2/wepp_runner/bin/wepp2010'
-    import subprocess
+    weppversion = f'/usr/lib/python3/dist-packages/wepppy2/wepp_runner/bin/{state.wepp_version}'
+    
+    if not _exists(weppversion):
+        return {"error": f"WEPP version {state.wepp_version} not found"}
 
     command = f"{weppversion} <{run_fn} >{stout_fn} 2>{sterr_fn}"
     try:

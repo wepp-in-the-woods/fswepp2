@@ -1,0 +1,8 @@
+Shrub_op
+Resets the random roughness each year for the forest
+W. Elliot 05/10
+(null)
+1  #landuse
+0.0000 0.0000 0
+4 # pcode - other 
+0.0000 0.0000 0.0000 0.0000 0.0600 1.0000 0.0010 
