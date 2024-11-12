@@ -27,7 +27,6 @@ class RoadDesign(enum.Enum):
     INBARE = 'inbare'
 
     __str__ = lambda self: self.value
-    
     __hash__ = lambda self: hash(self.value)
 
 
@@ -36,7 +35,6 @@ class RoadSurface(enum.Enum):
     PAVED = 'paved'
     
     __str__ = lambda self: self.value
-    
     __hash__ = lambda self: hash(self.value)
 
 
@@ -47,7 +45,6 @@ class SoilTexture(enum.Enum):
     LOAM = 'loam'
     
     __str__ = lambda self: self.value
-    
     __hash__ = lambda self: hash(self.value)
 
 
@@ -57,7 +54,6 @@ class TrafficLevel(enum.Enum):
     NONE = 'none'
     
     __str__ = lambda self: self.value
-
     __hash__ = lambda self: hash(self.value)
     
     
@@ -360,48 +356,35 @@ def create_slope_file(state: WeppRoadState):
 def parse_wepp_results(output_file: str, state: WeppRoadState):
     storms, rainevents, snowevents, precip, rro, sro, syr, syp = None, None, None, None, None, None, None, None
     
-    # Parse output file for additional information
-    with open(output_file, 'r') as wepp_out:
+    with open(output_file, 'r') as fp:
+        wepp_out = fp.readlines()
         for line in wepp_out:
             if 'VERSION' in line:
                 weppver = line.strip()
                 break
 
-        for line in wepp_out:
+        for i, line in enumerate(wepp_out):
             if 'RAINFALL AND RUNOFF SUMMARY' in line:
-                for _ in range(4+1):
-                    line = wepp_out.readline()
-                storms = line[1:10].strip()
-                line = wepp_out.readline()
-                rainevents = line[1:10].strip()
-                line = wepp_out.readline()
-                snowevents = line[1:10].strip()
-                for _ in range(5+1):
-                    line = wepp_out.readline()
-                precip = line[51:61].strip()
-                line = wepp_out.readline()
-                rro = line[51:61].strip()
-                line = wepp_out.readline()
-#                line = wepp_out.readline()
-                sro = line[51:61].strip()
+                storms = wepp_out[i+5].split()[0]
+                rainevents = wepp_out[i+6].split()[0]
+                snowevents = wepp_out[i+7].split()[0]
+                precip = wepp_out[i+14].split()[-2]
+                rro = wepp_out[i+15].split()[-2]
+                sro = wepp_out[i+17].split()[-2]
                 break
 
-        for line in wepp_out:
+        for i, line in enumerate(wepp_out):
             if 'AREA OF NET SOIL LOSS' in line:
-                for _ in range(10):
-                    line = wepp_out.readline()
-                print(line)
-                syr = line[17:24].strip() # soil loss MEAN (kg/m2)
+                syr = wepp_out[i+10][17:24].strip() # soil loss MEAN (kg/m2)
                 syr = float(syr)
-                road_length_exhibiting_soil_loss_m = line[9:18].strip() # Area of Net Loss (m)
+                road_length_exhibiting_soil_loss_m = wepp_out[i+10][9:18].strip() # Area of Net Loss (m)
                 road_length_exhibiting_soil_loss_m = float(road_length_exhibiting_soil_loss_m)
                 break
 
-        for line in wepp_out:
+        for i, line in enumerate(wepp_out):
             if 'OFF SITE EFFECTS' in line:
-                for _ in range(4+1):
-                    line = wepp_out.readline()
-                syp = float(line.split()[0])
+                syp = wepp_out[i+4].split()[0]
+                syp = float(syp)
                 break
 
     road_width = state.wepproad_pars.road.sim_width_m

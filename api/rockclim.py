@@ -14,6 +14,7 @@ router = APIRouter()
 
 _thisdir = os.path.dirname(os.path.abspath(__file__))
 
+
 class Location(BaseModel):
     longitude: float
     latitude: float
