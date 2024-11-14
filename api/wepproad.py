@@ -348,24 +348,34 @@ def create_slope_file(state: WeppRoadState):
 
     return slope_file
 
-def parse_wepp_results(output_file: str, state: WeppRoadState):
+
+def parse_abbreviated_wepp_soil_results(output_file: str, state: WeppRoadState):
     storms, rainevents, snowevents, precip, rro, sro, syr, syp = None, None, None, None, None, None, None, None
     
     with open(output_file, 'r') as fp:
         wepp_out = fp.readlines()
+        
         for line in wepp_out:
             if 'VERSION' in line:
                 weppver = line.strip()
                 break
 
         for i, line in enumerate(wepp_out):
+            if 'ANNUAL AVERAGE SUMMARIES' in line:
+                wepp_out = wepp_out[i:]
+                break
+            
+        for i, line in enumerate(wepp_out):
             if 'RAINFALL AND RUNOFF SUMMARY' in line:
                 storms = wepp_out[i+5].split()[0]
                 rainevents = wepp_out[i+6].split()[0]
                 snowevents = wepp_out[i+7].split()[0]
                 precip = wepp_out[i+14].split()[-2]
+                precip = float(precip)
                 rro = wepp_out[i+15].split()[-2]
+                rro = float(rro)
                 sro = wepp_out[i+17].split()[-2]
+                sro = float(sro)
                 break
 
         for i, line in enumerate(wepp_out):
@@ -392,9 +402,10 @@ def parse_wepp_results(output_file: str, state: WeppRoadState):
         'storms': int(storms),
         'rainevents': int(rainevents),
         'snowevents': int(snowevents),
-        'precip_mm ': float(precip),
-        'runoff_from_rain_mm': float(rro),
-        'runoff_from_snow_mm': float(sro),
+        'precip_mm': precip,
+        'runoff_from_rain_mm': rro,
+        'runoff_from_snow_mm': sro,
+        'runoff_from_rain+snow_mm': rro + sro,
         'sim_width_m': road_width,
         'road_prism_erosion_kg': road_prism_erosion_kg,
         'sediment_leaving_buffer_kg': sediment_leaving_buffer_kg,
@@ -480,6 +491,9 @@ def run_wepproad(state: WeppRoadState):
     
     import subprocess
     from .rockclim import get_climate
+    
+    cwd = '/ramdisk/wepproad'
+    
     slope_fn = create_slope_file(state)
     _slope_fn = _split(slope_fn)[1]
     
@@ -489,17 +503,17 @@ def run_wepproad(state: WeppRoadState):
     man_fn = get_management_file(state)
     _man_fn = _split(man_fn)[1]
     
-    shutil.copyfile(man_fn, f'/ramdisk/wepproad/{_man_fn}')
+    shutil.copyfile(man_fn, _join(cwd, f'{_man_fn}'))
     
     cli_fn = get_climate(state.climate)
     
     _hash = hash(state)
-    run_fn = f'/ramdisk/wepproad/wr_{_hash}.run'
-    output_fn = f'/ramdisk/wepproad/wr_{_hash}.dat'
+    run_fn = _join(cwd, f'wr_{_hash}.run')
+    output_fn = _join(cwd, f'wr_{_hash}.dat')
     _output_fn = _split(output_fn)[1]
     
-    stout_fn = f'/ramdisk/wepproad/wr_{_hash}.stout'
-    sterr_fn = f'/ramdisk/wepproad/wr_{_hash}.sterr'
+    stout_fn = _join(cwd, f'wr_{_hash}.stout')
+    sterr_fn = _join(cwd, f'wr_{_hash}.sterr')
     content = [
         "m",  # english or metric
         "y",  # not watershed
@@ -539,8 +553,9 @@ def run_wepproad(state: WeppRoadState):
 
     command = f"{weppversion} <{run_fn} >{stout_fn} 2>{sterr_fn}"
     try:
-        subprocess.run(command, shell=True, check=True, cwd='/ramdisk/wepproad')
+        subprocess.run(command, shell=True, check=True, cwd=cwd)
     except subprocess.CalledProcessError as e:
+        raise Exception(str(e))
         return {"error": str(e)}
     
     successful = False
@@ -551,6 +566,7 @@ def run_wepproad(state: WeppRoadState):
                 break
     
     if not successful:
+        raise Exception(wepp_stout)
         return {"error": "WEPP run was not successful"}
 
     return output_fn
@@ -563,7 +579,7 @@ def run_wepp_road(state: WeppRoadState = Body(
     )
 ):
     output_fn = run_wepproad(state)
-    return parse_wepp_results(output_fn, state)
+    return parse_abbreviated_wepp_soil_results(output_fn, state)
 
 
 @router.post("/wepproad/GET/wepp_output")
