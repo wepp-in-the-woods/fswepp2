@@ -1,7 +1,7 @@
 {
   "name": "fswepp2 Codespace",
   "image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu",
-  "postCreateCommand": ".devcontainer/setup.sh",
+  "postCreateCommand": "/bin/bash .devcontainer/setup.sh",
   "customizations": {
     "vscode": {
       "extensions": [
