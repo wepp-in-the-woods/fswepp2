@@ -44,15 +44,20 @@ class LanduseType(enum.Enum):
 
 class DisturbedOFE(BaseModel):
     landuse: LanduseType
-    slope_pct: float
+    slope_point1_pct: float
+    slope_point2_pct: float
     length_ft: Optional[float] = None
     length_m: Optional[float] = None
     cover_pct: float
     rfg_pct: float
     
     @property
-    def slope(self):
-        return self.slope_pct / 100.0
+    def slope_point1(self):
+        return self.slope_point1_pct / 100.0
+    
+    @property
+    def slope_point2(self):
+        return self.slope_point2_pct / 100.0
     
     def __setattr__(self, key, value):
         super().__setattr__(key, value)
@@ -63,17 +68,26 @@ class DisturbedOFE(BaseModel):
             super().__setattr__("length_ft", value / 0.3048)
             
     def __hash__(self):
-        return hash((self.landuse, self.slope_pct, self.length_ft, self.cover_pct, self.rfg_pct))
+        return hash((self.landuse, self.slope_point1_pct, self.slope_point2_pct, self.length_ft, self.cover_pct, self.rfg_pct))
     
     
 class DisturbedWeppPars(BaseModel):
     soil_texture: SoilTexture
     upper_ofe: DisturbedOFE
     lower_ofe: DisturbedOFE
+    width_m: float = 90.0
     
     def __hash__(self):
-        return hash((self.soil_texture, self.upper_ofe, self.lower_ofe))
+        return hash((self.soil_texture, self.upper_ofe, self.lower_ofe, self.width_m))
     
+    def __setattr__(self, key, value):
+        super().__setattr__(key, value)
+        
+        if key == "width_ft" and value is not None:
+            super().__setattr__("width_m", value * 0.3048)
+        elif key == "width_m" and value is not None:
+            super().__setattr__("width_ft", value / 0.3048)
+            
 
 class DisturbedWeppState(BaseModel):
     climate: ClimatePars
@@ -161,7 +175,7 @@ def create_management_file(state: DisturbedWeppState):
   
     with open(man_file, 'w') as man_fh:
         # Write the header
-        man_fh.write(f"""
+        man_fh.write(f"""\
 98.4
 #
 #\tCreated for Disturbed WEPP by wd.pl (v. {version})
@@ -176,6 +190,7 @@ def create_management_file(state: DisturbedWeppState):
 #################
 
 2\t# looper; number of Plant scenarios {treat1}.plt {treat2}.plt
+
 """)
 
         # Helper function to read and write files
@@ -186,16 +201,17 @@ def create_management_file(state: DisturbedWeppState):
 
         # Write plant scenarios for treat1 and treat2
         write_scenario_file(_join(management_data_dir, f"{treat1}.plt"), man_fh)
+        man_fh.write("\n")
         write_scenario_file(_join(management_data_dir, f"{treat2}.plt"), man_fh)
 
         # Write operation section
-        man_fh.write("""
-
+        man_fh.write(f"""
 #####################
 # Operation Section #
 #####################
 
 2\t# looper; number of Operation scenarios {treat1}.op {treat2}.op
+
 """)
 
         # Write operation files for treat1 and treat2
@@ -204,39 +220,26 @@ def create_management_file(state: DisturbedWeppState):
         write_scenario_file(_join(management_data_dir, f"{treat2}.op"), man_fh)
 
         # Write initial conditions section
-        man_fh.write("""
-
+        man_fh.write(f"""
 ##############################
 # Initial Conditions Section #
 ##############################
 
 2\t# looper; number of Initial Conditions scenarios {treat1}.ini {treat2}.ini
+
 """)
 
         # Helper function to process initial conditions
         def process_initial_conditions(treat, pcover, output_fh):
-            inrcov = round(pcover / 100, 2)
-            rilcov = inrcov
+            inrcov = str(round(pcover / 100.0, 2))
+            rilcov = str(inrcov)
             pcoverf = f"{pcover / 100:.7f}"
 
             with open(_join(management_data_dir, f"{treat}.ini"), 'r') as ic_file:
                 for line in ic_file:
-                    if 'inrcov' in line:
-                        index_pos = line.index('inrcov')
-                        ics_left = line[:index_pos]
-                        ics_right = line[index_pos + 6:]
-                        line = f"{ics_left}{inrcov}{ics_right}"
-                    elif 'rilcov' in line:
-                        index_pos = line.index('rilcov')
-                        ics_left = line[:index_pos]
-                        ics_right = line[index_pos + 6:]
-                        line = f"{ics_left}{rilcov}{ics_right}"
-                    elif 'pcover' in line:
-                        index_pos = line.index('pcover')
-                        ics_left = line[:index_pos]
-                        ics_right = line[index_pos + 6:]
-                        line = f"{ics_left}{pcoverf}{ics_right}"
-                    output_fh.write(line)
+                    output_fh.write(line.replace('inrcov', inrcov)
+                                        .replace('rilcov', rilcov)
+                                        .replace('pcover', pcoverf))
 
         # Process initial conditions for treat1 and treat2
         process_initial_conditions(treat1, ofe1_pcover, man_fh)
@@ -244,7 +247,7 @@ def create_management_file(state: DisturbedWeppState):
         process_initial_conditions(treat2, ofe2_pcover, man_fh)
 
         # Write remaining sections
-        man_fh.write("""
+        man_fh.write(f"""
 ###########################
 # Surface Effects Section #
 ###########################
@@ -302,6 +305,8 @@ USFS RMRS Moscow
 #
 Year 1
 
+
+
 1\t# landuse <cropland>
 1\t# plant growth scenario
 1\t# surface effect scenario
@@ -318,6 +323,8 @@ Year 1
 # Yearly scenario 2 of 2
 #
 Year 2
+
+
 
 1\t# landuse <cropland>
 2\t# plant growth scenario
@@ -346,7 +353,7 @@ W. Elliot 02/99
 """)
 
         for i in range(1, years2sim + 1):
-            man_fh.write(f"""
+            man_fh.write(f"""\
 #
 #       Rotation {i} : year {i} to {i}
 #
@@ -359,24 +366,160 @@ W. Elliot 02/99
 
     return man_file
             
+
+def create_slope_file(state: DisturbedWeppState) -> str:
+    _hash = hash(state.disturbedwepp_pars)
+    slope_file = f"/ramdisk/disturbed/wd_{_hash}.slp"
+    
+    if _exists(slope_file):
+        return slope_file
+    
+    os.makedirs(os.path.dirname(slope_file), exist_ok=True)
+
+    ofe_width = state.disturbedwepp_pars.width_m
+    top_slope1 = state.disturbedwepp_pars.upper_ofe.slope_point1
+    mid_slope1 = state.disturbedwepp_pars.upper_ofe.slope_point2
+    mid_slope2 = state.disturbedwepp_pars.lower_ofe.slope_point1
+    bot_slope2 = state.disturbedwepp_pars.lower_ofe.slope_point2
+    avg_slope = (mid_slope1 + mid_slope2) / 2
+    
+    ofe1_length = state.disturbedwepp_pars.upper_ofe.length_m
+    ofe2_length = state.disturbedwepp_pars.lower_ofe.length_m
+
+    # Counteract calculation difficulties in WEPP if slope is unchanging.
+    # Adding a small fuzz value to avoid WEPP errors if slopes are too similar.
+    slope_fuzz = 0.001
+    if abs(mid_slope1 - mid_slope2) < slope_fuzz:
+        mid_slope2 += 0.01
+
+    try:
+        with open(slope_file, 'w') as slope_fh:
+            # Write header information
+            slope_fh.write("97.3\n")  # datver
+            slope_fh.write("#\n# Slope file generated for FSWEPP\n#\n")
+            slope_fh.write("2\n")  # no. OFE
+            slope_fh.write(f"100 {ofe_width}\n")  # aspect; representative profile width
+
+            # OFE 1 (upper)
+            slope_fh.write(f"3  {ofe1_length:.2f}\n")  # no. points, length
+            slope_fh.write(f" {0:.2f}, {top_slope1:.3f}  ")  # dx, gradient
+            slope_fh.write(f"{0.5:.2f}, {mid_slope1:.3f}  ")  # dx, gradient
+            slope_fh.write(f"{1:.2f}, {avg_slope:.3f}\n")  # dx, gradient
+
+            # OFE 2 (lower)
+            slope_fh.write(f"3  {ofe2_length:.2f}\n")  # no. points, length
+            slope_fh.write(f" {0:.2f}, {avg_slope:.3f}  ")  # dx, gradient
+            slope_fh.write(f"{0.5:.2f}, {mid_slope2:.3f}  ")  # dx, gradient
+            slope_fh.write(f"{1:.2f}, {bot_slope2:.3f}\n")  # dx, gradient
+
+    except IOError as e:
+        raise RuntimeError(f"Cannot open or write to file {slope_file}: {e}")
+
+    return slope_file
+
             
+def run_disturbedwepp(state: DisturbedWeppPars):
+    
+    import subprocess
+    from .rockclim import get_climate
+    
+    cwd = '/ramdisk/disturbed'
+    
+    slope_fn = create_slope_file(state)
+    _slope_fn = _split(slope_fn)[1]
+    
+    soil_fn = create_soil_file(state)
+    _soil_fn = _split(soil_fn)[1]
+    
+    man_fn = create_management_file(state)
+    _man_fn = _split(man_fn)[1]
+    
+    cli_fn = get_climate(state.climate)
+    
+    _hash = hash(state)
+    run_fn = _join(cwd, f'wd_{_hash}.run')
+    output_fn = _join(cwd, f'wd_{_hash}.dat')
+    _output_fn = _split(output_fn)[1]
+    
+    stout_fn = _join(cwd, f'wd_{_hash}.stout')
+    sterr_fn = _join(cwd, f'wd_{_hash}.sterr')
+    content = [
+        "m",  # english or metric
+        "y",  # not watershed
+        "1",  # 1 = continuous
+        "1",  # 1 = hillslope
+        "n",  # hillslope pass file out?
+        "1",  # 1 = abbreviated annual out
+        "n",  # initial conditions file?
+        f"{_output_fn}",  # soil loss output file
+        "n",  # water balance output?
+        "n",  # crop output?
+        "n",  # soil output?
+        "n",  # distance/sed loss output?
+        "n",  # large graphics output?
+        "n",  # event-by-event out?
+        "n",  # element output?
+        "n",  # final summary out?
+        "n",  # daily winter out?
+        "n",  # plant yield out?
+        f"{_man_fn}",  # management file name
+        f"{_slope_fn}",  # slope file name
+        f"{cli_fn}",  # climate file name
+        f"{_soil_fn}",  # soil file name
+        "0",  # 0 = no irrigation
+        f"{state.climate.input_years}",  # no. years to simulate
+        "0"  # 0 = route all events
+    ]
+    content = "\n".join(content)
+
+    with open(run_fn, 'w') as fp:
+        fp.write(content)
+        
+    weppversion = f'/usr/lib/python3/dist-packages/wepppy2/wepp_runner/bin/{state.wepp_version}'
+    
+    if not _exists(weppversion):
+        return {"error": f"WEPP version {state.wepp_version} not found"}
+
+    command = f"{weppversion} <{run_fn} >{stout_fn} 2>{sterr_fn}"
+    try:
+        subprocess.run(command, shell=True, check=True, cwd=cwd)
+    except subprocess.CalledProcessError as e:
+        raise Exception(str(e))
+        return {"error": str(e)}
+    
+    successful = False
+    with open(stout_fn, 'r') as wepp_stout:
+        for line in wepp_stout:
+            if 'SUCCESSFUL' in line:
+                successful = True
+                break
+    
+    if not successful:
+        raise Exception(wepp_stout)
+        return {"error": "WEPP run was not successful"}
+
+    return output_fn
+
 example_pars = {
     "disturbedwepp_pars": {
         "soil_texture": "clay",
         "upper_ofe": {
             "landuse": "OldForest",
-            "slope_pct": 30,
-            "length_ft": 300,
+            "slope_point1_pct": 0,
+            "slope_point2_pct": 30,
+            "length_m": 100,
             "cover_pct": 80,
             "rfg_pct": 20
         },
         "lower_ofe": {
             "landuse": "HighFire",
-            "slope_pct": 25,
-            "length_ft": 300,
+            "slope_point1_pct": 32,
+            "slope_point2_pct": 5,
+            "length_m": 200,
             "cover_pct": 10,
             "rfg_pct": 20
-        }
+        },
+        "length_m": 90
     },
     "climate": {
         "par_id": "WA459074",
@@ -416,6 +559,35 @@ def get_management(state: DisturbedWeppState = Body(
     except FileNotFoundError as e:
         return {"error": str(e)}
     
+
+@router.post("/disturbed/GET/slope")
+def get_slope(state: DisturbedWeppState = Body(
+        ...,
+        example=example_pars
+    )
+):
+    try:
+        slope_file = create_slope_file(state)
+        contents = open(slope_file).read()
+        return Response(content=contents, media_type="application/text")
+    except ValueError as e:
+        return {"error": str(e)}
+    except FileNotFoundError as e:
+        return {"error": str(e)}
+    
+@router.post("/disturbedwepp/GET/wepp_output")
+def get_wepp_output(state: DisturbedWeppState = Body(
+        ...,
+        example=example_pars
+    )
+):
+    output_fn = run_disturbedwepp(state)
+    contents = open(output_fn).read()
+    return Response(content=contents, media_type="application/text")
+    
+
+
+
     
 #curl -s https://api.github.com/repos/wepp-in-the-woods/fswepp-docker/contents/var/www/cgi-bin/fswepp/wd/datatahoebasin | grep '"name":' | grep '.plt' | awk -F '"' '{print $4}' | while read filename; do wget "https://raw.githubusercontent.com/wepp-in-the-woods/fswepp-docker/main/var/www/cgi-bin/fswepp/wd/datatahoebasin/$filename"; done
 #curl -s https://api.github.com/repos/wepp-in-the-woods/fswepp-docker/contents/var/www/cgi-bin/fswepp/wd/datatahoebasin | grep '"name":' | grep '.op' | awk -F '"' '{print $4}' | while read filename; do wget "https://raw.githubusercontent.com/wepp-in-the-woods/fswepp-docker/main/var/www/cgi-bin/fswepp/wd/datatahoebasin/$filename"; done
