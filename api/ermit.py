@@ -3,6 +3,7 @@ from os.path import join as _join
 from os.path import split as _split
 from os.path import exists as _exists
 
+import json
 import shutil
 import yaml
 import enum
@@ -10,6 +11,7 @@ import math
 import subprocess
 
 from copy import deepcopy
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import numpy as np
 from fastapi import APIRouter, Query, Response, Request, HTTPException, Body
@@ -620,19 +622,34 @@ def run_ermitwepp(state: ErmitState):
     climate.write(cli_truncated_fn)
     
     spatial_severities, probspatial = get_severity_data(state.ermit_pars.burn_severity)
-    
+        
     sed_results = {}
-    for spatial_severity in spatial_severities:
-        sed_results[spatial_severity] = {}
-        for k in range(5):
-            sed = run_ermitwepp_short_climate(state, spatial_severity, k, cli_truncated_fn, selected_years)
-            sed_results[spatial_severity][k] = sed
+
+    def run_task(spatial_severity, k):
+        sed = run_ermitwepp_short_climate(state, spatial_severity, k, cli_truncated_fn, selected_years)
+        return (spatial_severity, k, sed)
     
-    import json
+    with ThreadPoolExecutor() as executor:
+        future_to_task = {
+            executor.submit(run_task, spatial_severity, k): (spatial_severity, k)
+            for spatial_severity in spatial_severities
+            for k in range(5)
+        }
+
+        for future in as_completed(future_to_task):
+            spatial_severity, k = future_to_task[future]
+            try:
+                sed = future.result()
+                if spatial_severity not in sed_results:
+                    sed_results[spatial_severity] = {}
+                sed_results[spatial_severity][k] = sed[2]  # Only store the result
+            except Exception as exc:
+                print(f"Task for spatial_severity={spatial_severity}, k={k} generated an exception: {exc}")
+
     sed_results_fn = _join(cwd, f'e_{_hash}.sed.json')
     
     with open(sed_results_fn, 'w') as fp:
-        json.dump(sed_results, fp)
+        json.dump(sed_results, fp, indent=2)
     
     return output_fn, ebe_fn
 
