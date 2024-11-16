@@ -7,23 +7,33 @@ import shutil
 import yaml
 import enum
 import math
+import subprocess
 
 from copy import deepcopy
 
 import numpy as np
 from fastapi import APIRouter, Query, Response, Request, HTTPException, Body
+from fastapi.responses import JSONResponse
+
 from typing import Optional
 from pydantic import BaseModel, ValidationError, field_validator
 
-from .rockclim import ClimatePars
+from wepppy2.climates.cligen import ClimateFile
+
+from .rockclim import ClimatePars, get_climate
 from .shared_models import SoilTexture
+from .wepp import parse_wepp_soil_output, get_annual_maxima_events_from_ebe
 
 router = APIRouter()
 
 _thisdir = os.path.dirname(os.path.abspath(__file__))
 
-soil_data_dir = _join(_thisdir, 'db/wepproad/soils')
-management_data_dir = _join(_thisdir, 'db/wepproad/managements')
+management_data_dir = _join(_thisdir, 'db/ermit/managements')
+
+soil_db_file = _join(_thisdir, "db/ermit/soilsdb.yaml")
+
+with open(soil_db_file, 'r') as file:
+    soil_db = yaml.safe_load(file)
 
 
 class BurnSeverity(enum.Enum):
@@ -40,6 +50,7 @@ class VegetationType(enum.Enum):
     Forest = 'Forest'
     Range = 'Range'
     Chaparral = 'Chaparral'
+    
     
 class ErmitPars(BaseModel):
     top_slope_pct: float
@@ -141,24 +152,22 @@ class ErmitPars(BaseModel):
 class ErmitState(BaseModel):
     climate: ClimatePars
     ermit_pars: ErmitPars
+    wepp_version: str = "wepp2010"
     
     def __hash__(self):
-        return hash((self.climate, self.ermit_pars))
+        return hash((self.climate, self.ermit_pars, self.wepp_version))
     
     
-soil_db_file = _join(_thisdir, "db/ermit/soilsdb.yaml")
-
-with open(soil_db_file, 'r') as file:
-    soil_db = yaml.safe_load(file)
-
 def load_soil_parameters(file_path, vegtype, soiltype):
     with open(file_path, 'r') as file:
         data = yaml.safe_load(file)
         return data.get(vegtype, {}).get(soiltype, {})
 
 
-def get_soil_parameters(ermit_pars: ErmitPars):
+def get_soil_parameters(ermit_state: ErmitState):
     global soil_db
+    
+    ermit_pars = ermit_state.ermit_pars
     
     vegetation_type = 'non_forest'
     if ermit_pars.vegetation_type == VegetationType.Forest:
@@ -187,12 +196,12 @@ def get_soil_parameters(ermit_pars: ErmitPars):
     return soil_parameters
     
     
-def create_soil_file(spatial_severity: str, k: int, ermit_pars: ErmitPars):
+def create_soil_file(spatial_severity: str, k: int, ermit_state: ErmitState) -> str:
     """
     Create a soil file for ERMiT given various parameters.
 
     """
-    ver = '2014.02.06'
+    ermit_pars = ermit_state.ermit_pars
     
     _last = None
     _severities = []
@@ -210,7 +219,7 @@ def create_soil_file(spatial_severity: str, k: int, ermit_pars: ErmitPars):
     sat = 0.75  # initial saturation level of the soil profile porosity (m/m)
     rfg = ermit_pars.rfg_pct / 100.0  # rock fragment content of the soil profile
     
-    soil_parameters = get_soil_parameters(ermit_pars)
+    soil_parameters = get_soil_parameters(ermit_state)
     
     contents = f"95.1\n#  WEPP '{ermit_pars.soil_texture}' '{spatial_severity}{k}' {ermit_pars.vegetation_type} soil input file for ERMiT"
     if ermit_pars.vegetation_type != VegetationType.Forest:
@@ -220,9 +229,13 @@ def create_soil_file(spatial_severity: str, k: int, ermit_pars: ErmitPars):
     contents += f"\n{nofe}\t{ksflag}\n"
     
     for severity_code in _severities:
-        contents += f"'ERMiT_{severity_code}{k}'\t'{ermit_pars.soil_texture}'\t{nsl}\t{salb}\t{sat}\t"
-        contents += f"{soil_parameters['ki'][severity_code][k]}\t{soil_parameters['kr'][severity_code][k]}\t{soil_parameters['tauc'][severity_code]}\t{soil_parameters['ksat'][severity_code][k]}"
-        contents += f"\n{soil_parameters['solthk']}\t{soil_parameters['sand']}\t{soil_parameters['clay']}\t{soil_parameters['orgmat']}\t{soil_parameters['cec']}\t{rfg}\n";
+        contents += (
+            f"'ERMiT_{severity_code}{k}'\t'{ermit_pars.soil_texture}'\t{nsl}\t{salb}\t{sat}\t"
+            f"{soil_parameters['ki'][severity_code][k]}\t{soil_parameters['kr'][severity_code][k]}\t"
+            f"{soil_parameters['tauc'][severity_code]}\t{soil_parameters['ksat'][severity_code][k]}"
+            f"\n{soil_parameters['solthk']}\t{soil_parameters['sand']}\t{soil_parameters['clay']}\t"
+            f"{soil_parameters['orgmat']}\t{soil_parameters['cec']}\t{rfg}\n"
+        )
 
     _hash = hash(ermit_pars)
     soil_file = _join(_thisdir, '/ramdisk/ermit/', f"ermit_{_hash}_{spatial_severity}{k}.sol")
@@ -245,7 +258,6 @@ def get_severity_data(severity_class: BurnSeverity):
     Returns:
     tuple: A tuple containing the severe list and probspatial list.
     """
-    severity_class = severity_class.lower()
 
     if severity_class == BurnSeverity.High:
         spatial_severities = ["hhh", "lhh", "hlh", "hhl", "llh", "lhl", "hll", "lll"]
@@ -283,14 +295,15 @@ def get_severity_data(severity_class: BurnSeverity):
     return spatial_severities, probspatial
 
 
-def create_slope_file(spatial_severity: str, ermit_pars: ErmitPars):
+def create_slope_file(spatial_severity: str, ermit_state: ErmitState) -> str:
     """
     Create a topography file based on severity and slope specifications.
     
     Parameters:
     spatial_severities (str): Spatial severity representation (e.g., "lll", "lhl", "hhl" etc.)
-    ermit_pars (ErmitPars): The ERMIT parameters.
+    ermit_state (ErmitState): The ERMIT State.
     """
+    ermit_pars = ermit_state.ermit_pars
     
     top_slope = ermit_pars.top_slope
     middle_slope = ermit_pars.middle_slope
@@ -378,6 +391,251 @@ def create_slope_file(spatial_severity: str, ermit_pars: ErmitPars):
         
     return slope_file
     
+    
+def get_management_file(spatial_severity: str, ermit_state: ErmitState) -> str:
+    ermit_pars = ermit_state.ermit_pars
+    
+    man_file = None
+    if spatial_severity.lower() == "uuu":
+        if ermit_pars.vegetation_type == VegetationType.Forest:
+            man_file = 'forest_95%_cover_80%_canopy.man'
+        else:
+            man_file = 'range_40%_cover_40%_canopy.man'
+            
+    else:
+        _last = None
+        _severities = []
+        for severity in spatial_severity:
+            if severity != _last:
+                _severities.append(severity)
+            _last = severity
+        
+        _severities = ''.join(_severities)
+        nofe = len(_severities)
+        
+        man_file = f"{nofe}ofe.man"
+        
+    man_file_path = _join(management_data_dir, man_file)
+
+    if not _exists(man_file_path):
+        raise FileNotFoundError(f"I can't open file {man_file_path}")
+
+    return man_file_path
+
+
+def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int, cli_fn: str, selected_years: list):
+    
+    cwd = '/ramdisk/ermit'
+        
+    slope_fn = create_slope_file(spatial_severity, state)
+    _slope_fn = _split(slope_fn)[1]
+    
+    soil_fn = create_soil_file(spatial_severity, k, state)
+    _soil_fn = _split(soil_fn)[1]
+    
+    man_fn = get_management_file(spatial_severity, state)
+    _man_fn = _split(man_fn)[1]
+    
+    if not _exists(_join(cwd, f'{_man_fn}')):
+        shutil.copyfile(man_fn, _join(cwd, f'{_man_fn}'))
+    
+    assert _exists(cli_fn), f"Climate file {cli_fn} does not exist"
+    
+    _hash = hash(state)
+    run_fn = _join(cwd, f'e_{_hash}.{spatial_severity}{k}.run')
+    output_fn = _join(cwd, f'e_{_hash}.{spatial_severity}{k}.dat')
+    _output_fn = _split(output_fn)[1]
+    
+    ebe_fn = _join(cwd, f'e_{_hash}.{spatial_severity}{k}.ebe')
+    _ebe_fn = _split(ebe_fn)[1]
+    
+    stout_fn = _join(cwd, f'e_{_hash}.{spatial_severity}{k}.stout')
+    sterr_fn = _join(cwd, f'e_{_hash}.{spatial_severity}{k}.sterr')
+    content = [
+        "m",  # english or metric
+        "y",  # not watershed
+        "1",  # 1 = continuous
+        "1",  # 1 = hillslope
+        "n",  # hillslope pass file out?
+        "2",  # 1 = abbreviated annual out, 2 = detailed annual out
+        "n",  # initial conditions file?
+        f"{_output_fn}",  # soil loss output file
+        "n",  # water balance output?
+        "n",  # crop output?
+        "n",  # soil output?
+        "n",  # distance/sed loss output?
+        "n",  # large graphics output?
+        "y",  # event-by-event out?
+        f"{_ebe_fn}",  # event-by-event output file
+        "n",  # element output?
+        "n",  # final summary out?
+        "n",  # daily winter out?
+        "n",  # plant yield out?
+        f"{_man_fn}",  # management file name
+        f"{_slope_fn}",  # slope file name
+        f"{cli_fn}",  # climate file name
+        f"{_soil_fn}",  # soil file name
+        "0",  # 0 = no irrigation
+        f"{len(selected_years)}",  # no. years to simulate
+        "0"  # 0 = route all events
+    ]
+    
+    content = "\n".join(content)
+
+    with open(run_fn, 'w') as fp:
+        fp.write(content)
+        
+    weppversion = f'/usr/lib/python3/dist-packages/wepppy2/wepp_runner/bin/{state.wepp_version}'
+    
+    if not _exists(weppversion):
+        return {"error": f"WEPP version {state.wepp_version} not found"}
+
+    command = f"{weppversion} <{run_fn} >{stout_fn} 2>{sterr_fn}"
+    try:
+        subprocess.run(command, shell=True, check=True, cwd=cwd)
+    except subprocess.CalledProcessError as e:
+        raise Exception(str(e))
+        return {"error": str(e)}
+    
+    successful = False
+    with open(stout_fn, 'r') as wepp_stout:
+        for line in wepp_stout:
+            if 'SUCCESSFUL' in line:
+                successful = True
+                break
+    
+    if not successful:
+        raise Exception(open(stout_fn, 'r').read())
+        return {"error": "WEPP run was not successful"}
+
+    return get_annual_maxima_events_from_ebe(ebe_fn)
+
+
+def run_ermitwepp(state: ErmitState):
+    
+    cwd = '/ramdisk/ermit'
+    
+    if state.ermit_pars.burn_severity == BurnSeverity.Unburned:
+        spatial_severity = 'uuu'
+        k = 1
+    else:
+        spatial_severity = 'hhh'
+        k = 4   
+        
+    slope_fn = create_slope_file(spatial_severity, state)
+    _slope_fn = _split(slope_fn)[1]
+    
+    soil_fn = create_soil_file(spatial_severity, k, state)
+    _soil_fn = _split(soil_fn)[1]
+    
+    # apparently the management file is the same for all spatial severities
+    man_fn = _join(management_data_dir, 'high100.man')
+    _man_fn = _split(man_fn)[1]
+    
+    shutil.copyfile(man_fn, _join(cwd, f'{_man_fn}'))
+    
+    cli_fn = get_climate(state.climate)
+    
+    _hash = hash(state)
+    run_fn = _join(cwd, f'e_{_hash}.100.run')
+    output_fn = _join(cwd, f'e_{_hash}.100.dat')
+    _output_fn = _split(output_fn)[1]
+    
+    ebe_fn = _join(cwd, f'e_{_hash}.100.ebe')
+    _ebe_fn = _split(ebe_fn)[1]
+    
+    stout_fn = _join(cwd, f'e_{_hash}.100.stout')
+    sterr_fn = _join(cwd, f'e_{_hash}.100.sterr')
+    content = [
+        "m",  # english or metric
+        "y",  # not watershed
+        "1",  # 1 = continuous
+        "1",  # 1 = hillslope
+        "n",  # hillslope pass file out?
+        "2",  # 1 = abbreviated annual out, 2 = detailed annual out
+        "n",  # initial conditions file?
+        f"{_output_fn}",  # soil loss output file
+        "n",  # water balance output?
+        "n",  # crop output?
+        "n",  # soil output?
+        "n",  # distance/sed loss output?
+        "n",  # large graphics output?
+        "y",  # event-by-event out?
+        f"{_ebe_fn}",  # event-by-event output file
+        "n",  # element output?
+        "n",  # final summary out?
+        "n",  # daily winter out?
+        "n",  # plant yield out?
+        f"{_man_fn}",  # management file name
+        f"{_slope_fn}",  # slope file name
+        f"{cli_fn}",  # climate file name
+        f"{_soil_fn}",  # soil file name
+        "0",  # 0 = no irrigation
+        f"{state.climate.input_years}",  # no. years to simulate
+        "0"  # 0 = route all events
+    ]
+    
+    content = "\n".join(content)
+
+    with open(run_fn, 'w') as fp:
+        fp.write(content)
+        
+    weppversion = f'/usr/lib/python3/dist-packages/wepppy2/wepp_runner/bin/{state.wepp_version}'
+    
+    if not _exists(weppversion):
+        return {"error": f"WEPP version {state.wepp_version} not found"}
+
+    command = f"{weppversion} <{run_fn} >{stout_fn} 2>{sterr_fn}"
+    try:
+        subprocess.run(command, shell=True, check=True, cwd=cwd)
+    except subprocess.CalledProcessError as e:
+        raise Exception(str(e))
+        return {"error": str(e)}
+    
+    successful = False
+    with open(stout_fn, 'r') as wepp_stout:
+        for line in wepp_stout:
+            if 'SUCCESSFUL' in line:
+                successful = True
+                break
+    
+    if not successful:
+        raise Exception(open(stout_fn, 'r').read())
+        return {"error": "WEPP run was not successful"}
+
+    largest_runoff_events = get_annual_maxima_events_from_ebe(ebe_fn)
+    runoff_year_ranks_descending = largest_runoff_events['runoff_year_ranks_descending']
+    
+    selected_ranks = [ 5, 10, 20, 50, 75 ]
+    
+    assert len(runoff_year_ranks_descending) >= selected_ranks[-1], len(runoff_year_ranks_descending)
+    
+    selected_years = [ runoff_year_ranks_descending[i-1] for i in selected_ranks ]
+    
+    cli_fn = get_climate(state.climate)
+    climate = ClimateFile(cli_fn)
+    climate.selected_years_filter(selected_years)
+    
+    cli_truncated_fn = cli_fn.replace('.cli', '_.cli')
+    climate.write(cli_truncated_fn)
+    
+    spatial_severities, probspatial = get_severity_data(state.ermit_pars.burn_severity)
+    
+    sed_results = {}
+    for spatial_severity in spatial_severities:
+        sed_results[spatial_severity] = {}
+        for k in range(5):
+            sed = run_ermitwepp_short_climate(state, spatial_severity, k, cli_truncated_fn, selected_years)
+            sed_results[spatial_severity][k] = sed
+    
+    import json
+    sed_results_fn = _join(cwd, f'e_{_hash}.sed.json')
+    
+    with open(sed_results_fn, 'w') as fp:
+        json.dump(sed_results, fp)
+    
+    return output_fn, ebe_fn
+
 
 example_pars = {
     "ermit_pars": {
@@ -397,13 +655,13 @@ example_pars = {
 }
 
 @router.post("/ermit/GET/slope/{spatial_severity}")
-def get_soil(spatial_severity: str, state: ErmitState = Body(
+def ermit_get_slope(spatial_severity: str, state: ErmitState = Body(
         ...,
         example=example_pars
     )
 ):
     try:
-        slope_file = create_slope_file(spatial_severity, state.ermit_pars)
+        slope_file = create_slope_file(spatial_severity, state)
         contents = open(slope_file).read()
         return Response(content=contents, media_type="application/text")
     except ValueError as e:
@@ -413,13 +671,13 @@ def get_soil(spatial_severity: str, state: ErmitState = Body(
     
     
 @router.post("/ermit/GET/soil/{spatial_severity}/{k}")
-def get_soil(spatial_severity: str, k:int, state: ErmitState = Body(
+def ermit_get_soil(spatial_severity: str, k:int, state: ErmitState = Body(
         ...,
         example=example_pars
     )
 ):
     try:
-        soil_file = create_soil_file(spatial_severity, k, state.ermit_pars)
+        soil_file = create_soil_file(spatial_severity, k, state)
         contents = open(soil_file).read()
         return Response(content=contents, media_type="application/text")
     except ValueError as e:
@@ -427,5 +685,64 @@ def get_soil(spatial_severity: str, k:int, state: ErmitState = Body(
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     
-        
-        
+    
+@router.post("/ermit/GET/management/{spatial_severity}")
+def ermit_get_management(spatial_severity: str, state: ErmitState = Body(
+        ...,
+        example=example_pars
+    )
+):
+    try:
+        man_file_path = get_management_file(spatial_severity, state)
+        contents = open(man_file_path).read()
+        return Response(content=contents, media_type="application/text")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.post("/ermit/RUN/wepp")
+def ermit_run_wepp(state: ErmitState = Body(
+        ...,
+        example=example_pars
+    )
+):
+    
+    output_fn, ebe_fn = run_ermitwepp(state)
+    
+    return parse_wepp_soil_output(output_fn, slope_length=state.ermit_pars.length_m)
+
+
+@router.post("/ermit/GET/wepp_output")
+def ermit_get_wepp_output(state: ErmitState = Body(
+        ...,
+        example=example_pars
+    )
+):
+    output_fn, ebe_fn = run_ermitwepp(state)
+    contents = open(output_fn).read()
+    return Response(content=contents, media_type="application/text")
+
+
+@router.post("/ermit/GET/wepp_ebe")
+def ermit_get_wepp_ebe(state: ErmitState = Body(
+        ...,
+        example=example_pars
+    )
+):
+    output_fn, ebe_fn = run_ermitwepp(state)
+    contents = open(ebe_fn).read()
+    return Response(content=contents, media_type="application/text")
+
+@router.post("/ermit/GET/wepp_annual_maxima_events")
+def ermit_get_wepp_annual_maxima_events(state: ErmitState = Body(
+        ...,
+        example=example_pars
+    )
+):
+    output_fn, ebe_fn = run_ermitwepp(state)
+    largest_runoff_events = get_annual_maxima_events_from_ebe(ebe_fn)
+    return JSONResponse(content=largest_runoff_events)
+
+

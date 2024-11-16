@@ -14,6 +14,7 @@ from pydantic import BaseModel
 
 from .rockclim import ClimatePars
 from .shared_models import SoilTexture
+from .wepp import parse_wepp_soil_output
 
 router = APIRouter()
 
@@ -349,144 +350,6 @@ def create_slope_file(state: WeppRoadState):
     return slope_file
 
 
-def parse_abbreviated_wepp_soil_results(output_file: str, state: WeppRoadState):
-    storms, rainevents, snowevents, precip, rro, sro, syr, syp = None, None, None, None, None, None, None, None
-    
-    with open(output_file, 'r') as fp:
-        wepp_out = fp.readlines()
-        
-        for line in wepp_out:
-            if 'VERSION' in line:
-                weppver = line.strip()
-                break
-
-        for i, line in enumerate(wepp_out):
-            if 'ANNUAL AVERAGE SUMMARIES' in line:
-                wepp_out = wepp_out[i:]
-                break
-            
-        for i, line in enumerate(wepp_out):
-            if 'RAINFALL AND RUNOFF SUMMARY' in line:
-                storms = wepp_out[i+5].split()[0]
-                rainevents = wepp_out[i+6].split()[0]
-                snowevents = wepp_out[i+7].split()[0]
-                precip = wepp_out[i+14].split()[-2]
-                precip = float(precip)
-                rro = wepp_out[i+15].split()[-2]
-                rro = float(rro)
-                sro = wepp_out[i+17].split()[-2]
-                sro = float(sro)
-                break
-
-        for i, line in enumerate(wepp_out):
-            if 'AREA OF NET SOIL LOSS' in line:
-                syr = wepp_out[i+10][17:24].strip() # soil loss MEAN (kg/m2)
-                syr = float(syr)
-                road_length_exhibiting_soil_loss_m = wepp_out[i+10][9:18].strip() # Area of Net Loss (m)
-                road_length_exhibiting_soil_loss_m = float(road_length_exhibiting_soil_loss_m)
-                break
-
-        for i, line in enumerate(wepp_out):
-            if 'OFF SITE EFFECTS' in line:
-                syp = wepp_out[i+4].split()[0]
-                syp = float(syp)
-                break
-
-    road_width = state.wepproad_pars.road.sim_width_m
-    road_prism_erosion_kg = syr * road_width * road_length_exhibiting_soil_loss_m
-
-    sediment_leaving_buffer_kg = syp * road_width
-
-    return {
-        'weppver': weppver,
-        'storms': int(storms),
-        'rainevents': int(rainevents),
-        'snowevents': int(snowevents),
-        'precip_mm': precip,
-        'runoff_from_rain_mm': rro,
-        'runoff_from_snow_mm': sro,
-        'runoff_from_rain+snow_mm': rro + sro,
-        'sim_width_m': road_width,
-        'road_prism_erosion_kg': road_prism_erosion_kg,
-        'sediment_leaving_buffer_kg': sediment_leaving_buffer_kg,
-        'road_length_exhibiting_soil_loss_m': road_length_exhibiting_soil_loss_m
-    }
-
-example_pars = {
-    "wepproad_pars": {
-        "soil_texture": "clay",
-        "rfg_pct": 20,
-        "road": {
-        "slope_pct": 30,
-        "length_m": 200,
-        "width_m": 3,
-        "surface": "gravel",
-        "design": "inveg",
-        "traffic": "high"
-        },
-        "fill": {
-        "slope_pct": 15,
-        "length_m": 10
-        },
-        "buffer": {
-        "slope_pct": 10,
-        "length_m": 100
-        }
-    },
-    "climate": {
-        "par_id": "WA459074",
-        "input_years": 100
-    }
-}
-
-@router.post("/wepproad/GET/soil")
-def get_soil(state: WeppRoadState = Body(
-        ...,
-        example=example_pars
-    )
-):
-    try:
-        soil_file_path = create_soil_file(state)
-        contents = open(soil_file_path).read()
-        return Response(content=contents, media_type="application/text")
-    except ValueError as e:
-        return {"error": str(e)}
-    except FileNotFoundError as e:
-        return {"error": str(e)}
-    
-
-@router.post("/wepproad/GET/management")
-def get_management(state: WeppRoadState = Body(
-        ...,
-        example=example_pars
-    )
-):
-    try:
-        man_file_path = get_management_file(state)
-        contents = open(man_file_path).read()
-        return Response(content=contents, media_type="application/text")
-    except ValueError as e:
-        return {"error": str(e)}
-    except FileNotFoundError as e:
-        return {"error": str(e)}
-    
-    
-@router.post("/wepproad/GET/slope")
-def get_slope(state: WeppRoadState = Body(
-        ...,
-        example=example_pars
-    )
-):
-    try:
-        slope_file = create_slope_file(state)
-        contents = open(slope_file).read()
-        return Response(content=contents, media_type="application/text")
-    except ValueError as e:
-        return {"error": str(e)}
-    except FileNotFoundError as e:
-        return {"error": str(e)}
-    
-
 def run_wepproad(state: WeppRoadState):
     
     import subprocess
@@ -572,18 +435,93 @@ def run_wepproad(state: WeppRoadState):
     return output_fn
 
 
+example_pars = {
+    "wepproad_pars": {
+        "soil_texture": "clay",
+        "rfg_pct": 20,
+        "road": {
+        "slope_pct": 30,
+        "length_m": 200,
+        "width_m": 3,
+        "surface": "gravel",
+        "design": "inveg",
+        "traffic": "high"
+        },
+        "fill": {
+        "slope_pct": 15,
+        "length_m": 10
+        },
+        "buffer": {
+        "slope_pct": 10,
+        "length_m": 100
+        }
+    },
+    "climate": {
+        "par_id": "WA459074",
+        "input_years": 100
+    }
+}
+
+@router.post("/wepproad/GET/soil")
+def wepproad_get_soil(state: WeppRoadState = Body(
+        ...,
+        example=example_pars
+    )
+):
+    try:
+        soil_file_path = create_soil_file(state)
+        contents = open(soil_file_path).read()
+        return Response(content=contents, media_type="application/text")
+    except ValueError as e:
+        return {"error": str(e)}
+    except FileNotFoundError as e:
+        return {"error": str(e)}
+    
+
+@router.post("/wepproad/GET/management")
+def wepproad_get_management(state: WeppRoadState = Body(
+        ...,
+        example=example_pars
+    )
+):
+    try:
+        man_file_path = get_management_file(state)
+        contents = open(man_file_path).read()
+        return Response(content=contents, media_type="application/text")
+    except ValueError as e:
+        return {"error": str(e)}
+    except FileNotFoundError as e:
+        return {"error": str(e)}
+    
+    
+@router.post("/wepproad/GET/slope")
+def wepproad_get_slope(state: WeppRoadState = Body(
+        ...,
+        example=example_pars
+    )
+):
+    try:
+        slope_file = create_slope_file(state)
+        contents = open(slope_file).read()
+        return Response(content=contents, media_type="application/text")
+    except ValueError as e:
+        return {"error": str(e)}
+    except FileNotFoundError as e:
+        return {"error": str(e)}
+    
+
 @router.post("/wepproad/RUN/wepp")
-def run_wepp_road(state: WeppRoadState = Body(
+def wepproad_run_wepp_road(state: WeppRoadState = Body(
         ...,
         example=example_pars
     )
 ):
     output_fn = run_wepproad(state)
-    return parse_abbreviated_wepp_soil_results(output_fn, state)
+    return parse_wepp_soil_output(output_fn, road_width=state.wepproad_pars.road.sim_width_m)
 
 
 @router.post("/wepproad/GET/wepp_output")
-def get_wepp_output(state: WeppRoadState = Body(
+def wepproad_get_wepp_output(state: WeppRoadState = Body(
         ...,
         example=example_pars
     )

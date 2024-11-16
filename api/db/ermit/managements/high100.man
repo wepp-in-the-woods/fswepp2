@@ -1,0 +1,612 @@
+98.4
+#	high100.man
+#	WJE, CM 03/18/2004    ERMiT management file for 100-year initial run
+#	Veg growth off; days since last till lengthened to turn off consolidation effects
+#
+
+1	# number of OFEs
+100	# (total) years in simulation
+
+#################
+# Plant Section #
+#################
+
+1	# looper; number of Plant scenarios
+
+#
+#	High severity fire plant scenario for Disturbed WEPP (2/99 WJE) (1/2000 DEH)	beinp line 25 == 90 ?
+#
+HIGH
+Vegetation following a high severity fire
+using Cropland input format
+W. Elliot 9/94
+1	# `landuse' - <Cropland>
+WeppWillSet
+14	23	0	2	5	5	0	0.15	1	0.01
+0.25	1	0.7	0.99	5	0	0.42	0.2
+2	# `mfo' - <Non-fragile>
+0	0	20	0.1	0.005	0.2	0.33	0.10	30	40
+-40	0.3	0
+
+#####################
+# Operation Section #
+#####################
+
+0	# looper; number of Operation scenarios
+
+##############################
+# Initial Conditions Section #
+##############################
+
+1	# looper; number of Initial Conditions scenarios
+
+#
+#	High-severity fire initial Conditions scenario for Disturbed WEPP (1/2000 DEH)
+#
+HIGH
+initial conditions following a high severity fire inrcov == 1 ???? rilcov == 1 ????
+W. Elliot 3/98
+
+1	# `landuse' - <Cropland>
+1.1	0.01	9999	900	0	0.01
+1	# `iresd' - <HIGH>
+2	# `mgmt' - <Perennial>
+1000	0.1	0.01	0.1	0
+1	# `rtyp' - <Temporary>
+0	0	0.1	0.2	0
+0.1	0.1
+
+###########################
+# Surface Effects Section #
+###########################
+
+0	# looper; number of Surface Effects scenarios
+
+######################
+# Contouring Section #
+######################
+
+0	# looper; number of Contouring scenarios
+
+####################
+# Drainage Section #
+####################
+
+0	# looper; number of Drainage scenarios
+
+##################
+# Yearly Section #
+##################
+
+1	# looper; number of Yearly scenarios
+
+#
+#	High-severity fire yearly scenario for Disturbed WEPP
+#
+HIGH
+Vegetation conditions following a high severity fire
+W. Elliot 3/98
+
+1	# `landuse' - <Cropland>
+1	# `itype' - <HIGH>
+0	# `tilseq' - <NotUsed>
+0	# `conset' - <NotUsed>
+0	# `drset' - <NotUsed>
+2	# `mgmt' - <Perennial>
+	244	# `jdharv' - <9 /1 >
+	121	# `jdplt' - <5 /1 >
+	0	# `jdstop' - <>
+	0
+	3	# `presmgmt' - <Not Harvested/Grazed>
+
+######################
+# Management Section #
+######################
+High
+Forest conditions following a high severity fire
+using Cropland input format
+W. Elliot 12/96
+1	# `nofe' - <number of Overland Flow Elements>
+	1	# `Initial Conditions indx' - <TREE>
+100	# `nrots' - <rotation repeats..>
+1	# `nyears' - <years in rotation>
+#
+#	Rotation 1 : year 1 to 1
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 2 : year 2 to 2
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 3 : year 3 to 3
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 4 : year 4 to 4
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 5 : year 5 to 5
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 6 : year 6 to 6
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 7 : year 7 to 7
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 8 : year 8 to 8
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 9 : year 9 to 9
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 10 : year 10 to 10
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 11 : year 11 to 11
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 12 : year 12 to 12
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 13 : year 13 to 13
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 14 : year 14 to 14
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 15 : year 15 to 15
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 16 : year 16 to 16
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 17 : year 17 to 17
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 18 : year 18 to 18
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 19 : year 19 to 19
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 20 : year 20 to 20
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 21 : year 21 to 21
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 22 : year 22 to 22
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 23 : year 23 to 23
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 24 : year 24 to 24
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 25 : year 25 to 25
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 26 : year 26 to 26
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 27 : year 27 to 27
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 28 : year 28 to 28
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 29 : year 29 to 29
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 30 : year 30 to 30
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 31 : year 31 to 31
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 32 : year 32 to 32
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 33 : year 33 to 33
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 34 : year 34 to 34
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 35 : year 35 to 35
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 36 : year 36 to 36
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 37 : year 37 to 37
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 38 : year 38 to 38
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 39 : year 39 to 39
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 40 : year 40 to 40
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 41 : year 41 to 41
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 42 : year 42 to 42
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 43 : year 43 to 43
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 44 : year 44 to 44
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 45 : year 45 to 45
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 46 : year 46 to 46
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 47 : year 47 to 47
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 48 : year 48 to 48
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 49 : year 49 to 49
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 50 : year 50 to 50
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 51 : year 51 to 51
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 52 : year 52 to 52
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 53 : year 53 to 53
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 54 : year 54 to 54
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 55 : year 55 to 55
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 56 : year 56 to 56
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 57 : year 57 to 57
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 58 : year 58 to 58
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 59 : year 59 to 59
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 60 : year 60 to 60
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 61 : year 61 to 61
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 62 : year 62 to 62
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 63 : year 63 to 63
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 64 : year 64 to 64
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 65 : year 65 to 65
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 66 : year 66 to 66
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 67 : year 67 to 67
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 68 : year 68 to 68
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 69 : year 69 to 69
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 70 : year 70 to 70
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 71 : year 71 to 71
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 72 : year 72 to 72
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 73 : year 73 to 73
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 74 : year 74 to 74
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 75 : year 75 to 75
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 76 : year 76 to 76
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 77 : year 77 to 77
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 78 : year 78 to 78
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 79 : year 79 to 79
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 80 : year 80 to 80
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 81 : year 81 to 81
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 82 : year 82 to 82
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 83 : year 83 to 83
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 84 : year 84 to 84
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 85 : year 85 to 85
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 86 : year 86 to 86
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 87 : year 87 to 87
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 88 : year 88 to 88
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 89 : year 89 to 89
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 90 : year 90 to 90
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 91 : year 91 to 91
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 92 : year 92 to 92
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 93 : year 93 to 93
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 94 : year 94 to 94
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 95 : year 95 to 95
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 96 : year 96 to 96
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 97 : year 97 to 97
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 98 : year 98 to 98
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 99 : year 99 to 99
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>
+#
+#	Rotation 100 : year 100 to 100
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <TREES100>

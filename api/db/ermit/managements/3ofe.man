@@ -1,0 +1,202 @@
+98.4
+#	3ofe.man		ERMiT 3 OFE management file for interesting years
+#	WJE 03/18/2004 CM bump up to 10 years max 2005.11.03
+#       Veg growth off; days since last till lengthened to turn off consolidation effects
+#	WJE 05/30/2002
+
+3 # number of OFE's
+10 # (total) years in simulation
+
+#######################
+# Plant Section       #
+#######################
+
+1  # Number of plant scenarios
+
+LOW
+Vegetation following a fire giving an unchanging 1% canopy and ground cover
+using Cropland input format
+W. Elliot 3/98 2004.03.18
+1	# `landuse' - <Cropland>
+WeppWillSet
+14	23	0	2	5	5	0	0.15	1	0.01
+0.25	1	0.7	0.99	5	0	0.42	0.2
+2	# `mfo' - <Non-fragile>
+0	0	20	0.1	0.005	0.2	0.33	0.1	30	40
+-40	0.3	0
+
+#######################
+# Operation Section   #
+#######################
+
+0  # Number of operation scenarios
+
+###############################
+# Initial Conditions Section  #
+###############################
+
+1  # Number of initial scenarios
+
+LOW
+Initial Conditions to give 1% cover
+W. Elliot 3/98 2004.03.18
+
+1	# `landuse' - <Cropland>
+1.1	0.01	9999	900	0	0.01
+1	# `iresd' - <LOW>
+2	# `mgmt' - <Perennial>
+1000	0.1	0.01	0.1	0
+1	# `rtyp' - <Temporary>
+0	0	0.1	0.2	0
+0.1	0.1
+
+############################
+# Surface Effects Section  #
+############################
+
+0  # Number of Surface Effects Scenarios
+
+
+#######################
+# Contouring Section  #
+#######################
+
+0  # Number of contour scenarios
+
+
+#######################
+# Drainage Section    #
+#######################
+
+0  # Number of drainage scenarios
+
+
+#######################
+# Yearly Section      #
+#######################
+
+1  # looper; number of Yearly Scenarios
+#
+# Yearly scenario 1 of 1
+#
+LOW
+Vegetation conditions following a low severity burn
+W. Elliot 3/98
+
+1	# `landuse' - <Cropland>
+1	# `itype' - <LOW>
+0	# `tilseq' - <NotUsed>
+0	# `conset' - <NotUsed>
+0	# `drset' - <NotUsed>
+2	# `mgmt' - <Perennial>
+	244	# `jdharv' - <9 /1 >
+	121	# `jdplt' - <5 /1 >
+	0	# `jdstop' - <>
+	0
+	3	# `presmgmt' - <Not Harvested/Grazed>
+
+#######################
+# Management Section  #
+#######################
+
+Manage
+description 1
+description 2
+description 3
+3   # number of OFE's
+    1   # initial condition index
+    1   # initial condition index
+    1   # initial condition index
+10	# `nrots' - <rotation repeats..>
+1	# `nyears' - <years in rotation>
+#
+#	Rotation 1 : year 1 to 1
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+                1       # `YEAR indx' - <UPPER>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 2>
+                1       # `YEAR indx' - <MIDDLE>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 3>
+                1       # `YEAR indx' - <LOWER>
+#
+#	Rotation 2 : year 2 to 2
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+                1       # `YEAR indx' - <UPPER>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 2>
+                1       # `YEAR indx' - <MIDDLE>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 3>
+                1       # `YEAR indx' - <LOWER>
+#
+#	Rotation 3 : year 3 to 3
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+                1       # `YEAR indx' - <UPPER>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 2>
+                1       # `YEAR indx' - <MIDDLE>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 3>
+                1       # `YEAR indx' - <LOWER>
+#
+#	Rotation 4 : year 4 to 4
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+                1       # `YEAR indx' - <UPPER>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 2>
+                1       # `YEAR indx' - <MIDDLE>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 3>
+                1       # `YEAR indx' - <LOWER>
+#
+#	Rotation 5 : year 5 to 5
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+                1       # `YEAR indx' - <UPPER>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 2>
+                1       # `YEAR indx' - <MIDDLE>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 3>
+                1       # `YEAR indx' - <LOWER>
+#
+#	Rotation 6 : year 6 to 6
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+                1       # `YEAR indx' - <UPPER>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 2>
+                1       # `YEAR indx' - <MIDDLE>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 3>
+                1       # `YEAR indx' - <LOWER>
+#
+#	Rotation 7 : year 7 to 7
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+                1       # `YEAR indx' - <UPPER>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 2>
+                1       # `YEAR indx' - <MIDDLE>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 3>
+                1       # `YEAR indx' - <LOWER>
+#
+#	Rotation 8 : year 8 to 8
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+                1       # `YEAR indx' - <UPPER>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 2>
+                1       # `YEAR indx' - <MIDDLE>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 3>
+                1       # `YEAR indx' - <LOWER>
+#
+#       Rotation 9 : year 9 to 9
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+                1       # `YEAR indx' - <UPPER>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 2>
+                1       # `YEAR indx' - <MIDDLE>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 3>
+                1       # `YEAR indx' - <LOWER>
+#
+#       Rotation 10 : year 10 to 10
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+                1       # `YEAR indx' - <UPPER>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 2>
+                1       # `YEAR indx' - <MIDDLE>
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 3>
+                1       # `YEAR indx' - <LOWER>
+

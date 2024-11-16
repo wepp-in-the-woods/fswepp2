@@ -18,10 +18,9 @@ from fastapi import APIRouter, Query, Response, Request, HTTPException, Body
 from typing import Optional
 from pydantic import BaseModel
 
-from all_your_base.stats import weibull_series
-
 from .rockclim import ClimatePars
 from .shared_models import SoilTexture
+from .wepp import parse_wepp_soil_output
 
 router = APIRouter()
 
@@ -504,150 +503,6 @@ def run_disturbedwepp(state: DisturbedWeppPars):
     return output_fn
 
 
-def calc_rec_intervals(annuals: dict, measure: str, rec_intervals=[1, 2, 5, 10]):
-    n_years = len(annuals)
-    
-    rec_ranks = weibull_series(rec_intervals, n_years, method='am')
-    
-    # order events in descending order
-    events = sorted(annuals.values(), key=lambda x: x[measure], reverse=True)
-    
-    recs = {}
-    for rec, rank in rec_ranks.items():
-        recs[str(rec)] = events[rank]
-        
-    return recs
-
-
-def parse_detailed_wepp_soil_results(output_file: str, state: DisturbedWeppState):
-    slope_length = state.disturbedwepp_pars.upper_ofe.length_m + state.disturbedwepp_pars.lower_ofe.length_m
-    
-    storms, rainevents, snowevents, precip, rro, sro, syr, syp = None, None, None, None, None, None, None, None
-    
-    with open(output_file, 'r') as fp:
-        wepp_out = fp.readlines()
-        
-        if not 'Annual; detailed' in wepp_out[0]:
-            raise ValueError(f"Invalid WEPP output file {wepp_out[0]}")
-        
-        for line in wepp_out:
-            if 'VERSION' in line:
-                weppver = line.strip()
-                break
-            
-        annual_breaks = []
-        for i, line in enumerate(wepp_out):
-            if line.startswith('     HILLSLOPE') and 'YEARLY SUMMARY' in line:
-                annual_breaks.append(i)
-        annual_breaks.append(len(wepp_out))
-                
-        annuals = {}
-        
-        for i in range(len(annual_breaks) - 1):
-            i0 = annual_breaks[i]
-            iend = annual_breaks[i + 1]
-            
-            _line = wepp_out[i0].split()
-            hillslope = int(_line[1])
-            year = int(_line[-1])
-            
-            for j in range(i0, iend):
-                if 'RAINFALL AND RUNOFF SUMMARY' in wepp_out[j]:
-                    data = wepp_out[j+9].split()
-                    storms = data[0]
-                    precip = data[1]
-                    rainevents = data[2]
-                    rro = data[3]
-                    snowevents = data[4]
-                    sro = data[5]
-                    break
-                
-            for j in range(i0, iend):
-                if 'AREA OF NET SOIL LOSS' in wepp_out[j]:
-                    
-                    syr = wepp_out[j+2].split('=')[1].replace(' kg/m2 **', '').strip()
-                    syr = float(syr)
-                    
-                    sym = wepp_out[j+3].split('=')[1].split()[0].strip()
-                    sym = float(sym)
-                    
-                    break
-
-            for j in range(i0, iend):
-                if 'OFF SITE EFFECTS' in wepp_out[j]:
-                    syp = wepp_out[j+3].split()[-2] # value in kg/m of width
-                    syp = float(syp) / slope_length
-                    break
-                
-            assert str(year) not in annuals, f"Year {year} already in dictionary"
-            
-            annuals[str(year)] = {
-                'year': year,
-                'storms': int(storms),
-                'rainevents': int(rainevents),
-                'snowevents': int(snowevents),
-                'precip_mm': float(precip),
-                'runoff_from_rain_mm': float(rro),
-                'runoff_from_snow_mm': float(sro),
-                'runoff_from_rain+snow_mm': float(rro) + float(sro),
-                'soil_loss_mean_kg_m2': syr,
-                'soil_loss_max_kg_m2': sym,
-                'sediment_yield_kg_m2': syp
-            }
-            
-        return_periods = {}
-        for measure in ['precip_mm', 'runoff_from_rain+snow_mm', 'soil_loss_mean_kg_m2', 'sediment_yield_kg_m2']:
-            return_periods[measure] = calc_rec_intervals(annuals, measure)
-
-        for i, line in enumerate(wepp_out):
-            if 'ANNUAL AVERAGE SUMMARIES' in line:
-                wepp_out = wepp_out[i:]
-                break
-            
-        for i, line in enumerate(wepp_out):
-            if 'RAINFALL AND RUNOFF SUMMARY' in line:
-                storms = wepp_out[i+5].split()[0]
-                rainevents = wepp_out[i+6].split()[0]
-                snowevents = wepp_out[i+7].split()[0]
-                precip = wepp_out[i+14].split()[-2]
-                rro = wepp_out[i+15].split()[-2]
-                sro = wepp_out[i+17].split()[-2]
-                break
-
-        for i, line in enumerate(wepp_out):
-            if 'AREA OF NET SOIL LOSS' in line:
-                syr = wepp_out[i+2].split('=')[1].replace(' kg/m2 **', '').strip()
-                syr = float(syr)
-                
-                sym = wepp_out[i+3].split('=')[1].split()[0].strip()
-                sym = float(sym)
-
-        for i, line in enumerate(wepp_out):
-            if 'OFF SITE EFFECTS' in line:
-                syp = wepp_out[i+4].split()[0] # in kg/m of width
-                syp = float(syp) / slope_length
-                break
-            
-        annual_averages = {
-                'storms': int(storms),
-                'rainevents': int(rainevents),
-                'snowevents': int(snowevents),
-                'precip_mm': float(precip),
-                'runoff_from_rain_mm': float(rro),
-                'runoff_from_snow_mm': float(sro),
-                'runoff_from_rain+snow_mm': float(rro) + float(sro),
-                'soil_loss_mean_kg_m2': syr,
-                'soil_loss_max_kg_m2': sym,
-                'sediment_yield_kg_m2': syp
-            }
-            
-            
-    return {'annual_averages': annual_averages,
-            'return_periods': return_periods,
-            'annuals': annuals
-        }
-
-
 example_pars = {
     "disturbedwepp_pars": {
         "soil_texture": "clay",
@@ -676,7 +531,7 @@ example_pars = {
 }
     
 @router.post("/disturbed/GET/soil")
-def get_soil(state: DisturbedWeppState = Body(
+def disturbed_get_soil(state: DisturbedWeppState = Body(
         ...,
 
         example=example_pars
@@ -693,7 +548,7 @@ def get_soil(state: DisturbedWeppState = Body(
     
 
 @router.post("/disturbed/GET/management")
-def get_management(state: DisturbedWeppState = Body(
+def disturbed_get_management(state: DisturbedWeppState = Body(
         ...,
         example=example_pars
     )
@@ -709,7 +564,7 @@ def get_management(state: DisturbedWeppState = Body(
     
 
 @router.post("/disturbed/GET/slope")
-def get_slope(state: DisturbedWeppState = Body(
+def disturbed_get_slope(state: DisturbedWeppState = Body(
         ...,
         example=example_pars
     )
@@ -725,17 +580,18 @@ def get_slope(state: DisturbedWeppState = Body(
     
     
 @router.post("/disturbedwepp/RUN/wepp")
-def run_wepp_road(state: DisturbedWeppState = Body(
+def disturbed_run_wepp(state: DisturbedWeppState = Body(
         ...,
         example=example_pars
     )
 ):
     output_fn = run_disturbedwepp(state)
-    return parse_detailed_wepp_soil_results(output_fn, state)
+    slope_length = state.disturbedwepp_pars.upper_ofe.length_m + state.disturbedwepp_pars.lower_ofe.length_m
+    return parse_wepp_soil_output(output_fn, slope_length=slope_length)
 
 
 @router.post("/disturbedwepp/GET/wepp_output")
-def get_wepp_output(state: DisturbedWeppState = Body(
+def disturbed_get_wepp_output(state: DisturbedWeppState = Body(
         ...,
         example=example_pars
     )
