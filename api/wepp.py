@@ -4,6 +4,9 @@ from typing import Optional
 import pandas as pd
 import re
 
+from wepppy2.climates.cligen import ClimateFile
+
+
 def calc_rec_intervals(annuals: dict, measure: str, rec_intervals=[1, 2, 5, 10]) -> dict:
     n_years = len(annuals)
     
@@ -181,29 +184,29 @@ def parse_wepp_soil_output(
             }
         
 
-def get_annual_maxima_events_from_ebe(ebe_file):
-    # Define column names with snake_case
+def get_annual_maxima_events_from_ebe(ebe_file, cli_file=None):
+    climate = None
+    if cli_file is not None:
+        climate = ClimateFile(cli_file)
+    
     column_names = [
         "day", "month", "year", "precip_mm", "runoff_mm", "ir_det_kg_m2", 
         "av_det_kg_m2", "mx_det_kg_m2", "point_m", "av_dep_kg_m2", "max_dep_kg_m2", 
         "point_dep_m", "sed_del_kg_m", "er"
     ]
     
-    # Read the file and parse the data
     data = []
     with open(ebe_file, 'r') as file:
         lines = file.readlines()
-        for line in lines[3:]:  # Skip header lines
-            line = re.sub(r'\s+', ' ', line.strip())  # Replace multiple spaces with a single space
+        for line in lines[3:]:
+            line = re.sub(r'\s+', ' ', line.strip())
             if line:
                 values = line.split(' ')
                 if len(values) == len(column_names):
                     data.append(values)
     
-    # Create DataFrame
     df = pd.DataFrame(data, columns=column_names)
     
-    # Convert appropriate columns to numeric values
     numeric_columns = [
         "precip_mm", "runoff_mm", "ir_det_kg_m2", "av_det_kg_m2", "mx_det_kg_m2", 
         "point_m", "av_dep_kg_m2", "max_dep_kg_m2", "point_dep_m", "sed_del_kg_m", "er"
@@ -213,13 +216,22 @@ def get_annual_maxima_events_from_ebe(ebe_file):
     df["month"] = df["month"].astype(int)
     df["year"] = df["year"].astype(int)
     
-    # Find the largest runoff event for each year
     largest_runoff_events = df.loc[df.groupby("year")["runoff_mm"].idxmax()]
     
+    if climate is not None:
+        cli_df = climate.as_dataframe(calc_peak_intensities=True)
+        largest_runoff_events = largest_runoff_events.merge(
+            cli_df[['da', 'mo', 'year', '10-min Peak Rainfall Intensity (mm/hour)', 
+                '30-min Peak Rainfall Intensity (mm/hour)', 
+                '60-min Peak Rainfall Intensity (mm/hour)']],
+            left_on=['day', 'month', 'year'],
+            right_on=['da', 'mo', 'year'],
+            how='left'
+        ).drop(columns=['da', 'mo'])
+        
     largest_runoff_events = largest_runoff_events.sort_values(by="runoff_mm", ascending=False)
     year_ranks = largest_runoff_events["year"].tolist()
     
-    # add rank to the DataFrame
     largest_runoff_events["runoff_rank"] = list(range(1, len(largest_runoff_events) + 1))
     
     return {

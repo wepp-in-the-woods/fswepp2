@@ -25,6 +25,7 @@ from wepppy2.climates.cligen import ClimateFile
 from .rockclim import ClimatePars, get_climate
 from .shared_models import SoilTexture
 from .wepp import parse_wepp_soil_output, get_annual_maxima_events_from_ebe
+from .logger import log_run
 
 router = APIRouter()
 
@@ -651,7 +652,7 @@ def run_ermitwepp(state: ErmitState):
     with open(sed_results_fn, 'w') as fp:
         json.dump(sed_results, fp, indent=2)
     
-    return output_fn, ebe_fn
+    return output_fn, ebe_fn, cli_fn, sed_results_fn
 
 
 example_pars = {
@@ -720,14 +721,15 @@ def ermit_get_management(spatial_severity: str, state: ErmitState = Body(
 
 
 @router.post("/ermit/RUN/wepp")
-def ermit_run_wepp(state: ErmitState = Body(
+def ermit_run_wepp(
+    request: Request, 
+    state: ErmitState = Body(
         ...,
         example=example_pars
     )
 ):
-    
-    output_fn, ebe_fn = run_ermitwepp(state)
-    
+    output_fn, ebe_fn, cli_fn, sed_results_fn = run_ermitwepp(state)
+    log_run(ip=request.client.host, model="ermit")
     return parse_wepp_soil_output(output_fn, slope_length=state.ermit_pars.length_m)
 
 
@@ -737,7 +739,7 @@ def ermit_get_wepp_output(state: ErmitState = Body(
         example=example_pars
     )
 ):
-    output_fn, ebe_fn = run_ermitwepp(state)
+    output_fn, ebe_fn, cli_fn, sed_results_fn = run_ermitwepp(state)
     contents = open(output_fn).read()
     return Response(content=contents, media_type="application/text")
 
@@ -748,7 +750,7 @@ def ermit_get_wepp_ebe(state: ErmitState = Body(
         example=example_pars
     )
 ):
-    output_fn, ebe_fn = run_ermitwepp(state)
+    output_fn, ebe_fn, cli_fn, sed_results_fn = run_ermitwepp(state)
     contents = open(ebe_fn).read()
     return Response(content=contents, media_type="application/text")
 
@@ -758,8 +760,8 @@ def ermit_get_wepp_annual_maxima_events(state: ErmitState = Body(
         example=example_pars
     )
 ):
-    output_fn, ebe_fn = run_ermitwepp(state)
-    largest_runoff_events = get_annual_maxima_events_from_ebe(ebe_fn)
+    output_fn, ebe_fn, cli_fn, sed_results_fn = run_ermitwepp(state)
+    largest_runoff_events = get_annual_maxima_events_from_ebe(ebe_fn, cli_fn)
     return JSONResponse(content=largest_runoff_events)
 
 

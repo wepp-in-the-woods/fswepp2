@@ -21,6 +21,7 @@ from pydantic import BaseModel
 from .rockclim import ClimatePars
 from .shared_models import SoilTexture
 from .wepp import parse_wepp_soil_output
+from .logger import log_run
 
 router = APIRouter()
 
@@ -580,12 +581,15 @@ def disturbed_get_slope(state: DisturbedWeppState = Body(
     
     
 @router.post("/disturbedwepp/RUN/wepp")
-def disturbed_run_wepp(state: DisturbedWeppState = Body(
+def disturbed_run_wepp(
+    request: Request, 
+    state: DisturbedWeppState = Body(
         ...,
         example=example_pars
     )
 ):
     output_fn = run_disturbedwepp(state)
+    log_run(ip=request.client.host, model="disturbed")
     slope_length = state.disturbedwepp_pars.upper_ofe.length_m + state.disturbedwepp_pars.lower_ofe.length_m
     return parse_wepp_soil_output(output_fn, slope_length=slope_length)
 

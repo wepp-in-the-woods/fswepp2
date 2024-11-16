@@ -15,6 +15,7 @@ from pydantic import BaseModel
 from .rockclim import ClimatePars
 from .shared_models import SoilTexture
 from .wepp import parse_wepp_soil_output
+from .logger import log_run
 
 router = APIRouter()
 
@@ -511,12 +512,16 @@ def wepproad_get_slope(state: WeppRoadState = Body(
     
 
 @router.post("/wepproad/RUN/wepp")
-def wepproad_run_wepp_road(state: WeppRoadState = Body(
+def wepproad_run_wepp_road(
+    request: Request, 
+    state: WeppRoadState = Body(
         ...,
         example=example_pars
     )
 ):
     output_fn = run_wepproad(state)
+    log_run(ip=request.client.host, model="wepproad")
+    
     return parse_wepp_soil_output(output_fn, road_width=state.wepproad_pars.road.sim_width_m)
 
 
