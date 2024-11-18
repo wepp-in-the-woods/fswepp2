@@ -21,3 +21,21 @@ sudo chmod +x /usr/lib/python3/dist-packages/wepppy2/climates/cligen/bin/cligen5
 sudo chmod +x /usr/lib/python3/dist-packages/wepppy2/climates/cligen/bin/cligen43
 
 # uvicorn main:app --host 0.0.0.0 --port 8080 --reload
+
+
+# For starting frontend. Commented out because it downloads a lot of packages through nodejs for developing React.
+# curl -sL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+# sudo apt-get install -y nodejs
+
+# cd frontend
+
+# if [ ! -d "fswepp2-frontend" ]; then
+#     npx create-react-app fswepp2-frontend
+# else
+#     echo "fswepp2-frontend directory already exists. Skipping create-react-app."
+# fi
+
+# cd fswepp2-frontend
+# npm install --verbose
+
+# npm start --verbose

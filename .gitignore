@@ -2,3 +2,27 @@ __pycache__
 *.pyc
 api/db/users/
 api/logs/
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+frontend/fswepp2-frontend/node_modules
+frontend/fswepp2-frontend/.pnp
+frontend/fswepp2-frontend/.pnp.js
+
+# testing
+frontend/fswepp2-frontend/coverage
+
+# production
+frontend/fswepp2-frontend/build
+
+# misc
+frontend/fswepp2-frontend/.DS_Store
+frontend/fswepp2-frontend/.env.local
+frontend/fswepp2-frontend/.env.development.local
+frontend/fswepp2-frontend/.env.test.local
+frontend/fswepp2-frontend/.env.production.local
+
+frontend/fswepp2-frontend/npm-debug.log*
+frontend/fswepp2-frontend/yarn-debug.log*
+frontend/fswepp2-frontend/yarn-error.log*
