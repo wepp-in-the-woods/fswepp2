@@ -29,12 +29,6 @@ sudo chmod +x /usr/lib/python3/dist-packages/wepppy2/climates/cligen/bin/cligen4
 
 # cd frontend
 
-# if [ ! -d "fswepp2-frontend" ]; then
-#     npx create-react-app fswepp2-frontend
-# else
-#     echo "fswepp2-frontend directory already exists. Skipping create-react-app."
-# fi
-
 # cd fswepp2-frontend
 # npm install --verbose
 
