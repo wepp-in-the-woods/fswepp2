@@ -25,7 +25,8 @@ def parse_wepp_soil_output(
     output_file: str, 
     slope_length: Optional[float] = None, 
     road_width: Optional[float] = None, 
-    rec_intervals=[1, 2, 5, 10]) -> dict:
+    rec_intervals=[1, 2, 5, 10],
+    return_period_measures = ['precip_mm', 'runoff_from_rain+snow_mm', 'soil_loss_mean_kg_m2', 'sediment_yield_kg_m']) -> dict:
     
     storms, rainevents, snowevents, precip, rro, sro, syr, syp = None, None, None, None, None, None, None, None
     
@@ -106,16 +107,14 @@ def parse_wepp_soil_output(
                     annuals[str(year)]['sediment_yield_kg_m2'] = syp / slope_length
                 
             return_periods = {}
-            return_period_measures = ['precip_mm', 'runoff_from_rain+snow_mm', 'soil_loss_mean_kg_m2']
-            if slope_length is not None:
+            
+            if slope_length is not None and 'sediment_yield_kg_m' in return_period_measures:
                 return_period_measures.append('sediment_yield_kg_m2')
-            else:
-                return_period_measures.append('sediment_yield_kg_m')
+                return_period_measures.remove('sediment_yield_kg_m')
             
             for measure in return_period_measures:
                 return_periods[measure] = calc_rec_intervals(annuals, measure, rec_intervals=rec_intervals)
 
-        # parse annual averages
         for i, line in enumerate(wepp_out):
             if 'ANNUAL AVERAGE SUMMARIES' in line:
                 wepp_out = wepp_out[i:]
@@ -183,11 +182,8 @@ def parse_wepp_soil_output(
                 'annuals': annuals
             }
         
-
-def get_annual_maxima_events_from_ebe(ebe_file, cli_file=None):
-    climate = None
-    if cli_file is not None:
-        climate = ClimateFile(cli_file)
+        
+def _read_ebe_file(ebe_file):
     
     column_names = [
         "day", "month", "year", "precip_mm", "runoff_mm", "ir_det_kg_m2", 
@@ -216,6 +212,16 @@ def get_annual_maxima_events_from_ebe(ebe_file, cli_file=None):
     df["month"] = df["month"].astype(int)
     df["year"] = df["year"].astype(int)
     
+    return df
+
+
+def get_annual_maxima_events_from_ebe(ebe_file, cli_file=None):
+    climate = None
+    if cli_file is not None:
+        climate = ClimateFile(cli_file)
+    
+    df = _read_ebe_file(ebe_file)
+    
     largest_runoff_events = df.loc[df.groupby("year")["runoff_mm"].idxmax()]
     
     if climate is not None:
@@ -239,3 +245,15 @@ def get_annual_maxima_events_from_ebe(ebe_file, cli_file=None):
         'runoff_year_ranks_descending': year_ranks,
         'num_years_with_runoff_event': len(year_ranks)}
     
+    
+def get_selected_events_from_ebe(ebe_file, selected_dates: list):
+    df = _read_ebe_file(ebe_file)
+    
+    selected_events = []
+    for date in selected_dates:
+        day, month, year = date['day'], date['month'], date['year']
+        day, month, year = int(day), int(month), int(year)
+        selected_event = df[(df['day'] == day) & (df['month'] == month) & (df['year'] == year)]
+        selected_events.extend(selected_event.to_dict(orient='records'))
+    
+    return selected_events
