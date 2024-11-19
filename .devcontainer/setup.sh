@@ -20,12 +20,22 @@ sudo chown -R $(whoami):$(whoami) /usr/lib/python3/dist-packages/wepppy2
 sudo chmod +x /usr/lib/python3/dist-packages/wepppy2/climates/cligen/bin/cligen532
 sudo chmod +x /usr/lib/python3/dist-packages/wepppy2/climates/cligen/bin/cligen43
 
+# need libgfrotran3 for cligen43
+wget http://archive.ubuntu.com/ubuntu/pool/universe/g/gcc-6/gcc-6-base_6.4.0-17ubuntu1_amd64.deb
+wget http://archive.ubuntu.com/ubuntu/pool/universe/g/gcc-6/libgfortran3_6.4.0-17ubuntu1_amd64.deb
+
+sudo dpkg -i gcc-6-base_6.4.0-17ubuntu1_amd64.deb
+sudo dpkg -i libgfortran3_6.4.0-17ubuntu1_amd64.deb
+
+rm gcc-6-base_6.4.0-17ubuntu1_amd64.deb
+rm libgfortran3_6.4.0-17ubuntu1_amd64.deb
+
 # uvicorn main:app --host 0.0.0.0 --port 8080 --reload
 
 
 # For starting frontend. Commented out because it downloads a lot of packages through nodejs for developing React.
-# curl -sL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-# sudo apt-get install -y nodejs
+curl -sL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
 
 # cd frontend
 
