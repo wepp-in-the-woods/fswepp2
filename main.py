@@ -6,7 +6,7 @@ from api.ermit import router as ermit_router
 from api.rockclim import router as rockclim_router
 from api.logger import router as logger_router
 
-from frontend.flask_app import flask_app
+# from frontend.flask_app import flask_app
 import uuid
 
 app = FastAPI()
@@ -34,4 +34,4 @@ app.include_router(ermit_router, prefix="/api")
 app.include_router(rockclim_router, prefix="/api")
 app.include_router(logger_router, prefix="/api")
 
-app.mount("/fswepp2", WSGIMiddleware(flask_app))
+# app.mount("/fswepp2", WSGIMiddleware(flask_app))

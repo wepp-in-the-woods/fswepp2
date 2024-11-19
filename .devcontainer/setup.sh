@@ -31,5 +31,6 @@ sudo chmod +x /usr/lib/python3/dist-packages/wepppy2/climates/cligen/bin/cligen4
 
 # cd fswepp2-frontend
 # npm install --verbose
+# npm install react-router-dom --verbose
 
 # npm start --verbose
