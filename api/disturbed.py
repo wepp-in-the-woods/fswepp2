@@ -48,7 +48,6 @@ class DisturbedOFE(BaseModel):
     landuse: LanduseType
     slope_point1_pct: float
     slope_point2_pct: float
-    length_ft: Optional[float] = None
     length_m: Optional[float] = None
     cover_pct: float
     rfg_pct: float
@@ -61,16 +60,8 @@ class DisturbedOFE(BaseModel):
     def slope_point2(self):
         return self.slope_point2_pct / 100.0
     
-    def __setattr__(self, key, value):
-        super().__setattr__(key, value)
-        
-        if key == "length_ft" and value is not None:
-            super().__setattr__("length_m", value * 0.3048)
-        elif key == "length_m" and value is not None:
-            super().__setattr__("length_ft", value / 0.3048)
-            
     def __hash__(self):
-        return hash((self.landuse, self.slope_point1_pct, self.slope_point2_pct, self.length_ft, self.cover_pct, self.rfg_pct))
+        return hash((self.landuse, self.slope_point1_pct, self.slope_point2_pct, self.length_m, self.cover_pct, self.rfg_pct))
     
     
 class DisturbedWeppPars(BaseModel):

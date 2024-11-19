@@ -55,9 +55,7 @@ class TrafficLevel(enum.Enum):
     
 class Road(BaseModel):
     slope_pct: float
-    length_ft: Optional[float] = None
     length_m: Optional[float] = None
-    width_ft: Optional[float] = None
     width_m: Optional[float] = None
     surface: RoadSurface
     design: RoadDesign
@@ -73,19 +71,6 @@ class Road(BaseModel):
             return self.outslope**2.0 + (self.slope_pct / 100.0)**2.0
         else:    
             return self.slope_pct / 100.0
-            
-    def __setattr__(self, key, value):
-        super().__setattr__(key, value)
-        
-        if key == "length_ft" and value is not None:
-            super().__setattr__("length_m", value * 0.3048)
-        elif key == "length_m" and value is not None:
-            super().__setattr__("length_ft", value / 0.3048)
-            
-        if key == "width_ft" and value is not None:
-            super().__setattr__("width_m", value * 0.3048)
-        elif key == "width_m" and value is not None:
-            super().__setattr__("width_ft", value / 0.3048)
             
     @property
     def sim_length_m(self):
@@ -107,44 +92,26 @@ class Road(BaseModel):
     
 class Fill(BaseModel):
     slope_pct: float
-    length_ft: Optional[float] = None
     length_m: Optional[float] = None
 
     @property
     def slope(self):
         return self.slope_pct / 100.0
     
-    def __setattr__(self, key, value):
-        super().__setattr__(key, value)
-        
-        if key == "length_ft" and value is not None:
-            super().__setattr__("length_m", value * 0.3048)
-        elif key == "length_m" and value is not None:
-            super().__setattr__("length_ft", value / 0.3048)
-            
     def __hash__(self):
-        return hash((self.slope_pct, self.length_ft))
+        return hash((self.slope_pct, self.length_m))
     
     
 class Buffer(BaseModel):
     slope_pct: float
-    length_ft: Optional[float] = None
     length_m: Optional[float] = None
     
     @property
     def slope(self):
         return self.slope_pct / 100.0
     
-    def __setattr__(self, key, value):
-        super().__setattr__(key, value)
-        
-        if key == "length_ft" and value is not None:
-            super().__setattr__("length_m", value * 0.3048)
-        elif key == "length_m" and value is not None:
-            super().__setattr__("length_ft", value / 0.3048)
-            
     def __hash__(self):
-        return hash((self.slope_pct, self.length_ft))
+        return hash((self.slope_pct, self.length_m))
 
 
 class WepproadPars(BaseModel):
@@ -521,7 +488,6 @@ def wepproad_run_wepp_road(
 ):
     output_fn = run_wepproad(state)
     log_run(ip=request.client.host, model="wepproad")
-    
     return parse_wepp_soil_output(output_fn, road_width=state.wepproad_pars.road.sim_width_m)
 
 
