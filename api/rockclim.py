@@ -6,7 +6,7 @@ import math
 
 from fastapi import APIRouter, Query, Response, Request, HTTPException, Body
 from typing import Optional
-from pydantic import BaseModel, conlist
+from pydantic import BaseModel, conlist, ValidationError, field_validator
 
 from wepppy2.climates.cligen import CligenStationsManager, Cligen
 
@@ -18,6 +18,9 @@ _thisdir = os.path.dirname(os.path.abspath(__file__))
 class Location(BaseModel):
     longitude: float
     latitude: float
+    
+    def __hash__(self):
+        return hash((self.longitude, self.latitude))
 
 
 class UserDefinedParMod(BaseModel):
@@ -56,6 +59,12 @@ class ClimatePars(BaseModel):
     use_prism: Optional[bool] = False
     user_defined_par_mod: Optional[UserDefinedParMod] = None
     
+    @field_validator('database')
+    def validate_database(cls, value):
+        if value not in [None, "legacy", "2015", "au", "ghcn"]:
+            raise ValueError("Invalid database")
+        return value
+    
     def __hash__(self):
         return hash((self.database, 
                      self.state_code, 
@@ -79,14 +88,14 @@ def stations_in_state(
     stationManager = CligenStationsManager(climate_pars.database)
 
     if climate_pars.state_code is None:
-        return {"error": "State Code is required"}
+        raise HTTPException(status_code=422, detail="State Code is required")
     
     stations = stationManager.get_stations_in_state(climate_pars.state_code)
 
     return [s.as_dict() for s in stations]
 
 
-@router.post("/rockclim/GET/get_closest_stations")
+@router.post("/rockclim/GET/closest_stations")
 def get_closest_stations(
     climate_pars: ClimatePars = Body(
         ...,
@@ -99,7 +108,7 @@ def get_closest_stations(
     )
 ):
     if climate_pars.location is None:
-        return  {"error": "Location is required"}
+        raise HTTPException(status_code=422, detail="Location is required")
     
     stationManager = CligenStationsManager(climate_pars.database)
     stations = stationManager.get_closest_stations(
@@ -114,12 +123,15 @@ def get_station(climate_pars: ClimatePars):
     stationMeta = stationManager.get_station_fromid(climate_pars.par_id)
     station = stationMeta.get_station()
     
-    if climate_pars.location is not None and climate_pars.use_prism:
+    if climate_pars.use_prism:
+        if climate_pars.location is None:
+            raise HTTPException(status_code=422, detail="Location is required")
+        
         station = station.prism_mod(
             climate_pars.location.longitude, 
             climate_pars.location.latitude)
         
-    if climate_pars.user_defined_par_mod is not None:    
+    if climate_pars.user_defined_par_mod is not None:
         station = station.mod(
             climate_pars.user_defined_par_mod.ppts,
             climate_pars.user_defined_par_mod.tmaxs,
@@ -218,6 +230,7 @@ def save_user_data(filepath, data):
 
 
 @router.post("/rockclim/PUT/user_defined_par")
+@router.put("/rockclim/PUT/user_defined_par")
 def save_user_defined_par_mod(
     request: Request,
     climate_pars: ClimatePars = Body(
@@ -239,12 +252,12 @@ def save_user_defined_par_mod(
         raise HTTPException(status_code=400, detail="User ID not found in cookies")
     
     if climate_pars.user_defined_par_mod is None:
-        raise HTTPException(status_code=400, detail="User-defined parameters are required")
+        raise HTTPException(status_code=422, detail="User-defined parameters are required")
     
     try:
         get_station(climate_pars)
     except:
-        raise HTTPException(status_code=400, detail="ClimatePars is not valid")
+        raise HTTPException(status_code=422, detail="ClimatePars is not valid")
     
     user_custom_db_path = _join(_thisdir, f'db/users/rockclim/{user_id}.json')
     user_data = load_user_data(user_custom_db_path)
