@@ -1,27 +1,35 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
-function Navbar() {
+function Navbar({ isVisible, toggleVisibility }) {
+  // Handles dropdown state, to make sure they never overlap
   const [openDropdown, setOpenDropdown] = useState(null);
 
+  // If one dropdown is already open, close the other one
   const toggleDropdown = (dropdown) => {
     setOpenDropdown(openDropdown === dropdown ? null : dropdown);
   };
 
   return (
+    isVisible && (
+    // Navigation bar
     <nav className="flex items-center justify-between flex-wrap shadow w-full py-2">
       <div className="w-full flex flex-col items-center lg:flex-row">
-        <a href="/" className="mb-4 px-4">
+        {/*FSWEPP Logo*/}
+        <Link to href="/" className="mb-4 px-4" onClick={toggleVisibility}>
           <img
             src="/FSWEPPLOGO.png"
             alt="FSWEPP Logo"
             className="w-full max-w-xs lg:w-48"
           />
-        </a>
+        </Link>
+        {/*Prediction Models Button*/}
         <div className="w-full lg:w-auto lg:pr-6 relative">
           <button onClick={ () => toggleDropdown('predictionModels')} className="nav-link w-full text-left p-2 border-b border-gray-200 lg:border-white text-left text-xl flex justify-between items-center lg:justify-start lg:space-x-2 whitespace-nowrap">
             <span>Prediction Models</span>
             <img src={openDropdown === 'predictionModels' ? "/upArrow.png" : "/downArrow.png"} alt="Toggle Dropdown" className="ml-2 h-5 w-5 lg:ml-0 lg:h-3 lg:w-3 lg:relative lg:top-0.5"/>
           </button>
+          {/*Prediction Models Dropdown*/}
           {openDropdown === 'predictionModels' && (
             <div className="dropdown-content w-full flex flex-col lg:absolute lg:top-full lg:left-0 lg:w-auto lg:bg-white lg:shadow-lg lg:z-10 lg:flex-row lg:border-2 lg:min-w-max">
             <div className="list1 p-2 border-b border-gray-200 text-l lg:border-none">
@@ -57,11 +65,13 @@ function Navbar() {
           </div>
           )}
         </div>
+        {/*Tools and Resources Button*/}
         <div className="w-full lg:w-auto lg:pr-6 relative">
           <button onClick={() => toggleDropdown('tools')} className="nav-link w-full text-left p-2 border-b border-gray-200 lg:border-white text-left text-xl flex justify-between items-center lg:justify-start lg:space-x-2 whitespace-nowrap">
             <span>Tools and Resources</span>
             <img src={openDropdown === 'tools' ? "/upArrow.png" : "/downArrow.png"} alt="Toggle Dropdown" className="ml-2 h-5 w-5 lg:ml-0 lg:h-3 lg:w-3 lg:relative lg:top-0.5"/>
           </button>
+          {/*Tools and Resources Dropdown*/}
           {openDropdown === 'tools' && (
             <div className="dropdown-content w-full flex flex-col lg:absolute lg:top-full lg:left-0 lg:w-auto lg:bg-white lg:shadow-lg lg:z-10 lg:flex-row lg:border-2 lg:min-w-max">
               <div className="list1 p-2 text-l lg:border-none">
@@ -85,11 +95,13 @@ function Navbar() {
             </div>
           )}
         </div>
+        {/*Documentation, Contact Us, and Tutorials Button*/}
         <a href="/documentation" className="nav-link w-full text-left p-2 border-b border-gray-200 text-left text-xl lg:w-auto lg:whitespace-nowrap lg:border-white lg:pr-6">Documentation</a>
         <a href="/contact-us" className="nav-link w-full text-left p-2 border-b border-gray-200 lg:border-white text-left text-xl lg:w-auto lg:whitespace-nowrap lg:border-white lg:pr-6">Contact Us</a>
         <a href="/tutorials" className="nav-link w-full text-left p-2 text-left text-xl flex items-center lg:w-auto lg:whitespace-nowrap lg:border-white lg:pr-6">Tutorials<img src="/external-link.svg" alt="External Link" className="ml-1 h-5 w-5 relative top-0.5" /></a>
       </div>
     </nav>
+    )
   );
 }
   
