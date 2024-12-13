@@ -1,81 +1,150 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
+import "./custom-scrollbar.css";
+
+const regions = [
+  "Alabama",
+  "Alaska",
+  "Arizona",
+  "Arkansas",
+  "California",
+  "Colorado",
+  "Connecticut",
+  "Delaware",
+  "Florida",
+  "Georgia",
+  "Hawaii",
+  "Idaho",
+  "Illinois",
+  "Indiana",
+  "Iowa",
+  "Kansas",
+  "Kentucky",
+  "Louisiana",
+  "Maine",
+  "Maryland",
+  "Massachusetts",
+  "Michigan",
+  "Minnesota",
+  "Mississippi",
+  "Missouri",
+  "Montana",
+  "Nebraska",
+  "Nevada",
+  "New Hampshire",
+  "New Jersey",
+  "New Mexico",
+  "New York",
+  "North Carolina",
+  "North Dakota",
+  "Ohio",
+  "Oklahoma",
+  "Oregon",
+  "Pennsylvania",
+  "Rhode Island",
+  "South Carolina",
+  "South Dakota",
+  "Tennessee",
+  "Texas",
+  "Utah",
+  "Vermont",
+  "Virginia",
+  "Washington",
+  "Washington, D.C.",
+  "West Virginia",
+  "Wisconsin",
+  "Wyoming",
+];
+
+const additionalRegions = [
+  "Pacific Islands",
+  "Puerto Rico",
+  "Tahoe Basin",
+  "Virgin Islands",
+  "International",
+];
 
 const RockCliMe = () => {
+  const [searchInput, setSearchInput] = useState("");
+  const [filteredRegions, setFilteredRegions] = useState([...regions, ...additionalRegions]);
+
+  useEffect(() => {
+    const filteredMainRegions = regions.filter((region) =>
+      region.toLowerCase().startsWith(searchInput.toLowerCase())
+    );
+    const filteredAdditionalRegions = additionalRegions.filter((region) =>
+      region.toLowerCase().startsWith(searchInput.toLowerCase())
+    );
+    if (filteredAdditionalRegions.length > 0) {
+      setFilteredRegions([...filteredMainRegions, "separator", ...filteredAdditionalRegions]);
+    } else {
+      setFilteredRegions(filteredMainRegions);
+    }
+  }, [searchInput]);
+
   return (
-    // Main div
-    <div>
-      <div className="max-w-6xl mx-auto p-8 space-y-8">
-  <div className="text-center">
-    <h1 className="text-2xl font-bold">Rock: Clime</h1>
-    <p className="text-gray-500">Rocky Mountain Research Station Climate Generator</p>
-  </div>
+    <div className="ml-24 mr-24 mx-auto p-8 space-y-8">
+      <div className="text-left">
+        <h1 className="text-4xl font-semibold">Rock: Clime</h1>
+        <p className="text-xl text-gray-700">
+          Rocky Mountain Research Station Climate Generator
+        </p>
+      </div>
 
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-    <div className="space-y-4">
-      <label className="block text-lg font-semibold">Region</label>
-      <input type="text" placeholder="Search for a region" className="w-full px-4 py-2 border border-gray-300 rounded"/>
-      <div className="space-y-2">
-        <label className="flex items-center space-x-2">
-          <input type="radio" name="region" className="text-green-500 focus:ring-green-500"/>
-          <span>Alabama</span>
-        </label>
-        <label className="flex items-center space-x-2">
-          <input type="radio" name="region" className="text-green-500 focus:ring-green-500"/>
-          <span>Arizona</span>
-        </label>
-        <label className="flex items-center space-x-2">
-          <input type="radio" name="region" className="text-green-500 focus:ring-green-500"/>
-          <span>California</span>
-        </label>
-        <label className="flex items-center space-x-2">
-          <input type="radio" name="region" checked className="text-green-500 focus:ring-green-500"/>
-          <span>Idaho</span>
-        </label>
-        <label className="flex items-center space-x-2">
-          <input type="radio" name="region" className="text-green-500 focus:ring-green-500"/>
-          <span>Oregon</span>
-        </label>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xl font-semibold mb-1.5">Region</label>
+            <label className="text-md text-gray-600 mt-2">
+              Select a region to display the climate stations in the region
+            </label>
+          </div>
+          <div className="relative w-full">
+            <input
+              type="text"
+              placeholder="Search for a region"
+              className="w-full px-4 py-2 border border-gray-300 rounded pr-10"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+            <img
+              src="search-icon.svg"
+              alt="Search Icon"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5"
+            />
+          </div>
+          <div className="space-y-2 h-64 overflow-y-auto border border-gray-300 rounded custom-scrollbar">
+            <div className="mb-3"></div>
+            {filteredRegions.map((region, index) => {
+              if (region === "separator") {
+                return (
+                  <div
+                    key={index}
+                    className="border-b-2 border-dotted border-gray-400 mx-4"
+                  ></div>
+                );
+              }
+              return (
+                <label
+                  key={index}
+                  className={`flex items-center space-x-2 ml-4 mr-4 pb-2 ${
+                    index !== filteredRegions.length - 1 &&
+                    filteredRegions[index + 1] !== "separator"
+                      ? "border-b border-gray-300"
+                      : ""
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="region"
+                    className="text-green-500 focus:ring-green-500"
+                  />
+                  <span>{region}</span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
       </div>
-    </div>
-
-    <div className="space-y-4">
-      <label className="block text-lg font-semibold">Climate station</label>
-      <input type="text" placeholder="Search for climate station" className="w-full px-4 py-2 border border-gray-300 rounded"/>
-      <div className="space-y-2">
-        <label className="flex items-center space-x-2">
-          <input type="radio" name="station" className="text-green-500 focus:ring-green-500"/>
-          <span>ARBON 2NW ID</span>
-        </label>
-        <label className="flex items-center space-x-2">
-          <input type="radio" name="station" className="text-green-500 focus:ring-green-500"/>
-          <span>BURLEY CAA AP ID</span>
-        </label>
-        <label className="flex items-center space-x-2">
-          <input type="radio" name="station" className="text-green-500 focus:ring-green-500"/>
-          <span>CRATERS OF MOON NM ID</span>
-        </label>
-        <label className="flex items-center space-x-2">
-          <input type="radio" name="station" className="text-green-500 focus:ring-green-500"/>
-          <span>IDAHO FALLS CAA AP ID</span>
-        </label>
-        <label className="flex items-center space-x-2">
-          <input type="radio" name="station" checked className="text-green-500 focus:ring-green-500"/>
-          <span>MOSCOW U OF I ID</span>
-        </label>
-      </div>
-    </div>
-    <div className="space-y-4">
-      <label className="block text-lg font-semibold">Number of years of climate</label>
-      <input type="number" value="30" className="w-full px-4 py-2 border border-gray-300 rounded"/>
-      <p className="text-gray-500">Approx 26k per year</p>
-      <div className="space-y-2">
-        <button className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">View Climate data</button>
-        <button className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Modify Climate data</button>
-        <button className="w-full px-4 py-2 border border-green-500 text-green-500 rounded hover:bg-green-100">Download Climate file</button>
-      </div>
-    </div>
-  </div>
-</div>
     </div>
   );
 };
