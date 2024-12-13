@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar/Navbar.jsx';
 import RockCliMe from './components/RockCliMe/RockCliMe.jsx';
 
 const App = () => {
   const [isNavbarVisible, setNavbarVisible] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleResize = () => {
@@ -25,6 +26,11 @@ const App = () => {
     };
   }, [location]);
 
+  const handleHomeClick = () => {
+    setNavbarVisible(true);
+    navigate('/');
+  };
+
   return (
     <>
       <Navbar isVisible={isNavbarVisible} toggleVisibility={() => setNavbarVisible(!isNavbarVisible)} />
@@ -33,7 +39,7 @@ const App = () => {
         {/* Add other routes here */}
       </Routes>
       {!isNavbarVisible && (
-        <button onClick={() => setNavbarVisible(true)} className="fixed bottom-4 right-4 bg-blue-500 text-white p-2 rounded">
+        <button onClick={handleHomeClick} className="fixed bottom-4 right-4 bg-blue-500 text-white p-2 rounded">
           Home
         </button>
       )}
