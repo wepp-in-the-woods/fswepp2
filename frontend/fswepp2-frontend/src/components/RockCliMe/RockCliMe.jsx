@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css'; // Re-uses images from ~leaflet package
+import L from 'leaflet';
+import 'leaflet-defaulticon-compatibility';
 import "./custom-scrollbar.css";
 
 const regions = [
@@ -63,9 +68,29 @@ const additionalRegions = [
   "International",
 ];
 
+const LocationMarker = ({ setCoordinates }) => {
+  const [position, setPosition] = useState(null);
+  const map = useMapEvents({
+    click(e) {
+      setPosition(e.latlng);
+      setCoordinates([e.latlng.lat, e.latlng.lng]);
+    },
+  });
+
+  return position === null ? null : (
+    <Marker position={position}>
+      <Popup>You are here</Popup>
+    </Marker>
+  );
+};
+
 const RockCliMe = () => {
   const [searchInput, setSearchInput] = useState("");
-  const [filteredRegions, setFilteredRegions] = useState([...regions, ...additionalRegions]);
+  const [filteredRegions, setFilteredRegions] = useState([
+    ...regions,
+    ...additionalRegions,
+  ]);
+  const [coordinates, setCoordinates] = useState(null);
 
   useEffect(() => {
     const filteredMainRegions = regions.filter((region) =>
@@ -75,7 +100,11 @@ const RockCliMe = () => {
       region.toLowerCase().startsWith(searchInput.toLowerCase())
     );
     if (filteredAdditionalRegions.length > 0) {
-      setFilteredRegions([...filteredMainRegions, "separator", ...filteredAdditionalRegions]);
+      setFilteredRegions([
+        ...filteredMainRegions,
+        "separator",
+        ...filteredAdditionalRegions,
+      ]);
     } else {
       setFilteredRegions(filteredMainRegions);
     }
@@ -143,6 +172,24 @@ const RockCliMe = () => {
               );
             })}
           </div>
+        </div>
+        <div className="col-span-2">
+          <div className="h-96">
+            <MapContainer center={[39.8283, -98.5795]} zoom={4} scrollWheelZoom={true} attributionControl={false} style={{ height: "400px", width: "500px" }}>
+              <TileLayer
+                attribution=''
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <LocationMarker setCoordinates={setCoordinates} />
+            </MapContainer>
+          </div>
+          {coordinates && (
+            <div className="mt-4">
+              <p>
+                Coordinates: {coordinates[0]}, {coordinates[1]}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
