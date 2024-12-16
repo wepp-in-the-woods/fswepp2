@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
-from starlette.middleware.wsgi import WSGIMiddleware
+from starlette.middleware.wsgi import WSGIMiddleware # What is this?
+from fastapi.middleware.cors import CORSMiddleware
 from api.wepproad import router as wepproad_router
 from api.disturbed import router as disturbed_router
 from api.ermit import router as ermit_router
@@ -8,10 +9,22 @@ from api.rockclim import router as rockclim_router
 from api.logger import router as logger_router
 
 import traceback
-
 import uuid
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",
+    # Add other origins as needed for production
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 @app.middleware("http")
 async def ensure_user_id_middleware(request: Request, call_next):
@@ -25,11 +38,9 @@ async def ensure_user_id_middleware(request: Request, call_next):
             path="/"
         )
         
-        print(f"user_id: {user_id}")
+        # print(f"user_id: {user_id}")
 
     return response
-
-app = FastAPI()
 
 @app.exception_handler(Exception)
 async def custom_exception_handler(request: Request, exc: Exception):
