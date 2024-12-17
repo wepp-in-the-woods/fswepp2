@@ -11,6 +11,7 @@ import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import "leaflet-defaulticon-compatibility";
 import axios from "axios";
 import "./custom-scrollbar.css";
+import { useNavigate } from "react-router-dom";
 
 const LocationMarker = ({
   coordinates,
@@ -62,6 +63,8 @@ const RockCliMe = () => {
   const [selectedStation, setSelectedStation] = useState({});
   const [stationData, setStationData] = useState(null);
   const [years, setYears] = useState("");
+  const navigate = useNavigate();
+
 
   const handleCoordinateSubmit = () => {
     const lat = parseFloat(latInput);
@@ -102,23 +105,13 @@ const RockCliMe = () => {
     setYears(e.target.value);
   };
 
-  const handleViewStationPar = async () => {
+   const handleViewStationPar = () => {
     if (!selectedStation || !selectedStation.id) {
       console.error("No station selected or par_id is missing");
       return;
     }
 
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/api/rockclim/GET/station_par",
-        {
-          par_id: selectedStation.id,
-        }
-      );
-      setStationData(response.data);
-    } catch (error) {
-      console.error("Error fetching station par:", error);
-    }
+    navigate(`/rockclime/station_par/${selectedStation.id}`);
   };
 
   const handleDownloadStationPar = async () => {
