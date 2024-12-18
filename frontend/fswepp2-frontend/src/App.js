@@ -13,7 +13,7 @@ const App = () => {
   useEffect(() => {
     const handleResize = () => {
       const isMobile = window.matchMedia('(max-width: 1024px)').matches;
-      if ((location.pathname === '/rockclime' || location.pathname === '/climatedata') && isMobile) {
+      if ((location.pathname === '/rockclime' || location.pathname === '/climate_data') && isMobile) {
         setNavbarVisible(false);
       } else {
         setNavbarVisible(true);
@@ -39,7 +39,7 @@ const App = () => {
       <Routes>
         <Route path="/rockclime" element={<RockCliMe />} />
         <Route path="/rockclime/station_par/:stationId" element={<StationPar />} />
-        <Route path="/rockclime/climatedata/:stationId" element={<ClimateData />} />
+        <Route path="/rockclime/climate_data/:stationId" element={<ClimateData />} />
       </Routes>
       {!isNavbarVisible && (
         <button onClick={handleHomeClick} className="fixed bottom-4 right-4 bg-blue-500 text-white p-2 rounded">

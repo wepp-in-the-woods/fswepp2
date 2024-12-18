@@ -134,7 +134,7 @@ const RockCliMe = () => {
     }
 
     navigate(`/rockclime/climate_data/${selectedStation.id}`, {
-      state: { years, usePrism, stationDesc: selectedStation}
+      state: { years, par_id: selectedStation.id, stationDesc: selectedStation}
     });
   };
 
