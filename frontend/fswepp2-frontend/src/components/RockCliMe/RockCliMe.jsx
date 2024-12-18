@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -12,8 +12,9 @@ import "leaflet-defaulticon-compatibility";
 import axios from "axios";
 import "./custom-scrollbar.css";
 import { useNavigate } from "react-router-dom";
+import ClimateData from "./ClimateData";
 
-const LocationMarker = ({
+const LocationMarker = memo(({
   coordinates,
   setCoordinates,
   setLatInput,
@@ -43,7 +44,7 @@ const LocationMarker = ({
   }, [position, setLatInput, setLngInput]);
 
   return position === null ? null : <Marker position={position}></Marker>;
-};
+});
 
 const MapUpdater = ({ coordinates }) => {
   const map = useMap();
@@ -60,11 +61,13 @@ const RockCliMe = () => {
   const [latInput, setLatInput] = useState("");
   const [lngInput, setLngInput] = useState("");
   const [closestStations, setClosestStations] = useState([]);
-  const [selectedStation, setSelectedStation] = useState({});
+  const [selectedStation, setSelectedStation] = useState(null);  
   const [stationData, setStationData] = useState(null);
   const [years, setYears] = useState("");
+  const [usePrism, setUsePrism] = useState(false);
   const navigate = useNavigate();
-
+  const [showSavedParameters, setShowSavedParameters] = useState(false);
+  const [activeTab, setActiveTab] = useState("closestStations");
 
   const handleCoordinateSubmit = () => {
     const lat = parseFloat(latInput);
@@ -88,7 +91,6 @@ const RockCliMe = () => {
             },
           }
         );
-        console.log("API Response:", response.data); // Debugging line
         setClosestStations(response.data);
       } catch (error) {
         console.error("Error fetching closest stations:", error);
@@ -97,60 +99,51 @@ const RockCliMe = () => {
   };
 
   const handleStationClick = (station) => {
-    console.log("Station clicked:", station);
     setSelectedStation(station);
   };
 
   const handleYearsChange = (e) => {
     setYears(e.target.value);
+    console.log("Years changed:", e.target.value);
   };
 
-   const handleViewStationPar = () => {
+  const handleViewStationPar = () => {
     if (!selectedStation || !selectedStation.id) {
       console.error("No station selected or par_id is missing");
       return;
     }
 
-    navigate(`/rockclime/station_par/${selectedStation.id}`);
+    const location = usePrism
+      ? { longitude: parseFloat(lngInput), latitude: parseFloat(latInput) }
+      : { longitude: selectedStation.longitude, latitude: selectedStation.latitude };
+
+      navigate(`/rockclime/station_par/${selectedStation.id}`, {
+        state: { location, usePrism, stationDesc: selectedStation.desc },
+      });
   };
 
-  const handleDownloadStationPar = async () => {
+  const handleViewClimateData = async () => {
     if (!selectedStation || !selectedStation.id) {
       console.error("No station selected or par_id is missing");
       return;
     }
 
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/api/rockclim/GET/station_par",
-        {
-          par_id: selectedStation.id,
-        }
-      );
-
-      const data = response.data;
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "text/plain" });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `station_par_${selectedStation.id}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error downloading station par:", error);
+    if (!years) {
+      console.error("Number of years is missing");
+      return;
     }
+
+    navigate(`/rockclime/climate_data/${selectedStation.id}`, {
+      state: { years, usePrism, stationDesc: selectedStation}
+    });
   };
 
-  const handleViewClimateData = () => {
-    // Implement view climate data functionality
-    console.log("Viewing climate data for station:", selectedStation);
+  const handleToggle = () => {
+    setShowSavedParameters(!showSavedParameters);
   };
 
-  const handleDownloadClimateFile = () => {
-    // Implement download climate file functionality
-    console.log("Downloading climate file for station:", selectedStation);
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
   };
 
   return (
@@ -214,91 +207,100 @@ const RockCliMe = () => {
           </div>
         </div>
         <div className="col-span-1 mt-4 md:mt-0">
-          <h2 className="text-2xl font-semibold">Closest Stations</h2>
-          <p className="mb-2">Select a station to continue:</p>
-          <div className="grid grid-cols-2 gap-4">
-            {closestStations.slice(0, 6).map((station, index) => (
-              <button
-                key={index}
-                className={`border p-2 rounded text-left ${
-                  selectedStation === station ? "bg-blue-700 text-white" : ""
-                }`}
-                onClick={() => handleStationClick(station)}
-              >
-                <strong>{station.desc}</strong>
-                <br />
-                Latitude: {station.latitude}, Longitude: {station.longitude}
-                <br />
-                Distance: {station.distance_to_query_location.toFixed(2)} km
-              </button>
-            ))}
+          <div className="flex space-x-4 mb-4">
+            <button
+              className={`px-4 py-2 rounded ${activeTab === "closestStations" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+              onClick={() => handleTabChange("closestStations")}
+            >
+              Closest Stations
+            </button>
+            <button
+              className={`px-4 py-2 rounded ${activeTab === "savedParameters" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+              onClick={() => handleTabChange("savedParameters")}
+            >
+              Saved Climate Parameters
+            </button>
           </div>
-          {selectedStation && (
-            <div className="mt-4 p-4 border rounded">
-              <h3 className="text-xl font-semibold">
-                Station: {selectedStation.desc}
-              </h3>
-              <div className="mt-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Number of years of climate:
-                </label>
-                <input
-                  type="number"
-                  value={years}
-                  onChange={handleYearsChange}
-                  className="mt-1 px-2 py-1 border border-gray-300 rounded"
-                />
-                <div className="flex items-center ml-4">
-                  <input
-                    type="checkbox"
-                    id="usePrismMonthlies"
-                    className="mr-2"
-                  />
-                  <label
-                    htmlFor="usePrismMonthlies"
-                    className="text-sm font-medium text-gray-700"
+          {activeTab === "closestStations" && (
+            <>
+              <h2 className="text-2xl font-semibold">Closest Stations</h2>
+              <p className="mb-2">Select a station to continue:</p>
+              <div className="grid grid-cols-2 gap-4">
+                {closestStations.slice(0, 6).map((station, index) => (
+                  <button
+                    key={index}
+                    className={`border p-2 rounded text-left ${
+                      selectedStation === station ? "bg-blue-700 text-white" : ""
+                    }`}
+                    onClick={() => handleStationClick(station)}
                   >
-                    Use PRISM Data
-                  </label>
-                </div>
+                    <strong>{station.desc}</strong>
+                    <br />
+                    Latitude: {station.latitude}, Longitude: {station.longitude}
+                    <br />
+                    Distance: {station.distance_to_query_location.toFixed(2)} km
+                  </button>
+                ))}
               </div>
-              <div className="mt-4 flex space-x-2">
-                <button
-                  onClick={handleViewStationPar}
-                  className="px-4 py-2 bg-blue-500 text-white rounded"
-                >
-                  View Station Par
-                </button>
-                <button
-                  onClick={handleDownloadStationPar}
-                  className="px-4 py-2 bg-green-500 text-white rounded"
-                >
-                  Download Station Par
-                </button>
-              </div>
-              <div className="mt-4 flex space-x-2">
-                <button
-                  onClick={handleViewClimateData}
-                  className="px-4 py-2 bg-blue-500 text-white rounded"
-                >
-                  Generate Climate Data
-                </button>
-                <button
-                  onClick={handleDownloadClimateFile}
-                  className="px-4 py-2 bg-green-500 text-white rounded"
-                >
-                  Download Climate File
-                </button>
-              </div>
-              {/* Render station data */}
-              {stationData && (
+              {console.log("Selected Station:", selectedStation)}
+              {selectedStation && (
                 <div className="mt-4 p-4 border rounded">
-                  <h3 className="text-xl font-semibold">Station Data</h3>
-                  <pre className="text-gray-700">
-                    {JSON.stringify(stationData, null, 2)}
-                  </pre>
+                  <h3 className="text-xl font-semibold">
+                    Station: {selectedStation.desc}
+                  </h3>
+                  <div className="mt-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Number of years of climate:
+                    </label>
+                    <input
+                      type="number"
+                      value={years}
+                      onChange={handleYearsChange}
+                      className="mt-1 px-2 py-1 border border-gray-300 rounded"
+                    />
+                    <div className="flex items-center ml-4">
+                      <input
+                        type="checkbox"
+                        id="usePrismMonthlies"
+                        className="mr-2"
+                        checked={usePrism}
+                        onChange={(e) => setUsePrism(e.target.checked)}
+                      />
+                      <label
+                        htmlFor="usePrismMonthlies"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        Use PRISM Data
+                      </label>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex space-x-2">
+                    <button
+                      onClick={handleViewStationPar}
+                      className="px-4 py-2 bg-blue-500 text-white rounded"
+                    >
+                      View Station Par
+                    </button>
+                    <button
+                      onClick={handleViewClimateData}
+                      className="px-4 py-2 bg-blue-500 text-white rounded"
+                    >
+                      Generate Climate Data
+                    </button>
+                  </div>
+                  {/* Render station data */}
+                  {stationData && (
+                    <ClimateData stationData={stationData} />
+                  )}
                 </div>
               )}
+            </>
+          )}
+          {activeTab === "savedParameters" && (
+            <div>
+              <h2 className="text-2xl font-semibold">Saved Climate Parameters</h2>
+              {/* Implement saved parameters UI */}
+              <p>Saved parameters content goes here...</p>
             </div>
           )}
         </div>
