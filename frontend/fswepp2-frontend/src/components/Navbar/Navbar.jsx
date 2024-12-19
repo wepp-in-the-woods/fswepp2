@@ -48,7 +48,7 @@ function Navbar({ isVisible, toggleVisibility }) {
                     : "/downArrow.png"
                 }
                 alt="Toggle Dropdown"
-                className="ml-2 h-5 w-5"
+                className="ml-2 h-5 w-5 lg:w-3 lg:h-3 lg:ml-1 lg:mt-1"
               />
             </button>
             {/* Prediction Models Dropdown */}
@@ -96,7 +96,7 @@ function Navbar({ isVisible, toggleVisibility }) {
                     <img
                       src="/external-link.svg"
                       alt="External Link"
-                      className="ml-2 h-4 w-4"
+                      className="ml-2 h-4 w-4 mt-0.5"
                     />
                   </a>
                   <div className="text-m p-2 border-b border-gray-200 font-bold lg:border-none">
@@ -135,7 +135,7 @@ function Navbar({ isVisible, toggleVisibility }) {
                   openDropdown === "tools" ? "/upArrow.png" : "/downArrow.png"
                 }
                 alt="Toggle Dropdown"
-                className="ml-2 h-5 w-5"
+                className="ml-2 h-5 w-5 lg:w-3 lg:h-3 lg:ml-1 lg:mt-1"
               />
             </button>
             {/* Tools and Resources Dropdown */}
@@ -236,7 +236,7 @@ function Navbar({ isVisible, toggleVisibility }) {
               <img
                 src="/external-link.svg"
                 alt="External Link"
-                className="ml-1 h-5 w-5 relative top-0.5"
+                className="ml-1 h-5 w-5 relative top-0.5 lg:w-4 lg:h-4 lg:ml-1 lg:-mt-0.5"
               />
             </a>
           </div>
