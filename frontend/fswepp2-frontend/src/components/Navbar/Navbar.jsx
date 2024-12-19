@@ -16,21 +16,29 @@ function Navbar({ isVisible, toggleVisibility }) {
 
   return (
     isVisible && (
-      <nav className="flex items-center justify-between flex-wrap shadow w-full py-2">
-        <div className="w-full flex flex-col items-center lg:flex-row">
-          {/* FSWEPP Logo */}
-          <Link to="/" className="mb-4 px-4" onClick={handleLogoClick}>
-            <img
-              src="/FSWEPPLOGO.png"
-              alt="FSWEPP Logo"
-              className="w-full max-w-xs lg:w-48"
-            />
-          </Link>
+      <nav className="w-full py-2 lg:shadow navbar h-16">
+        {" "}
+        {/* Set a fixed height for the navbar */}
+        <div className="w-full flex flex-col items-center lg:flex-row h-full">
+          <div className="w-full items-center flex lg:flex-row border-b border-gray-200 lg:border-none lg:w-auto lg:h-full">
+            {/* FSWEPP Logo */}
+            <Link
+              to="/"
+              className="mb-4 px-4 flex items-center lg:h-full "
+              onClick={handleLogoClick}
+            >
+              <img
+                src="/FSWEPPLOGO.png"
+                alt="FSWEPP Logo"
+                className="h-full max-h-full"
+              />
+            </Link>
+          </div>
           {/* Prediction Models Button */}
-          <div className="w-full lg:w-auto lg:pr-6 relative">
+          <div className="w-full relative lg:w-auto">
             <button
               onClick={() => toggleDropdown("predictionModels")}
-              className="nav-link w-full text-left p-2 border-b border-gray-200 lg:border-white text-left text-xl flex justify-between items-center lg:justify-start lg:space-x-2 whitespace-nowrap"
+              className="nav-link w-full text-left p-2 border-b border-gray-200 lg:border-none text-left text-xl md:text-2xl lg:text-base xl:text-l 2xl:text-xl flex justify-between items-center whitespace-nowrap"
             >
               <span>Prediction Models</span>
               <img
@@ -40,7 +48,7 @@ function Navbar({ isVisible, toggleVisibility }) {
                     : "/downArrow.png"
                 }
                 alt="Toggle Dropdown"
-                className="ml-2 h-5 w-5 lg:ml-0 lg:h-3 lg:w-3 lg:relative lg:top-0.5"
+                className="ml-2 h-5 w-5"
               />
             </button>
             {/* Prediction Models Dropdown */}
@@ -116,10 +124,10 @@ function Navbar({ isVisible, toggleVisibility }) {
             )}
           </div>
           {/* Tools and Resources Button */}
-          <div className="w-full lg:w-auto lg:pr-6 relative">
+          <div className="w-full relative lg:w-auto">
             <button
               onClick={() => toggleDropdown("tools")}
-              className="nav-link w-full text-left p-2 border-b border-gray-200 lg:border-white text-left text-xl flex justify-between items-center lg:justify-start lg:space-x-2 whitespace-nowrap"
+              className="nav-link w-full text-left p-2 border-b border-gray-200 lg:border-none text-left text-xl md:text-2xl lg:text-base xl:text-l 2xl:text-xl flex justify-between items-center whitespace-nowrap"
             >
               <span>Tools and Resources</span>
               <img
@@ -127,12 +135,12 @@ function Navbar({ isVisible, toggleVisibility }) {
                   openDropdown === "tools" ? "/upArrow.png" : "/downArrow.png"
                 }
                 alt="Toggle Dropdown"
-                className="ml-2 h-5 w-5 lg:ml-0 lg:h-3 lg:w-3 lg:relative lg:top-0.5"
+                className="ml-2 h-5 w-5"
               />
             </button>
             {/* Tools and Resources Dropdown */}
             {openDropdown === "tools" && (
-              <div className="dropdown-content w-full flex flex-col lg:absolute lg:top-full lg:left-0 lg:w-auto lg:bg-white lg:shadow-lg lg:z-10 lg:flex-row lg:border-2 lg:min-w-max">
+              <div className="dropdown-content w-full flex flex-col lg:absolute lg:top-full lg:left-0 lg:w-auto lg:bg-white lg:shadow-lg lg:z-20 lg:flex-row lg:border-2 lg:min-w-max">
                 <div className="list1 p-2 text-l lg:border-none">
                   <div className="text-m p-2 font-bold lg:border-none">
                     Cligen Resources
@@ -203,29 +211,35 @@ function Navbar({ isVisible, toggleVisibility }) {
             )}
           </div>
           {/* Documentation, Contact Us, and Tutorials Button */}
-          <a
-            href="/documentation"
-            className="nav-link w-full text-left p-2 border-b border-gray-200 text-left text-xl lg:w-auto lg:whitespace-nowrap lg:border-white lg:pr-6"
-          >
-            Documentation
-          </a>
-          <a
-            href="/contact-us"
-            className="nav-link w-full text-left p-2 border-b border-gray-200 lg:border-white text-left text-xl lg:w-auto lg:whitespace-nowrap lg:border-white lg:pr-6"
-          >
-            Contact Us
-          </a>
-          <a
-            href="/tutorials"
-            className="nav-link w-full text-left p-2 text-left text-xl flex items-center lg:w-auto lg:whitespace-nowrap lg:border-white lg:pr-6"
-          >
-            Tutorials
-            <img
-              src="/external-link.svg"
-              alt="External Link"
-              className="ml-1 h-5 w-5 relative top-0.5"
-            />
-          </a>
+          <div className="w-full relative border-b border-gray-200 lg:border-none lg:w-auto">
+            <a
+              href="/documentation"
+              className="nav-link w-full text-left p-2 text-left text-xl md:text-2xl lg:text-base xl:text-l 2xl:text-xl flex items-center"
+            >
+              Documentation
+            </a>
+          </div>
+          <div className="w-full relative border-b border-gray-200 lg:border-none lg:w-auto lg:whitespace-nowrap">
+            <a
+              href="/contact-us"
+              className="nav-link w-full text-left p-2 text-left text-xl md:text-2xl lg:text-base xl:text-l 2xl:text-xl flex items-center"
+            >
+              Contact Us
+            </a>
+          </div>
+          <div className="w-full relative border-b border-gray-200 lg:border-none lg:w-auto lg:whitespace-nowrap lg:mr-4">
+            <a
+              href="/tutorials"
+              className="nav-link w-full text-left p-2 text-left text-xl md:text-2xl lg:text-base xl:text-l 2xl:text-xl flex items-center"
+            >
+              Tutorials
+              <img
+                src="/external-link.svg"
+                alt="External Link"
+                className="ml-1 h-5 w-5 relative top-0.5"
+              />
+            </a>
+          </div>
         </div>
       </nav>
     )
