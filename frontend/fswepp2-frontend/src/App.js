@@ -29,7 +29,7 @@ const App = () => {
   }, [location]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen">
       <Navbar isVisible={isNavbarVisible} toggleVisibility={() => setNavbarVisible(!isNavbarVisible)} />
       <Routes>
         <Route path="/rockclime" element={<RockCliMe />} />

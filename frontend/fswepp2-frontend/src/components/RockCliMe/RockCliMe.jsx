@@ -144,9 +144,12 @@ const RockCliMe = () => {
 
   return (
     // Main div
-    <div className="w-full space-y-8">
+    <div className="flex flex-col h-screen">
       {/* Mobile Navbar */}
-      <div className="fixed top-0 left-0 right-0 bg-white shadow-md p-4 flex justify-between items-center h-16 lg:hidden">
+      <div
+        className="top-0 left-0 right-0 shadow-md p-4 flex justify-between items-center h-16 lg:hidden"
+        style={{ zIndex: 10 }}
+      >
         <div>
           <h1 className="text-xl font-semibold">RockClime</h1>
           <p className="text-sm text-gray-700">RMRS Climate Generator</p>
@@ -158,67 +161,57 @@ const RockCliMe = () => {
           Home
         </button>
       </div>
-      <div className="hidden pt-20 text-center ">
-        <h1 className="text-5xl font-semibold w-full">RockClime</h1>
-        <p className="text-2xl text-gray-700 w-full">RMRS Climate Generator</p>
+      <div className="flex-grow z-0">
+        <MapContainer
+          center={coordinates || [39.8283, -98.5795]}
+          zoom={4}
+          scrollWheelZoom={true}
+          attributionControl={false}
+          style={{ zIndex: 0 }}
+          className="h-full w-full"
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <LocationMarker
+            coordinates={coordinates}
+            setCoordinates={setCoordinates}
+            setLatInput={setLatInput}
+            setLngInput={setLngInput}
+          />
+          <MapUpdater coordinates={coordinates} />
+        </MapContainer>
       </div>
-      <div className="col-span-1 space-y-4">
-        <h2 className="hidden lg:block lg:text-l lg:font-semibold">
-          Select a place on the map or enter coordinates
-        </h2>
-        <div className="h-screen w-full mb-24 pt-8 z-0">
-          {/* Adjust height to take up full screen minus navbar */}
-          <MapContainer
-            center={coordinates || [39.8283, -98.5795]}
-            zoom={4}
-            scrollWheelZoom={true}
-            attributionControl={false}
-            style={{ zIndex: 0 }}
-            className="h-full w-full z-0"
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <LocationMarker
-              coordinates={coordinates}
-              setCoordinates={setCoordinates}
-              setLatInput={setLatInput}
-              setLngInput={setLngInput}
-            />
-            <MapUpdater coordinates={coordinates} />
-          </MapContainer>
-            <div className="fixed bottom-0 left-0 right-0 bg-white shadow-md p-4 z-50">
-              <div className="flex flex-col items-center space-y-2">
-                <input
-                  type="text"
-                  placeholder="Latitude"
-                  value={latInput}
-                  onChange={(e) => setLatInput(e.target.value)}
-                  className="px-2 py-1 border border-gray-300 rounded"
-                />
-                <input
-                  type="text"
-                  placeholder="Longitude"
-                  value={lngInput}
-                  onChange={(e) => setLngInput(e.target.value)}
-                  className="px-2 py-1 border border-gray-300 rounded"
-                />
-                <button
-                  onClick={handleCoordinateSubmit}
-                  className="px-4 py-2 bg-blue-500 text-white rounded"
-                >
-                  Set Coordinates
-                </button>
-                <button
-                  onClick={handleGetClosestStations}
-                  className="px-4 py-2 bg-green-500 text-white rounded"
-                >
-                  Get Closest Stations
-                </button>
-              </div>
-            </div>
-        </div>
+      <div className="flex flex-row mt-1 mb-1 justify-center w-full max-w-screen px-1">
+        <input
+          type="text"
+          placeholder="Latitude"
+          value={latInput}
+          onChange={(e) => setLatInput(e.target.value)}
+          className="flex-shrink px-2 py-1 border border-gray-300 rounded mr-2 w-1/3"
+        />
+        <input
+          type="text"
+          placeholder="Longitude"
+          value={lngInput}
+          onChange={(e) => setLngInput(e.target.value)}
+          className="flex-shrink px-2 py-1 border border-gray-300 rounded mr-2 w-1/3"
+        />
+        <button
+          onClick={handleCoordinateSubmit}
+          className="flex-shrink px-2 py-2 bg-blue-500 text-white rounded w-1/3 text-sm"
+        >
+          Set Coordinates
+        </button>
+      </div>
+      <div className="flex justify-center mt-2 w-full px-1 mb-2">
+        <button
+          onClick={handleGetClosestStations}
+          className="px-4 py-2 bg-green-500 text-white rounded text-lg w-full"
+        >
+          Get Closest Stations
+        </button>
       </div>
     </div>
   );
