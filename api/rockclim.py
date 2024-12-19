@@ -8,7 +8,7 @@ from fastapi import APIRouter, Query, Response, Request, HTTPException, Body
 from typing import Optional
 from pydantic import BaseModel, conlist, ValidationError, field_validator
 
-from wepppy2.climates.cligen import CligenStationsManager, Cligen
+from wepppy2.climates.cligen import CligenStationsManager, Cligen, ClimateFile
 
 router = APIRouter()
 
@@ -76,6 +76,19 @@ class ClimatePars(BaseModel):
                      self.user_defined_par_mod))
     
     
+@router.post("/rockclim/GET/available_state_codes")
+def available_state_codes(
+    climate_pars: ClimatePars = Body(
+        ...,
+        example={
+            "database": "ghcn"
+        }
+    )
+):
+    stationManager = CligenStationsManager(climate_pars.database)
+    return sorted(set(station.state for station in stationManager.stations))
+
+
 @router.post("/rockclim/GET/stations_in_state")
 def stations_in_state(
     climate_pars: ClimatePars = Body(
@@ -215,6 +228,20 @@ def get_climate_route(
         contents = file.read()
     return Response(content=contents, media_type="application/text")
 
+@router.post("/rockclim/GET/climate_monthlies")
+def get_climate_monthlies_route(
+    climate_pars: ClimatePars = Body(
+        ...,
+        example={
+            'par_id': 'WA459074',
+            'input_years': 10
+        }
+    )
+):
+    cli_fn = get_climate(climate_pars)
+    climate = ClimateFile(cli_fn)
+    return climate.calc_monthlies()
+    
 
 def load_user_data(filepath):
     if os.path.exists(filepath):
