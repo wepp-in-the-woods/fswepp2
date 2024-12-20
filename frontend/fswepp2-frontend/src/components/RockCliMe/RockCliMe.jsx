@@ -126,8 +126,9 @@ const RockCliMe = () => {
         };
 
     navigate(`/rockclime/station_par/${selectedStation.id}`, {
-      state: { location, usePrism, stationDesc: selectedStation.desc },
+      state: { location, usePrism, stationDesc: selectedStation.desc, par_id: selectedStation.par },
     });
+    // console.log("Location: ", JSON.stringify(location) + " Use Prism: " + usePrism + " stationDesc: " + selectedStation.desc);
   };
 
   const handleViewClimateData = async () => {

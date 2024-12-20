@@ -13,7 +13,7 @@ const App = () => {
   useEffect(() => {
     const handleResize = () => {
       const isMobile = window.matchMedia('(max-width: 1023px)').matches;
-      if ((location.pathname === '/rockclime' || location.pathname === '/climate_data') && isMobile) {
+      if (location.pathname.startsWith('/rockclime') && isMobile) {
         setNavbarVisible(false);
       } else {
         setNavbarVisible(true);
