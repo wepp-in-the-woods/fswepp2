@@ -126,9 +126,13 @@ const RockCliMe = () => {
         };
 
     navigate(`/rockclime/station_par/${selectedStation.id}`, {
-      state: { location, usePrism, stationDesc: selectedStation.desc, par_id: selectedStation.par },
+      state: {
+        location,
+        usePrism,
+        stationDesc: selectedStation.desc,
+        par_id: selectedStation.par,
+      },
     });
-    // console.log("Location: ", JSON.stringify(location) + " Use Prism: " + usePrism + " stationDesc: " + selectedStation.desc);
   };
 
   const handleViewClimateData = async () => {
@@ -239,7 +243,10 @@ const RockCliMe = () => {
                   className="flex-shrink px-2 py-1 border border-gray-300 rounded mr-2 w-1/3"
                 />
                 <button
-                  onClick={() => { handleCoordinateSubmit(); setShowLocationDiv(false); }}
+                  onClick={() => {
+                    handleCoordinateSubmit();
+                    setShowLocationDiv(false);
+                  }}
                   className="flex-shrink px-2 py-2 bg-[#16a34a] text-white rounded w-1/3 text-sm"
                 >
                   Set Coords.
@@ -292,8 +299,7 @@ const RockCliMe = () => {
                   }`}
                   onClick={() => handleStationClick(station)}
                 >
-                  <strong>{station.desc}</strong>
-                  <br />
+                  <strong>{station.desc.slice(0, -2)}</strong> <br />
                   Latitude: {station.latitude}, Longitude: {station.longitude}
                   <br />
                   Distance: {station.distance_to_query_location.toFixed(2)} km
