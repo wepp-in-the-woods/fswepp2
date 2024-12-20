@@ -6,7 +6,7 @@ import math
 
 from fastapi import APIRouter, Query, Response, Request, HTTPException, Body
 from typing import Optional
-from pydantic import BaseModel, conlist, ValidationError, field_validator
+from pydantic import BaseModel, Field, conlist, ValidationError, field_validator
 
 from wepppy2.climates.cligen import CligenStationsManager, Cligen, ClimateFile
 
@@ -86,7 +86,38 @@ def available_state_codes(
     )
 ):
     stationManager = CligenStationsManager(climate_pars.database)
-    return sorted(set(station.state for station in stationManager.stations))
+    sorted_keys = sorted(stationManager.states)
+    return {k: stationManager.states[k] for k in sorted_keys}
+
+class StationsGeoJSONRequest(BaseModel):
+    database: Optional[str] = Field(
+        description='Database name: "ghcn", "au", "2015", "legacy", or None (default to "legacy")'
+    )
+    bbox: conlist(float, min_length=4, max_length=4) = Field(
+        description="Bounding box: [ul_x, ul_y, lr_x, lr_y]"
+    )
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "database": "2015",
+                "bbox": [-120, 48, -115, 42]
+            }
+        }
+
+@router.post("/rockclim/GET/stations_geojson")
+def stations_geojson(
+    payload: StationsGeoJSONRequest = Body(
+        ...,
+        example=
+    {
+      "database": "2015",
+      "bbox": [-120, 48, -115, 42]
+    }
+    )
+):
+    stationManager = CligenStationsManager(payload.database, payload.bbox)
+    return stationManager.to_geojson()
 
 
 @router.post("/rockclim/GET/stations_in_state")
