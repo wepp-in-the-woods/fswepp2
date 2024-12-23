@@ -211,7 +211,9 @@ def get_station_par_monthlies(
     )
 ):
     station = get_station(climate_pars)
-    return station.get_monthlies()
+    monthlies = station.get_monthlies()
+    monthlies['cumulative_nwds'] = sum(monthlies['nwds'])
+    return monthlies
 
 
 def get_climate(climate_pars: ClimatePars):
