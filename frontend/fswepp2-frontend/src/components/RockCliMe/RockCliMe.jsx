@@ -12,8 +12,6 @@ import "leaflet-defaulticon-compatibility";
 import axios from "axios";
 import "./custom-scrollbar.css";
 import { useNavigate } from "react-router-dom";
-import ClimateData from "./ClimateData";
-import { latLng } from "leaflet";
 
 const LocationMarker = memo(
   ({ coordinates, setCoordinates, setLatInput, setLngInput }) => {
@@ -63,14 +61,19 @@ const RockCliMe = () => {
   const [years, setYears] = useState("");
   const [usePrism, setUsePrism] = useState(false);
   const navigate = useNavigate();
-  const [showSavedParameters, setShowSavedParameters] = useState(false);
   const [activeTab, setActiveTab] = useState("closestStations");
-  const modalRef = useRef(null);
   const [showLocationDiv, setShowLocationDiv] = useState(false);
+  const [prevCoordinates, setPrevCoordinates] = useState([null, null]);
 
   useEffect(() => {
-    if (coordinates && !showLocationDiv && activeTab === "closestStations") {
+    if (
+      coordinates &&
+      !showLocationDiv &&
+      activeTab === "closestStations" &&
+      (coordinates[0] !== prevCoordinates[0] || coordinates[1] !== prevCoordinates[1])
+    ) {
       handleGetClosestStations();
+      setPrevCoordinates(coordinates);
     }
   }, [coordinates, showLocationDiv, activeTab]);
 
@@ -78,13 +81,19 @@ const RockCliMe = () => {
     const lat = parseFloat(latInput);
     const lng = parseFloat(lngInput);
     if (!isNaN(lat) && !isNaN(lng)) {
-      setCoordinates([lat, lng]);
+      if (coordinates[0] !== lat || coordinates[1] !== lng) {
+        console.log("Updating coordinates:", [lat, lng]);
+        setCoordinates([lat, lng]);
+      } else {
+        console.log("Coordinates are the same, no update needed.");
+      }
+    } else {
+      console.log("Invalid coordinates input.");
     }
   };
 
   const handleGetClosestStations = async () => {
-    const lat = parseFloat(latInput);
-    const lng = parseFloat(lngInput);
+    const [lat, lng] = coordinates;
     if (!isNaN(lat) && !isNaN(lng)) {
       try {
         const response = await axios.post(
@@ -125,8 +134,14 @@ const RockCliMe = () => {
           latitude: selectedStation.latitude,
         };
 
+    const stationCoords = {
+      longitude: selectedStation.longitude,
+      latitude: selectedStation.latitude,
+    };
+
     navigate(`/rockclime/station_par/${selectedStation.id}`, {
       state: {
+        stationCoords,
         location,
         usePrism,
         stationDesc: selectedStation.desc,
