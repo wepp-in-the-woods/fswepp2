@@ -2,10 +2,31 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, json } from "react-router-dom";
 import axios from "axios";
 
+const parseStationDesc = (desc) => {
+  // Remove extra spaces
+  const trimmedDesc = desc.replace(/\s+/g, " ").trim();
+  // Regex to match the name, state, and ID
+  const regex = /^(.*?)(\b[A-Z]{2}\b)\s(\d{6})\s0$/;
+  const match = trimmedDesc.match(regex);
+  if (match) {
+    const name = match[1].trim();
+    const state = match[2];
+    const id = match[3];
+    return { name, state, id };
+  }
+  return { name: "", state: "", id: "" };
+};
+
 const StationPar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { location: loc, usePrism, stationDesc, par_id } = location.state || {};
+  const {
+    stationCoords: coordinates,
+    location: loc,
+    usePrism,
+    stationDesc,
+    par_id,
+  } = location.state || {};
   const [stationData, setStationData] = useState(null);
 
   useEffect(() => {
@@ -20,7 +41,6 @@ const StationPar = () => {
           }
         );
         setStationData(response.data);
-        console.log(JSON.stringify(response.data));
       } catch (error) {
         console.error("Error fetching station par monthlies:", error);
       }
@@ -28,6 +48,37 @@ const StationPar = () => {
 
     fetchStationData();
   }, [par_id, loc, usePrism]);
+
+  const { name, state, id } = parseStationDesc(stationDesc);
+
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const monthsAbbrev = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
   return (
     <div className="flex flex-col h-screen">
@@ -47,46 +98,102 @@ const StationPar = () => {
           Home
         </button>
       </div>
+      <div className="flex items-center border-b border-gray-200">
+        <button
+          onClick={() => navigate("/rockclime")}
+          className="px-4 py-2 bg-white text-black underline rounded items-start"
+        >
+          Back
+        </button>
+      </div>
       {/* Main Content */}
-      <div className="flex flex-col items-start ml-4 mt-8">
-        <div className="text-4xl font-bold mb-2">Station Parameters</div>
-        <div className="text-2xl font-semibold mb-4">{stationDesc}</div>
-        <div className="text-xl">
-          <h3 className="font-semibold">Coordinates</h3>
-          <p>Latitude: {loc?.latitude}</p>
-          <p>Longitude: {loc?.longitude}</p>
-        </div>
-        {stationData && (
-          <div className="mt-8">
-            <h3 className="text-2xl font-semibold mb-4">Station Data</h3>
-            <table className="table-auto border-collapse border border-gray-400">
-              <thead>
-                <tr>
-                  <th className="border border-gray-300 px-4 py-2">Month</th>
-                  <th className="border border-gray-300 px-4 py-2">PPT</th>
-                  <th className="border border-gray-300 px-4 py-2">NWDS</th>
-                  <th className="border border-gray-300 px-4 py-2">TMAX</th>
-                  <th className="border border-gray-300 px-4 py-2">TMIN</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stationData.ppts.map((ppt, index) => (
-                  <tr key={index}>
-                    <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
-                    <td className="border border-gray-300 px-4 py-2">{ppt}</td>
-                    <td className="border border-gray-300 px-4 py-2">{stationData.nwds[index].toFixed(2)}</td>
-                    <td className="border border-gray-300 px-4 py-2">{stationData.tmaxs[index]}</td>
-                    <td className="border border-gray-300 px-4 py-2">{stationData.tmins[index]}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="mt-4">
-              <h3 className="text-xl font-semibold">Cumulative PPT</h3>
-              <p>{stationData.cumulative_ppts}</p>
-            </div>
+      <div className="flex flex-col items-start ml-4 mt-4 mr-4">
+        <div className="w-full">
+          <div className="text-2xl font-semibold">
+            {name}, {state}
           </div>
-        )}
+          <div className="text-xl font-semibold mb-4">Station ID: {id}</div>
+          <div className="text-xl">
+            <h3 className="text-[17px] font-semibold -mt-2">
+              Station Coordinates
+            </h3>
+            <p className="text-[14px] -mt-1">
+              Latitude: {coordinates.latitude}
+            </p>
+            <p className="text-[14px] -mt-2">
+              Longitude: {coordinates.longitude}
+            </p>
+          </div>
+        </div>
+        <div className="mt-4 w-full mb-4">
+          <h3 className="text-2xl font-semibold">Station Data:</h3>
+          {usePrism && (
+            <p className="text-[12px] mb-2">
+              *Precip. & Mean Min/Max Temp. from PRISM
+            </p>
+          )}
+          {stationData && (
+            <div>
+              <table className="table-auto border-collapse border border-gray-400 w-full max-[374px]:text-xs">
+                <thead>
+                  <tr>
+                    <th className="border border-gray-300 py-2 px-2 text-left">
+                      Month
+                    </th>
+                    <th className="border border-gray-300 py-2 px-2 text-left">
+                      Mean Precip.
+                    </th>
+                    <th className="border border-gray-300 px-2 py-2 text-left">
+                      Mean Max Temp.
+                    </th>
+                    <th className="border border-gray-300 px-2 py-2 text-left">
+                      Mean Min Temp.
+                    </th>
+                    <th className="border border-gray-300 px-2 py-2 text-left">
+                      # of Wet Days
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stationData.ppts.map((ppt, index) => (
+                    <tr key={index}>
+                      <td className="border border-gray-300 px-2 py-2">
+                        <span className="hidden md:inline">
+                          {months[index]}
+                        </span>
+                        <span className="md:hidden">{monthsAbbrev[index]}</span>
+                      </td>
+                      <td className="border border-gray-300 px-2 py-2">
+                        {ppt.toFixed(2)}
+                      </td>
+                      <td className="border border-gray-300 px-2 py-2">
+                        {stationData.tmaxs[index].toFixed(2)}
+                      </td>
+                      <td className="border border-gray-300 px-2 py-2">
+                        {stationData.tmins[index].toFixed(2)}
+                      </td>
+                      <td className="border border-gray-300 px-2 py-2">
+                        {stationData.nwds[index].toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                  <tr className="border border-gray-300">
+                    <td className="border border-gray-300 px-2 py-2">
+                      <span className="hidden md:inline">Annual</span>
+                      <span className="md:hidden">Ann.</span>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      {stationData.cumulative_ppts.toFixed(2)}
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2"></td>
+                    <td className="border border-gray-300 px-2 py-2"></td>
+                    <td className="border border-gray-300 px-2 py-2"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
