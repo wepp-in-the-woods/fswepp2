@@ -10,7 +10,6 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css";
 import "leaflet-defaulticon-compatibility";
 import axios from "axios";
-import "./custom-scrollbar.css";
 import { useNavigate } from "react-router-dom";
 
 const LocationMarker = memo(
@@ -57,25 +56,36 @@ const RockCliMe = () => {
   const [latInput, setLatInput] = useState("");
   const [lngInput, setLngInput] = useState("");
   const [closestStations, setClosestStations] = useState([]);
+  const [savedParameters, setSavedParameters] = useState([]);
   const [selectedStation, setSelectedStation] = useState(null);
   const [years, setYears] = useState("");
-  const [usePrism, setUsePrism] = useState(false);
+  const [usePrismPar, setUsePrismPar] = useState(false);
+  const [usePrismClim, setUsePrismClim] = useState(false);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("closestStations");
   const [showLocationDiv, setShowLocationDiv] = useState(false);
   const [prevCoordinates, setPrevCoordinates] = useState([null, null]);
+  const [parametersFetched, setParametersFetched] = useState(false);
+  const [selectedPar, setSelectedPar] = useState(null);
 
   useEffect(() => {
     if (
       coordinates &&
       !showLocationDiv &&
       activeTab === "closestStations" &&
-      (coordinates[0] !== prevCoordinates[0] || coordinates[1] !== prevCoordinates[1])
+      (coordinates[0] !== prevCoordinates[0] ||
+        coordinates[1] !== prevCoordinates[1])
     ) {
       handleGetClosestStations();
       setPrevCoordinates(coordinates);
     }
   }, [coordinates, showLocationDiv, activeTab]);
+
+  useEffect(() => {
+    if (activeTab === "savedParameters" && !parametersFetched) {
+      handleGetSavedParameters();
+    }
+  }, [savedParameters, activeTab]);
 
   const handleCoordinateSubmit = () => {
     const lat = parseFloat(latInput);
@@ -89,6 +99,20 @@ const RockCliMe = () => {
       }
     } else {
       console.log("Invalid coordinates input.");
+    }
+  };
+
+  const handleGetSavedParameters = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8080/api/rockclim/GET/user_defined_pars",
+        { withCredentials: true }
+      );
+      setSavedParameters(response.data);
+      setParametersFetched(true);
+    } catch (error) {
+      console.error("Error fetching saved parameters:", error);
+      setParametersFetched(true);
     }
   };
 
@@ -116,9 +140,8 @@ const RockCliMe = () => {
     setSelectedStation(selectedStation === station ? null : station);
   };
 
-  const handleYearsChange = (e) => {
-    setYears(e.target.value);
-    console.log("Years changed:", e.target.value);
+  const handleSavedParClick = (par) => {
+    setSelectedPar(selectedPar === par ? null : par);
   };
 
   const handleViewStationPar = () => {
@@ -127,7 +150,7 @@ const RockCliMe = () => {
       return;
     }
 
-    const location = usePrism
+    const location = usePrismPar
       ? { longitude: parseFloat(lngInput), latitude: parseFloat(latInput) }
       : {
           longitude: selectedStation.longitude,
@@ -139,13 +162,30 @@ const RockCliMe = () => {
       latitude: selectedStation.latitude,
     };
 
-    navigate(`/rockclime/station_par/${selectedStation.id}`, {
+    navigate(`/rockclime/par/${selectedStation.id}`, {
       state: {
         stationCoords,
         location,
-        usePrism,
+        usePrismPar,
         stationDesc: selectedStation.desc,
         par_id: selectedStation.par,
+      },
+    });
+  };
+
+  const handleViewSavedPar = () => {
+    if (!selectedPar) {
+      console.error("No saved parameter selected");
+      return;
+    }
+
+    navigate(`/rockclime/par/${selectedPar}`, {
+      state: {
+        stationCoords: null,
+        location: null,
+        usePrismPar: false,
+        stationDesc: savedParameters[selectedPar].description,
+        par_id: selectedPar,
       },
     });
   };
@@ -161,11 +201,27 @@ const RockCliMe = () => {
       return;
     }
 
-    navigate(`/rockclime/climate_data/${selectedStation.id}`, {
+    const location = usePrismClim
+      ? { longitude: parseFloat(lngInput), latitude: parseFloat(latInput) }
+      : {
+          longitude: selectedStation.longitude,
+          latitude: selectedStation.latitude,
+        };
+
+    const stationCoords = {
+      longitude: selectedStation.longitude,
+      latitude: selectedStation.latitude,
+    };
+
+
+    navigate(`/rockclime/climate/${selectedStation.id}`, {
       state: {
+        stationCoords,
+        location,
         years,
+        usePrismClim,
         par_id: selectedStation.id,
-        stationDesc: selectedStation,
+        stationDesc: selectedStation.desc,
       },
     });
   };
@@ -277,6 +333,7 @@ const RockCliMe = () => {
           <button
             onClick={() => {
               setActiveTab("closestStations");
+              setParametersFetched(false);
             }}
             className={`px-4 py-2 w-full ${
               activeTab === "closestStations"
@@ -310,9 +367,11 @@ const RockCliMe = () => {
               <div key={index}>
                 <button
                   className={`border p-2 rounded text-left w-full ${
-                    selectedStation === station ? "bg-[#16a34a] text-white" : ""
+                    selectedStation === station ? "bg-[#015838] text-white" : ""
                   }`}
-                  onClick={() => handleStationClick(station)}
+                  onClick={() => {
+                    handleStationClick(station);
+                  }}
                 >
                   <strong>{station.desc.slice(0, -2)}</strong> <br />
                   Latitude: {station.latitude}, Longitude: {station.longitude}
@@ -326,14 +385,68 @@ const RockCliMe = () => {
                         <input
                           type="checkbox"
                           className="form-checkbox"
-                          checked={usePrism}
-                          onChange={(e) => setUsePrism(e.target.checked)}
+                          checked={usePrismPar}
+                          onChange={(e) => setUsePrismPar(e.target.checked)}
                         />
                         <span className="ml-2">Use Prism monthlies</span>
                       </label>
                       <button
-                        className="block w-full text-left p-2 mb-2 bg-blue-500 text-white rounded"
+                        className="block w-full text-left p-2 mb-2 bg-[#16a34a] text-white rounded"
                         onClick={handleViewStationPar}
+                      >
+                        View Station Parameters
+                      </button>
+                    </div>
+                    <div className="mb-2 border-t-2 border-gray-300">
+                      <label className="mt-2 block text-sm font-medium text-gray-700">
+                        Number of Years
+                      </label>
+                      <input
+                        type="number"
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded"
+                        value={years}
+                        onChange={(e) => setYears(e.target.value)}
+                      />
+                      <label className="mt-2 inline-flex items-center">
+                        <input
+                          type="checkbox"
+                          className="form-checkbox"
+                          checked={usePrismClim}
+                          onChange={(e) => setUsePrismClim(e.target.checked)}
+                        />
+                        <span className="ml-2">Use Prism monthlies</span>
+                      </label>
+                    </div>
+                    <button
+                      className="block w-full text-left p-2 bg-[#16a34a] text-white rounded"
+                      onClick={handleViewClimateData}
+                    >
+                      Generate Climate Data
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+        {activeTab === "savedParameters" && (
+          <div className="grid grid-cols-1 gap-4">
+            {Object.keys(savedParameters).map((par, index) => (
+              <div key={index}>
+                <button
+                  className={`border p-2 rounded text-left w-full ${
+                    selectedPar === par ? "bg-[#015838] text-white" : ""
+                  }`}
+                  onClick={() => handleSavedParClick(par)}
+                >
+                  <strong>{savedParameters[par].description}</strong>
+                </button>
+                {selectedPar === par && (
+                  <div className="mt-2 p-2 border rounded bg-gray-100">
+                    <div className="mb-2">
+                      <button
+                        className="block w-full text-left p-2 mb-2 bg-[#16a34a] text-white rounded"
+                        onClick={handleViewSavedPar}
                       >
                         View Station Parameters
                       </button>
@@ -350,7 +463,7 @@ const RockCliMe = () => {
                       />
                     </div>
                     <button
-                      className="block w-full text-left p-2 bg-green-500 text-white rounded"
+                      className="block w-full text-left p-2 bg-[#16a34a] text-white rounded"
                       onClick={handleViewClimateData}
                     >
                       Generate Climate Data
@@ -359,12 +472,6 @@ const RockCliMe = () => {
                 )}
               </div>
             ))}
-          </div>
-        )}
-        {activeTab === "savedParameters" && (
-          <div>
-            {/* Display saved parameters data here */}
-            <p>Saved Parameters content goes here.</p>
           </div>
         )}
       </div>

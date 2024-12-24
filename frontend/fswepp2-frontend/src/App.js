@@ -33,8 +33,8 @@ const App = () => {
       <Navbar isVisible={isNavbarVisible} toggleVisibility={() => setNavbarVisible(!isNavbarVisible)} />
       <Routes>
         <Route path="/rockclime" element={<RockCliMe />} />
-        <Route path="/rockclime/station_par/:stationId" element={<StationPar />} />
-        <Route path="/rockclime/climate_data/:stationId" element={<ClimateData />} />
+        <Route path="/rockclime/par/:stationId" element={<StationPar />} />
+        <Route path="/rockclime/climate/:stationId" element={<ClimateData />} />
       </Routes>
     </div>
   );

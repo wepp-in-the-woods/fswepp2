@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation, json } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
 const parseStationDesc = (desc) => {
-  // Remove extra spaces
   const trimmedDesc = desc.replace(/\s+/g, " ").trim();
-  // Regex to match the name, state, and ID
   const regex = /^(.*?)(\b[A-Z]{2}\b)\s(\d{6})\s0$/;
   const match = trimmedDesc.match(regex);
   if (match) {
@@ -38,7 +36,7 @@ const StationPar = () => {
             par_id: par_id,
             location: loc,
             use_prism: usePrism,
-          }
+          } 
         );
         setStationData(response.data);
       } catch (error) {
@@ -98,7 +96,7 @@ const StationPar = () => {
           Home
         </button>
       </div>
-      <div className="flex items-center border-b border-gray-200">
+      <div className="flex items-center">
         <button
           onClick={() => navigate("/rockclime")}
           className="px-4 py-2 bg-white text-black underline rounded items-start"
@@ -107,7 +105,7 @@ const StationPar = () => {
         </button>
       </div>
       {/* Main Content */}
-      <div className="flex flex-col items-start ml-4 mt-4 mr-4">
+      <div className="flex flex-col items-start ml-4 mr-4">
         <div className="w-full">
           <div className="text-2xl font-semibold">
             {name}, {state}
