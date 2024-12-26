@@ -34,7 +34,8 @@ async def ensure_user_id_middleware(request: Request, call_next):
         response.set_cookie(
             key="user_id",
             value=user_id,
-            path="/"
+            path="/",
+            max_age=60*60*24*7
         )
         
         # print(f"user_id: {user_id}")
