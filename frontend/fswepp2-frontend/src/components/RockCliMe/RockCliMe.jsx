@@ -82,7 +82,11 @@ const RockCliMe = () => {
   }, [coordinates, showLocationDiv, activeTab]);
 
   useEffect(() => {
-    if (activeTab === "savedParameters" && !parametersFetched) {
+    if (
+      activeTab === "savedParameters" &&
+      !parametersFetched &&
+      parametersFetched !== null
+    ) {
       handleGetSavedParameters();
     }
   }, [savedParameters, activeTab]);
@@ -110,6 +114,7 @@ const RockCliMe = () => {
       );
       setSavedParameters(response.data);
       setParametersFetched(true);
+      console.log("Saved parameters fetched:", response.data);
     } catch (error) {
       console.error("Error fetching saved parameters:", error);
       setParametersFetched(true);
@@ -179,13 +184,21 @@ const RockCliMe = () => {
       return;
     }
 
+    const customPar = savedParameters[selectedPar];
+
     navigate(`/rockclime/par/${selectedPar}`, {
       state: {
         stationCoords: null,
-        location: null,
+        location: [0, 0],
         usePrismPar: false,
-        stationDesc: savedParameters[selectedPar].description,
+        stationDesc: customPar.description,
         par_id: selectedPar,
+        user_defined_par_mod: {
+          description: customPar.description,
+          ppts: customPar.ppts,
+          tmaxs: customPar.tmaxs,
+          tmins: customPar.tmins,
+        },
       },
     });
   };
@@ -212,7 +225,6 @@ const RockCliMe = () => {
       longitude: selectedStation.longitude,
       latitude: selectedStation.latitude,
     };
-
 
     navigate(`/rockclime/climate/${selectedStation.id}`, {
       state: {
@@ -298,7 +310,11 @@ const RockCliMe = () => {
                 <input
                   type="text"
                   placeholder="Latitude"
-                  value={parseFloat(latInput).toFixed(5)}
+                  value={
+                    isNaN(parseFloat(latInput))
+                      ? ""
+                      : parseFloat(latInput).toFixed(5)
+                  }
                   onChange={(e) =>
                     setLatInput(parseFloat(e.target.value).toFixed(5))
                   }
@@ -307,7 +323,11 @@ const RockCliMe = () => {
                 <input
                   type="text"
                   placeholder="Longitude"
-                  value={parseFloat(lngInput).toFixed(5)}
+                  value={
+                    isNaN(parseFloat(lngInput))
+                      ? ""
+                      : parseFloat(lngInput).toFixed(5)
+                  }
                   onChange={(e) =>
                     setLngInput(parseFloat(e.target.value).toFixed(5))
                   }

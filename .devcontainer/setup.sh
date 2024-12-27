@@ -30,7 +30,7 @@ sudo dpkg -i libgfortran3_6.4.0-17ubuntu1_amd64.deb
 rm gcc-6-base_6.4.0-17ubuntu1_amd64.deb
 rm libgfortran3_6.4.0-17ubuntu1_amd64.deb
 
-# uvicorn main:app --host 0.0.0.0 --port 8080 --reload
+uvicorn main:app --host 0.0.0.0 --port 8080 --reload
 
 
 # For starting frontend. Commented out because it downloads a lot of packages through nodejs for developing React.
@@ -40,7 +40,4 @@ sudo apt-get install -y nodejs
 # cd frontend
 
 # cd fswepp2-frontend
-# npm install --verbose
-# npm install react-router-dom --verbose
-
 # npm start --verbose

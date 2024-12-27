@@ -19,11 +19,12 @@ const StationPar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const {
-    stationCoords: coordinates,
-    location: loc,
-    usePrism,
+    stationCoords: coordinates = { latitude: 0, longitude: 0 },
+    location: loc = [0, 0],
+    usePrismPar,
     stationDesc,
     par_id,
+    user_defined_par_mod,
   } = location.state || {};
   const [stationData, setStationData] = useState(null);
 
@@ -35,8 +36,9 @@ const StationPar = () => {
           {
             par_id: par_id,
             location: loc,
-            use_prism: usePrism,
-          } 
+            use_prism: usePrismPar,
+            user_defined_par_mod: user_defined_par_mod,
+          }
         );
         setStationData(response.data);
       } catch (error) {
@@ -44,8 +46,11 @@ const StationPar = () => {
       }
     };
 
-    fetchStationData();
-  }, [par_id, loc, usePrism]);
+    if (!user_defined_par_mod) {
+      fetchStationData();
+    }
+    console.log("par_id", par_id, "loc", loc, "usePrismPar", usePrismPar, "user_defined_par_mod", user_defined_par_mod);
+  }, [par_id, loc, usePrismPar, user_defined_par_mod]);
 
   const { name, state, id } = parseStationDesc(stationDesc);
 
@@ -111,7 +116,7 @@ const StationPar = () => {
             {name}, {state}
           </div>
           <div className="text-xl font-semibold mb-4">Station ID: {id}</div>
-          <div className="text-xl">
+          {!user_defined_par_mod && (<div className="text-xl">
             <h3 className="text-[17px] font-semibold -mt-2">
               Station Coordinates
             </h3>
@@ -121,11 +126,11 @@ const StationPar = () => {
             <p className="text-[14px] -mt-2">
               Longitude: {coordinates.longitude}
             </p>
-          </div>
+          </div>)}
         </div>
         <div className="mt-4 w-full mb-4">
           <h3 className="text-2xl font-semibold">Station Data:</h3>
-          {usePrism && (
+          {usePrismPar && (
             <p className="text-[12px] mb-2">
               *Precip. & Mean Min/Max Temp. from PRISM
             </p>
