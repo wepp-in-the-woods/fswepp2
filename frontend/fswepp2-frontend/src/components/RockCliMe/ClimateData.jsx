@@ -19,18 +19,19 @@ const ClimateData = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const {
-    stationCoords,
-    location: loc,
+    stationCoords: coordinates = { latitude: 0, longitude: 0 },
+    location: loc = [0, 0],
     years,
     usePrismClim,
     par_id,
     stationDesc,
+    user_defined_par_mod,
   } = location.state || {};
   const [climateData, setClimateData] = useState(null);
 
   console.log(
     "stationCoords",
-    stationCoords,
+    coordinates,
     "location",
     loc,
     "years",
@@ -40,7 +41,9 @@ const ClimateData = () => {
     "par_id",
     par_id,
     "stationDesc",
-    stationDesc
+    stationDesc,
+    "user_defined_par_mod",
+    user_defined_par_mod
   );
 
   const { name, state, id } = parseStationDesc(stationDesc);
@@ -60,18 +63,18 @@ const ClimateData = () => {
     "December",
   ];
   const monthsAbbrev = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
+    "Jan.",
+    "Feb.",
+    "Mar.",
+    "Apr.",
+    "May.",
+    "Jun.",
+    "Jul.",
+    "Aug.",
+    "Sep.",
+    "Oct.",
+    "Nov.",
+    "Dec.",
   ];
 
   useEffect(() => {
@@ -81,8 +84,11 @@ const ClimateData = () => {
           "http://localhost:8080/api/rockclim/GET/climate_monthlies",
           {
             par_id: par_id,
+            input_years: years,
             location: loc,
             use_prism: usePrismClim,
+            ...(usePrismClim && { location: loc }),
+            user_defined_par_mod: user_defined_par_mod,
           }
         );
         setClimateData(response.data);
@@ -131,10 +137,10 @@ const ClimateData = () => {
             Station Coordinates
           </h3>
           <p className="text-[14px] -mt-1">
-            Latitude: {stationCoords.latitude}
+            Latitude: {coordinates.latitude}
           </p>
           <p className="text-[14px] -mt-2">
-            Longitude: {stationCoords.longitude}
+            Longitude: {coordinates.longitude}
           </p>
         </div>
         <div className="mt-4 w-full mb-4">

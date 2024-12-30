@@ -114,7 +114,7 @@ const RockCliMe = () => {
       );
       setSavedParameters(response.data);
       setParametersFetched(true);
-      console.log("Saved parameters fetched:", response.data);
+      // console.log("Saved parameters fetched:", response.data);
     } catch (error) {
       console.error("Error fetching saved parameters:", error);
       setParametersFetched(true);
@@ -178,6 +178,41 @@ const RockCliMe = () => {
     });
   };
 
+  const handleViewStationClimateData = async () => {
+    if (!selectedStation || !selectedStation.id) {
+      console.error("No station selected or par_id is missing");
+      return;
+    }
+
+    if (!years) {
+      console.error("Number of years is missing");
+      return;
+    }
+
+    const location = usePrismClim
+      ? { longitude: parseFloat(lngInput), latitude: parseFloat(latInput) }
+      : {
+          longitude: selectedStation.longitude,
+          latitude: selectedStation.latitude,
+        };
+
+    const stationCoords = {
+      longitude: selectedStation.longitude,
+      latitude: selectedStation.latitude,
+    };
+
+    navigate(`/rockclime/climate/${savedParameters.id}`, {
+      state: {
+        stationCoords,
+        location,
+        years,
+        usePrismClim,
+        par_id: selectedStation.id,
+        stationDesc: selectedStation.desc,
+      },
+    });
+  };
+
   const handleViewSavedPar = () => {
     if (!selectedPar) {
       console.error("No saved parameter selected");
@@ -203,37 +238,28 @@ const RockCliMe = () => {
     });
   };
 
-  const handleViewClimateData = async () => {
-    if (!selectedStation || !selectedStation.id) {
-      console.error("No station selected or par_id is missing");
-      return;
-    }
+  const handleViewSavedParClimateData = async () => {
 
     if (!years) {
       console.error("Number of years is missing");
       return;
     }
 
-    const location = usePrismClim
-      ? { longitude: parseFloat(lngInput), latitude: parseFloat(latInput) }
-      : {
-          longitude: selectedStation.longitude,
-          latitude: selectedStation.latitude,
-        };
+    const customPar = savedParameters[selectedPar];
 
-    const stationCoords = {
-      longitude: selectedStation.longitude,
-      latitude: selectedStation.latitude,
-    };
-
-    navigate(`/rockclime/climate/${selectedStation.id}`, {
+    navigate(`/rockclime/climate/${selectedPar}`, {
       state: {
-        stationCoords,
-        location,
-        years,
-        usePrismClim,
-        par_id: selectedStation.id,
-        stationDesc: selectedStation.desc,
+        stationCoords: null, 
+        location: [0, 0],
+        usePrismClim: false,
+        stationDesc: customPar.description,
+        par_id: selectedPar,
+        user_defined_par_mod: {
+          description: customPar.description,
+          ppts: customPar.ppts,
+          tmaxs: customPar.tmaxs,
+          tmins: customPar.tmins,
+        },
       },
     });
   };
@@ -439,7 +465,7 @@ const RockCliMe = () => {
                     </div>
                     <button
                       className="block w-full text-left p-2 bg-[#16a34a] text-white rounded"
-                      onClick={handleViewClimateData}
+                      onClick={handleViewStationClimateData}
                     >
                       Generate Climate Data
                     </button>
@@ -484,7 +510,7 @@ const RockCliMe = () => {
                     </div>
                     <button
                       className="block w-full text-left p-2 bg-[#16a34a] text-white rounded"
-                      onClick={handleViewClimateData}
+                      onClick={handleViewSavedParClimateData}
                     >
                       Generate Climate Data
                     </button>
