@@ -48,8 +48,19 @@ const StationPar = () => {
 
     if (!user_defined_par_mod) {
       fetchStationData();
+    } else {
+      setStationData(user_defined_par_mod);
     }
-    console.log("par_id", par_id, "loc", loc, "usePrismPar", usePrismPar, "user_defined_par_mod", user_defined_par_mod);
+    console.log(
+      "par_id",
+      par_id,
+      "loc",
+      loc,
+      "usePrismPar",
+      usePrismPar,
+      "user_defined_par_mod",
+      user_defined_par_mod
+    );
   }, [par_id, loc, usePrismPar, user_defined_par_mod]);
 
   const { name, state, id } = parseStationDesc(stationDesc);
@@ -113,20 +124,25 @@ const StationPar = () => {
       <div className="flex flex-col items-start ml-4 mr-4">
         <div className="w-full">
           <div className="text-2xl font-semibold">
-            {name}, {state}
+            {user_defined_par_mod ? user_defined_par_mod.description : name}
+            {state && `, ${state}`}
           </div>
-          <div className="text-xl font-semibold mb-4">Station ID: {id}</div>
-          {!user_defined_par_mod && (<div className="text-xl">
-            <h3 className="text-[17px] font-semibold -mt-2">
-              Station Coordinates
-            </h3>
-            <p className="text-[14px] -mt-1">
-              Latitude: {coordinates.latitude}
-            </p>
-            <p className="text-[14px] -mt-2">
-              Longitude: {coordinates.longitude}
-            </p>
-          </div>)}
+          <div className="text-md mb-4">
+            {user_defined_par_mod ? `Par. ID: ${par_id}` : `Station ID: ${id}`}
+          </div>
+          {!user_defined_par_mod && (
+            <div className="text-xl">
+              <h3 className="text-[17px] font-semibold -mt-2">
+                Station Coordinates
+              </h3>
+              <p className="text-[14px] -mt-1">
+                Latitude: {coordinates.latitude}
+              </p>
+              <p className="text-[14px] -mt-2">
+                Longitude: {coordinates.longitude}
+              </p>
+            </div>
+          )}
         </div>
         <div className="mt-4 w-full mb-4">
           <h3 className="text-2xl font-semibold">Station Data:</h3>
@@ -176,7 +192,9 @@ const StationPar = () => {
                         {stationData.tmins[index].toFixed(2)}
                       </td>
                       <td className="border border-gray-300 px-2 py-2">
-                        {stationData.nwds[index].toFixed(2)}
+                        {stationData.nwds
+                          ? stationData.nwds[index].toFixed(2)
+                          : "N/A"}
                       </td>
                     </tr>
                   ))}
@@ -186,7 +204,9 @@ const StationPar = () => {
                       <span className="md:hidden">Ann.</span>
                     </td>
                     <td className="border border-gray-300 px-2 py-2">
-                      {stationData.cumulative_ppts.toFixed(2)}
+                      {stationData.cumulative_ppts
+                        ? stationData.cumulative_ppts.toFixed(2)
+                        : "N/A"}
                     </td>
                     <td className="border border-gray-300 px-2 py-2"></td>
                     <td className="border border-gray-300 px-2 py-2"></td>
