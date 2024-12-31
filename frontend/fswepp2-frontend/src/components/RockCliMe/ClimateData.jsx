@@ -132,17 +132,19 @@ const ClimateData = () => {
           {name}, {state}
         </div>
         <div className="text-xl font-semibold mb-4">Station ID: {id}</div>
-        <div className="text-xl">
-          <h3 className="text-[17px] font-semibold -mt-2">
-            Station Coordinates
-          </h3>
-          <p className="text-[14px] -mt-1">
-            Latitude: {coordinates.latitude}
-          </p>
-          <p className="text-[14px] -mt-2">
-            Longitude: {coordinates.longitude}
-          </p>
-        </div>
+        {coordinates && (
+          <div className="text-xl">
+            <h3 className="text-[17px] font-semibold -mt-2">
+              Station Coordinates
+            </h3>
+            <p className="text-[14px] -mt-1">
+              Latitude: {coordinates.latitude}
+            </p>
+            <p className="text-[14px] -mt-2">
+              Longitude: {coordinates.longitude}
+            </p>
+          </div>
+        )}
         <div className="mt-4 w-full mb-4">
           <h3 className="text-2xl font-semibold">Climate Data:</h3>
           {usePrismClim && (
