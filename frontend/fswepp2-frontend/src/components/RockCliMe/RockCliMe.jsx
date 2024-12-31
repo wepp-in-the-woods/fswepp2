@@ -226,14 +226,7 @@ const RockCliMe = () => {
         stationCoords: null,
         location: [0, 0],
         usePrismPar: false,
-        stationDesc: customPar.description,
         par_id: selectedPar,
-        user_defined_par_mod: {
-          description: customPar.description,
-          ppts: customPar.ppts,
-          tmaxs: customPar.tmaxs,
-          tmins: customPar.tmins,
-        },
       },
     });
   };
@@ -485,7 +478,7 @@ const RockCliMe = () => {
                   }`}
                   onClick={() => handleSavedParClick(par)}
                 >
-                  <strong>{savedParameters[par].description}</strong>
+                  <strong>{savedParameters[par].user_defined_par_mod.description}</strong>
                 </button>
                 {selectedPar === par && (
                   <div className="mt-2 p-2 border rounded bg-gray-100">

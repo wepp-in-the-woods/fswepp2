@@ -31,7 +31,7 @@ const StationPar = () => {
   useEffect(() => {
     const fetchStationData = async () => {
       try {
-        const response = await axios.post(
+        response = await axios.post(
           "http://localhost:8080/api/rockclim/GET/station_par_monthlies",
           {
             par_id: par_id,
@@ -41,6 +41,7 @@ const StationPar = () => {
           }
         );
         setStationData(response.data);
+        console.log("Station Data:", response.data);
       } catch (error) {
         console.error("Error fetching station par monthlies:", error);
       }
