@@ -321,11 +321,11 @@ def save_user_defined_par_mod(
     
     user_custom_db_path = _join(_thisdir, f'db/users/rockclim/{user_id}.json')
     user_data = load_user_data(user_custom_db_path)
-    par_mod_key = str(hash(climate_pars.user_defined_par_mod))
+    par_mod_key = str(hash(climate_pars))
 
     # Check if the entry already exists
     if par_mod_key not in user_data:
-        user_data[par_mod_key] = climate_pars.user_defined_par_mod.dict()
+        user_data[par_mod_key] = climate_pars.dict()
         save_user_data(user_custom_db_path, user_data)
         return {"message": f"New entry added with key: {par_mod_key}"}
     else:
@@ -358,7 +358,7 @@ def del_user_defined_par_mod(
     
     user_custom_db_path = _join(_thisdir, f'db/users/rockclim/{user_id}.json')
     user_data = load_user_data(user_custom_db_path)
-    par_mod_key = str(hash(climate_pars.user_defined_par_mod))
+    par_mod_key = str(hash(climate_pars))
 
     if par_mod_key in user_data:
         del user_data[par_mod_key]
