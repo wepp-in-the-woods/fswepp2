@@ -9,10 +9,9 @@ const parseStationDesc = (desc) => {
   if (match) {
     const name = match[1].trim();
     const state = match[2];
-    const id = match[3];
-    return { name, state, id };
+    return { name, state };
   }
-  return { name: "", state: "", id: "" };
+  return { name: "", state: "" };
 };
 
 const ClimateData = () => {
@@ -26,27 +25,15 @@ const ClimateData = () => {
     par_id,
     stationDesc,
     user_defined_par_mod,
+    customPar,
   } = location.state || {};
   const [climateData, setClimateData] = useState(null);
 
-  console.log(
-    "stationCoords",
-    coordinates,
-    "location",
-    loc,
-    "years",
-    years,
-    "usePrismClim",
-    usePrismClim,
-    "par_id",
-    par_id,
-    "stationDesc",
-    stationDesc,
-    "user_defined_par_mod",
-    user_defined_par_mod
-  );
-
-  const { name, state, id } = parseStationDesc(stationDesc);
+  let name = "",
+    state = "";
+  if (stationDesc) {
+    ({ name, state } = parseStationDesc(stationDesc));
+  }
 
   const months = [
     "January",
@@ -79,27 +66,30 @@ const ClimateData = () => {
 
   useEffect(() => {
     const fetchClimateData = async () => {
+      if(customPar) {
+        console.log("Custom Par:", customPar);
+      }
+      
       try {
         const response = await axios.post(
           "http://localhost:8080/api/rockclim/GET/climate_monthlies",
-          {
+          customPar || {
             par_id: par_id,
             input_years: years,
             location: loc,
             use_prism: usePrismClim,
-            ...(usePrismClim && { location: loc }),
             user_defined_par_mod: user_defined_par_mod,
           }
         );
         setClimateData(response.data);
         console.log("Climate Data:", response.data);
       } catch (error) {
-        console.error("Error fetching station par monthlies:", error);
+        console.error("Error generating climate data:", error);
       }
     };
 
     fetchClimateData();
-  }, [par_id, loc, usePrismClim]);
+  }, [par_id, loc, usePrismClim, user_defined_par_mod]);
 
   return (
     <div className="flex flex-col h-screen">
@@ -131,7 +121,7 @@ const ClimateData = () => {
         <div className="text-2xl font-semibold">
           {name}, {state}
         </div>
-        <div className="text-xl font-semibold mb-4">Station ID: {id}</div>
+        <div className="text-xl font-semibold mb-4">Station ID: {par_id}</div>
         {coordinates && (
           <div className="text-xl">
             <h3 className="text-[17px] font-semibold -mt-2">

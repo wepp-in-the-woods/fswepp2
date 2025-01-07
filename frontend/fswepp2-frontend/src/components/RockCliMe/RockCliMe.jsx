@@ -243,7 +243,7 @@ const RockCliMe = () => {
 
     navigate(`/rockclime/climate/${selectedPar}`, {
       state: {
-        selectedPar,
+        customPar,
       },
     });
   };
@@ -478,7 +478,7 @@ const RockCliMe = () => {
                         className="block w-full text-left p-2 mb-2 bg-[#16a34a] text-white rounded"
                         onClick={handleViewSavedPar}
                       >
-                        View Station Parameters
+                        View Saved Parameters
                       </button>
                     </div>
                     <div className="mb-2 border-t-2 border-gray-300">
