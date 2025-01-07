@@ -201,7 +201,7 @@ const RockCliMe = () => {
       latitude: selectedStation.latitude,
     };
 
-    navigate(`/rockclime/climate/${savedParameters.id}`, {
+    navigate(`/rockclime/climate/${selectedStation.id}`, {
       state: {
         stationCoords,
         location,
@@ -221,12 +221,13 @@ const RockCliMe = () => {
 
     const customPar = savedParameters[selectedPar];
 
+    console.log("Custom Par:", customPar);
+
     navigate(`/rockclime/par/${selectedPar}`, {
       state: {
-        stationCoords: null,
-        location: [0, 0],
-        usePrismPar: false,
         par_id: selectedPar,
+        usePrismPar: customPar.use_prism,
+        user_defined_par_mod: customPar.user_defined_par_mod,
       },
     });
   };
@@ -242,17 +243,7 @@ const RockCliMe = () => {
 
     navigate(`/rockclime/climate/${selectedPar}`, {
       state: {
-        stationCoords: null, 
-        location: [0, 0],
-        usePrismClim: false,
-        stationDesc: customPar.description,
-        par_id: selectedPar,
-        user_defined_par_mod: {
-          description: customPar.description,
-          ppts: customPar.ppts,
-          tmaxs: customPar.tmaxs,
-          tmins: customPar.tmins,
-        },
+        selectedPar,
       },
     });
   };

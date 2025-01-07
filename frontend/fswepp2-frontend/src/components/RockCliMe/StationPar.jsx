@@ -22,7 +22,7 @@ const StationPar = () => {
     stationCoords: coordinates = { latitude: 0, longitude: 0 },
     location: loc = [0, 0],
     usePrismPar,
-    stationDesc,
+    stationDesc = "",
     par_id,
     user_defined_par_mod,
   } = location.state || {};
@@ -31,7 +31,7 @@ const StationPar = () => {
   useEffect(() => {
     const fetchStationData = async () => {
       try {
-        response = await axios.post(
+        const response = await axios.post(
           "http://localhost:8080/api/rockclim/GET/station_par_monthlies",
           {
             par_id: par_id,
@@ -48,10 +48,13 @@ const StationPar = () => {
     };
 
     if (!user_defined_par_mod) {
+      console.log("Fetching station data...");
       fetchStationData();
     } else {
+      console.log("Setting user-defined station data...");
       setStationData(user_defined_par_mod);
     }
+
     console.log(
       "par_id",
       par_id,
@@ -136,12 +139,16 @@ const StationPar = () => {
               <h3 className="text-[17px] font-semibold -mt-2">
                 Station Coordinates
               </h3>
-              <p className="text-[14px] -mt-1">
-                Latitude: {coordinates.latitude}
-              </p>
-              <p className="text-[14px] -mt-2">
-                Longitude: {coordinates.longitude}
-              </p>
+              {!user_defined_par_mod && (
+                <>
+                  <p className="text-[14px] -mt-1">
+                    Latitude: {coordinates.latitude}
+                  </p>
+                  <p className="text-[14px] -mt-2">
+                    Longitude: {coordinates.longitude}
+                  </p>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -211,7 +218,11 @@ const StationPar = () => {
                     </td>
                     <td className="border border-gray-300 px-2 py-2"></td>
                     <td className="border border-gray-300 px-2 py-2"></td>
-                    <td className="border border-gray-300 px-2 py-2"></td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      {stationData.cumulative_nwds
+                        ? stationData.cumulative_nwds.toFixed(2)
+                        : "N/A"}
+                    </td>
                   </tr>
                 </tbody>
               </table>

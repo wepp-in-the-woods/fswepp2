@@ -8,7 +8,6 @@ import ClimateData from './components/RockCliMe/ClimateData.jsx';
 const App = () => {
   const [isNavbarVisible, setNavbarVisible] = useState(true);
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const handleResize = () => {
