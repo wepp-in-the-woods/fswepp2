@@ -18,6 +18,7 @@ const ClimateData = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const {
+    // For station parameters
     stationCoords: coordinates = { latitude: 0, longitude: 0 },
     location: loc = [0, 0],
     years,
@@ -25,6 +26,9 @@ const ClimateData = () => {
     par_id,
     stationDesc,
     user_defined_par_mod,
+
+    // For custom parameters
+    selectedPar,
     customPar,
   } = location.state || {};
   const [climateData, setClimateData] = useState(null);
@@ -66,29 +70,35 @@ const ClimateData = () => {
 
   useEffect(() => {
     const fetchClimateData = async () => {
-      if(customPar) {
-        console.log("Custom Par:", customPar);
-      }
-      
       try {
+        const updatedCustomPar = customPar
+          ? {
+              ...customPar,
+              input_years: years || customPar.input_years,
+            }
+          : {
+              par_id: par_id,
+              input_years: years,
+              location: loc,
+              use_prism: usePrismClim,
+              user_defined_par_mod: user_defined_par_mod,
+            };
+
         const response = await axios.post(
           "http://localhost:8080/api/rockclim/GET/climate_monthlies",
-          customPar || {
-            par_id: par_id,
-            input_years: years,
-            location: loc,
-            use_prism: usePrismClim,
-            user_defined_par_mod: user_defined_par_mod,
-          }
+          updatedCustomPar
         );
         setClimateData(response.data);
-        console.log("Climate Data:", response.data);
+        console.log("Climate data:", response.data);
       } catch (error) {
         console.error("Error generating climate data:", error);
       }
     };
 
-    fetchClimateData();
+    if (!climateData) {
+      fetchClimateData();
+    }
+
   }, [par_id, loc, usePrismClim, user_defined_par_mod]);
 
   return (
@@ -119,10 +129,16 @@ const ClimateData = () => {
       </div>
       <div className="flex flex-col items-start ml-4 mr-4">
         <div className="text-2xl font-semibold">
-          {name}, {state}
+          {customPar
+            ? customPar.user_defined_par_mod.description
+            : `${name}, ${state}`}
         </div>
-        <div className="text-xl font-semibold mb-4">Station ID: {par_id}</div>
-        {coordinates && (
+        <div className="text-l mb-4">
+          {customPar
+            ? `Parameter ID: ${selectedPar}`
+            : `Station ID: ${par_id}`}
+        </div>{" "}
+        {!customPar && coordinates && (
           <div className="text-xl">
             <h3 className="text-[17px] font-semibold -mt-2">
               Station Coordinates

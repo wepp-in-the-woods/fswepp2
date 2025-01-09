@@ -98,8 +98,6 @@ const RockCliMe = () => {
       if (coordinates[0] !== lat || coordinates[1] !== lng) {
         console.log("Updating coordinates:", [lat, lng]);
         setCoordinates([lat, lng]);
-      } else {
-        console.log("Coordinates are the same, no update needed.");
       }
     } else {
       console.log("Invalid coordinates input.");
@@ -114,7 +112,6 @@ const RockCliMe = () => {
       );
       setSavedParameters(response.data);
       setParametersFetched(true);
-      // console.log("Saved parameters fetched:", response.data);
     } catch (error) {
       console.error("Error fetching saved parameters:", error);
       setParametersFetched(true);
@@ -221,8 +218,6 @@ const RockCliMe = () => {
 
     const customPar = savedParameters[selectedPar];
 
-    console.log("Custom Par:", customPar);
-
     navigate(`/rockclime/par/${selectedPar}`, {
       state: {
         par_id: selectedPar,
@@ -243,6 +238,8 @@ const RockCliMe = () => {
 
     navigate(`/rockclime/climate/${selectedPar}`, {
       state: {
+        selectedPar,
+        years,
         customPar,
       },
     });
