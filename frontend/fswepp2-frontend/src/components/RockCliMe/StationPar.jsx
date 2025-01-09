@@ -153,12 +153,24 @@ const StationPar = () => {
           )}
         </div>
         <div className="mt-4 w-full mb-4">
-          <h3 className="text-2xl font-semibold">Station Data:</h3>
-          {usePrismPar && (
-            <p className="text-[12px] mb-2">
-              *Precip. & Mean Min/Max Temp. from PRISM
-            </p>
-          )}
+          <div className="mb-2 flex flex-row">
+            <div className="">
+              <h3 className="text-2xl font-semibold">Station Data:</h3>
+              {usePrismPar && (
+                <p className="text-[12px]">
+                  *Precip. & Mean Min/Max Temp. from PRISM
+                </p>
+              )}
+            </div>
+            <div className="flex-grow flex items-end justify-end">
+            <button
+                onClick={() => ""} // Save parameters button
+                className="px-4 py-2 bg-[#16a34a] text-white rounded"
+              >
+                Save Parameters
+              </button>
+            </div>
+          </div>
           {stationData && (
             <div>
               <table className="table-auto border-collapse border border-gray-400 w-full max-[374px]:text-xs">
