@@ -27,6 +27,11 @@ const StationPar = () => {
     user_defined_par_mod,
   } = location.state || {};
   const [stationData, setStationData] = useState(null);
+  const [isModified, setIsModified] = useState(false);
+
+  const handleClick = () => {
+    setIsModified(true);
+  };
 
   useEffect(() => {
     const fetchStationData = async () => {
@@ -54,17 +59,6 @@ const StationPar = () => {
       console.log("Setting user-defined station data...");
       setStationData(user_defined_par_mod);
     }
-
-    console.log(
-      "par_id",
-      par_id,
-      "loc",
-      loc,
-      "usePrismPar",
-      usePrismPar,
-      "user_defined_par_mod",
-      user_defined_par_mod
-    );
   }, [par_id, loc, usePrismPar, user_defined_par_mod]);
 
   const { name, state, id } = parseStationDesc(stationDesc);
@@ -163,11 +157,15 @@ const StationPar = () => {
               )}
             </div>
             <div className="flex-grow flex items-end justify-end">
-            <button
-                onClick={() => ""} // Save parameters button
-                className="px-4 py-2 bg-[#16a34a] text-white rounded"
+              <button
+                onClick={handleClick}
+                className={`px-2 py-2 rounded whitespace-nowrap ${
+                  isModified
+                    ? "border border-[#16a34a] bg-[#16a34a] text-white"
+                    : "border border-[#16a34a] text-black bg-white"
+                }`}
               >
-                Save Parameters
+                {isModified ? "Save Param." : "Modify Param."}
               </button>
             </div>
           </div>
@@ -203,39 +201,57 @@ const StationPar = () => {
                         <span className="md:hidden">{monthsAbbrev[index]}</span>
                       </td>
                       <td className="border border-gray-300 px-2 py-2">
-                        {ppt.toFixed(2)}
+                        {isModified ? (
+                          <input
+                            type="text"
+                            defaultValue={ppt.toFixed(2)}
+                            className="w-full border-none"
+                          />
+                        ) : (
+                          ppt.toFixed(2)
+                        )}
                       </td>
                       <td className="border border-gray-300 px-2 py-2">
-                        {stationData.tmaxs[index].toFixed(2)}
+                        {isModified ? (
+                          <input
+                            type="text"
+                            defaultValue={stationData.tmaxs[index].toFixed(2)}
+                            className="w-full border-none"
+                          />
+                        ) : (
+                          stationData.tmaxs[index].toFixed(2)
+                        )}
                       </td>
                       <td className="border border-gray-300 px-2 py-2">
-                        {stationData.tmins[index].toFixed(2)}
+                        {isModified ? (
+                          <input
+                            type="text"
+                            defaultValue={stationData.tmins[index].toFixed(2)}
+                            className="w-full border-none"
+                          />
+                        ) : (
+                          stationData.tmins[index].toFixed(2)
+                        )}
                       </td>
                       <td className="border border-gray-300 px-2 py-2">
-                        {stationData.nwds
-                          ? stationData.nwds[index].toFixed(2)
-                          : "N/A"}
+                        {isModified ? (
+                          <input
+                            type="text"
+                            defaultValue={
+                              stationData.nwds
+                                ? stationData.nwds[index].toFixed(2)
+                                : "N/A"
+                            }
+                            className="w-full border-none"
+                          />
+                        ) : stationData.nwds ? (
+                          stationData.nwds[index].toFixed(2)
+                        ) : (
+                          "N/A"
+                        )}
                       </td>
                     </tr>
                   ))}
-                  <tr className="border border-gray-300">
-                    <td className="border border-gray-300 px-2 py-2">
-                      <span className="hidden md:inline">Annual</span>
-                      <span className="md:hidden">Ann.</span>
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2">
-                      {stationData.cumulative_ppts
-                        ? stationData.cumulative_ppts.toFixed(2)
-                        : "N/A"}
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2"></td>
-                    <td className="border border-gray-300 px-2 py-2"></td>
-                    <td className="border border-gray-300 px-2 py-2">
-                      {stationData.cumulative_nwds
-                        ? stationData.cumulative_nwds.toFixed(2)
-                        : "N/A"}
-                    </td>
-                  </tr>
                 </tbody>
               </table>
             </div>
