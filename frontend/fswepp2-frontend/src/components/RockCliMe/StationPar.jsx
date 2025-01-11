@@ -174,19 +174,19 @@ const StationPar = () => {
               <table className="table-auto border-collapse border border-gray-400 w-full max-[374px]:text-xs">
                 <thead>
                   <tr>
-                    <th className="border border-gray-300 py-2 px-2 text-left">
+                    <th className="border border-gray-300 py-2 px-2 text-left w-1/5">
                       Month
                     </th>
-                    <th className="border border-gray-300 py-2 px-2 text-left">
+                    <th className="border border-gray-300 py-2 px-2 text-left w-1/5">
                       Mean Precip.
                     </th>
-                    <th className="border border-gray-300 px-2 py-2 text-left">
+                    <th className="border border-gray-300 px-2 py-2 text-left w-1/5">
                       Mean Max Temp.
                     </th>
-                    <th className="border border-gray-300 px-2 py-2 text-left">
+                    <th className="border border-gray-300 px-2 py-2 text-left w-1/5">
                       Mean Min Temp.
                     </th>
-                    <th className="border border-gray-300 px-2 py-2 text-left">
+                    <th className="border border-gray-300 px-2 py-2 text-left w-1/5">
                       # of Wet Days
                     </th>
                   </tr>
@@ -194,61 +194,63 @@ const StationPar = () => {
                 <tbody>
                   {stationData.ppts.map((ppt, index) => (
                     <tr key={index}>
-                      <td className="border border-gray-300 px-2 py-2">
+                      <td className="border border-gray-300 px-2 py-2 w-1/5">
                         <span className="hidden md:inline">
                           {months[index]}
                         </span>
                         <span className="md:hidden">{monthsAbbrev[index]}</span>
                       </td>
-                      <td className="border border-gray-300 px-2 py-2">
-                        {isModified ? (
-                          <input
-                            type="text"
-                            defaultValue={ppt.toFixed(2)}
-                            className="w-full border-none"
-                          />
-                        ) : (
-                          ppt.toFixed(2)
-                        )}
+                      <td className="border border-gray-300 px-2 py-2 w-1/5">
+                        <input
+                          type="text"
+                          defaultValue={ppt.toFixed(2)}
+                          className={`w-full border-none rounded ${
+                            isModified
+                              ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
+                              : ""
+                          }`}
+                          readOnly={!isModified}
+                        />
                       </td>
-                      <td className="border border-gray-300 px-2 py-2">
-                        {isModified ? (
-                          <input
-                            type="text"
-                            defaultValue={stationData.tmaxs[index].toFixed(2)}
-                            className="w-full border-none"
-                          />
-                        ) : (
-                          stationData.tmaxs[index].toFixed(2)
-                        )}
+                      <td className="border border-gray-300 px-2 py-2 w-1/5">
+                        <input
+                          type="text"
+                          defaultValue={stationData.tmaxs[index].toFixed(2)}
+                          className={`w-full border-none rounded ${
+                            isModified
+                              ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
+                              : ""
+                          }`}
+                          readOnly={!isModified}
+                        />
                       </td>
-                      <td className="border border-gray-300 px-2 py-2">
-                        {isModified ? (
-                          <input
-                            type="text"
-                            defaultValue={stationData.tmins[index].toFixed(2)}
-                            className="w-full border-none"
-                          />
-                        ) : (
-                          stationData.tmins[index].toFixed(2)
-                        )}
+                      <td className="border border-gray-300 px-2 py-2 w-1/5">
+                        <input
+                          type="text"
+                          defaultValue={stationData.tmins[index].toFixed(2)}
+                          className={`w-full border-none rounded ${
+                            isModified
+                              ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
+                              : ""
+                          }`}
+                          readOnly={!isModified}
+                        />
                       </td>
-                      <td className="border border-gray-300 px-2 py-2">
-                        {isModified ? (
-                          <input
-                            type="text"
-                            defaultValue={
-                              stationData.nwds
-                                ? stationData.nwds[index].toFixed(2)
-                                : "N/A"
-                            }
-                            className="w-full border-none"
-                          />
-                        ) : stationData.nwds ? (
-                          stationData.nwds[index].toFixed(2)
-                        ) : (
-                          "N/A"
-                        )}
+                      <td className="border border-gray-300 px-2 py-2 w-1/5">
+                        <input
+                          type="text"
+                          defaultValue={
+                            stationData.nwds
+                              ? stationData.nwds[index].toFixed(2)
+                              : "N/A"
+                          }
+                          className={`w-full border-none rounded ${
+                            isModified
+                              ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
+                              : ""
+                          }`}
+                          readOnly={!isModified}
+                        />
                       </td>
                     </tr>
                   ))}
