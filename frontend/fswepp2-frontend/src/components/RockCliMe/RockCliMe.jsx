@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo, useRef } from "react";
+import React, { useState, useEffect, memo } from "react";
 import {
   MapContainer,
   TileLayer,

@@ -28,9 +28,21 @@ const StationPar = () => {
   } = location.state || {};
   const [parData, setParData] = useState(null);
   const [isModified, setIsModified] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [description, setDescription] = useState("");
 
   const handleClick = () => {
-    setIsModified(true);
+    if (isModified) {
+      setShowPopup(true);
+    } else {
+      setIsModified(true);
+    }
+  };
+
+  const handleSave = () => {
+    // Add save logic
+    setShowPopup(false);
+    setDescription("");
   };
 
   useEffect(() => {
@@ -60,6 +72,17 @@ const StationPar = () => {
       setParData(user_defined_par_mod);
     }
   }, [par_id, loc, usePrismPar, user_defined_par_mod]);
+
+  useEffect(() => {
+    if (showPopup) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+    return () => {
+      document.body.classList.remove("overflow-hidden");
+    };
+  }, [showPopup]);
 
   const { name, state, id } = parseStationDesc(stationDesc);
 
@@ -151,9 +174,7 @@ const StationPar = () => {
             <div className="">
               <h3 className="text-2xl font-semibold">Station Data:</h3>
               {usePrismPar && (
-                <p className="text-[12px]">
-                  *Precip & Mean Temps. from PRISM
-                </p>
+                <p className="text-[12px]">*Precip & Mean Temps. from PRISM</p>
               )}
             </div>
             <div className="flex-grow flex items-end justify-end">
@@ -167,6 +188,41 @@ const StationPar = () => {
               >
                 {isModified ? "Save Param." : "Modify Param."}
               </button>
+              {/* Save Parameter Popup */}
+              {showPopup && (
+                <>
+                  <div className="fixed inset-0 bg-black opacity-50 z-40"></div>
+                  <div className="fixed inset-0 flex items-center justify-center z-50">
+                    <div className="bg-white p-2 rounded shadow-lg w-full max-w-md mx-2 border-2">
+                      <button
+                        className="mb-1 text-gray-500 flex flex-row w-full items-end text-xl rounded h-[20px] w-[30px]"
+                        onClick={() => setShowPopup(false)}
+                      >
+                        X
+                      </button>
+                      <div className="">
+                        <label className="block text-gray-700 text-sm font-bold mb-2">
+                          Description
+                        </label>
+                        <input
+                          type="text"
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                          className="px-2 py-1 border border-gray-300 rounded w-full"
+                        />
+                      </div>
+                      <div className="mt-4 flex justify-end">
+                        <button
+                          onClick={handleSave}
+                          className="px-2 py-2 bg-[#16a34a] text-white rounded w-32"
+                        >
+                          Save Param.
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
           {parData && (
