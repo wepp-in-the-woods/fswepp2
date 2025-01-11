@@ -26,7 +26,7 @@ const StationPar = () => {
     par_id,
     user_defined_par_mod,
   } = location.state || {};
-  const [stationData, setStationData] = useState(null);
+  const [parData, setParData] = useState(null);
   const [isModified, setIsModified] = useState(false);
 
   const handleClick = () => {
@@ -45,7 +45,7 @@ const StationPar = () => {
             user_defined_par_mod: user_defined_par_mod,
           }
         );
-        setStationData(response.data);
+        setParData(response.data);
         console.log("Station Data:", response.data);
       } catch (error) {
         console.error("Error fetching station par monthlies:", error);
@@ -57,7 +57,7 @@ const StationPar = () => {
       fetchStationData();
     } else {
       console.log("Setting user-defined station data...");
-      setStationData(user_defined_par_mod);
+      setParData(user_defined_par_mod);
     }
   }, [par_id, loc, usePrismPar, user_defined_par_mod]);
 
@@ -152,14 +152,14 @@ const StationPar = () => {
               <h3 className="text-2xl font-semibold">Station Data:</h3>
               {usePrismPar && (
                 <p className="text-[12px]">
-                  *Precip. & Mean Min/Max Temp. from PRISM
+                  *Precip & Mean Temps. from PRISM
                 </p>
               )}
             </div>
             <div className="flex-grow flex items-end justify-end">
               <button
                 onClick={handleClick}
-                className={`px-2 py-2 rounded whitespace-nowrap ${
+                className={`px-2 py-2 rounded whitespace-nowrap w-32 ${
                   isModified
                     ? "border border-[#16a34a] bg-[#16a34a] text-white"
                     : "border border-[#16a34a] text-black bg-white"
@@ -169,7 +169,7 @@ const StationPar = () => {
               </button>
             </div>
           </div>
-          {stationData && (
+          {parData && (
             <div>
               <table className="table-auto border-collapse border border-gray-400 w-full max-[374px]:text-xs">
                 <thead>
@@ -192,7 +192,7 @@ const StationPar = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {stationData.ppts.map((ppt, index) => (
+                  {parData.ppts.map((ppt, index) => (
                     <tr key={index}>
                       <td className="border border-gray-300 px-2 py-2 w-1/5">
                         <span className="hidden md:inline">
@@ -215,7 +215,7 @@ const StationPar = () => {
                       <td className="border border-gray-300 px-2 py-2 w-1/5">
                         <input
                           type="text"
-                          defaultValue={stationData.tmaxs[index].toFixed(2)}
+                          defaultValue={parData.tmaxs[index].toFixed(2)}
                           className={`w-full border-none rounded ${
                             isModified
                               ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
@@ -227,7 +227,7 @@ const StationPar = () => {
                       <td className="border border-gray-300 px-2 py-2 w-1/5">
                         <input
                           type="text"
-                          defaultValue={stationData.tmins[index].toFixed(2)}
+                          defaultValue={parData.tmins[index].toFixed(2)}
                           className={`w-full border-none rounded ${
                             isModified
                               ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
@@ -240,8 +240,8 @@ const StationPar = () => {
                         <input
                           type="text"
                           defaultValue={
-                            stationData.nwds
-                              ? stationData.nwds[index].toFixed(2)
+                            parData.nwds
+                              ? parData.nwds[index].toFixed(2)
                               : "N/A"
                           }
                           className={`w-full border-none rounded ${
