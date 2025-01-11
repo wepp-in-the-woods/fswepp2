@@ -40,7 +40,7 @@ const StationPar = () => {
   };
 
   const handleSave = () => {
-    // Add save logic
+    
     setShowPopup(false);
     setDescription("");
   };
@@ -58,17 +58,14 @@ const StationPar = () => {
           }
         );
         setParData(response.data);
-        console.log("Station Data:", response.data);
       } catch (error) {
         console.error("Error fetching station par monthlies:", error);
       }
     };
 
     if (!user_defined_par_mod) {
-      console.log("Fetching station data...");
       fetchStationData();
     } else {
-      console.log("Setting user-defined station data...");
       setParData(user_defined_par_mod);
     }
   }, [par_id, loc, usePrismPar, user_defined_par_mod]);
