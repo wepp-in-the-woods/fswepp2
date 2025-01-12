@@ -9,10 +9,9 @@ const parseStationDesc = (desc) => {
   if (match) {
     const name = match[1].trim();
     const state = match[2];
-    const id = match[3];
-    return { name, state, id };
+    return { name, state };
   }
-  return { name: "", state: "", id: "" };
+  return { name: "", state: "" };
 };
 
 const StationPar = () => {
@@ -31,6 +30,8 @@ const StationPar = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [description, setDescription] = useState("");
 
+  const stationID = par_id ? par_id.slice(0, -4) : "";
+
   const handleClick = () => {
     if (isModified) {
       setShowPopup(true);
@@ -40,7 +41,34 @@ const StationPar = () => {
   };
 
   const handleSave = () => {
-    
+    const user_defined_par = {
+      par_id: stationID,
+      user_defined_par_mod: {
+        description: description,
+        ppts: parData.ppts,
+        tmaxs: parData.tmaxs,
+        tmins: parData.tmins,
+        //nwds: parData.nwds,
+      }
+    }
+
+    console.log("Sending user_defined_par:", JSON.stringify(user_defined_par, null, 2));
+
+    axios.post("http://localhost:8080/api/rockclim/PUT/user_defined_par", user_defined_par, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true
+    })
+      .then(response => {
+        console.log("Server response:", response);
+        setShowPopup(false);
+        setDescription("");
+      })
+      .catch(error => {
+        console.error("Error posting data:", error);
+      });
+
     setShowPopup(false);
     setDescription("");
   };
@@ -81,7 +109,7 @@ const StationPar = () => {
     };
   }, [showPopup]);
 
-  const { name, state, id } = parseStationDesc(stationDesc);
+  const { name, state } = parseStationDesc(stationDesc);
 
   const months = [
     "January",
@@ -146,7 +174,7 @@ const StationPar = () => {
             {state && `, ${state}`}
           </div>
           <div className="text-md mb-4">
-            {user_defined_par_mod ? `Par. ID: ${par_id}` : `Station ID: ${id}`}
+            {user_defined_par_mod ? `Par. ID: ${par_id}` : `Station ID: ${stationID}`}
           </div>
           {!user_defined_par_mod && (
             <div className="text-xl">
