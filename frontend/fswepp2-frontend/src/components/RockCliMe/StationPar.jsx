@@ -32,12 +32,28 @@ const StationPar = () => {
 
   const stationID = par_id ? par_id.slice(0, -4) : "";
 
+  const [inputValues, setInputValues] = useState({
+    ppts: [],
+    tmaxs: [],
+    tmins: [],  
+    nwds: []
+  });
+
   const handleClick = () => {
     if (isModified) {
       setShowPopup(true);
     } else {
       setIsModified(true);
     }
+  };
+
+  const handleInputChange = (e, index, type) => {
+    const newValue = parseFloat(e.target.value);
+    setInputValues((prevValues) => {
+      const updatedValues = { ...prevValues };
+      updatedValues[type][index] = isNaN(newValue) ? 0 : newValue;
+      return updatedValues;
+    });
   };
 
   const handleSave = () => {
@@ -52,7 +68,7 @@ const StationPar = () => {
       }
     }
 
-    console.log("Sending user_defined_par:", JSON.stringify(user_defined_par, null, 2));
+    console.log("User Defined Par:", user_defined_par);
 
     axios.post("http://localhost:8080/api/rockclim/PUT/user_defined_par", user_defined_par, {
       headers: {
@@ -72,6 +88,17 @@ const StationPar = () => {
     setShowPopup(false);
     setDescription("");
   };
+
+  useEffect(() => {
+    if (parData) {
+      setInputValues({
+        ppts: parData.ppts,
+        tmaxs: parData.tmaxs,
+        tmins: parData.tmins,
+        nwds: parData.nwds || []
+      });
+    }
+  }, [parData]);
 
   useEffect(() => {
     const fetchStationData = async () => {
@@ -285,6 +312,7 @@ const StationPar = () => {
                         <input
                           type="text"
                           defaultValue={ppt.toFixed(2)}
+                          onChange={(e) => handleInputChange(e, index, 'ppts')}
                           className={`w-full border-none rounded ${
                             isModified
                               ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
@@ -297,6 +325,7 @@ const StationPar = () => {
                         <input
                           type="text"
                           defaultValue={parData.tmaxs[index].toFixed(2)}
+                          onChange={(e) => handleInputChange(e, index, 'tmaxs')}
                           className={`w-full border-none rounded ${
                             isModified
                               ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
@@ -309,6 +338,7 @@ const StationPar = () => {
                         <input
                           type="text"
                           defaultValue={parData.tmins[index].toFixed(2)}
+                          onChange={(e) => handleInputChange(e, index, 'tmins')}
                           className={`w-full border-none rounded ${
                             isModified
                               ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
@@ -325,6 +355,7 @@ const StationPar = () => {
                               ? parData.nwds[index].toFixed(2)
                               : "N/A"
                           }
+                          onChange={(e) => handleInputChange(e, index, 'nwds')}
                           className={`w-full border-none rounded ${
                             isModified
                               ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
