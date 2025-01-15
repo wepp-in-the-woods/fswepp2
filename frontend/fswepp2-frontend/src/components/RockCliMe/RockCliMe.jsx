@@ -96,7 +96,6 @@ const RockCliMe = () => {
     const lng = parseFloat(lngInput);
     if (!isNaN(lat) && !isNaN(lng)) {
       if (coordinates[0] !== lat || coordinates[1] !== lng) {
-        console.log("Updating coordinates:", [lat, lng]);
         setCoordinates([lat, lng]);
       }
     } else {

@@ -35,8 +35,8 @@ const StationPar = () => {
   const [inputValues, setInputValues] = useState({
     ppts: [],
     tmaxs: [],
-    tmins: [],  
-    nwds: []
+    tmins: [],
+    nwds: [],
   });
 
   const handleClick = () => {
@@ -65,23 +65,28 @@ const StationPar = () => {
         tmaxs: parData.tmaxs,
         tmins: parData.tmins,
         //nwds: parData.nwds,
-      }
-    }
+      },
+    };
 
     console.log("User Defined Par:", user_defined_par);
 
-    axios.post("http://localhost:8080/api/rockclim/PUT/user_defined_par", user_defined_par, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true
-    })
-      .then(response => {
+    axios
+      .post(
+        "http://localhost:8080/api/rockclim/PUT/user_defined_par",
+        user_defined_par,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      )
+      .then((response) => {
         console.log("Server response:", response);
         setShowPopup(false);
         setDescription("");
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error posting data:", error);
       });
 
@@ -95,7 +100,7 @@ const StationPar = () => {
         ppts: parData.ppts,
         tmaxs: parData.tmaxs,
         tmins: parData.tmins,
-        nwds: parData.nwds || []
+        nwds: parData.nwds || [],
       });
     }
   }, [parData]);
@@ -201,7 +206,9 @@ const StationPar = () => {
             {state && `, ${state}`}
           </div>
           <div className="text-md mb-4">
-            {user_defined_par_mod ? `Par. ID: ${par_id}` : `Station ID: ${stationID}`}
+            {user_defined_par_mod
+              ? `Par. ID: ${par_id}`
+              : `Station ID: ${stationID}`}
           </div>
           {!user_defined_par_mod && (
             <div className="text-xl">
@@ -294,9 +301,11 @@ const StationPar = () => {
                     <th className="border border-gray-300 px-2 py-2 text-left w-1/5">
                       Mean Min Temp.
                     </th>
-                    <th className="border border-gray-300 px-2 py-2 text-left w-1/5">
-                      # of Wet Days
-                    </th>
+                    {parData.nwds && parData.nwds.length > 0 && (
+                      <th className="border border-gray-300 px-2 py-2 text-left w-1/5">
+                        # of Wet Days
+                      </th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -312,7 +321,7 @@ const StationPar = () => {
                         <input
                           type="text"
                           defaultValue={ppt.toFixed(2)}
-                          onChange={(e) => handleInputChange(e, index, 'ppts')}
+                          onChange={(e) => handleInputChange(e, index, "ppts")}
                           className={`w-full border-none rounded ${
                             isModified
                               ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
@@ -325,7 +334,7 @@ const StationPar = () => {
                         <input
                           type="text"
                           defaultValue={parData.tmaxs[index].toFixed(2)}
-                          onChange={(e) => handleInputChange(e, index, 'tmaxs')}
+                          onChange={(e) => handleInputChange(e, index, "tmaxs")}
                           className={`w-full border-none rounded ${
                             isModified
                               ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
@@ -338,7 +347,7 @@ const StationPar = () => {
                         <input
                           type="text"
                           defaultValue={parData.tmins[index].toFixed(2)}
-                          onChange={(e) => handleInputChange(e, index, 'tmins')}
+                          onChange={(e) => handleInputChange(e, index, "tmins")}
                           className={`w-full border-none rounded ${
                             isModified
                               ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
@@ -347,23 +356,23 @@ const StationPar = () => {
                           readOnly={!isModified}
                         />
                       </td>
-                      <td className="border border-gray-300 px-2 py-2 w-1/5">
-                        <input
-                          type="text"
-                          defaultValue={
-                            parData.nwds
-                              ? parData.nwds[index].toFixed(2)
-                              : "N/A"
-                          }
-                          onChange={(e) => handleInputChange(e, index, 'nwds')}
-                          className={`w-full border-none rounded ${
-                            isModified
-                              ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
-                              : ""
-                          }`}
-                          readOnly={!isModified}
-                        />
-                      </td>
+                      {parData.nwds && parData.nwds.length > 0 && (
+                        <td className="border border-gray-300 px-2 py-2 w-1/5">
+                          <input
+                            type="text"
+                            defaultValue={parData.nwds[index].toFixed(2)}
+                            onChange={(e) =>
+                              handleInputChange(e, index, "nwds")
+                            }
+                            className={`w-full border-none rounded ${
+                              isModified
+                                ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
+                                : ""
+                            }`}
+                            readOnly={!isModified}
+                          />
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
