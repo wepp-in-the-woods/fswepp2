@@ -23,6 +23,7 @@ const StationPar = () => {
     usePrismPar,
     stationDesc = "",
     par_id,
+    selected_par,
     user_defined_par_mod,
   } = location.state || {};
   const [parData, setParData] = useState(null);
@@ -56,9 +57,16 @@ const StationPar = () => {
     });
   };
 
+  const handleTitleChange = (e, field) => {
+    const value = e.target.value;
+    if (field === "description") {
+      setDescription(value);
+    }
+  };
+
   const handleSave = () => {
     const user_defined_par = {
-      par_id: stationID,
+      par_id: par_id,
       user_defined_par_mod: {
         description: description,
         ppts: parData.ppts,
@@ -126,6 +134,7 @@ const StationPar = () => {
     if (!user_defined_par_mod) {
       fetchStationData();
     } else {
+      console.log("User defined par mod: " + JSON.stringify(user_defined_par_mod));
       setParData(user_defined_par_mod);
     }
   }, [par_id, loc, usePrismPar, user_defined_par_mod]);
@@ -202,12 +211,29 @@ const StationPar = () => {
       <div className="flex flex-col items-start ml-4 mr-4">
         <div className="w-full">
           <div className="text-2xl font-semibold">
-            {user_defined_par_mod ? user_defined_par_mod.description : name}
-            {state && `, ${state}`}
+            {isModified ? (
+              <input
+                type="text"
+                defaultValue={
+                  user_defined_par_mod ? user_defined_par_mod.description : name
+                }
+                onChange={(e) => handleTitleChange(e, "description")}
+                className={`w-full border-none rounded ${
+                  isModified
+                    ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
+                    : ""
+                }`}
+              />
+            ) : (
+              <>
+                {user_defined_par_mod ? user_defined_par_mod.description : name}
+                {state && `, ${state}`}
+              </>
+            )}
           </div>
           <div className="text-md mb-4">
             {user_defined_par_mod
-              ? `Par. ID: ${par_id}`
+              ? `Par. ID: ${selected_par}`
               : `Station ID: ${stationID}`}
           </div>
           {!user_defined_par_mod && (

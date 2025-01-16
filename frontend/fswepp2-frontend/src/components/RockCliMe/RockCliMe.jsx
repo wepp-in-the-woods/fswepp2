@@ -216,10 +216,13 @@ const RockCliMe = () => {
     }
 
     const customPar = savedParameters[selectedPar];
+    
+    console.log(customPar.par_id);
 
     navigate(`/rockclime/par/${selectedPar}`, {
       state: {
-        par_id: selectedPar,
+        par_id: customPar.par_id,
+        selected_par: selectedPar,
         usePrismPar: customPar.use_prism,
         user_defined_par_mod: customPar.user_defined_par_mod,
       },
