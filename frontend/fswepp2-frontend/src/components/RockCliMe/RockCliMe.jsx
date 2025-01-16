@@ -67,6 +67,7 @@ const RockCliMe = () => {
   const [prevCoordinates, setPrevCoordinates] = useState([null, null]);
   const [parametersFetched, setParametersFetched] = useState(false);
   const [selectedPar, setSelectedPar] = useState(null);
+  const [showOptionsDiv, setShowOptionsDiv] = useState(false);
 
   useEffect(() => {
     if (
@@ -290,6 +291,12 @@ const RockCliMe = () => {
               onClick={() => setShowLocationDiv(false)}
             >
               X
+            </button>
+            <button
+              className="mb-1 text-gray-500 flex flex-row w-full items-end text-xl rounded h-[30px] w-[30px]"
+              onClick={() => setShowOptionsDiv(!showOptionsDiv)}
+            >
+              Options
             </button>
             <div className="flex-grow z-0 h-60">
               <MapContainer
