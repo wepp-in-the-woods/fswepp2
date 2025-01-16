@@ -28,7 +28,6 @@ const StationPar = () => {
   } = location.state || {};
   const [parData, setParData] = useState(null);
   const [isModified, setIsModified] = useState(false);
-  const [showPopup, setShowPopup] = useState(false);
   const [description, setDescription] = useState("");
 
   const stationID = par_id ? par_id.slice(0, -4) : "";
@@ -42,7 +41,7 @@ const StationPar = () => {
 
   const handleClick = () => {
     if (isModified) {
-      setShowPopup(true);
+      handleSave();
     } else {
       setIsModified(true);
     }
@@ -76,7 +75,6 @@ const StationPar = () => {
       },
     };
 
-    console.log("User Defined Par:", user_defined_par);
 
     axios
       .post(
@@ -91,14 +89,13 @@ const StationPar = () => {
       )
       .then((response) => {
         console.log("Server response:", response);
-        setShowPopup(false);
         setDescription("");
       })
       .catch((error) => {
         console.error("Error posting data:", error);
       });
 
-    setShowPopup(false);
+    setIsModified(false);
     setDescription("");
   };
 
@@ -134,21 +131,9 @@ const StationPar = () => {
     if (!user_defined_par_mod) {
       fetchStationData();
     } else {
-      console.log("User defined par mod: " + JSON.stringify(user_defined_par_mod));
       setParData(user_defined_par_mod);
     }
   }, [par_id, loc, usePrismPar, user_defined_par_mod]);
-
-  useEffect(() => {
-    if (showPopup) {
-      document.body.classList.add("overflow-hidden");
-    } else {
-      document.body.classList.remove("overflow-hidden");
-    }
-    return () => {
-      document.body.classList.remove("overflow-hidden");
-    };
-  }, [showPopup]);
 
   const { name, state } = parseStationDesc(stationDesc);
 
@@ -273,41 +258,6 @@ const StationPar = () => {
               >
                 {isModified ? "Save Param." : "Modify Param."}
               </button>
-              {/* Save Parameter Popup */}
-              {showPopup && (
-                <>
-                  <div className="fixed inset-0 bg-black opacity-50 z-40"></div>
-                  <div className="fixed inset-0 flex items-center justify-center z-50">
-                    <div className="bg-white p-2 rounded shadow-lg w-full max-w-md mx-2 border-2">
-                      <button
-                        className="mb-1 text-gray-500 flex flex-row w-full items-end text-xl rounded h-[20px] w-[30px]"
-                        onClick={() => setShowPopup(false)}
-                      >
-                        X
-                      </button>
-                      <div className="">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">
-                          Description
-                        </label>
-                        <input
-                          type="text"
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
-                          className="px-2 py-1 border border-gray-300 rounded w-full"
-                        />
-                      </div>
-                      <div className="mt-4 flex justify-end">
-                        <button
-                          onClick={handleSave}
-                          className="px-2 py-2 bg-[#16a34a] text-white rounded w-32"
-                        >
-                          Save Param.
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
             </div>
           </div>
           {parData && (
