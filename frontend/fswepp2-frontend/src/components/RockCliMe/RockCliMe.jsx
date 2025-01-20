@@ -68,6 +68,8 @@ const RockCliMe = () => {
   const [parametersFetched, setParametersFetched] = useState(false);
   const [selectedPar, setSelectedPar] = useState(null);
   const [showOptionsDiv, setShowOptionsDiv] = useState(false);
+  const [cligenVersion, setCligenVersion] = useState("v1");
+  const [databaseVersion, setDatabaseVersion] = useState("v1");
 
   useEffect(() => {
     if (
@@ -299,21 +301,34 @@ const RockCliMe = () => {
                 />
               </button>
               {showOptionsDiv && (
-                <div className="absolute border top-full right-0 w-[150px] -mt-1 -mr-1 p-2 pt-1 bg-gray-100 rounded shadow-lg z-50">
+                <div className="absolute border top-full right-0 w-[170px] -mt-1 -mr-1 p-2 pt-1 bg-gray-100 rounded shadow-lg z-50">
                   <div className="mb-2">
                     <label className="block mb-1">Cligen version</label>
-                    <select className="w-full p-2 border rounded">
-                      <option value="v1">Version 1</option>
-                      <option value="v2">Version 2</option>
-                      <option value="v3">Version 3</option>
+                    <select
+                      className="w-full p-2 border rounded"
+                      value={cligenVersion}
+                      onChange={(event) =>
+                        setCligenVersion(event.target.value)
+                      }
+                    >
+                      <option value="4.3 (Legacy)">4.3 (Legacy)</option>
+                      <option value="5.3.2 (WEPPcloud)">5.3.2 (WEPPcloud)</option>
                     </select>
                   </div>
                   <div>
                     <label className="block mb-1">Database version</label>
-                    <select className="w-full p-2 border rounded">
-                      <option value="v1">Version 1</option>
-                      <option value="v2">Version 2</option>
-                      <option value="v3">Version 3</option>
+                    <select
+                      className="w-full p-2 border rounded"
+                      value={databaseVersion}
+                      onChange={(event) =>
+                        setDatabaseVersion(event.target.value)
+                      }
+                    >
+                      <option value="None">None</option>
+                      <option value="Legacy">Legacy</option>
+                      <option value="2015">2015</option>
+                      <option value="au">au</option>
+                      <option value="ghcn">ghcn</option>
                     </select>
                   </div>
                 </div>
