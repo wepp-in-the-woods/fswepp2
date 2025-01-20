@@ -299,9 +299,23 @@ const RockCliMe = () => {
                 />
               </button>
               {showOptionsDiv && (
-                <div className="absolute top-full left-0 w-full mt-2 p-4 bg-gray-100 rounded shadow-lg z-50">
-                  {/* Content of the options div */}
-                  <p>Options content goes here.</p>
+                <div className="absolute border top-full right-0 w-[150px] -mt-1 -mr-1 p-2 pt-1 bg-gray-100 rounded shadow-lg z-50">
+                  <div className="mb-2">
+                    <label className="block mb-1">Cligen version</label>
+                    <select className="w-full p-2 border rounded">
+                      <option value="v1">Version 1</option>
+                      <option value="v2">Version 2</option>
+                      <option value="v3">Version 3</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block mb-1">Database version</label>
+                    <select className="w-full p-2 border rounded">
+                      <option value="v1">Version 1</option>
+                      <option value="v2">Version 2</option>
+                      <option value="v3">Version 3</option>
+                    </select>
+                  </div>
                 </div>
               )}
             </div>
