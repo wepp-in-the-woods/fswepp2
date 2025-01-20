@@ -217,7 +217,7 @@ const RockCliMe = () => {
     }
 
     const customPar = savedParameters[selectedPar];
-    
+
     console.log(customPar.par_id);
 
     navigate(`/rockclime/par/${selectedPar}`, {
@@ -231,7 +231,6 @@ const RockCliMe = () => {
   };
 
   const handleViewSavedParClimateData = async () => {
-
     if (!years) {
       console.error("Number of years is missing");
       return;
@@ -286,18 +285,26 @@ const RockCliMe = () => {
       {showLocationDiv && (
         <div className="fixed inset-0 flex items-center justify-center z-0">
           <div className="bg-white pl-4 pr-4 pb-4 rounded shadow-lg w-full ml-2 mr-2 border-2 h-2.3">
-            <button
-              className="mb-1 text-gray-500 flex flex-row w-full items-end text-xl rounded h-[30px] w-[30px]"
-              onClick={() => setShowLocationDiv(false)}
-            >
-              X
-            </button>
-            <button
-              className="mb-1 text-gray-500 flex flex-row w-full items-end text-xl rounded h-[30px] w-[30px]"
-              onClick={() => setShowOptionsDiv(!showOptionsDiv)}
-            >
-              Options
-            </button>
+            <div className="flex justify-between items-center relative">
+              <span className="text-xl opacity-70">X</span>
+              <button
+                className="mb-1 flex flex-row items-end text-md rounded h-[30px] opacity-70"
+                onClick={() => setShowOptionsDiv(!showOptionsDiv)}
+              >
+                Options
+                <img
+                  src={showOptionsDiv ? "/upArrow.png" : "/downArrow.png"}
+                  alt="Arrow"
+                  className="ml-1 mb-1 h-3 w-3 lg:w-3 lg:h-3 lg:ml-1 lg:mt-1"
+                />
+              </button>
+              {showOptionsDiv && (
+                <div className="absolute top-full left-0 w-full mt-2 p-4 bg-gray-100 rounded shadow-lg z-50">
+                  {/* Content of the options div */}
+                  <p>Options content goes here.</p>
+                </div>
+              )}
+            </div>
             <div className="flex-grow z-0 h-60">
               <MapContainer
                 center={coordinates || [39.8283, -98.5795]}
@@ -475,7 +482,9 @@ const RockCliMe = () => {
                   }`}
                   onClick={() => handleSavedParClick(par)}
                 >
-                  <strong>{savedParameters[par].user_defined_par_mod.description}</strong>
+                  <strong>
+                    {savedParameters[par].user_defined_par_mod.description}
+                  </strong>
                 </button>
                 {selectedPar === par && (
                   <div className="mt-2 p-2 border rounded bg-gray-100">
