@@ -30,6 +30,8 @@ const StationPar = () => {
   const [isModified, setIsModified] = useState(false);
   const [description, setDescription] = useState("");
 
+  const { name, state } = parseStationDesc(stationDesc);
+
   const stationID = par_id ? par_id.slice(0, -4) : "";
 
   const [inputValues, setInputValues] = useState({
@@ -74,7 +76,6 @@ const StationPar = () => {
         //nwds: parData.nwds,
       },
     };
-
 
     axios
       .post(
@@ -134,8 +135,6 @@ const StationPar = () => {
       setParData(user_defined_par_mod);
     }
   }, [par_id, loc, usePrismPar, user_defined_par_mod]);
-
-  const { name, state } = parseStationDesc(stationDesc);
 
   const months = [
     "January",
@@ -200,7 +199,9 @@ const StationPar = () => {
               <input
                 type="text"
                 defaultValue={
-                  user_defined_par_mod ? user_defined_par_mod.description : name
+                  (user_defined_par_mod
+                    ? user_defined_par_mod.description
+                    : name) + (state ? `, ${state}` : "")
                 }
                 onChange={(e) => handleTitleChange(e, "description")}
                 className={`w-full border-none rounded ${
