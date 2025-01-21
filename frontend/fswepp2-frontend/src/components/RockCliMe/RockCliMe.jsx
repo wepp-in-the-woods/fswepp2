@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from "react";
+import React, { useState, useEffect, useRef, memo } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -70,6 +70,7 @@ const RockCliMe = () => {
   const [showOptionsDiv, setShowOptionsDiv] = useState(false);
   const [cligenVersion, setCligenVersion] = useState("5.3.2");
   const [databaseVersion, setDatabaseVersion] = useState("legacy");
+  const optionsDivRef = useRef(null);
 
   useEffect(() => {
     if (
@@ -106,6 +107,19 @@ const RockCliMe = () => {
     }
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (optionsDivRef.current && !optionsDivRef.current.contains(event.target)) {
+        setShowOptionsDiv(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [optionsDivRef]);
+
   const handleGetSavedParameters = async () => {
     try {
       const response = await axios.get(
@@ -127,7 +141,7 @@ const RockCliMe = () => {
         const response = await axios.post(
           "http://localhost:8080/api/rockclim/GET/closest_stations",
           {
-            database: databaseVersion,
+            database: databaseVersion === "None" ? null : databaseVersion,
             cligen_version: cligenVersion,
             location: {
               longitude: lng,
@@ -290,7 +304,12 @@ const RockCliMe = () => {
         <div className="fixed inset-0 flex items-center justify-center z-0">
           <div className="bg-white pl-4 pr-4 pb-4 rounded shadow-lg w-full ml-2 mr-2 border-2 h-2.3">
             <div className="flex justify-between items-center relative">
-              <span className="text-xl opacity-70">X</span>
+              <button
+                className="text-xl opacity-70"
+                onClick={() => setShowLocationDiv(!showLocationDiv)}
+              >
+                X
+              </button>
               <button
                 className="mb-1 flex flex-row items-end text-md rounded h-[30px] opacity-70"
                 onClick={() => setShowOptionsDiv(!showOptionsDiv)}
@@ -303,18 +322,19 @@ const RockCliMe = () => {
                 />
               </button>
               {showOptionsDiv && (
-                <div className="absolute border top-full right-0 w-[190px] -mt-1 -mr-1 p-2 pt-1 bg-gray-100 rounded shadow-lg z-50">
+                <div
+                  ref={optionsDivRef}
+                  className="absolute border top-full right-0 w-[190px] -mt-1 -mr-1 p-2 pt-1 bg-gray-100 rounded shadow-lg z-50"
+                >
                   <div className="mb-2">
                     <label className="block mb-1">Cligen version</label>
                     <select
                       className="w-full p-2 border rounded"
                       value={cligenVersion}
-                      onChange={(event) =>
-                        setCligenVersion(event.target.value)
-                      }
+                      onChange={(event) => setCligenVersion(event.target.value)}
                     >
-                      <option value="5.3.2 (WEPPcloud)">5.3.2 (WEPPcloud)</option>
-                      <option value="4.3 (Legacy)">4.3 (Legacy)</option>
+                      <option value="5.3.2">5.3.2 (WEPPcloud)</option>
+                      <option value="4.3">4.3 (Legacy)</option>
                     </select>
                   </div>
                   <div>
@@ -326,11 +346,11 @@ const RockCliMe = () => {
                         setDatabaseVersion(event.target.value)
                       }
                     >
-                      <option value="Legacy">Legacy</option>
+                      <option value="legacy">Legacy</option>
                       <option value="2015">2015</option>
                       <option value="au">au</option>
                       <option value="ghcn">ghcn</option>
-                      <option value={null}>None</option>
+                      <option value="None">None</option>
                     </select>
                   </div>
                 </div>

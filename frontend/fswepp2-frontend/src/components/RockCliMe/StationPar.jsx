@@ -16,7 +16,7 @@ const StationPar = () => {
   } = location.state || {};
   const [parData, setParData] = useState(null);
   const [isModified, setIsModified] = useState(false);
-  const [description, setDescription] = useState("");
+  const [description, setDescription] = useState(stationDesc);
 
   const [inputValues, setInputValues] = useState({
     ppts: [],
@@ -184,7 +184,7 @@ const StationPar = () => {
                 type="text"
                 defaultValue={
                   (user_defined_par_mod
-                    ? user_defined_par_mod : stationDesc)
+                    ? user_defined_par_mod.description : stationDesc)
                 }
                 onChange={(e) => handleTitleChange(e, "description")}
                 className={`w-full border-none rounded ${
