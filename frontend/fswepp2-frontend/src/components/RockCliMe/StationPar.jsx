@@ -2,18 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
-const parseStationDesc = (desc) => {
-  const trimmedDesc = desc.replace(/\s+/g, " ").trim();
-  const regex = /^(.*?)(\b[A-Z]{2}\b)\s(\d{6})\s0$/;
-  const match = trimmedDesc.match(regex);
-  if (match) {
-    const name = match[1].trim();
-    const state = match[2];
-    return { name, state };
-  }
-  return { name: "", state: "" };
-};
-
 const StationPar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,10 +17,6 @@ const StationPar = () => {
   const [parData, setParData] = useState(null);
   const [isModified, setIsModified] = useState(false);
   const [description, setDescription] = useState("");
-
-  const { name, state } = parseStationDesc(stationDesc);
-
-  const stationID = par_id ? par_id.slice(0, -4) : "";
 
   const [inputValues, setInputValues] = useState({
     ppts: [],
@@ -200,8 +184,7 @@ const StationPar = () => {
                 type="text"
                 defaultValue={
                   (user_defined_par_mod
-                    ? user_defined_par_mod.description
-                    : name) + (state ? `, ${state}` : "")
+                    ? user_defined_par_mod : stationDesc)
                 }
                 onChange={(e) => handleTitleChange(e, "description")}
                 className={`w-full border-none rounded ${
@@ -212,15 +195,13 @@ const StationPar = () => {
               />
             ) : (
               <>
-                {user_defined_par_mod ? user_defined_par_mod.description : name}
-                {state && `, ${state}`}
+                {user_defined_par_mod ? user_defined_par_mod.description : stationDesc}
               </>
             )}
           </div>
           <div className="text-md mb-4">
             {user_defined_par_mod
-              ? `Par. ID: ${selected_par}`
-              : `Station ID: ${stationID}`}
+              ? `Par. ID: ${selected_par}` : `Par. ID: ${par_id.slice(0, -4)}`}
           </div>
           {!user_defined_par_mod && (
             <div className="text-xl">
