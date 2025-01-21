@@ -258,8 +258,7 @@ const RockCliMe = () => {
     <div className="flex flex-col h-screen">
       {/* Mobile Navbar */}
       <div
-        className="top-0 left-0 right-0 shadow-md p-4 flex justify-between items-center h-16 lg:hidden"
-        style={{ zIndex: 10 }}
+        className="top-0 left-0 right-0 shadow-md p-4 flex justify-between items-center h-16 lg:hidden z-0"
       >
         <div>
           <h1 className="text-xl font-semibold">RockClime</h1>
@@ -289,7 +288,9 @@ const RockCliMe = () => {
         </button>
       </div>
       {showLocationDiv && (
-        <div className="fixed inset-0 flex items-center justify-center z-0">
+        <>
+        <div className="fixed inset-0 bg-black opacity-50 z-11"></div>
+        <div className="fixed inset-0 flex items-center justify-center z-40">
           <div className="bg-white pl-4 pr-4 pb-4 rounded shadow-lg w-full ml-2 mr-2 border-2 h-2.3">
             <div className="flex justify-between items-center relative">
               <button
@@ -405,6 +406,7 @@ const RockCliMe = () => {
             </div>
           </div>
         </div>
+        </>
       )}
       {/* Tabs */}
       <div className="flex w-full border-t border-gray-300">
