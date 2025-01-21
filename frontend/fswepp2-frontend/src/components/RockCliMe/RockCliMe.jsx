@@ -68,8 +68,8 @@ const RockCliMe = () => {
   const [parametersFetched, setParametersFetched] = useState(false);
   const [selectedPar, setSelectedPar] = useState(null);
   const [showOptionsDiv, setShowOptionsDiv] = useState(false);
-  const [cligenVersion, setCligenVersion] = useState("v1");
-  const [databaseVersion, setDatabaseVersion] = useState("v1");
+  const [cligenVersion, setCligenVersion] = useState("5.3.2");
+  const [databaseVersion, setDatabaseVersion] = useState("legacy");
 
   useEffect(() => {
     if (
@@ -127,6 +127,8 @@ const RockCliMe = () => {
         const response = await axios.post(
           "http://localhost:8080/api/rockclim/GET/closest_stations",
           {
+            database: databaseVersion,
+            cligen_version: cligenVersion,
             location: {
               longitude: lng,
               latitude: lat,
@@ -301,7 +303,7 @@ const RockCliMe = () => {
                 />
               </button>
               {showOptionsDiv && (
-                <div className="absolute border top-full right-0 w-[170px] -mt-1 -mr-1 p-2 pt-1 bg-gray-100 rounded shadow-lg z-50">
+                <div className="absolute border top-full right-0 w-[190px] -mt-1 -mr-1 p-2 pt-1 bg-gray-100 rounded shadow-lg z-50">
                   <div className="mb-2">
                     <label className="block mb-1">Cligen version</label>
                     <select
@@ -311,8 +313,8 @@ const RockCliMe = () => {
                         setCligenVersion(event.target.value)
                       }
                     >
-                      <option value="4.3 (Legacy)">4.3 (Legacy)</option>
                       <option value="5.3.2 (WEPPcloud)">5.3.2 (WEPPcloud)</option>
+                      <option value="4.3 (Legacy)">4.3 (Legacy)</option>
                     </select>
                   </div>
                   <div>
@@ -324,11 +326,11 @@ const RockCliMe = () => {
                         setDatabaseVersion(event.target.value)
                       }
                     >
-                      <option value="None">None</option>
                       <option value="Legacy">Legacy</option>
                       <option value="2015">2015</option>
                       <option value="au">au</option>
                       <option value="ghcn">ghcn</option>
+                      <option value={null}>None</option>
                     </select>
                   </div>
                 </div>
