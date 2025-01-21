@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, memo } from "react";
+import React, { useState, useEffect, memo } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -70,7 +70,6 @@ const RockCliMe = () => {
   const [showOptionsDiv, setShowOptionsDiv] = useState(false);
   const [cligenVersion, setCligenVersion] = useState("5.3.2");
   const [databaseVersion, setDatabaseVersion] = useState("legacy");
-  const optionsDivRef = useRef(null);
 
   useEffect(() => {
     if (
@@ -107,19 +106,6 @@ const RockCliMe = () => {
     }
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (optionsDivRef.current && !optionsDivRef.current.contains(event.target)) {
-        setShowOptionsDiv(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [optionsDivRef]);
-
   const handleGetSavedParameters = async () => {
     try {
       const response = await axios.get(
@@ -137,6 +123,7 @@ const RockCliMe = () => {
   const handleGetClosestStations = async () => {
     const [lat, lng] = coordinates;
     if (!isNaN(lat) && !isNaN(lng)) {
+      console.log("database: " + databaseVersion);
       try {
         const response = await axios.post(
           "http://localhost:8080/api/rockclim/GET/closest_stations",
@@ -181,9 +168,10 @@ const RockCliMe = () => {
       longitude: selectedStation.longitude,
       latitude: selectedStation.latitude,
     };
-
     navigate(`/rockclime/par/${selectedStation.id}`, {
       state: {
+        databaseVersion,
+        cligenVersion,
         stationCoords,
         location,
         usePrismPar,
@@ -322,10 +310,7 @@ const RockCliMe = () => {
                 />
               </button>
               {showOptionsDiv && (
-                <div
-                  ref={optionsDivRef}
-                  className="absolute border top-full right-0 w-[190px] -mt-1 -mr-1 p-2 pt-1 bg-gray-100 rounded shadow-lg z-50"
-                >
+                <div className="absolute border top-full right-0 w-[190px] -mt-1 -mr-1 p-2 pt-1 bg-gray-100 rounded shadow-lg z-50">
                   <div className="mb-2">
                     <label className="block mb-1">Cligen version</label>
                     <select
@@ -475,15 +460,17 @@ const RockCliMe = () => {
                 {selectedStation === station && (
                   <div className="mt-2 p-2 border rounded bg-gray-100">
                     <div className="mb-2">
-                      <label className="inline-flex items-center mb-2">
-                        <input
-                          type="checkbox"
-                          className="form-checkbox"
-                          checked={usePrismPar}
-                          onChange={(e) => setUsePrismPar(e.target.checked)}
-                        />
-                        <span className="ml-2">Use Prism monthlies</span>
-                      </label>
+                      {databaseVersion !== "au" && (
+                        <label className="inline-flex items-center mb-2">
+                          <input
+                            type="checkbox"
+                            className="form-checkbox"
+                            checked={usePrismPar}
+                            onChange={(e) => setUsePrismPar(e.target.checked)}
+                          />
+                          <span className="ml-2">Use Prism monthlies</span>
+                        </label>
+                      )}
                       <button
                         className="block w-full text-left p-2 mb-2 bg-[#16a34a] text-white rounded"
                         onClick={handleViewStationPar}
@@ -501,15 +488,17 @@ const RockCliMe = () => {
                         value={years}
                         onChange={(e) => setYears(e.target.value)}
                       />
-                      <label className="mt-2 inline-flex items-center">
-                        <input
-                          type="checkbox"
-                          className="form-checkbox"
-                          checked={usePrismClim}
-                          onChange={(e) => setUsePrismClim(e.target.checked)}
-                        />
-                        <span className="ml-2">Use Prism monthlies</span>
-                      </label>
+                      {databaseVersion !== "au" && (
+                        <label className="mt-2 inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            className="form-checkbox"
+                            checked={usePrismClim}
+                            onChange={(e) => setUsePrismClim(e.target.checked)}
+                          />
+                          <span className="ml-2">Use Prism monthlies</span>
+                        </label>
+                      )}
                     </div>
                     <button
                       className="block w-full text-left p-2 bg-[#16a34a] text-white rounded"

@@ -6,6 +6,8 @@ const StationPar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const {
+    databaseVersion,
+    cligenVersion,
     stationCoords: coordinates = { latitude: 0, longitude: 0 },
     location: loc = [0, 0],
     usePrismPar,
@@ -101,10 +103,11 @@ const StationPar = () => {
         const response = await axios.post(
           "http://localhost:8080/api/rockclim/GET/station_par_monthlies",
           {
+            database: databaseVersion,
+            cligen_version: cligenVersion,
             par_id: par_id,
             location: loc,
             use_prism: usePrismPar,
-            user_defined_par_mod: user_defined_par_mod,
           }
         );
         setParData(response.data);
