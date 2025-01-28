@@ -1,10 +1,11 @@
-import React, { useState, useEffect, memo } from "react";
+import React, { useState, useEffect, useRef, memo } from "react";
 import {
   MapContainer,
   TileLayer,
   Marker,
   useMap,
   useMapEvents,
+  Popup,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css";
@@ -56,6 +57,7 @@ const RockCliMe = () => {
   const [latInput, setLatInput] = useState("");
   const [lngInput, setLngInput] = useState("");
   const [closestStations, setClosestStations] = useState([]);
+  const [stations, setStations] = useState([]);
   const [savedParameters, setSavedParameters] = useState([]);
   const [selectedStation, setSelectedStation] = useState(null);
   const [years, setYears] = useState("");
@@ -70,6 +72,10 @@ const RockCliMe = () => {
   const [showOptionsDiv, setShowOptionsDiv] = useState(false);
   const [cligenVersion, setCligenVersion] = useState("5.3.2");
   const [databaseVersion, setDatabaseVersion] = useState("legacy");
+  const [zoom, setZoom] = useState(0);
+  const [bbox, setBbox] = useState([-180, -90, 180, 90]);
+  const minZoomLevel = 7;
+  const prevBboxRef = useRef(bbox);
 
   useEffect(() => {
     if (
@@ -93,6 +99,55 @@ const RockCliMe = () => {
       handleGetSavedParameters();
     }
   }, [savedParameters, activeTab]);
+
+  useEffect(() => {
+    if (showLocationDiv) {
+      fetchStations();
+    }
+  }, [showLocationDiv]);
+
+  const fetchStations = async (bbox) => {
+    try {
+      const response = await axios.post("http://localhost:8080/api/rockclim/GET/stations_geojson", {
+        database: "2015",
+        bbox: bbox,
+      });
+      setStations(response.data.features);
+    } catch (error) {
+      console.error("Error fetching stations:", error);
+    }
+  };
+
+  const debounce = (func, delay) => {
+    let debounceTimer;
+    return function(...args) {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => func.apply(this, args), delay);
+    };
+  };
+
+  const MapEvents = () => {
+    const map = useMapEvents({
+      zoomend: () => {
+        setZoom(map.getZoom());
+        const bounds = map.getBounds();
+        setBbox([bounds.getWest(), bounds.getNorth(), bounds.getEast(), bounds.getSouth()]);
+      },
+      moveend: () => {
+        const bounds = map.getBounds();
+        setBbox([bounds.getWest(), bounds.getNorth(), bounds.getEast(), bounds.getSouth()]);
+      },
+    });
+
+    useEffect(() => {
+      if (zoom >= minZoomLevel && JSON.stringify(bbox) !== JSON.stringify(prevBboxRef.current)) {
+        prevBboxRef.current = bbox;
+        debounce(fetchStations(bbox), 500);
+      }
+    }, [zoom, bbox]);
+
+    return null;
+  };
 
   const handleCoordinateSubmit = () => {
     const lat = parseFloat(latInput);
@@ -362,7 +417,22 @@ const RockCliMe = () => {
                   setLngInput={setLngInput}
                   style={{ color: "green" }}
                 />
+                <MapEvents />
                 <MapUpdater coordinates={coordinates} />
+                {stations.map((station) => (
+                  <Marker
+                    key={station.properties.id}
+                    position={[station.geometry.coordinates[1], station.geometry.coordinates[0]]}
+                  >
+                    <Popup>
+                      <div>
+                        <strong>{station.properties.desc}</strong>
+                        <br />
+                        ID: {station.properties.id}
+                      </div>
+                    </Popup>
+                  </Marker>
+                ))}
               </MapContainer>
             </div>
             <div className="mt-4">
