@@ -1,14 +1,21 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+// Navbar component
 function Navbar({ isVisible, toggleVisibility }) {
+
+  // State to keep track of which dropdown is open
   const [openDropdown, setOpenDropdown] = useState(null);
+
+  // Hook to navigate to different pages
   const navigate = useNavigate();
 
+  // Function to toggle the dropdown
   const toggleDropdown = (dropdown) => {
     setOpenDropdown(openDropdown === dropdown ? null : dropdown);
   };
 
+  // Function to handle the logo click
   const handleLogoClick = () => {
     toggleVisibility();
     navigate("/");
@@ -18,6 +25,7 @@ function Navbar({ isVisible, toggleVisibility }) {
     isVisible && (
       <nav className="w-full py-2 lg:shadow navbar h-16">
         {" "}
+        
         {/* Set a fixed height for the navbar */}
         <div className="w-full flex flex-col items-center lg:flex-row h-full">
           <div className="w-full items-center flex lg:flex-row border-b border-gray-200 lg:border-none lg:w-auto lg:h-full">
