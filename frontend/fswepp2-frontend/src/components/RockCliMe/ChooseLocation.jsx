@@ -106,7 +106,7 @@ const MapBBoxHandler = ({ setZoom, setBbox, fetchStations, zoom, bbox, minZoomLe
 // setShowLocationDiv: Function to show the location div.
 // latInput: The latitude input.
 // lngInput: The longitude input.
-const ChooseLocation = ({
+function ChooseLocation ({
   coordinates,
   setCoordinates,
   setLatInput,
@@ -114,7 +114,7 @@ const ChooseLocation = ({
   setShowLocationDiv,
   latInput,
   lngInput,
-}) => {
+}) {
 
   // State variables
 
