@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
+// Parse station description to get name and state
 const parseStationDesc = (desc) => {
   const trimmedDesc = desc.replace(/\s+/g, " ").trim();
   const regex = /^(.*?)(\b[A-Z]{2}\b)\s(\d{6})\s0$/;
@@ -14,7 +15,8 @@ const parseStationDesc = (desc) => {
   return { name: "", state: "" };
 };
 
-const ClimateData = () => {
+// Component to display climate data
+function ClimateData() {
   const location = useLocation();
   const navigate = useNavigate();
   const {
@@ -38,7 +40,8 @@ const ClimateData = () => {
   if (stationDesc) {
     ({ name, state } = parseStationDesc(stationDesc));
   }
-
+  
+  // Unabbreviated months
   const months = [
     "January",
     "February",
@@ -53,6 +56,8 @@ const ClimateData = () => {
     "November",
     "December",
   ];
+
+  // Abbreviated months
   const monthsAbbrev = [
     "Jan.",
     "Feb.",
@@ -67,9 +72,11 @@ const ClimateData = () => {
     "Nov.",
     "Dec.",
   ];
-
+  
+  // When page is loaded, fetch the climate data based on parameters.
   useEffect(() => {
     const fetchClimateData = async () => {
+      // Fetch climate data based on station parameters OR custom parameters
       try {
         const updatedCustomPar = customPar
           ? {
@@ -83,11 +90,13 @@ const ClimateData = () => {
               use_prism: usePrismClim,
               user_defined_par_mod: user_defined_par_mod,
             };
-
+        
+        // API Call to get climate data
         const response = await axios.post(
           "http://localhost:8080/api/rockclim/GET/climate_monthlies",
           updatedCustomPar
         );
+        // Set climate data
         setClimateData(response.data);
         console.log("Climate data:", response.data);
       } catch (error) {
@@ -95,6 +104,7 @@ const ClimateData = () => {
       }
     };
 
+    // Fetch climate data if it doesn't exist
     if (!climateData) {
       fetchClimateData();
     }
@@ -127,17 +137,22 @@ const ClimateData = () => {
           Back
         </button>
       </div>
+      {/* Climate Data page header*/}
       <div className="flex flex-col items-start ml-4 mr-4">
         <div className="text-2xl font-semibold">
+          { /* If custom parameters are present, render the 
+          description, otherwise parsed name and state from station*/}
           {customPar
             ? customPar.user_defined_par_mod.description
             : `${name}, ${state}`}
         </div>
         <div className="text-l mb-4">
+          {/* Render station or custom par ID */}
           {customPar
             ? `Parameter ID: ${selectedPar}`
             : `Station ID: ${par_id}`}
         </div>{" "}
+        {/* If not a custom par, display coordinates.*/}
         {!customPar && coordinates && (
           <div className="text-xl">
             <h3 className="text-[17px] font-semibold -mt-2">
@@ -151,6 +166,7 @@ const ClimateData = () => {
             </p>
           </div>
         )}
+        {/* Div for climate data table*/}
         <div className="mt-4 w-full mb-4">
           <h3 className="text-2xl font-semibold">Climate Data:</h3>
           {usePrismClim && (
