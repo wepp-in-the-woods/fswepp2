@@ -2,9 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
-const StationPar = () => {
+// StationPar Component that displays custom or station parameter data
+function StationPar() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Destructure location state from RockCliMe component
   const {
     databaseVersion,
     cligenVersion,
@@ -19,7 +22,8 @@ const StationPar = () => {
   const [parData, setParData] = useState(null);
   const [isModified, setIsModified] = useState(false);
   const [description, setDescription] = useState(stationDesc);
-
+  
+  // Initialize input values for precipitation, max temp, min temp, and number of wet days
   const [inputValues, setInputValues] = useState({
     ppts: [],
     tmaxs: [],
@@ -27,6 +31,7 @@ const StationPar = () => {
     nwds: [],
   });
 
+  // Handle click event to save or modify parameter data
   const handleClick = () => {
     if (isModified) {
       handleSave();
@@ -35,6 +40,7 @@ const StationPar = () => {
     }
   };
 
+  // Handle input change for precipitation, max temp, min temp, and number of wet days
   const handleInputChange = (e, index, type) => {
     const newValue = parseFloat(e.target.value);
     setInputValues((prevValues) => {
@@ -44,6 +50,7 @@ const StationPar = () => {
     });
   };
 
+  // Handle title change for description
   const handleTitleChange = (e, field) => {
     const value = e.target.value;
     if (field === "description") {
@@ -51,6 +58,7 @@ const StationPar = () => {
     }
   };
 
+  // Handle save event to update user-defined parameter data
   const handleSave = () => {
     const user_defined_par = {
       par_id: par_id,
@@ -59,10 +67,10 @@ const StationPar = () => {
         ppts: parData.ppts,
         tmaxs: parData.tmaxs,
         tmins: parData.tmins,
-        //nwds: parData.nwds,
       },
     };
 
+    // Post user-defined parameter data to server
     axios
       .post(
         "http://localhost:8080/api/rockclim/PUT/user_defined_par",
@@ -81,11 +89,13 @@ const StationPar = () => {
       .catch((error) => {
         console.error("Error posting data:", error);
       });
-
+    
+    // Once saved, reset view
     setIsModified(false);
     setDescription("");
   };
 
+  // Handle cancel event to reset view and table values
   useEffect(() => {
     if (parData) {
       setInputValues({
@@ -97,9 +107,11 @@ const StationPar = () => {
     }
   }, [parData]);
 
+  // Fetch station parameter data from server
   useEffect(() => {
     const fetchStationData = async () => {
       try {
+        // API Call
         const response = await axios.post(
           "http://localhost:8080/api/rockclim/GET/station_par_monthlies",
           {
@@ -116,13 +128,16 @@ const StationPar = () => {
       }
     };
 
+    // If not user defined parameter, fetch station data
     if (!user_defined_par_mod) {
       fetchStationData();
+    // Otherwise set user defined parameter data
     } else {
       setParData(user_defined_par_mod);
     }
   }, [par_id, loc, usePrismPar, user_defined_par_mod]);
 
+  // Unabbreviated months
   const months = [
     "January",
     "February",
@@ -137,6 +152,8 @@ const StationPar = () => {
     "November",
     "December",
   ];
+
+  // Abbreviated months
   const monthsAbbrev = [
     "Jan",
     "Feb",
@@ -159,10 +176,13 @@ const StationPar = () => {
         className="top-0 left-0 right-0 shadow-md p-4 flex justify-between items-center h-16 lg:hidden"
         style={{ zIndex: 10 }}
       >
+        {/* Headers*/}
         <div>
           <h1 className="text-xl font-semibold">RockClime</h1>
           <p className="text-sm text-gray-700">RMRS Climate Generator</p>
         </div>
+
+        {/* Home Button */}
         <button
           onClick={() => navigate("/")}
           className="px-4 py-2 bg-[#16a34a] text-white rounded"
@@ -178,10 +198,13 @@ const StationPar = () => {
           Back
         </button>
       </div>
+
       {/* Main Content */}
       <div className="flex flex-col items-start ml-4 mr-4">
         <div className="w-full">
           <div className="text-2xl font-semibold">
+
+            {/* Parameter description with modifiable state */}
             {isModified ? (
               <input
                 type="text"
@@ -202,10 +225,14 @@ const StationPar = () => {
               </>
             )}
           </div>
+
+          {/* Station ID or Parameter ID*/}
           <div className="text-md mb-4">
             {user_defined_par_mod
               ? `Par. ID: ${selected_par}` : `Par. ID: ${par_id.slice(0, -4)}`}
           </div>
+
+          {/* Station Coordinates if not a custom parameter */}
           {!user_defined_par_mod && (
             <div className="text-xl">
               <h3 className="text-[17px] font-semibold -mt-2">
@@ -224,6 +251,8 @@ const StationPar = () => {
             </div>
           )}
         </div>
+
+        {/* Display station data in a table*/}
         <div className="mt-4 w-full mb-4">
           <div className="mb-2 flex flex-row">
             <div className="">
@@ -232,6 +261,8 @@ const StationPar = () => {
                 <p className="text-[12px]">*Precip & Mean Temps. from PRISM</p>
               )}
             </div>
+
+            {/* Save or Modify Button */}
             <div className="flex-grow flex items-end justify-end">
               <button
                 onClick={handleClick}
@@ -245,6 +276,8 @@ const StationPar = () => {
               </button>
             </div>
           </div>
+
+          {/* Table of station data */}
           {parData && (
             <div>
               <table className="table-auto border-collapse border border-gray-400 w-full max-[374px]:text-xs">
@@ -270,6 +303,8 @@ const StationPar = () => {
                   </tr>
                 </thead>
                 <tbody>
+
+                  {/* Map par data to table */}
                   {parData.ppts.map((ppt, index) => (
                     <tr key={index}>
                       <td className="border border-gray-300 px-2 py-2 w-1/5">
@@ -279,6 +314,8 @@ const StationPar = () => {
                         <span className="md:hidden">{monthsAbbrev[index]}</span>
                       </td>
                       <td className="border border-gray-300 px-2 py-2 w-1/5">
+
+                        {/* Allow user to change values if isModified state is true*/}
                         <input
                           type="text"
                           defaultValue={ppt.toFixed(2)}
@@ -292,6 +329,8 @@ const StationPar = () => {
                         />
                       </td>
                       <td className="border border-gray-300 px-2 py-2 w-1/5">
+                        
+                        {/* Allow user to change values if isModified state is true*/}
                         <input
                           type="text"
                           defaultValue={parData.tmaxs[index].toFixed(2)}
@@ -305,6 +344,8 @@ const StationPar = () => {
                         />
                       </td>
                       <td className="border border-gray-300 px-2 py-2 w-1/5">
+
+                        {/* Allow user to change values if isModified state is true*/}
                         <input
                           type="text"
                           defaultValue={parData.tmins[index].toFixed(2)}
@@ -319,6 +360,8 @@ const StationPar = () => {
                       </td>
                       {parData.nwds && parData.nwds.length > 0 && (
                         <td className="border border-gray-300 px-2 py-2 w-1/5">
+
+                          {/* Allow user to change values if isModified state is true*/}
                           <input
                             type="text"
                             defaultValue={parData.nwds[index].toFixed(2)}
