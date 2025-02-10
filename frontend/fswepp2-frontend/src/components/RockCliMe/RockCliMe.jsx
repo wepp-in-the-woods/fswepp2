@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import ChooseLocation from "./ChooseLocation";
 
 const RockCliMe = () => {
+  // State variables. This is the main reason refactoring may be necessary.
   const [coordinates, setCoordinates] = useState(null);
   const [latInput, setLatInput] = useState("");
   const [lngInput, setLngInput] = useState("");
@@ -22,6 +23,7 @@ const RockCliMe = () => {
   const [cligenVersion] = useState("5.3.2");
   const [databaseVersion] = useState("legacy");
 
+  // Fetch and display closest stations
   useEffect(() => {
     if (
       coordinates &&
@@ -35,6 +37,7 @@ const RockCliMe = () => {
     }
   }, [coordinates, showLocationDiv, activeTab]);
 
+  // Fetch and display saved parameters
   useEffect(() => {
     if (
       activeTab === "savedParameters" &&
@@ -45,18 +48,7 @@ const RockCliMe = () => {
     }
   }, [savedParameters, activeTab]);
 
-  const handleCoordinateSubmit = () => {
-    const lat = parseFloat(latInput);
-    const lng = parseFloat(lngInput);
-    if (!isNaN(lat) && !isNaN(lng)) {
-      if (coordinates[0] !== lat || coordinates[1] !== lng) {
-        setCoordinates([lat, lng]);
-      }
-    } else {
-      console.log("Invalid coordinates input.");
-    }
-  };
-
+  // Fetch saved parameters from the database based on user cookies. Cookies stay for one week.
   const handleGetSavedParameters = async () => {
     try {
       const response = await axios.get(
@@ -71,6 +63,7 @@ const RockCliMe = () => {
     }
   };
 
+  // Fetch closest stations from the database based on user inputted/selected coordinates.
   const handleGetClosestStations = async () => {
     const [lat, lng] = coordinates;
     if (!isNaN(lat) && !isNaN(lng)) {
@@ -94,20 +87,25 @@ const RockCliMe = () => {
     }
   };
 
+  // Sets the selected station to the station that was clicked on.
   const handleStationClick = (station) => {
     setSelectedStation(selectedStation === station ? null : station);
   };
 
+  // Sets the selected parameter to the parameter that was clicked on.
   const handleSavedParClick = (par) => {
     setSelectedPar(selectedPar === par ? null : par);
   };
 
+  // Navigates to /rockclime/par/:par_id based on user's selected station.
   const handleViewStationPar = () => {
     if (!selectedStation || !selectedStation.id) {
       console.error("No station selected or par_id is missing");
       return;
     }
 
+    // Location is either inputted coordinates if the user wants to use PRISM 
+    // or just the station's coordinates. 
     const location = usePrismPar
       ? { longitude: parseFloat(lngInput), latitude: parseFloat(latInput) }
       : {
@@ -132,6 +130,7 @@ const RockCliMe = () => {
     });
   };
 
+  // Navigates to /rockclime/climate/:par_id based on user's selected station.
   const handleViewStationClimateData = async () => {
     if (!selectedStation || !selectedStation.id) {
       console.error("No station selected or par_id is missing");
@@ -143,6 +142,8 @@ const RockCliMe = () => {
       return;
     }
 
+    // Location is either inputted coordinates if the user wants to use PRISM 
+    // or just the station's coordinates. 
     const location = usePrismClim
       ? { longitude: parseFloat(lngInput), latitude: parseFloat(latInput) }
       : {
@@ -167,6 +168,7 @@ const RockCliMe = () => {
     });
   };
 
+  // Navigates to /rockclime/par/:par_id based on user's selected saved parameter.
   const handleViewSavedPar = () => {
     if (!selectedPar) {
       console.error("No saved parameter selected");
@@ -187,6 +189,7 @@ const RockCliMe = () => {
     });
   };
 
+  // Navigates to /rockclime/climate/:par_id based on user's selected saved parameter.
   const handleViewSavedParClimateData = async () => {
     if (!years) {
       console.error("Number of years is missing");
@@ -222,6 +225,7 @@ const RockCliMe = () => {
           Home
         </button>
       </div>
+      {/* Current Location Div */}
       <div className="flex flex-row w-full pt-2 pb-2 justify-between items-center mt-2 mb-2 pl-2 pr-2">
         <div className="text-sm md:text-base">
           Current Location:{" "}
@@ -238,6 +242,7 @@ const RockCliMe = () => {
           Choose Location
         </button>
       </div>
+      {/* Conditionally render ChooseLocation */}
       {showLocationDiv && (
         <ChooseLocation
           coordinates={coordinates}
@@ -283,6 +288,9 @@ const RockCliMe = () => {
       <div className="flex-grow overflow-auto p-4">
         {activeTab === "closestStations" && (
           <div className="grid grid-cols-1 gap-4">
+            {/* Gets the 6 closest stations. When clicked, 
+            the selected station is set and additional options appear. */}
+
             {closestStations.slice(0, 6).map((station, index) => (
               <div key={index}>
                 <button
@@ -301,6 +309,7 @@ const RockCliMe = () => {
                 {selectedStation === station && (
                   <div className="mt-2 p-2 border rounded bg-gray-100">
                     <div className="mb-2">
+                      {/* "au" e.g. the Australia database does not have PRISM, so we grey out the option. */}
                       {databaseVersion !== "au" && (
                         <label className="inline-flex items-center mb-2">
                           <input
@@ -353,6 +362,7 @@ const RockCliMe = () => {
             ))}
           </div>
         )}
+        {/* Display the fetched saved parameters. */}
         {activeTab === "savedParameters" && (
           <div className="grid grid-cols-1 gap-4">
             {Object.keys(savedParameters).map((par, index) => (
