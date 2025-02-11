@@ -19,6 +19,8 @@ I started developing FSWEPP(2) using **React** and **Tailwind CSS**. The fronten
 
 Without Docker, the setup becomes slow and manual. When using VS Code, creating a unique volume for FSWEPP is as simple as clicking the prompt “create unique volume”. Otherwise, you will need to create a unique volume manually, which will improve performance.
 
+![image](https://github.com/user-attachments/assets/11329290-0844-4507-9252-f7d4aefd1c62)
+
 When running `npm list` in `/fswepp/frontend/fswepp2-frontend`, you should see the full dependency list (refer to the repository for the complete output). You may need to run `npm install` on the first run to install all necessary packages.
 
 ## Code Setup
