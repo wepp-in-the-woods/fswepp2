@@ -42,6 +42,13 @@ async def ensure_user_id_middleware(request: Request, call_next):
 
     return response
 
+@app.get("/health", tags=["health"])
+async def health_check():
+    """
+    Simple liveness/readiness probe.
+    """
+    return {"status": "ok"}
+
 @app.exception_handler(Exception)
 async def custom_exception_handler(request: Request, exc: Exception):
     # Get the full traceback as a string

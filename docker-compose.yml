@@ -1,0 +1,37 @@
+services:
+  fswepp2:
+    build: .
+    ports:
+      - "8090:8090"
+    volumes:
+      - .:/workdir/fswepp2
+    working_dir: /workdir/fswepp2 
+    tmpfs:
+      - /ramdisk:size=1g
+    command: >
+      uvicorn main:app
+        --host 0.0.0.0
+        --port 8090
+        --reload
+        --reload-dir /workdir/fswepp2
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: builder      # ← use the node:20-alpine stage
+    working_dir: /app
+    ports:
+      - "3091:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm start 
+
+  frontend-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      # no target → uses final (nginx) stage
+    ports:
+      - "8091:80"
