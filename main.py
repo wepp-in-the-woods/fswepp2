@@ -14,7 +14,8 @@ import uuid
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000",
+    "https://fswepp2-dev.bearhive.duckdns.org",
+    "https://fswepp2.bearhive.duckdns.org",
 ]
 
 app.add_middleware(

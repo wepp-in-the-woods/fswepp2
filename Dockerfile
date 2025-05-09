@@ -29,6 +29,9 @@ RUN mkdir -p /usr/lib/python3/dist-packages/all_your_base \
  && git clone https://github.com/wepp-in-the-woods/wepppy2/ \
       /opt/venv/lib/python3.12/site-packages/wepppy2
 
+RUN chmod +x /opt/venv/lib/python3.12/site-packages/wepppy2/climates/cligen/bin/cligen43 \
+             /opt/venv/lib/python3.12/site-packages/wepppy2/climates/cligen/bin/cligen532
+
 # install fortran runtime for cligen43
 RUN wget -q http://archive.ubuntu.com/ubuntu/pool/universe/g/gcc-6/gcc-6-base_6.4.0-17ubuntu1_amd64.deb \
  && wget -q http://archive.ubuntu.com/ubuntu/pool/universe/g/gcc-6/libgfortran3_6.4.0-17ubuntu1_amd64.deb \

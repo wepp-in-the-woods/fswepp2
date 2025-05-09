@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import { api } from '../../api';
 
 // Parse station description to get name and state
 const parseStationDesc = (desc) => {
@@ -92,8 +93,8 @@ function ClimateData() {
             };
         
         // API Call to get climate data
-        const response = await axios.post(
-          "http://localhost:8080/api/rockclim/GET/climate_monthlies",
+        const response = await api.post(
+          "/api/rockclim/GET/climate_monthlies",
           updatedCustomPar
         );
         // Set climate data

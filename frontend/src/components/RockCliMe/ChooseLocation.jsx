@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, memo } from "react";
 import axios from "axios";
+import { api } from '../../api';
 import {
   MapContainer,
   TileLayer,
@@ -147,7 +148,7 @@ function ChooseLocation ({
   const fetchStations = async (bbox) => {
     try {
       // API call
-      const response = await axios.post("http://localhost:8080/api/rockclim/GET/stations_geojson", {
+      const response = await api.post("/api/rockclim/GET/stations_geojson", {
         // Database version is None if the user has not selected any database.
         database: databaseVersion === "None" ? null : databaseVersion,
         bbox: bbox,

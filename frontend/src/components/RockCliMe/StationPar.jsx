@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import { api } from '../../api';
 
 // StationPar Component that displays custom or station parameter data
 function StationPar() {
@@ -71,9 +72,8 @@ function StationPar() {
     };
 
     // Post user-defined parameter data to server
-    axios
-      .post(
-        "http://localhost:8080/api/rockclim/PUT/user_defined_par",
+    api.post(
+        "/api/rockclim/PUT/user_defined_par",
         user_defined_par,
         {
           headers: {
@@ -112,8 +112,8 @@ function StationPar() {
     const fetchStationData = async () => {
       try {
         // API Call
-        const response = await axios.post(
-          "http://localhost:8080/api/rockclim/GET/station_par_monthlies",
+        const response = await api.post(
+          "/api/rockclim/GET/station_par_monthlies",
           {
             database: databaseVersion,
             cligen_version: cligenVersion,

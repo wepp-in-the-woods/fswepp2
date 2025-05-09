@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { api } from '../../api';
 import { useNavigate } from "react-router-dom";
 import ChooseLocation from "./ChooseLocation";
 
@@ -51,8 +52,8 @@ const RockCliMe = () => {
   // Fetch saved parameters from the database based on user cookies. Cookies stay for one week.
   const handleGetSavedParameters = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:8080/api/rockclim/GET/user_defined_pars",
+      const response = await api.get(
+        "/api/rockclim/GET/user_defined_pars",
         { withCredentials: true }
       );
       setSavedParameters(response.data);
@@ -69,8 +70,8 @@ const RockCliMe = () => {
     if (!isNaN(lat) && !isNaN(lng)) {
       console.log("database: " + databaseVersion);
       try {
-        const response = await axios.post(
-          "http://localhost:8080/api/rockclim/GET/closest_stations",
+        const response = await api.post(
+          "/api/rockclim/GET/closest_stations",
           {
             database: databaseVersion === "None" ? null : databaseVersion,
             cligen_version: cligenVersion,
