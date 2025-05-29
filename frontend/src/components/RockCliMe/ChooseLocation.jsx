@@ -252,7 +252,7 @@ function ChooseLocation ({
           </div>
 
           {/* Map */}
-          <div className="flex-grow z-0 h-60">
+          <div className="grow z-0 h-60">
             <MapContainer
               center={coordinates || [39.8283, -98.5795]}
               zoom={4}
@@ -322,7 +322,7 @@ function ChooseLocation ({
                   isNaN(parseFloat(latInput)) ? "" : parseFloat(latInput).toFixed(5)
                 }
                 onChange={(e) => setLatInput(parseFloat(e.target.value).toFixed(5))}
-                className="flex-shrink px-2 py-1 border border-gray-300 rounded mr-2 w-1/3"
+                className="shrink px-2 py-1 border border-gray-300 rounded mr-2 w-1/3"
               />
               <input
                 type="text"
@@ -331,14 +331,14 @@ function ChooseLocation ({
                   isNaN(parseFloat(lngInput)) ? "" : parseFloat(lngInput).toFixed(5)
                 }
                 onChange={(e) => setLngInput(parseFloat(e.target.value).toFixed(5))}
-                className="flex-shrink px-2 py-1 border border-gray-300 rounded mr-2 w-1/3"
+                className="shrink px-2 py-1 border border-gray-300 rounded mr-2 w-1/3"
               />
               <button
                 onClick={() => {
                   handleCoordinateSubmit();
                   setShowLocationDiv(false);
                 }}
-                className="flex-shrink px-2 py-2 bg-[#16a34a] text-white rounded w-1/3 text-sm"
+                className="shrink px-2 py-2 bg-[#16a34a] text-white rounded w-1/3 text-sm"
               >
                 Set Coords.
               </button>

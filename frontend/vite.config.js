@@ -6,7 +6,7 @@ export default defineConfig({
   base: '/',
   plugins: [react()],
   css: {
-    postcss: './postcss.config.js', // Point to your PostCSS config
+    postcss: './postcss.config.js',
   },
   resolve: {
     extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.json'],
@@ -25,5 +25,15 @@ export default defineConfig({
         '.js': 'jsx',
       },
     },
-  }
+  },
+  test: {
+    // vitest options
+    globals: true,
+    environment: 'jsdom',
+  },
+  server: {
+    port: 5173,
+    strictPort: true,
+    middlewareMode: false
+  },
 })

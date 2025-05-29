@@ -286,7 +286,7 @@ const RockCliMe = () => {
           </button>
         </div>
       </div>
-      <div className="flex-grow overflow-auto p-4">
+      <div className="grow overflow-auto p-4">
         {activeTab === "closestStations" && (
           <div className="grid grid-cols-1 gap-4">
             {/* Gets the 6 closest stations. When clicked, 

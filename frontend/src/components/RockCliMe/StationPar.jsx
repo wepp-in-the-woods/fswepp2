@@ -263,7 +263,7 @@ function StationPar() {
             </div>
 
             {/* Save or Modify Button */}
-            <div className="flex-grow flex items-end justify-end">
+            <div className="grow flex items-end justify-end">
               <button
                 onClick={handleClick}
                 className={`px-2 py-2 rounded whitespace-nowrap w-32 ${
