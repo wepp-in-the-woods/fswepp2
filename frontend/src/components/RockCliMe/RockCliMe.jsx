@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy } from "react";
 import axios from "axios";
 import { api } from '../../api';
 import { useNavigate } from "react-router-dom";
-import ChooseLocation from "./ChooseLocation";
+const ChooseLocation = lazy(() => import('./ChooseLocation.jsx'));
 
 const RockCliMe = () => {
   // State variables. This is the main reason refactoring may be necessary.

@@ -1,3 +1,6 @@
+// @ts-nocheck
+// ...rest of your code
+
 import React, { useState, useEffect, useRef, memo } from "react";
 import axios from "axios";
 import { api } from '../../api';
@@ -9,6 +12,7 @@ import {
   useMapEvents,
   Popup,
 } from "react-leaflet";
+import L from 'leaflet';
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css";
 import "leaflet-defaulticon-compatibility";
@@ -116,6 +120,18 @@ function ChooseLocation ({
   latInput,
   lngInput,
 }) {
+
+  // Fixes Leaflet icon issues with Vite
+  useEffect(() => {
+    // Fix for the missing icon issue in production builds with Vite
+    delete L.Icon.Default.prototype._getIconUrl;
+    
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    });
+  }, []);
 
   // State variables
 

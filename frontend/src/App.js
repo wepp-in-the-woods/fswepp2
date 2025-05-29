@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar/Navbar.jsx';
-import RockCliMe from './components/RockCliMe/RockCliMe.jsx';
-import StationPar from './components/RockCliMe/StationPar.jsx';
-import ClimateData from './components/RockCliMe/ClimateData.jsx';
+
+// Lazy load route components
+const RockCliMe = lazy(() => import('./components/RockCliMe/RockCliMe.jsx'));
+const StationPar = lazy(() => import('./components/RockCliMe/StationPar.jsx'));
+const ClimateData = lazy(() => import('./components/RockCliMe/ClimateData.jsx'));
 
 const App = () => {
   const [isNavbarVisible, setNavbarVisible] = useState(true);
@@ -30,11 +32,13 @@ const App = () => {
   return (
     <div className="min-h-screen">
       <Navbar isVisible={isNavbarVisible} toggleVisibility={() => setNavbarVisible(!isNavbarVisible)} />
-      <Routes>
-        <Route path="/rockclime" element={<RockCliMe />} />
-        <Route path="/rockclime/par/:stationId" element={<StationPar />} />
-        <Route path="/rockclime/climate/:stationId" element={<ClimateData />} />
-      </Routes>
+      <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
+        <Routes>
+          <Route path="/rockclime" element={<RockCliMe />} />
+          <Route path="/rockclime/par/:stationId" element={<StationPar />} />
+          <Route path="/rockclime/climate/:stationId" element={<ClimateData />} />
+        </Routes>
+      </Suspense>
     </div>
   );
 };
