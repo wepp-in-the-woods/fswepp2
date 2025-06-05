@@ -1,9 +1,129 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Icon } from "@/components/ui/icon";
+import { ChevronDown, ChevronUp, ExternalLink, Menu, X } from "lucide-react";
+
+const menuConfig = {
+  predictionModels: [
+    {
+      title: "Hillslope and Runoff",
+      items: [
+        { href: "/list1-item1", label: "WEPP: Road", external: false },
+        { href: "/list1-item2", label: "WEPP: Road Batch", external: false },
+        { href: "/list1-item3", label: "ERMiT", external: false },
+        { href: "/list1-item4", label: "ERMiT Batch", external: false },
+        { href: "/list1-item5", label: "Distributed WEPP", external: false },
+        {
+          href: "/list1-item6",
+          label: "Distributed WEPP Batch",
+          external: true,
+        },
+      ],
+    },
+    {
+      title: "Watershed",
+      items: [
+        {
+          href: "/list2-item1",
+          label: "Tahoe Basin Sediment Model",
+          external: false,
+        },
+        { href: "/list2-item2", label: "WEPPcloud", external: true },
+        {
+          href: "/list2-item3",
+          label: "Lake Tahoe WEPP Watershed GIS Interface",
+          external: true,
+        },
+        { href: "/list2-item4", label: "QWEPP", external: true },
+        {
+          href: "/list2-item5",
+          label: "FuME (Fuel Management)",
+          external: true,
+        },
+      ],
+    },
+  ],
+  tools: [
+    {
+      title: "Cligen Resources",
+      items: [
+        { href: "/rockclime", label: "Rock CliMe", external: false },
+        {
+          href: "/list1-item2",
+          label: "CliGen Weather Generator",
+          external: true,
+        },
+        { href: "/list1-item3", label: "Distributed WEPP", external: false },
+        { href: "/list1-item4", label: "ARS Water Database", external: true },
+        {
+          href: "/list1-item5",
+          label: "FuME (Fuel Management)",
+          external: false,
+        },
+      ],
+    },
+    {
+      title: "Other WEPP Resources",
+      items: [
+        {
+          href: "/list2-item1",
+          label: "Legacy MFSL WEPP Interfaces",
+          external: false,
+        },
+        { href: "/list2-item2", label: "USDA ARS WEPP", external: true },
+        {
+          href: "/list2-item3",
+          label: "NSERL WEPP Web Interface",
+          external: true,
+        },
+      ],
+    },
+  ],
+};
+
+const NavLink = ({ href, label, external = false, className = "" }) => {
+  return external ? (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`inline-flex flex-row items-start justify-start gap-2 py-2 pl-4 text-lg leading-none font-medium lg:p-0 lg:text-base lg:whitespace-nowrap ${className}`}
+    >
+      {label}
+      <Icon icon={ExternalLink} className="h-3.5 w-3.5" />
+    </a>
+  ) : (
+    <Link
+      to={href}
+      className={`inline-flex flex-row items-start justify-start gap-1 py-2 pl-4 text-lg leading-none font-medium lg:p-0 lg:text-base lg:whitespace-nowrap ${className}`}
+    >
+      {label}
+    </Link>
+  );
+};
+
+const MenuSection = ({ title, items }) => (
+  <div className="inline-flex flex-col items-start justify-start lg:gap-3">
+    <div className="inline-flex grow-1 flex-col items-start justify-start gap-2.5 self-stretch rounded-md bg-white px-6 py-2 lg:p-3">
+      <div className="justify-start text-base leading-tight font-normal text-slate-500 lg:text-base">
+        {title}
+      </div>
+    </div>
+    {items.map((item, index) => (
+      <div
+        key={index}
+        className="flex grow-1 flex-row items-center justify-start gap-2.5 self-stretch rounded-md bg-white p-3"
+      >
+        <div className="flex flex-row items-start justify-start gap-1">
+          <NavLink {...item} />
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 // Navbar component
 function Navbar({ isVisible, toggleVisibility }) {
-
   // State to keep track of which dropdown is open
   const [openDropdown, setOpenDropdown] = useState(null);
 
@@ -31,16 +151,14 @@ function Navbar({ isVisible, toggleVisibility }) {
 
   return (
     isVisible && (
-      <nav className="w-full py-3 shadow navbar h-16">
-        {" "}
-        
+      <nav className="bg-background w-full">
         {/* Set a fixed height for the navbar */}
-        <div className="w-full flex flex-col items-center lg:flex-row h-full space-x-6">
-          <div className="w-full items-center justify-between flex lg:flex-row border-none lg:w-auto lg:h-full">
+        <div className="flex h-14 flex-col items-center px-3 md:px-6 lg:flex-row lg:gap-6">
+          <div className="flex h-full w-full flex-row items-center justify-between border-none lg:w-auto">
             {/* FSWEPP Logo */}
             <Link
               to="/"
-              className="px-4 flex items-center lg:h-full "
+              className="flex items-center lg:h-full"
               onClick={handleLogoClick}
             >
               <img
@@ -50,453 +168,164 @@ function Navbar({ isVisible, toggleVisibility }) {
               />
             </Link>
             {/* Hamburger Menu Button (visible on mobile) */}
-            <button onClick={toggleMobileMenu} className="px-4 lg:hidden">
+            <button
+              onClick={toggleMobileMenu}
+              className="px-2 lg:hidden"
+              aria-label="Toggle menu"
+              aria-expanded={mobileMenuOpen}
+            >
               {mobileMenuOpen ? (
-                  <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <Icon icon={X} className="" />
               ) : (
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
-              )
-            }
+                <Icon icon={Menu} className="" />
+              )}
             </button>
           </div>
           {/* Primary navigation for desktop */}
-          <div aria-label="Primary Navigation" className="hidden lg:flex w-fit flex flex-col lg:flex-row lg:items-center lg:justify-center lg:h-full">
+          <div
+            aria-label="Primary Navigation"
+            className="hidden w-fit flex-col lg:flex lg:h-full lg:flex-row lg:items-center lg:justify-center"
+          >
             {/* Prediction Models Button */}
-            <div className="w-full relative lg:w-auto">
+            <div className="relative w-full lg:w-auto">
               <button
                 onClick={() => toggleDropdown("predictionModels")}
-                className="nav-link w-full text-left px-4 py-2 border-b border-gray-200 lg:border-none space-x-2 text-left text-xl md:text-2xl lg:text-base xl:text-l 2xl:text-xl flex justify-between items-center whitespace-nowrap"
+                className="nav-link xl:text-l flex w-full items-center justify-between gap-2 border-b border-gray-200 px-4 py-2 text-left text-xl whitespace-nowrap md:text-2xl lg:border-none lg:text-base 2xl:text-xl"
               >
                 <span>Prediction Models</span>
-                <img
-                  src={
-                    openDropdown === "predictionModels"
-                      ? "/upArrow.png"
-                      : "/downArrow.png"
-                  }
-                  alt="Toggle Dropdown"
-                  className="ml-2 h-5 w-5 lg:w-3 lg:h-3 lg:ml-1 lg:mt-1"
-                />
+                {openDropdown === "predictionModels" ? (
+                  <Icon icon={ChevronUp} className="" />
+                ) : (
+                  <Icon icon={ChevronDown} className="" />
+                )}
               </button>
               {/* Prediction Models Dropdown */}
               {openDropdown === "predictionModels" && (
-                <div className="dropdown-content w-full flex flex-col lg:absolute lg:top-full lg:left-0 lg:w-auto lg:bg-white lg:shadow-lg lg:z-10 lg:flex-row lg:border-2 lg:min-w-max">
-                  <div className="list1 p-2 border-b border-gray-200 text-l lg:border-none">
-                    <div className="text-m p-2 border-b border-gray-200 font-bold lg:border-none">
-                      Hillslope and Runoff
-                    </div>
-                    <a
-                      href="/list1-item1"
-                      className="block pl-4 py-2 whitespace-nowrap"
-                    >
-                      WEPP: Road
-                    </a>
-                    <a
-                      href="/list1-item2"
-                      className="block pl-4 py-2 whitespace-nowrap"
-                    >
-                      WEPP: Road Batch
-                    </a>
-                    <a
-                      href="/list1-item3"
-                      className="block pl-4 py-2 whitespace-nowrap"
-                    >
-                      ERMiT
-                    </a>
-                    <a
-                      href="/list1-item4"
-                      className="block pl-4 py-2 whitespace-nowrap"
-                    >
-                      ERMiT Batch
-                    </a>
-                    <a
-                      href="/list1-item5"
-                      className="block pl-4 py-2 whitespace-nowrap"
-                    >
-                      Distributed WEPP
-                    </a>
-                    <a
-                      href="/list1-item6"
-                      className="block pl-4 py-2 flex items-center whitespace-nowrap"
-                    >
-                      Distributed WEPP Batch
-                      <img
-                        src="/external-link.svg"
-                        alt="External Link"
-                        className="ml-2 h-4 w-4 mt-0.5"
-                      />
-                    </a>
-                    <div className="text-m p-2 border-b border-gray-200 font-bold lg:border-none">
-                      Watershed
-                    </div>
-                    <a
-                      href="/list2-item1"
-                      className="block pl-4 py-2 whitespace-nowrap"
-                    >
-                      Tahoe Basin Sediment Model
-                    </a>
-                    <a
-                      href="/list2-item2"
-                      className="block pl-4 py-2 flex items-center whitespace-nowrap"
-                    >
-                      WEPPcloud
-                      <img
-                        src="/external-link.svg"
-                        alt="External Link"
-                        className="ml-2 h-4 w-4"
-                      />
-                    </a>
+                <div className="inline-flex flex-col items-start justify-start gap-2.5 bg-white p-6 outline -outline-offset-1 outline-slate-200 lg:absolute lg:top-full lg:left-0 lg:w-auto lg:rounded-md lg:shadow-[0px_4px_6px_0px_rgba(0,0,0,0.09)]">
+                  <div className="inline-flex items-start justify-start gap-3">
+                    {menuConfig.predictionModels.map((section, index) => (
+                      <MenuSection key={index} {...section} />
+                    ))}
                   </div>
                 </div>
               )}
             </div>
             {/* Tools and Resources Button */}
-            <div className="w-full relative lg:w-auto">
+            <div className="relative w-full border-b border-gray-200 lg:w-auto lg:border-none">
               <button
                 onClick={() => toggleDropdown("tools")}
-                className="nav-link w-full text-left px-4 py-2 border-b border-gray-200 lg:border-none space-x-2 text-left text-xl md:text-2xl lg:text-base xl:text-l 2xl:text-xl flex justify-between items-center whitespace-nowrap"
+                className="nav-link xl:text-l flex w-full items-center justify-between gap-2 border-b border-gray-200 px-4 py-2 text-left text-xl leading-tight font-medium whitespace-nowrap text-slate-800 md:text-lg lg:border-none lg:text-base 2xl:text-xl"
               >
                 <span>Tools and Resources</span>
-                <img
-                  src={
-                    openDropdown === "tools" ? "/upArrow.png" : "/downArrow.png"
-                  }
-                  alt="Toggle Dropdown"
-                  className="ml-2 h-5 w-5 lg:w-3 lg:h-3 lg:ml-1 lg:mt-1"
-                />
+                {openDropdown === "tools" ? (
+                  <Icon icon={ChevronUp} className="" />
+                ) : (
+                  <Icon icon={ChevronDown} className="" />
+                )}
               </button>
               {/* Tools and Resources Dropdown */}
               {openDropdown === "tools" && (
-                <div className="dropdown-content w-full flex flex-col lg:absolute lg:top-full lg:left-0 lg:w-auto lg:bg-white lg:shadow-lg lg:z-20 lg:flex-row lg:border-2 lg:min-w-max">
-                  <div className="list1 p-2 text-l lg:border-none">
-                    <div className="text-m p-2 font-bold lg:border-none">
-                      Cligen Resources
-                    </div>
-                    <a
-                      href="/rockclime"
-                      className="block pl-4 py-2 whitespace-nowrap"
-                    >
-                      Rock CliMe
-                    </a>
-                    <a
-                      href="/list1-item2"
-                      className="block pl-4 py-2 whitespace-nowrap"
-                    >
-                      CliGen Weather Generator
-                    </a>
-                    <a
-                      href="/list1-item3"
-                      className="block pl-4 py-2 whitespace-nowrap"
-                    >
-                      Distributed WEPP
-                    </a>
-                    <a
-                      href="/list1-item4"
-                      className="block pl-4 py-2 whitespace-nowrap"
-                    >
-                      ARS Water Database
-                    </a>
-                    <a
-                      href="/list1-item5"
-                      className="block pl-4 py-2 whitespace-nowrap"
-                    >
-                      FuME (Fuel Management)
-                    </a>
-                    <div className="text-m p-2 font-bold lg:border-none">
-                      Other WEPP Resources
-                    </div>
-                    <a
-                      href="/list2-item1"
-                      className="block pl-4 py-2 whitespace-nowrap"
-                    >
-                      Legacy MFSL WEPP Interfaces
-                    </a>
-                    <a
-                      href="/list2-item2"
-                      className="block pl-4 py-2 flex items-center whitespace-nowrap"
-                    >
-                      USDA ARS WEPP
-                      <img
-                        src="/external-link.svg"
-                        alt="External Link"
-                        className="ml-2 h-4 w-4"
-                      />
-                    </a>
-                    <a
-                      href="/list2-item3"
-                      className="block pl-4 py-2 flex items-center whitespace-nowrap"
-                    >
-                      NSERL WEPP Web Interface
-                      <img
-                        src="/external-link.svg"
-                        alt="External Link"
-                        className="ml-2 h-4 w-4"
-                      />
-                    </a>
+                <div className="inline-flex flex-col items-start justify-start gap-2.5 bg-white p-6 outline -outline-offset-1 outline-slate-200 lg:absolute lg:top-full lg:left-0 lg:w-auto lg:rounded-md lg:shadow-[0px_4px_6px_0px_rgba(0,0,0,0.09)]">
+                  <div className="inline-flex items-start justify-start gap-3">
+                    {menuConfig.tools.map((section, index) => (
+                      <MenuSection key={index} {...section} />
+                    ))}
                   </div>
                 </div>
               )}
             </div>
             {/* Documentation, Contact Us, and Tutorials Button */}
-            <div className="w-full relative border-b border-gray-200 lg:border-none lg:w-auto">
+            <div className="relative w-full border-b border-gray-200 lg:w-auto lg:border-none">
               <a
                 href="/documentation"
-                className="nav-link w-full text-left px-4 py-2 text-left text-xl md:text-2xl lg:text-base xl:text-l 2xl:text-xl flex items-center"
+                className="nav-link xl:text-l flex w-full items-center px-4 py-2 text-left text-xl whitespace-nowrap md:text-2xl lg:text-base 2xl:text-xl"
               >
                 Documentation
               </a>
             </div>
-            <div className="w-full relative border-b border-gray-200 lg:border-none lg:w-auto lg:whitespace-nowrap">
+            <div className="relative w-full border-b border-gray-200 lg:w-auto lg:border-none">
               <a
                 href="/contact-us"
-                className="nav-link w-full text-left px-4 py-2 text-left text-xl md:text-2xl lg:text-base xl:text-l 2xl:text-xl flex items-center"
+                className="nav-link xl:text-l flex w-full items-center px-4 py-2 text-left text-xl md:text-2xl lg:text-base lg:whitespace-nowrap 2xl:text-xl"
               >
                 Contact Us
               </a>
             </div>
-            <div className="w-full relative border-b border-gray-200 lg:border-none lg:w-auto lg:whitespace-nowrap lg:mr-4">
+            <div className="relative w-full border-b border-gray-200 lg:w-auto lg:border-none">
               <a
                 href="/tutorials"
-                className="nav-link w-full text-left px-4 py-2 space-x-2 text-left text-xl md:text-2xl lg:text-base xl:text-l 2xl:text-xl flex items-center"
+                className="nav-link xl:text-l flex w-full items-center justify-between gap-2 px-4 py-2 text-left text-xl md:text-2xl lg:text-base lg:whitespace-nowrap 2xl:text-xl"
               >
-                Tutorials
-                <img
-                  src="/external-link.svg"
-                  alt="External Link"
-                  className="h-5 w-5 relative top-0.5 lg:w-4 lg:h-4"
-                />
+                <span>Tutorials</span>
+                <Icon icon={ExternalLink} className="" />
               </a>
             </div>
           </div>
         </div>
         {/* Mobile Primary Navigation (visible when hamburger is clicked) */}
         {mobileMenuOpen && (
-          <div className="block lg:hidden w-full mt-3 flex flex-col items-center bg-white border-t">
+          <div className="absolute top-14 left-0 flex w-full flex-col items-center bg-white shadow-lg lg:hidden">
             <button
               onClick={() => toggleDropdown("predictionModels")}
-              className="nav-link w-full text-left px-4 py-2 border-b border-gray-200 text-xl flex justify-between items-center"
+              className="nav-link flex w-full items-center justify-between border-b border-gray-200 px-4 py-3 text-left text-xl md:px-6"
             >
               <span>Prediction Models</span>
-              <img
-                src={
-                  openDropdown === "predictionModels"
-                    ? "/upArrow.png"
-                    : "/downArrow.png"
-                }
-                alt="Toggle Dropdown"
-                className="ml-2 h-5 w-5"
-              />
+              {openDropdown === "predictionModels" ? (
+                <Icon icon={ChevronUp} className="" />
+              ) : (
+                <Icon icon={ChevronDown} className="" />
+              )}
             </button>
             {openDropdown === "predictionModels" && (
-              <div className="w-full flex flex-col border-b border-gray-200">
-                <div className="text-m p-2 border-b border-gray-200 font-bold lg:border-none">
-                  Hillslope and Runoff
-                </div>
-                <a
-                  href="/list1-item1"
-                  className="block pl-4 py-2 whitespace-nowrap"
-                >
-                  WEPP: Road
-                </a>
-                <a
-                  href="/list1-item2"
-                  className="block pl-4 py-2 whitespace-nowrap"
-                >
-                  WEPP: Road Batch
-                </a>
-                <a
-                  href="/list1-item3"
-                  className="block pl-4 py-2 whitespace-nowrap"
-                >
-                  ERMiT
-                </a>
-                <a
-                  href="/list1-item4"
-                  className="block pl-4 py-2 whitespace-nowrap"
-                >
-                  ERMiT Batch
-                </a>
-                <a
-                  href="/list1-item5"
-                  className="block pl-4 py-2 whitespace-nowrap"
-                >
-                  Distributed WEPP
-                </a>
-                <a
-                  href="/list1-item6"
-                  className="block pl-4 py-2 flex items-center whitespace-nowrap"
-                >
-                  Distributed WEPP Batch
-                  <img
-                    src="/external-link.svg"
-                    alt="External Link"
-                    className="ml-2 h-4 w-4 mt-0.5"
-                  />
-                </a>
-                <div className="text-m p-2 border-b border-gray-200 font-bold lg:border-none">
-                  Watershed
-                </div>
-                <a
-                  href="/list2-item1"
-                  className="block pl-4 py-2 whitespace-nowrap"
-                >
-                  Tahoe Basin Sediment Model
-                </a>
-                <a
-                  href="/list2-item2"
-                  className="block pl-4 py-2 flex items-center whitespace-nowrap"
-                >
-                  WEPPcloud
-                  <img
-                    src="/external-link.svg"
-                    alt="External Link"
-                    className="ml-2 h-4 w-4"
-                  />
-                </a>
+              <div className="flex w-full flex-col border-b border-gray-200">
+                {menuConfig.predictionModels.map((section, index) => (
+                  <MenuSection key={index} {...section} />
+                ))}
               </div>
             )}
             <button
               onClick={() => toggleDropdown("tools")}
-              className="nav-link w-full text-left px-4 py-2 border-b border-gray-200 text-xl flex justify-between items-center"
+              className="nav-link flex w-full items-center justify-between border-b border-gray-200 px-4 py-3 text-left text-xl md:px-6"
             >
               <span>Tools and Resources</span>
-              <img
-                src={
-                  openDropdown === "tools"
-                    ? "/upArrow.png"
-                    : "/downArrow.png"
-                }
-                alt="Toggle Dropdown"
-                className="ml-2 h-5 w-5"
-              />
+              {openDropdown === "tools" ? (
+                <Icon icon={ChevronUp} className="" />
+              ) : (
+                <Icon icon={ChevronDown} className="" />
+              )}
             </button>
+
             {openDropdown === "tools" && (
-              <div className="w-full flex flex-col border-b border-gray-200">
-                <div className="text-m p-2 border-b border-gray-200 font-bold lg:border-none">
-                  Cligen Resources
-                </div>
-                <a
-                  href="/rockclime"
-                  className="block pl-4 py-2 whitespace-nowrap"
-                >
-                  Rock CliMe
-                </a>
-                <a
-                  href="/list1-item2"
-                  className="block pl-4 py-2 whitespace-nowrap"
-                >
-                  CliGen Weather Generator
-                </a>
-                <a
-                  href="/list1-item3"
-                  className="block pl-4 py-2 whitespace-nowrap"
-                >
-                  Distributed WEPP
-                </a>
-                <a
-                  href="/list1-item4"
-                  className="block pl-4 py-2 whitespace-nowrap"
-                >
-                  ARS Water Database
-                </a>
-                <a
-                  href="/list1-item5"
-                  className="block pl-4 py-2 whitespace-nowrap"
-                >
-                  FuME (Fuel Management)
-                </a>
-                <div className="text-m p-2 font-bold lg:border-none">
-                  Other WEPP Resources
-                </div>
-                <a
-                  href="/list1-item6"
-                  className="block pl-4 py-2 flex items-center whitespace-nowrap"
-                >
-                  Legacy MFSL WEPP Interfaces
-                  <img
-                    src="/external-link.svg"
-                    alt="External Link"
-                    className="ml-2 h-4 w-4 mt-0.5"
-                  />
-                </a>
-                <a
-                  href="/list2-item1"
-                  className="block pl-4 py-2 whitespace-nowrap"
-                >
-                  USDA ARS WEPP
-                  <img
-                    src="/external-link.svg"
-                    alt="External Link"
-                    className="ml-2 h-4 w-4 mt-0.5"
-                  />
-                </a>
-                <a
-                  href="/list2-item2"
-                  className="block pl-4 py-2 flex items-center whitespace-nowrap"
-                >
-                  NSERL WEPP Web Interface
-                  <img
-                    src="/external-link.svg"
-                    alt="External Link"
-                    className="ml-2 h-4 w-4"
-                  />
-                </a>
+              <div className="flex w-full flex-col border-b border-gray-200">
+                {menuConfig.tools.map((section, index) => (
+                  <MenuSection key={index} {...section} />
+                ))}
               </div>
             )}
             {/* Documentation, Contact Us, and Tutorials Button */}
-            <div className="w-full relative border-b border-gray-200 lg:border-none lg:w-auto">
+            <div className="relative w-full items-center justify-between border-b border-gray-200 px-4 py-3 md:px-6 lg:w-auto lg:border-none">
               <a
                 href="/documentation"
-                className="nav-link w-full text-left px-4 py-2 text-left text-xl md:text-2xl lg:text-base xl:text-l 2xl:text-xl flex items-center"
+                className="nav-link flex w-full items-center text-left text-xl"
               >
                 Documentation
               </a>
             </div>
-            <div className="w-full relative border-b border-gray-200 lg:border-none lg:w-auto lg:whitespace-nowrap">
+            <div className="relative w-full items-center justify-between border-b border-gray-200 px-4 py-3 md:px-6 lg:w-auto lg:border-none">
               <a
                 href="/contact-us"
-                className="nav-link w-full text-left px-4 py-2 text-left text-xl md:text-2xl lg:text-base xl:text-l 2xl:text-xl flex items-center"
+                className="nav-link flex w-full items-center text-left text-xl"
               >
                 Contact Us
               </a>
             </div>
-            <div className="w-full relative border-b border-gray-200 lg:border-none lg:w-auto lg:whitespace-nowrap lg:mr-4">
+            <div className="relative w-full items-center justify-between border-b border-gray-200 px-4 py-3 md:px-6 lg:w-auto lg:border-none">
               <a
                 href="/tutorials"
-                className="nav-link w-full text-left px-4 py-2 space-x-2 text-left text-xl md:text-2xl lg:text-base xl:text-l 2xl:text-xl flex items-center"
+                className="nav-link flex w-full items-center justify-between gap-2 text-left text-xl"
               >
                 Tutorials
-                <img
-                  src="/external-link.svg"
-                  alt="External Link"
-                  className="h-5 w-5 relative top-0.5 lg:w-4 lg:h-4"
-                />
+                <Icon icon={ExternalLink} className="" />
               </a>
             </div>
           </div>

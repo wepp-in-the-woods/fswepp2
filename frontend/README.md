@@ -43,4 +43,3 @@ Useful for testing the production build before deploying.
 
 - Environment variables should be defined in `.env` files as per [Vite's environment variables guide](https://vitejs.dev/guide/env-and-mode.html).
 - If you encounter issues after migration, refer to the [Vite migration guide](https://vitejs.dev/guide/#scaffolding-your-first-vite-project).
-

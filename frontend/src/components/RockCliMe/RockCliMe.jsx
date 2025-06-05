@@ -1,8 +1,8 @@
 import React, { useState, useEffect, lazy } from "react";
 import axios from "axios";
-import { api } from '../../api';
+import { api } from "../../api";
 import { useNavigate } from "react-router-dom";
-const ChooseLocation = lazy(() => import('./ChooseLocation.jsx'));
+const ChooseLocation = lazy(() => import("./ChooseLocation.jsx"));
 
 const RockCliMe = () => {
   // State variables. This is the main reason refactoring may be necessary.
@@ -52,10 +52,9 @@ const RockCliMe = () => {
   // Fetch saved parameters from the database based on user cookies. Cookies stay for one week.
   const handleGetSavedParameters = async () => {
     try {
-      const response = await api.get(
-        "/api/rockclim/GET/user_defined_pars",
-        { withCredentials: true }
-      );
+      const response = await api.get("/api/rockclim/GET/user_defined_pars", {
+        withCredentials: true,
+      });
       setSavedParameters(response.data);
       setParametersFetched(true);
     } catch (error) {
@@ -70,17 +69,14 @@ const RockCliMe = () => {
     if (!isNaN(lat) && !isNaN(lng)) {
       console.log("database: " + databaseVersion);
       try {
-        const response = await api.post(
-          "/api/rockclim/GET/closest_stations",
-          {
-            database: databaseVersion === "None" ? null : databaseVersion,
-            cligen_version: cligenVersion,
-            location: {
-              longitude: lng,
-              latitude: lat,
-            },
-          }
-        );
+        const response = await api.post("/api/rockclim/GET/closest_stations", {
+          database: databaseVersion === "None" ? null : databaseVersion,
+          cligen_version: cligenVersion,
+          location: {
+            longitude: lng,
+            latitude: lat,
+          },
+        });
         setClosestStations(response.data);
       } catch (error) {
         console.error("Error fetching closest stations:", error);
@@ -105,8 +101,8 @@ const RockCliMe = () => {
       return;
     }
 
-    // Location is either inputted coordinates if the user wants to use PRISM 
-    // or just the station's coordinates. 
+    // Location is either inputted coordinates if the user wants to use PRISM
+    // or just the station's coordinates.
     const location = usePrismPar
       ? { longitude: parseFloat(lngInput), latitude: parseFloat(latInput) }
       : {
@@ -143,8 +139,8 @@ const RockCliMe = () => {
       return;
     }
 
-    // Location is either inputted coordinates if the user wants to use PRISM 
-    // or just the station's coordinates. 
+    // Location is either inputted coordinates if the user wants to use PRISM
+    // or just the station's coordinates.
     const location = usePrismClim
       ? { longitude: parseFloat(lngInput), latitude: parseFloat(latInput) }
       : {
@@ -210,34 +206,32 @@ const RockCliMe = () => {
 
   return (
     // Main div
-    <div className="flex flex-col h-screen">
+    <div className="flex h-screen flex-col">
       {/* Mobile Navbar */}
-      <div
-        className="top-0 left-0 right-0 shadow-md p-4 flex justify-between items-center h-16 lg:hidden z-0"
-      >
+      <div className="top-0 right-0 left-0 z-0 flex h-16 items-center justify-between p-4 shadow-md lg:hidden">
         <div>
           <h1 className="text-xl font-semibold">RockClime</h1>
           <p className="text-sm text-gray-700">RMRS Climate Generator</p>
         </div>
         <button
           onClick={() => navigate("/")}
-          className="px-4 py-2 bg-[#16a34a] text-white rounded"
+          className="rounded bg-[#16a34a] px-4 py-2 text-white"
         >
           Home
         </button>
       </div>
       {/* Current Location Div */}
-      <div className="flex flex-row w-full pt-2 pb-2 justify-between items-center mt-2 mb-2 pl-2 pr-2">
+      <div className="mt-2 mb-2 flex w-full flex-row items-center justify-between pt-2 pr-2 pb-2 pl-2">
         <div className="text-sm md:text-base">
           Current Location:{" "}
           {latInput && lngInput
             ? `${parseFloat(latInput).toFixed(3)}, ${parseFloat(
-                lngInput
+                lngInput,
               ).toFixed(3)}`
             : "None"}
         </div>
         <button
-          className="underline text-sm md:text-base"
+          className="text-sm underline md:text-base"
           onClick={() => setShowLocationDiv(true)}
         >
           Choose Location
@@ -255,31 +249,31 @@ const RockCliMe = () => {
       )}
       {/* Tabs */}
       <div className="flex w-full border-t border-gray-300">
-        <div className="flex flex-row w-1/2 border-r-2">
+        <div className="flex w-1/2 flex-row border-r-2">
           <button
             onClick={() => {
               setActiveTab("closestStations");
               setParametersFetched(false);
             }}
-            className={`px-4 py-2 w-full ${
+            className={`w-full px-4 py-2 ${
               activeTab === "closestStations"
                 ? "border-b border-green-700 bg-gray-100"
-                : "bg-white border-b border-white pb-2"
+                : "border-b border-white bg-white pb-2"
             }`}
           >
             Closest Stations
           </button>
         </div>
-        <div className="flex flex-row w-1/2">
+        <div className="flex w-1/2 flex-row">
           <button
             onClick={() => {
               setActiveTab("savedParameters");
               setSelectedStation(null);
             }}
-            className={`px-4 py-2 w-full ${
+            className={`w-full px-4 py-2 ${
               activeTab === "savedParameters"
                 ? "border-b border-green-700 bg-gray-100"
-                : "bg-white border-b border-white pb-2"
+                : "border-b border-white bg-white pb-2"
             }`}
           >
             Saved Parameters
@@ -295,7 +289,7 @@ const RockCliMe = () => {
             {closestStations.slice(0, 6).map((station, index) => (
               <div key={index}>
                 <button
-                  className={`border p-2 rounded text-left w-full ${
+                  className={`w-full rounded border p-2 text-left ${
                     selectedStation === station ? "bg-[#015838] text-white" : ""
                   }`}
                   onClick={() => {
@@ -308,11 +302,11 @@ const RockCliMe = () => {
                   Distance: {station.distance_to_query_location.toFixed(2)} km
                 </button>
                 {selectedStation === station && (
-                  <div className="mt-2 p-2 border rounded bg-gray-100">
+                  <div className="mt-2 rounded border bg-gray-100 p-2">
                     <div className="mb-2">
                       {/* "au" e.g. the Australia database does not have PRISM, so we grey out the option. */}
                       {databaseVersion !== "au" && (
-                        <label className="inline-flex items-center mb-2">
+                        <label className="mb-2 inline-flex items-center">
                           <input
                             type="checkbox"
                             className="form-checkbox"
@@ -323,7 +317,7 @@ const RockCliMe = () => {
                         </label>
                       )}
                       <button
-                        className="block w-full text-left p-2 mb-2 bg-[#16a34a] text-white rounded"
+                        className="mb-2 block w-full rounded bg-[#16a34a] p-2 text-left text-white"
                         onClick={handleViewStationPar}
                       >
                         View Station Parameters
@@ -335,7 +329,7 @@ const RockCliMe = () => {
                       </label>
                       <input
                         type="number"
-                        className="mt-1 block w-full p-2 border border-gray-300 rounded"
+                        className="mt-1 block w-full rounded border border-gray-300 p-2"
                         value={years}
                         onChange={(e) => setYears(e.target.value)}
                       />
@@ -352,7 +346,7 @@ const RockCliMe = () => {
                       )}
                     </div>
                     <button
-                      className="block w-full text-left p-2 bg-[#16a34a] text-white rounded"
+                      className="block w-full rounded bg-[#16a34a] p-2 text-left text-white"
                       onClick={handleViewStationClimateData}
                     >
                       Generate Climate Data
@@ -369,7 +363,7 @@ const RockCliMe = () => {
             {Object.keys(savedParameters).map((par, index) => (
               <div key={index}>
                 <button
-                  className={`border p-2 rounded text-left w-full ${
+                  className={`w-full rounded border p-2 text-left ${
                     selectedPar === par ? "bg-[#015838] text-white" : ""
                   }`}
                   onClick={() => handleSavedParClick(par)}
@@ -379,10 +373,10 @@ const RockCliMe = () => {
                   </strong>
                 </button>
                 {selectedPar === par && (
-                  <div className="mt-2 p-2 border rounded bg-gray-100">
+                  <div className="mt-2 rounded border bg-gray-100 p-2">
                     <div className="mb-2">
                       <button
-                        className="block w-full text-left p-2 mb-2 bg-[#16a34a] text-white rounded"
+                        className="mb-2 block w-full rounded bg-[#16a34a] p-2 text-left text-white"
                         onClick={handleViewSavedPar}
                       >
                         View Saved Parameters
@@ -394,13 +388,13 @@ const RockCliMe = () => {
                       </label>
                       <input
                         type="number"
-                        className="mt-1 block w-full p-2 border border-gray-300 rounded"
+                        className="mt-1 block w-full rounded border border-gray-300 p-2"
                         value={years}
                         onChange={(e) => setYears(e.target.value)}
                       />
                     </div>
                     <button
-                      className="block w-full text-left p-2 bg-[#16a34a] text-white rounded"
+                      className="block w-full rounded bg-[#16a34a] p-2 text-left text-white"
                       onClick={handleViewSavedParClimateData}
                     >
                       Generate Climate Data
