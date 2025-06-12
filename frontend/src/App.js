@@ -8,7 +8,11 @@ import {
 } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar.jsx";
 import ToolSection from "@/components/ToolSection";
-import ToolCard from "@/components/ToolCard";
+import { ExternalLink } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
+import { icon } from "leaflet";
+
+import { hillslopeModels, watershedModels } from "@/data/models.js";
 
 // Lazy load route components
 const RockCliMe = lazy(() => import("./components/RockCliMe/RockCliMe.jsx"));
@@ -17,49 +21,34 @@ const ClimateData = lazy(
   () => import("./components/RockCliMe/ClimateData.jsx"),
 );
 
-const hillslopeTools = [
-  {
-    title: "WEPP: Road",
-    description: "Predict erosion from insloped or outsloped forest roads...",
-    icon: "🛣️",
-    href: "/wepp-road",
-  },
-  {
-    title: "ERMiT",
-    description:
-      "Predict the probability of sediment delivery from hillslope...",
-    href: "/ermit",
-  },
-  // more...
-];
-
-const watershedTools = [
-  {
-    title: "Tahoe Basin Sediment Model",
-    description:
-      "An offshoot of Disturbed WEPP customized for Lake Tahoe Basin...",
-    href: "/tahoe-model",
-  },
-  {
-    title: "WEPPcloud",
-    description: "Simulation tool that estimates hillslope soil erosion, etc.",
-    href: "https://weppcloud.org",
-  },
-  // more tools...
-];
-
 const Home = () => (
-  <>
-    <p className="text-muted-foreground mb-6">
-      The <strong>Water Erosion Prediction Project (WEPP)</strong> is a computer
-      simulation that predicts soil erosion.
-    </p>
+  <main className="mx-auto flex w-full flex-col gap-0 md:max-w-2xl lg:max-w-3xl xl:max-w-6xl">
+    <div className="flex w-full flex-col justify-between gap-3 p-6 align-middle xl:flex-row">
+      <p className="text-foreground">
+        The <strong>Water Erosion Prediction Project (WEPP)</strong> is a
+        computer simulation that predicts soil erosion.
+      </p>
+      <a
+        href="https://www.nrcs.usda.gov/resources/tech-tools/water-erosion-prediction-project"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-1 text-blue-600 hover:underline"
+      >
+        Learn more
+        <Icon icon={ExternalLink} className="h-3.5 w-3.5" />
+      </a>
+    </div>
     <ToolSection
       title="Hillslope Scale Erosion Prediction and Runoff Prediction"
-      tools={hillslopeTools}
+      tools={hillslopeModels}
+      className="mb-6 bg-green-50 text-green-900"
     />
-    <ToolSection title="Watershed Prediction" tools={watershedTools} />
-  </>
+    <ToolSection
+      title="Watershed Prediction"
+      tools={watershedModels}
+      className="mb-6 bg-blue-50 text-blue-900"
+    />
+  </main>
 );
 
 const App = () => {
@@ -86,7 +75,7 @@ const App = () => {
 
   return (
     <div className="min-h-screen">
-      <header className="bg-background sticky top-0 z-50 w-full shadow">
+      <header className="sticky top-0 z-50 w-full shadow-sm">
         <Navbar
           isVisible={isNavbarVisible}
           toggleVisibility={() => setNavbarVisible(!isNavbarVisible)}

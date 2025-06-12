@@ -215,7 +215,7 @@ const RockCliMe = () => {
         </div>
         <button
           onClick={() => navigate("/")}
-          className="rounded bg-[#16a34a] px-4 py-2 text-white"
+          className="rounded-sm bg-[#16a34a] px-4 py-2 text-white"
         >
           Home
         </button>
@@ -289,7 +289,7 @@ const RockCliMe = () => {
             {closestStations.slice(0, 6).map((station, index) => (
               <div key={index}>
                 <button
-                  className={`w-full rounded border p-2 text-left ${
+                  className={`w-full rounded-sm border p-2 text-left ${
                     selectedStation === station ? "bg-[#015838] text-white" : ""
                   }`}
                   onClick={() => {
@@ -302,7 +302,7 @@ const RockCliMe = () => {
                   Distance: {station.distance_to_query_location.toFixed(2)} km
                 </button>
                 {selectedStation === station && (
-                  <div className="mt-2 rounded border bg-gray-100 p-2">
+                  <div className="mt-2 rounded-sm border bg-gray-100 p-2">
                     <div className="mb-2">
                       {/* "au" e.g. the Australia database does not have PRISM, so we grey out the option. */}
                       {databaseVersion !== "au" && (
@@ -317,7 +317,7 @@ const RockCliMe = () => {
                         </label>
                       )}
                       <button
-                        className="mb-2 block w-full rounded bg-[#16a34a] p-2 text-left text-white"
+                        className="mb-2 block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
                         onClick={handleViewStationPar}
                       >
                         View Station Parameters
@@ -329,7 +329,7 @@ const RockCliMe = () => {
                       </label>
                       <input
                         type="number"
-                        className="mt-1 block w-full rounded border border-gray-300 p-2"
+                        className="mt-1 block w-full rounded-sm border border-gray-300 p-2"
                         value={years}
                         onChange={(e) => setYears(e.target.value)}
                       />
@@ -346,7 +346,7 @@ const RockCliMe = () => {
                       )}
                     </div>
                     <button
-                      className="block w-full rounded bg-[#16a34a] p-2 text-left text-white"
+                      className="block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
                       onClick={handleViewStationClimateData}
                     >
                       Generate Climate Data
@@ -363,7 +363,7 @@ const RockCliMe = () => {
             {Object.keys(savedParameters).map((par, index) => (
               <div key={index}>
                 <button
-                  className={`w-full rounded border p-2 text-left ${
+                  className={`w-full rounded-sm border p-2 text-left ${
                     selectedPar === par ? "bg-[#015838] text-white" : ""
                   }`}
                   onClick={() => handleSavedParClick(par)}
@@ -373,10 +373,10 @@ const RockCliMe = () => {
                   </strong>
                 </button>
                 {selectedPar === par && (
-                  <div className="mt-2 rounded border bg-gray-100 p-2">
+                  <div className="mt-2 rounded-sm border bg-gray-100 p-2">
                     <div className="mb-2">
                       <button
-                        className="mb-2 block w-full rounded bg-[#16a34a] p-2 text-left text-white"
+                        className="mb-2 block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
                         onClick={handleViewSavedPar}
                       >
                         View Saved Parameters
@@ -388,13 +388,13 @@ const RockCliMe = () => {
                       </label>
                       <input
                         type="number"
-                        className="mt-1 block w-full rounded border border-gray-300 p-2"
+                        className="mt-1 block w-full rounded-sm border border-gray-300 p-2"
                         value={years}
                         onChange={(e) => setYears(e.target.value)}
                       />
                     </div>
                     <button
-                      className="block w-full rounded bg-[#16a34a] p-2 text-left text-white"
+                      className="block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
                       onClick={handleViewSavedParClimateData}
                     >
                       Generate Climate Data

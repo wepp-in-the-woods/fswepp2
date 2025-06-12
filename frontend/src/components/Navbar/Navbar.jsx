@@ -3,91 +3,46 @@ import { Link, useNavigate } from "react-router-dom";
 import { Icon } from "@/components/ui/icon";
 import { ChevronDown, ChevronUp, ExternalLink, Menu, X } from "lucide-react";
 
+import { hillslopeModels, watershedModels } from "@/data/models.js";
+import { cligen, otherWeppResources } from "@/data/tools.js";
+
 const menuConfig = {
   predictionModels: [
     {
       title: "Hillslope and Runoff",
-      items: [
-        { href: "/list1-item1", label: "WEPP: Road", external: false },
-        { href: "/list1-item2", label: "WEPP: Road Batch", external: false },
-        { href: "/list1-item3", label: "ERMiT", external: false },
-        { href: "/list1-item4", label: "ERMiT Batch", external: false },
-        { href: "/list1-item5", label: "Distributed WEPP", external: false },
-        {
-          href: "/list1-item6",
-          label: "Distributed WEPP Batch",
-          external: true,
-        },
-      ],
+      items: hillslopeModels,
     },
     {
       title: "Watershed",
-      items: [
-        {
-          href: "/list2-item1",
-          label: "Tahoe Basin Sediment Model",
-          external: false,
-        },
-        { href: "/list2-item2", label: "WEPPcloud", external: true },
-        {
-          href: "/list2-item3",
-          label: "Lake Tahoe WEPP Watershed GIS Interface",
-          external: true,
-        },
-        { href: "/list2-item4", label: "QWEPP", external: true },
-        {
-          href: "/list2-item5",
-          label: "FuME (Fuel Management)",
-          external: true,
-        },
-      ],
+      items: watershedModels,
     },
   ],
   tools: [
     {
       title: "Cligen Resources",
-      items: [
-        { href: "/rockclime", label: "Rock CliMe", external: false },
-        {
-          href: "/list1-item2",
-          label: "CliGen Weather Generator",
-          external: true,
-        },
-        { href: "/list1-item3", label: "Distributed WEPP", external: false },
-        { href: "/list1-item4", label: "ARS Water Database", external: true },
-        {
-          href: "/list1-item5",
-          label: "FuME (Fuel Management)",
-          external: false,
-        },
-      ],
+      items: cligen,
     },
     {
       title: "Other WEPP Resources",
-      items: [
-        {
-          href: "/list2-item1",
-          label: "Legacy MFSL WEPP Interfaces",
-          external: false,
-        },
-        { href: "/list2-item2", label: "USDA ARS WEPP", external: true },
-        {
-          href: "/list2-item3",
-          label: "NSERL WEPP Web Interface",
-          external: true,
-        },
-      ],
+      items: otherWeppResources,
     },
   ],
 };
 
-const NavLink = ({ href, label, external = false, className = "" }) => {
+const NavLink = ({
+  href,
+  label,
+  external = false,
+  className = "",
+  onClick,
+}) => {
   return external ? (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
       className={`inline-flex flex-row items-start justify-start gap-2 py-2 pl-4 text-lg leading-none font-medium lg:p-0 lg:text-base lg:whitespace-nowrap ${className}`}
+      onClick={onClick}
     >
       {label}
       <Icon icon={ExternalLink} className="h-3.5 w-3.5" />
@@ -96,13 +51,14 @@ const NavLink = ({ href, label, external = false, className = "" }) => {
     <Link
       to={href}
       className={`inline-flex flex-row items-start justify-start gap-1 py-2 pl-4 text-lg leading-none font-medium lg:p-0 lg:text-base lg:whitespace-nowrap ${className}`}
+      onClick={onClick}
     >
       {label}
     </Link>
   );
 };
 
-const MenuSection = ({ title, items }) => (
+const MenuSection = ({ title, items, onLinkClick }) => (
   <div className="inline-flex flex-col items-start justify-start lg:gap-3">
     <div className="inline-flex grow-1 flex-col items-start justify-start gap-2.5 self-stretch rounded-md bg-white px-6 py-2 lg:p-3">
       <div className="justify-start text-base leading-tight font-normal text-slate-500 lg:text-base">
@@ -115,7 +71,7 @@ const MenuSection = ({ title, items }) => (
         className="flex grow-1 flex-row items-center justify-start gap-2.5 self-stretch rounded-md bg-white p-3"
       >
         <div className="flex flex-row items-start justify-start gap-1">
-          <NavLink {...item} />
+          <NavLink {...item} onClick={onLinkClick} />
         </div>
       </div>
     ))}
@@ -138,6 +94,12 @@ function Navbar({ isVisible, toggleVisibility }) {
     setOpenDropdown(openDropdown === dropdown ? null : dropdown);
   };
 
+  // Function to handle link click
+  const handleDropdownLinkClick = () => {
+    setOpenDropdown(null);
+    mobileMenuOpen ? setMobileMenuOpen(false) : null;
+  };
+
   // Function to handle the logo click
   const handleLogoClick = () => {
     toggleVisibility();
@@ -153,7 +115,7 @@ function Navbar({ isVisible, toggleVisibility }) {
     isVisible && (
       <nav className="bg-background w-full">
         {/* Set a fixed height for the navbar */}
-        <div className="flex h-14 flex-col items-center px-3 md:px-6 lg:flex-row lg:gap-6">
+        <div className="flex h-14 flex-col items-center px-6 lg:flex-row lg:gap-6">
           <div className="flex h-full w-full flex-row items-center justify-between border-none lg:w-auto">
             {/* FSWEPP Logo */}
             <Link
@@ -190,7 +152,7 @@ function Navbar({ isVisible, toggleVisibility }) {
             <div className="relative w-full lg:w-auto">
               <button
                 onClick={() => toggleDropdown("predictionModels")}
-                className="nav-link xl:text-l flex w-full items-center justify-between gap-2 border-b border-gray-200 px-4 py-2 text-left text-xl whitespace-nowrap md:text-2xl lg:border-none lg:text-base 2xl:text-xl"
+                className="nav-link flex w-full items-center justify-between gap-2 border-b border-gray-200 px-4 py-2 text-left whitespace-nowrap hover:cursor-pointer lg:border-none"
               >
                 <span>Prediction Models</span>
                 {openDropdown === "predictionModels" ? (
@@ -204,7 +166,11 @@ function Navbar({ isVisible, toggleVisibility }) {
                 <div className="inline-flex flex-col items-start justify-start gap-2.5 bg-white p-6 outline -outline-offset-1 outline-slate-200 lg:absolute lg:top-full lg:left-0 lg:w-auto lg:rounded-md lg:shadow-[0px_4px_6px_0px_rgba(0,0,0,0.09)]">
                   <div className="inline-flex items-start justify-start gap-3">
                     {menuConfig.predictionModels.map((section, index) => (
-                      <MenuSection key={index} {...section} />
+                      <MenuSection
+                        key={index}
+                        {...section}
+                        onLinkClick={handleDropdownLinkClick}
+                      />
                     ))}
                   </div>
                 </div>
@@ -214,7 +180,7 @@ function Navbar({ isVisible, toggleVisibility }) {
             <div className="relative w-full border-b border-gray-200 lg:w-auto lg:border-none">
               <button
                 onClick={() => toggleDropdown("tools")}
-                className="nav-link xl:text-l flex w-full items-center justify-between gap-2 border-b border-gray-200 px-4 py-2 text-left text-xl leading-tight font-medium whitespace-nowrap text-slate-800 md:text-lg lg:border-none lg:text-base 2xl:text-xl"
+                className="nav-link flex w-full items-center justify-between gap-2 border-b border-gray-200 px-4 py-2 text-left leading-tight font-medium whitespace-nowrap text-slate-800 hover:cursor-pointer lg:border-none"
               >
                 <span>Tools and Resources</span>
                 {openDropdown === "tools" ? (
@@ -228,7 +194,11 @@ function Navbar({ isVisible, toggleVisibility }) {
                 <div className="inline-flex flex-col items-start justify-start gap-2.5 bg-white p-6 outline -outline-offset-1 outline-slate-200 lg:absolute lg:top-full lg:left-0 lg:w-auto lg:rounded-md lg:shadow-[0px_4px_6px_0px_rgba(0,0,0,0.09)]">
                   <div className="inline-flex items-start justify-start gap-3">
                     {menuConfig.tools.map((section, index) => (
-                      <MenuSection key={index} {...section} />
+                      <MenuSection
+                        key={index}
+                        {...section}
+                        onLinkClick={handleDropdownLinkClick}
+                      />
                     ))}
                   </div>
                 </div>
@@ -238,7 +208,7 @@ function Navbar({ isVisible, toggleVisibility }) {
             <div className="relative w-full border-b border-gray-200 lg:w-auto lg:border-none">
               <a
                 href="/documentation"
-                className="nav-link xl:text-l flex w-full items-center px-4 py-2 text-left text-xl whitespace-nowrap md:text-2xl lg:text-base 2xl:text-xl"
+                className="nav-link flex w-full items-center px-4 py-2 text-left whitespace-nowrap"
               >
                 Documentation
               </a>
@@ -246,15 +216,15 @@ function Navbar({ isVisible, toggleVisibility }) {
             <div className="relative w-full border-b border-gray-200 lg:w-auto lg:border-none">
               <a
                 href="/contact-us"
-                className="nav-link xl:text-l flex w-full items-center px-4 py-2 text-left text-xl md:text-2xl lg:text-base lg:whitespace-nowrap 2xl:text-xl"
+                className="nav-link flex w-full items-center px-4 py-2 text-left lg:whitespace-nowrap"
               >
                 Contact Us
               </a>
             </div>
             <div className="relative w-full border-b border-gray-200 lg:w-auto lg:border-none">
               <a
-                href="/tutorials"
-                className="nav-link xl:text-l flex w-full items-center justify-between gap-2 px-4 py-2 text-left text-xl md:text-2xl lg:text-base lg:whitespace-nowrap 2xl:text-xl"
+                href="https://www.youtube.com/@fswepp4700/playlists"
+                className="nav-link flex w-full items-center justify-between gap-2 px-4 py-2 text-left lg:whitespace-nowrap"
               >
                 <span>Tutorials</span>
                 <Icon icon={ExternalLink} className="" />
@@ -264,7 +234,7 @@ function Navbar({ isVisible, toggleVisibility }) {
         </div>
         {/* Mobile Primary Navigation (visible when hamburger is clicked) */}
         {mobileMenuOpen && (
-          <div className="absolute top-14 left-0 flex w-full flex-col items-center bg-white shadow-lg lg:hidden">
+          <div className="absolute top-14 left-0 flex max-h-[calc(100vh-3.5rem)] w-full flex-col items-center overflow-y-auto bg-white shadow-lg lg:hidden">
             <button
               onClick={() => toggleDropdown("predictionModels")}
               className="nav-link flex w-full items-center justify-between border-b border-gray-200 px-4 py-3 text-left text-xl md:px-6"
@@ -279,7 +249,11 @@ function Navbar({ isVisible, toggleVisibility }) {
             {openDropdown === "predictionModels" && (
               <div className="flex w-full flex-col border-b border-gray-200">
                 {menuConfig.predictionModels.map((section, index) => (
-                  <MenuSection key={index} {...section} />
+                  <MenuSection
+                    key={index}
+                    {...section}
+                    onLinkClick={handleDropdownLinkClick}
+                  />
                 ))}
               </div>
             )}
@@ -298,7 +272,11 @@ function Navbar({ isVisible, toggleVisibility }) {
             {openDropdown === "tools" && (
               <div className="flex w-full flex-col border-b border-gray-200">
                 {menuConfig.tools.map((section, index) => (
-                  <MenuSection key={index} {...section} />
+                  <MenuSection
+                    key={index}
+                    {...section}
+                    onLinkClick={handleDropdownLinkClick}
+                  />
                 ))}
               </div>
             )}
@@ -321,7 +299,7 @@ function Navbar({ isVisible, toggleVisibility }) {
             </div>
             <div className="relative w-full items-center justify-between border-b border-gray-200 px-4 py-3 md:px-6 lg:w-auto lg:border-none">
               <a
-                href="/tutorials"
+                href="https://www.youtube.com/@fswepp4700/playlists"
                 className="nav-link flex w-full items-center justify-between gap-2 text-left text-xl"
               >
                 Tutorials

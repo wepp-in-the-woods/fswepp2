@@ -182,7 +182,7 @@ function StationPar() {
         {/* Home Button */}
         <button
           onClick={() => navigate("/")}
-          className="rounded bg-[#16a34a] px-4 py-2 text-white"
+          className="rounded-sm bg-[#16a34a] px-4 py-2 text-white"
         >
           Home
         </button>
@@ -190,7 +190,7 @@ function StationPar() {
       <div className="flex items-center">
         <button
           onClick={() => navigate("/rockclime")}
-          className="items-start rounded bg-white px-4 py-2 text-black underline"
+          className="items-start rounded-sm bg-white px-4 py-2 text-black underline"
         >
           Back
         </button>
@@ -210,9 +210,9 @@ function StationPar() {
                     : stationDesc
                 }
                 onChange={(e) => handleTitleChange(e, "description")}
-                className={`w-full rounded border-none ${
+                className={`w-full rounded-sm border-none ${
                   isModified
-                    ? "outline-rounded outline outline-1 outline-offset-1 outline-gray-300"
+                    ? "outline-rounded-sm outline-1 outline-offset-1 outline-gray-300"
                     : ""
                 }`}
               />
@@ -266,7 +266,7 @@ function StationPar() {
             <div className="flex grow items-end justify-end">
               <button
                 onClick={handleClick}
-                className={`w-32 rounded px-2 py-2 whitespace-nowrap ${
+                className={`w-32 rounded-sm px-2 py-2 whitespace-nowrap ${
                   isModified
                     ? "border border-[#16a34a] bg-[#16a34a] text-white"
                     : "border border-[#16a34a] bg-white text-black"
@@ -318,9 +318,9 @@ function StationPar() {
                           type="text"
                           defaultValue={ppt.toFixed(2)}
                           onChange={(e) => handleInputChange(e, index, "ppts")}
-                          className={`w-full rounded border-none ${
+                          className={`w-full rounded-sm border-none ${
                             isModified
-                              ? "outline-rounded outline outline-1 outline-offset-1 outline-gray-300"
+                              ? "outline-rounded-sm outline-1 outline-offset-1 outline-gray-300"
                               : ""
                           }`}
                           readOnly={!isModified}
@@ -332,9 +332,9 @@ function StationPar() {
                           type="text"
                           defaultValue={parData.tmaxs[index].toFixed(2)}
                           onChange={(e) => handleInputChange(e, index, "tmaxs")}
-                          className={`w-full rounded border-none ${
+                          className={`w-full rounded-sm border-none ${
                             isModified
-                              ? "outline-rounded outline outline-1 outline-offset-1 outline-gray-300"
+                              ? "outline-rounded-sm outline-1 outline-offset-1 outline-gray-300"
                               : ""
                           }`}
                           readOnly={!isModified}
@@ -346,9 +346,9 @@ function StationPar() {
                           type="text"
                           defaultValue={parData.tmins[index].toFixed(2)}
                           onChange={(e) => handleInputChange(e, index, "tmins")}
-                          className={`w-full rounded border-none ${
+                          className={`w-full rounded-sm border-none ${
                             isModified
-                              ? "outline-rounded outline outline-1 outline-offset-1 outline-gray-300"
+                              ? "outline-rounded-sm outline-1 outline-offset-1 outline-gray-300"
                               : ""
                           }`}
                           readOnly={!isModified}
@@ -363,9 +363,9 @@ function StationPar() {
                             onChange={(e) =>
                               handleInputChange(e, index, "nwds")
                             }
-                            className={`w-full rounded border-none ${
+                            className={`w-full rounded-sm border-none ${
                               isModified
-                                ? "outline-rounded outline outline-1 outline-offset-1 outline-gray-300"
+                                ? "outline-rounded-sm outline-1 outline-offset-1 outline-gray-300"
                                 : ""
                             }`}
                             readOnly={!isModified}

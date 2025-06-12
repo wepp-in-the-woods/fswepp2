@@ -9,5 +9,5 @@ module.exports = {
   plugins: [],
 };
 
-// Use the index.css file to extend or customize theme variables. 
+// Use the index.css file to extend or customize theme variables.
 // Refer to Tailwind CSS v4.1 documentation: https://tailwindcss.com/docs/theme

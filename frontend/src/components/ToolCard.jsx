@@ -1,14 +1,25 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Icon } from "@/components/ui/icon";
+import { ExternalLink } from "lucide-react";
 
-export default function ToolCard({ title, description, icon, href }) {
+function ToolCard({ title, description, icon, href }) {
   const isExternal = href?.startsWith("http") || href?.includes("http");
 
   const content = (
-    <Card className="h-full cursor-pointer transition hover:shadow-md">
-      <CardContent className="flex flex-col gap-2 p-4">
-        {icon && <div className="text-3xl">{icon}</div>}
-        <h3 className="text-lg font-semibold">{title}</h3>
-        <p className="text-muted-foreground text-sm shadow-sm">{description}</p>
+    <Card className="flex h-full w-full cursor-pointer flex-row items-start gap-5 px-5 transition hover:shadow-md">
+      <CardHeader className="flex w-20 flex-shrink-0 justify-center p-0">
+        {icon && (
+          <div className="flex w-fit items-center">
+            <img src={icon} alt="" className="w-16" />
+          </div>
+        )}
+      </CardHeader>
+      <CardContent className="flex flex-col gap-2 p-0">
+        <CardTitle className="flex flex-row items-center gap-2 text-lg font-semibold">
+          {title}
+          {isExternal && <Icon icon={ExternalLink} className="h-4 w-4" />}
+        </CardTitle>
+        <p className="line-clamp-2 text-base text-slate-800">{description}</p>
       </CardContent>
     </Card>
   );
@@ -25,3 +36,5 @@ export default function ToolCard({ title, description, icon, href }) {
     content
   );
 }
+
+export default ToolCard;

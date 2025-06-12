@@ -204,7 +204,7 @@ function ChooseLocation({
 
       {/* Location div */}
       <div className="fixed inset-0 z-40 flex items-center justify-center">
-        <div className="h-2.3 mr-2 ml-2 w-full rounded border-2 bg-white pr-4 pb-4 pl-4 shadow-lg">
+        <div className="h-2.3 mr-2 ml-2 w-full rounded-sm border-2 bg-white pr-4 pb-4 pl-4 shadow-lg">
           <div className="relative flex items-center justify-between">
             {/* Close button */}
             <button
@@ -216,7 +216,7 @@ function ChooseLocation({
 
             {/* Options button */}
             <button
-              className="text-md mb-1 flex h-[30px] flex-row items-end rounded opacity-70"
+              className="text-md mb-1 flex h-[30px] flex-row items-end rounded-sm opacity-70"
               onClick={() => setShowOptionsDiv(!showOptionsDiv)}
             >
               Options
@@ -229,11 +229,11 @@ function ChooseLocation({
 
             {/* Options dropdown */}
             {showOptionsDiv && (
-              <div className="absolute top-full right-0 z-50 -mt-1 -mr-1 w-[190px] rounded border bg-gray-100 p-2 pt-1 shadow-lg">
+              <div className="absolute top-full right-0 z-50 -mt-1 -mr-1 w-[190px] rounded-sm border bg-gray-100 p-2 pt-1 shadow-lg">
                 <div className="mb-2">
                   <label className="mb-1 block">Cligen version</label>
                   <select
-                    className="w-full rounded border p-2"
+                    className="w-full rounded-sm border p-2"
                     value={cligenVersion}
                     onChange={(event) => setCligenVersion(event.target.value)}
                   >
@@ -244,7 +244,7 @@ function ChooseLocation({
                 <div>
                   <label className="mb-1 block">Database version</label>
                   <select
-                    className="w-full rounded border p-2"
+                    className="w-full rounded-sm border p-2"
                     value={databaseVersion}
                     onChange={(event) => setDatabaseVersion(event.target.value)}
                   >
@@ -334,7 +334,7 @@ function ChooseLocation({
                 onChange={(e) =>
                   setLatInput(parseFloat(e.target.value).toFixed(5))
                 }
-                className="mr-2 w-1/3 shrink rounded border border-gray-300 px-2 py-1"
+                className="mr-2 w-1/3 shrink rounded-sm border border-gray-300 px-2 py-1"
               />
               <input
                 type="text"
@@ -347,14 +347,14 @@ function ChooseLocation({
                 onChange={(e) =>
                   setLngInput(parseFloat(e.target.value).toFixed(5))
                 }
-                className="mr-2 w-1/3 shrink rounded border border-gray-300 px-2 py-1"
+                className="mr-2 w-1/3 shrink rounded-sm border border-gray-300 px-2 py-1"
               />
               <button
                 onClick={() => {
                   handleCoordinateSubmit();
                   setShowLocationDiv(false);
                 }}
-                className="w-1/3 shrink rounded bg-[#16a34a] px-2 py-2 text-sm text-white"
+                className="w-1/3 shrink rounded-sm bg-[#16a34a] px-2 py-2 text-sm text-white"
               >
                 Set Coords.
               </button>

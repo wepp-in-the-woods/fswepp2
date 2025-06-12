@@ -124,7 +124,7 @@ function ClimateData() {
         </div>
         <button
           onClick={() => navigate("/")}
-          className="rounded bg-[#16a34a] px-4 py-2 text-white"
+          className="rounded-sm bg-[#16a34a] px-4 py-2 text-white"
         >
           Home
         </button>
@@ -132,7 +132,7 @@ function ClimateData() {
       <div className="flex items-center">
         <button
           onClick={() => navigate("/rockclime")}
-          className="items-start rounded bg-white px-4 py-2 text-black underline"
+          className="items-start rounded-sm bg-white px-4 py-2 text-black underline"
         >
           Back
         </button>
