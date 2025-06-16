@@ -26,7 +26,7 @@ const Home = () => (
     <div className="flex w-full flex-col justify-between gap-3 p-6 align-middle xl:flex-row">
       <p className="text-foreground">
         The <strong>Water Erosion Prediction Project (WEPP)</strong> is a
-        computer simulation that predicts soil erosion.
+        process based model that predicts soil erosion.
       </p>
       <a
         href="https://www.nrcs.usda.gov/resources/tech-tools/water-erosion-prediction-project"
@@ -39,7 +39,7 @@ const Home = () => (
       </a>
     </div>
     <ToolSection
-      title="Hillslope Scale Erosion Prediction and Runoff Prediction"
+      title="Hillslope Scale Erosion and Runoff Prediction"
       tools={hillslopeModels}
       className="mb-6 bg-green-50 text-green-900"
     />
