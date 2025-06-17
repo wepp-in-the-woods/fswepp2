@@ -88,10 +88,13 @@ const FILE_EXTENSIONS = [
 // Directories to exclude
 const EXCLUDE_PATTERNS = [
   "**/node_modules/**",
+  "**/public/**",
   "**/dist/**",
   "**/build/**",
   "**/.git/**",
   "**/coverage/**",
+  "**/migrate-tailwind.js",
+  "**/src/components/ui/tailwind-backups/**"
 ];
 
 class TailwindMigrator {

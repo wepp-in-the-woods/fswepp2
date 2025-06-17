@@ -4,7 +4,12 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
-const root = createRoot(document.getElementById("root"));
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error("Root element not found. Make sure you have a div with id='root' in your HTML.");
+}
+
+const root = createRoot(rootElement);
 root.render(
   <StrictMode>
     <App />

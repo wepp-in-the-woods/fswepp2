@@ -6,22 +6,22 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-import Navbar from "./components/Navbar/Navbar.jsx";
+import Navbar from "./components/Navbar/Navbar.tsx";
 import ToolSection from "@/components/ToolSection";
 import { ExternalLink } from "lucide-react";
-import { Icon } from "@/components/ui/icon";
+import { Icon } from "@/components/ui/icon.tsx";
 import { icon } from "leaflet";
 
 import { hillslopeModels, watershedModels } from "@/data/models.js";
 
 // Lazy load route components
-const RockCliMe = lazy(() => import("./components/RockCliMe/RockCliMe.jsx"));
-const StationPar = lazy(() => import("./components/RockCliMe/StationPar.jsx"));
+const RockCliMe = lazy(() => import("./components/RockCliMe/RockCliMe"));
+const StationPar = lazy(() => import("./components/RockCliMe/StationPar"));
 const ClimateData = lazy(
-  () => import("./components/RockCliMe/ClimateData.jsx"),
+  () => import("./components/RockCliMe/ClimateData"),
 );
 
-const Home = () => (
+const Home: React.FC = () => (
   <main className="mx-auto flex w-full flex-col gap-0 md:max-w-2xl lg:max-w-3xl xl:max-w-6xl">
     <div className="flex w-full flex-col justify-between gap-3 p-6 align-middle xl:flex-row">
       <p className="text-foreground">
@@ -51,8 +51,8 @@ const Home = () => (
   </main>
 );
 
-const App = () => {
-  const [isNavbarVisible, setNavbarVisible] = useState(true);
+const App: React.FC = () => {
+  const [isNavbarVisible, setNavbarVisible] = useState<boolean>(true);
   const location = useLocation();
 
   useEffect(() => {
@@ -65,7 +65,7 @@ const App = () => {
       }
     };
 
-    handleResize(); // Check on initial load
+    handleResize(); // Check on the initial load
     window.addEventListener("resize", handleResize); // Check on resize
 
     return () => {
@@ -103,7 +103,7 @@ const App = () => {
   );
 };
 
-const AppWrapper = () => (
+const AppWrapper: React.FC = () => (
   <Router future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
     <App />
   </Router>

@@ -1,5 +1,6 @@
 import path from "path";
-import { defineConfig } from "vite";
+/// <reference types="vitest/config" />
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -10,20 +11,21 @@ export default defineConfig({
     postcss: "./postcss.config.js",
   },
   resolve: {
-    extensions: [".mjs", ".js", ".jsx", ".json"],
+    extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
   esbuild: {
-    loader: "jsx",
-    include: /src\/.*\.jsx?$/,
+    loader: "tsx",
+    include: /src\/.*\.[jt]sx?$/,
     exclude: [],
   },
   optimizeDeps: {
     esbuildOptions: {
       loader: {
         ".js": "jsx",
+        ".ts": "tsx",
       },
     },
   },
