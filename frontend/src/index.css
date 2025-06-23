@@ -81,6 +81,17 @@
   /* * {
     font-family: var(--font-sans);
   } */
+  h1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-semibold);
+  }
+  h2 {
+    font-size: var(--text-xl);
+  }
+
+  p {
+    font-size: var(--text-base);
+  }
 }
 
 @layer components {

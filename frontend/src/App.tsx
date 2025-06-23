@@ -4,21 +4,20 @@ import {
   Route,
   Routes,
   useLocation,
-  useNavigate,
+  // useNavigate,
 } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar.tsx";
-import ToolSection from "@/components/ToolSection";
+import ToolSection from "@/components/ToolSection.tsx";
 import { ExternalLink } from "lucide-react";
 import { Icon } from "@/components/ui/icon.tsx";
-import { icon } from "leaflet";
+// import { icon } from "leaflet";
 
 import { hillslopeModels, watershedModels } from "@/data/models.js";
 
 // Lazy load route components
-const RockCliMe = lazy(() => import("./components/RockCliMe/RockCliMe"));
-const StationPar = lazy(() => import("./components/RockCliMe/StationPar"));
-const ClimateData = lazy(
-  () => import("./components/RockCliMe/ClimateData"),
+const RockCliMe = lazy(() => import("./components/RockCliMe/RockCliMe.jsx"));
+const StationPar = lazy(() => import("./components/RockCliMe/StationPar.jsx"));
+const ClimateData = lazy(() => import("./components/RockCliMe/ClimateData.jsx"),
 );
 
 const Home: React.FC = () => (
@@ -91,10 +90,10 @@ const App: React.FC = () => {
       >
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/rockclime" element={<RockCliMe />} />
-          <Route path="/rockclime/par/:stationId" element={<StationPar />} />
+          <Route path="/rock-clime" element={<RockCliMe />} />
+          <Route path="/rock-clime/par/:stationId" element={<StationPar />} />
           <Route
-            path="/rockclime/climate/:stationId"
+            path="/rock-clime/climate/:stationId"
             element={<ClimateData />}
           />
         </Routes>

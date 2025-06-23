@@ -1,8 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { ExternalLink } from "lucide-react";
+// import { HTMLAttributes } from "react";
 
-function ToolCard({ title, description, icon, href }) {
+// Type definition
+interface ToolCardProps {
+  title: string;
+  description: string;
+  icon?: string;
+  href?: string;
+  className?: string;
+}
+
+function ToolCard({ title, description, icon, href }: ToolCardProps) {
   const isExternal = href?.startsWith("http") || href?.includes("http");
 
   const content = (

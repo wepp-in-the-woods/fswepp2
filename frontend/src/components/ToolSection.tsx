@@ -5,12 +5,29 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
+import { HTMLAttributes } from "react";
 
-export default function ToolSection({ title, tools, className, ...props }) {
+// Type definition for individual tool items
+interface Tool {
+  title: string;
+  description: string;
+  icon?: string;
+  href?: string;
+}
+
+// Props interface for ToolSection component
+interface ToolSectionProps extends HTMLAttributes<HTMLElement>{
+  title: string;
+  tools: Tool[];
+  className?: string;
+}
+
+function ToolSection({ title, tools, className, ...props }: ToolSectionProps) {
   return (
     <section
       className={cn("flex w-full flex-col p-6 md:rounded-xl", className)}
+      {...props}
     >
       <Accordion
         type="single"
@@ -38,3 +55,5 @@ export default function ToolSection({ title, tools, className, ...props }) {
     </section>
   );
 }
+
+export default ToolSection;

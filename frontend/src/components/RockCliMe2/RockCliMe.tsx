@@ -1,38 +1,57 @@
-import React, { useState, useEffect, lazy } from "react";
-import axios from "axios";
-import { api } from "../../api";
+import { useState, useEffect, lazy } from "react";
+// import axios from "axios";
+import { api } from "@/api.ts";
 import { useNavigate } from "react-router-dom";
 
-import {
-  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
-  DialogTrigger
-} from "@/components/ui/dialog";
+// Types/interfaces
+interface Station {
+  id: string;
+  desc: string;
+  latitude: number;
+  longitude: number;
+  distance_to_query_location: number;
+  par: string;
+}
 
-import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
-import { ExternalLink } from "lucide-react";
+interface CustomParameter {
+  par_id: string;
+  use_prism: boolean;
+  user_defined_par_mod: {
+    description: string;
+    [key: string]: any;
+  };
+}
 
-const ChooseLocation = lazy(() => import("./ChooseLocation.jsx"));
+interface SavedParameters {
+  [key: string]: CustomParameter;
+}
+
+interface Coordinates {
+  latitude: number;
+  longitude: number;
+}
+
+const ChooseLocation = lazy(() => import("./ChooseLocation.tsx"));
 
 const RockCliMe = () => {
   // State variables. This is the main reason refactoring may be necessary.
-  const [coordinates, setCoordinates] = useState(null);
-  const [latInput, setLatInput] = useState("");
-  const [lngInput, setLngInput] = useState("");
-  const [closestStations, setClosestStations] = useState([]);
+  const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
+  const [latInput, setLatInput] = useState<string>("");
+  const [lngInput, setLngInput] = useState<string>("");
+  const [closestStations, setClosestStations] = useState<string[]>([]);
   const [savedParameters, setSavedParameters] = useState([]);
-  const [selectedStation, setSelectedStation] = useState(null);
-  const [years, setYears] = useState("");
-  const [usePrismPar, setUsePrismPar] = useState(false);
-  const [usePrismClim, setUsePrismClim] = useState(false);
+  const [selectedStation, setSelectedStation] = useState<string | null>(null);
+  const [years, setYears] = useState<String>("");
+  const [usePrismPar, setUsePrismPar] = useState<boolean>(false);
+  const [usePrismClim, setUsePrismClim] = useState<boolean>(false);
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("closestStations");
-  const [showLocationDiv, setShowLocationDiv] = useState(false);
-  const [prevCoordinates, setPrevCoordinates] = useState([null, null]);
-  const [parametersFetched, setParametersFetched] = useState(false);
-  const [selectedPar, setSelectedPar] = useState(null);
-  const [cligenVersion] = useState("5.3.2");
-  const [databaseVersion] = useState("legacy");
+  const [activeTab, setActiveTab] = useState<string>("closestStations");
+  const [showLocationDiv, setShowLocationDiv] = useState<boolean>(false);
+  const [prevCoordinates, setPrevCoordinates] = useState<[number | null, number | null]>([null, null]);
+  const [parametersFetched, setParametersFetched] = useState<boolean>(false);
+  const [selectedPar, setSelectedPar] = useState<string | null>(null);
+  const [cligenVersion] = useState<string>("5.3.2");
+  const [databaseVersion] = useState<string>("legacy");
 
   // Fetch and display closest stations
   useEffect(() => {
@@ -75,6 +94,7 @@ const RockCliMe = () => {
 
   // Fetch closest stations from the database based on user inputted/selected coordinates.
   const handleGetClosestStations = async () => {
+    if (!coordinates) return;
     const [lat, lng] = coordinates;
     if (!isNaN(lat) && !isNaN(lng)) {
       console.log("database: " + databaseVersion);
@@ -95,12 +115,12 @@ const RockCliMe = () => {
   };
 
   // Sets the selected station to the station that was clicked on.
-  const handleStationClick = (station) => {
+  const handleStationClick = (station: string) => {
     setSelectedStation(selectedStation === station ? null : station);
   };
 
   // Sets the selected parameter to the parameter that was clicked on.
-  const handleSavedParClick = (par) => {
+  const handleSavedParClick = (par: string) => {
     setSelectedPar(selectedPar === par ? null : par);
   };
 
@@ -216,15 +236,7 @@ const RockCliMe = () => {
 
   return (
     // Main div
-    <main className="mx-auto flex w-full flex-col gap-0 md:max-w-2xl lg:max-w-3xl xl:max-w-6xl">
-      <div className="flex w-full flex-col items-start gap-3 p-6">
-        <h1 className="text-foreground">
-          Rock: Clime
-        </h1>
-        <p className="text-gray-700">
-          Rocky Mountain Research Station Climate Generator
-        </p>
-      </div>
+    <div className="flex h-screen flex-col">
       {/* Mobile Navbar */}
       <div className="top-0 right-0 left-0 z-0 flex h-16 items-center justify-between p-4 shadow-md lg:hidden">
         <div>
@@ -248,33 +260,23 @@ const RockCliMe = () => {
               ).toFixed(3)}`
             : "None"}
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button
-              variant="outline"
-              onClick={() => setShowLocationDiv(true)}
-            >
-              Choose Location
-            </Button>
-          </DialogTrigger>
-          {/* Conditionally render ChooseLocation */}
-          {showLocationDiv && (
-            <DialogContent className="max-w-[90vw] max-h-[90vh]">
-              <DialogHeader>
-                <DialogTitle>Choose a location</DialogTitle>
-              </DialogHeader>
-              <ChooseLocation
-                coordinates={coordinates}
-                setCoordinates={setCoordinates}
-                setLatInput={setLatInput}
-                setLngInput={setLngInput}
-                setShowLocationDiv={setShowLocationDiv}
-              />
-            </DialogContent>
-          )}
-        </Dialog>
+        <button
+          className="text-sm underline md:text-base"
+          onClick={() => setShowLocationDiv(true)}
+        >
+          Choose Location
+        </button>
       </div>
-
+      {/* Conditionally render ChooseLocation */}
+      {showLocationDiv && (
+        <ChooseLocation
+          coordinates={coordinates}
+          setCoordinates={setCoordinates}
+          setLatInput={setLatInput}
+          setLngInput={setLngInput}
+          setShowLocationDiv={setShowLocationDiv}
+        />
+      )}
       {/* Tabs */}
       <div className="flex w-full border-t border-gray-300">
         <div className="flex w-1/2 flex-row border-r-2">
@@ -311,7 +313,7 @@ const RockCliMe = () => {
       <div className="grow overflow-auto p-4">
         {activeTab === "closestStations" && (
           <div className="grid grid-cols-1 gap-4">
-            {/* Gets the 6 closest stations. When clicked,
+            {/* Gets the 6 closest stations. When clicked, 
             the selected station is set and additional options appear. */}
 
             {closestStations.slice(0, 6).map((station, index) => (
@@ -434,7 +436,7 @@ const RockCliMe = () => {
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 };
 

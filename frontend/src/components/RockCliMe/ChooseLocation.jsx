@@ -16,6 +16,21 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css";
 import "leaflet-defaulticon-compatibility";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 // Defines the location marker on the map based on the user's click.
 const LocationMarker = memo(
@@ -200,165 +215,186 @@ function ChooseLocation({
   return (
     <>
       {/* Darkened background overlay */}
-      <div className="fixed inset-0 z-11 bg-black opacity-50"></div>
+      {/*<div className="fixed inset-0 z-11 bg-black opacity-50"></div>*/}
 
       {/* Location div */}
-      <div className="fixed inset-0 z-40 flex items-center justify-center">
-        <div className="h-2.3 mr-2 ml-2 w-full rounded-sm border-2 bg-white pr-4 pb-4 pl-4 shadow-lg">
-          <div className="relative flex items-center justify-between">
-            {/* Close button */}
-            <button
-              className="text-xl opacity-70"
-              onClick={() => setShowLocationDiv(false)}
-            >
-              X
-            </button>
+      <div className="flex flex-col h-full max-h-[70vh]">
+        <div className="relative flex items-center justify-between mb-2">
 
-            {/* Options button */}
-            <button
-              className="text-md mb-1 flex h-[30px] flex-row items-end rounded-sm opacity-70"
-              onClick={() => setShowOptionsDiv(!showOptionsDiv)}
-            >
+          {/* Options button */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="text-md mb-1 flex h-[30px] flex-row items-end rounded-sm opacity-70">
               Options
-              <img
-                src={showOptionsDiv ? "/upArrow.png" : "/downArrow.png"}
-                alt="Arrow"
-                className="mb-1 ml-1 h-3 w-3 lg:mt-1 lg:ml-1 lg:h-3 lg:w-3"
-              />
-            </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Cligen Version</DropdownMenuLabel>
+              <Select onChange={(event) => setCligenVersion(event.target.value)}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue value={cligenVersion} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5.3.2">5.3.2 (WEPPcloud)</SelectItem>
+                  <SelectItem value="4.3">4.3 (Legacy)</SelectItem>
+                </SelectContent>
+              </Select>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Database Version</DropdownMenuLabel>
+              <Select onChange={(event) => setDatabaseVersion(event.target.value)}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue value={databaseVersion} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="legacy">Legacy</SelectItem>
+                  <SelectItem value="2015">2015</SelectItem>
+                  <SelectItem value="au">au</SelectItem>
+                  <SelectItem value="ghcn">ghcn</SelectItem>
+                </SelectContent>
+              </Select>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {/*<button*/}
+          {/*  className="text-md mb-1 flex h-[30px] flex-row items-end rounded-sm opacity-70"*/}
+          {/*  onClick={() => setShowOptionsDiv(!showOptionsDiv)}*/}
+          {/*>*/}
+          {/*  Options*/}
+          {/*  <img*/}
+          {/*    src={showOptionsDiv ? "/upArrow.png" : "/downArrow.png"}*/}
+          {/*    alt="Arrow"*/}
+          {/*    className="mb-1 ml-1 h-3 w-3 lg:mt-1 lg:ml-1 lg:h-3 lg:w-3"*/}
+          {/*  />*/}
+          {/*</button>*/}
 
-            {/* Options dropdown */}
-            {showOptionsDiv && (
-              <div className="absolute top-full right-0 z-50 -mt-1 -mr-1 w-[190px] rounded-sm border bg-gray-100 p-2 pt-1 shadow-lg">
-                <div className="mb-2">
-                  <label className="mb-1 block">Cligen version</label>
-                  <select
-                    className="w-full rounded-sm border p-2"
-                    value={cligenVersion}
-                    onChange={(event) => setCligenVersion(event.target.value)}
-                  >
-                    <option value="5.3.2">5.3.2 (WEPPcloud)</option>
-                    <option value="4.3">4.3 (Legacy)</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block">Database version</label>
-                  <select
-                    className="w-full rounded-sm border p-2"
-                    value={databaseVersion}
-                    onChange={(event) => setDatabaseVersion(event.target.value)}
-                  >
-                    <option value="legacy">Legacy</option>
-                    <option value="2015">2015</option>
-                    <option value="au">au</option>
-                    <option value="ghcn">ghcn</option>
-                    <option value="None">None</option>
-                  </select>
-                </div>
+          {/* Options dropdown */}
+          {showOptionsDiv && (
+            <div className="absolute top-full right-0 z-50 -mt-1 -mr-1 w-[190px] rounded-sm border bg-gray-100 p-2 pt-1 shadow-lg">
+              <div className="mb-2">
+                <label className="mb-1 block">Cligen version</label>
+                <select
+                  className="w-full rounded-sm border p-2"
+                  value={cligenVersion}
+                  onChange={(event) => setCligenVersion(event.target.value)}
+                >
+                  <option value="5.3.2">5.3.2 (WEPPcloud)</option>
+                  <option value="4.3">4.3 (Legacy)</option>
+                </select>
               </div>
-            )}
-          </div>
+              <div>
+                <label className="mb-1 block">Database version</label>
+                <select
+                  className="w-full rounded-sm border p-2"
+                  value={databaseVersion}
+                  onChange={(event) => setDatabaseVersion(event.target.value)}
+                >
+                  <option value="legacy">Legacy</option>
+                  <option value="2015">2015</option>
+                  <option value="au">au</option>
+                  <option value="ghcn">ghcn</option>
+                  <option value="None">None</option>
+                </select>
+              </div>
+            </div>
+          )}
+        </div>
 
-          {/* Map */}
-          <div className="z-0 h-60 grow">
-            <MapContainer
-              center={coordinates || [39.8283, -98.5795]}
-              zoom={4}
-              scrollWheelZoom={true}
-              attributionControl={false}
-              style={{ zIndex: 0 }}
-              className="h-full w-full"
-            >
-              {/* OpenStreetMap tile layer for map*/}
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
+        {/* Map */}
+        <div className="relative flex-1 h-full w-full max-h-[70vh] overflow-hidden">
+          <MapContainer
+            center={coordinates || [39.8283, -98.5795]}
+            zoom={4}
+            scrollWheelZoom={true}
+            attributionControl={false}
+            style={{ zIndex: 0 }}
+            className="h-full w-full"
+          >
+            {/* OpenStreetMap tile layer for map*/}
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
 
-              {/* Location Marker for when the user clicks*/}
-              <LocationMarker
-                coordinates={coordinates}
-                setCoordinates={setCoordinates}
-                setLatInput={setLatInput}
-                setLngInput={setLngInput}
-                style={{ color: "green" }}
-              />
-              {/* MapBBoxHandler for handling zoom and move events on the map */}
-              <MapBBoxHandler
-                setZoom={setZoom}
-                setBbox={setBbox}
-                fetchStations={fetchStations}
-                zoom={zoom}
-                bbox={bbox}
-                minZoomLevel={minZoomLevel}
-                prevBboxRef={prevBboxRef}
-              />
+            {/* Location Marker for when the user clicks*/}
+            <LocationMarker
+              coordinates={coordinates}
+              setCoordinates={setCoordinates}
+              setLatInput={setLatInput}
+              setLngInput={setLngInput}
+              style={{ color: "green" }}
+            />
+            {/* MapBBoxHandler for handling zoom and move events on the map */}
+            <MapBBoxHandler
+              setZoom={setZoom}
+              setBbox={setBbox}
+              fetchStations={fetchStations}
+              zoom={zoom}
+              bbox={bbox}
+              minZoomLevel={minZoomLevel}
+              prevBboxRef={prevBboxRef}
+            />
 
-              {/* MapUpdater for updating the map based on the coordinates */}
-              <MapUpdater coordinates={coordinates} />
+            {/* MapUpdater for updating the map based on the coordinates */}
+            <MapUpdater coordinates={coordinates} />
 
-              {/* Display stations on the map, marking them with Markers. Currently
+            {/* Display stations on the map, marking them with Markers. Currently
                     the marker is the same as the user placeable one, and it is possible
                     to update the Marker texture. */}
-              {stations.map((station) => (
-                <Marker
-                  key={station.properties.id}
-                  position={[
-                    station.geometry.coordinates[1],
-                    station.geometry.coordinates[0],
-                  ]}
-                >
-                  {/* Popup for the station name and ID */}
-                  <Popup>
-                    <div>
-                      <strong>{station.properties.desc}</strong>
-                      <br />
-                      ID: {station.properties.id}
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
-          </div>
-          {/* Latitude and Longitude input fields and "Set Coords." button */}
-          <div className="mt-4">
-            <div className="flex w-full flex-row justify-center">
-              <input
-                type="text"
-                placeholder="Latitude"
-                value={
-                  isNaN(parseFloat(latInput))
-                    ? ""
-                    : parseFloat(latInput).toFixed(5)
-                }
-                onChange={(e) =>
-                  setLatInput(parseFloat(e.target.value).toFixed(5))
-                }
-                className="mr-2 w-1/3 shrink rounded-sm border border-gray-300 px-2 py-1"
-              />
-              <input
-                type="text"
-                placeholder="Longitude"
-                value={
-                  isNaN(parseFloat(lngInput))
-                    ? ""
-                    : parseFloat(lngInput).toFixed(5)
-                }
-                onChange={(e) =>
-                  setLngInput(parseFloat(e.target.value).toFixed(5))
-                }
-                className="mr-2 w-1/3 shrink rounded-sm border border-gray-300 px-2 py-1"
-              />
-              <button
-                onClick={() => {
-                  handleCoordinateSubmit();
-                  setShowLocationDiv(false);
-                }}
-                className="w-1/3 shrink rounded-sm bg-[#16a34a] px-2 py-2 text-sm text-white"
+            {stations.map((station) => (
+              <Marker
+                key={station.properties.id}
+                position={[
+                  station.geometry.coordinates[1],
+                  station.geometry.coordinates[0],
+                ]}
               >
-                Set Coords.
-              </button>
-            </div>
+                {/* Popup for the station name and ID */}
+                <Popup>
+                  <div>
+                    <strong>{station.properties.desc}</strong>
+                    <br />
+                    ID: {station.properties.id}
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MapContainer>
+        </div>
+        {/* Latitude and Longitude input fields and "Set Coords." button */}
+        <div className="mt-4">
+          <div className="flex w-full flex-row justify-center">
+            <input
+              type="text"
+              placeholder="Latitude"
+              value={
+                isNaN(parseFloat(latInput))
+                  ? ""
+                  : parseFloat(latInput).toFixed(5)
+              }
+              onChange={(e) =>
+                setLatInput(parseFloat(e.target.value).toFixed(5))
+              }
+              className="mr-2 w-1/3 shrink rounded-sm border border-gray-300 px-2 py-1"
+            />
+            <input
+              type="text"
+              placeholder="Longitude"
+              value={
+                isNaN(parseFloat(lngInput))
+                  ? ""
+                  : parseFloat(lngInput).toFixed(5)
+              }
+              onChange={(e) =>
+                setLngInput(parseFloat(e.target.value).toFixed(5))
+              }
+              className="mr-2 w-1/3 shrink rounded-sm border border-gray-300 px-2 py-1"
+            />
+            <button
+              onClick={() => {
+                handleCoordinateSubmit();
+                setShowLocationDiv(false);
+              }}
+              className="w-1/3 shrink rounded-sm bg-[#16a34a] px-2 py-2 text-sm text-white"
+            >
+              Set Coordinates
+            </button>
           </div>
         </div>
       </div>

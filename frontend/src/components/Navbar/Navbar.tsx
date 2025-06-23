@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Icon } from "@/components/ui/icon";
 import { ChevronDown, ChevronUp, ExternalLink, Menu, X } from "lucide-react";
@@ -10,7 +10,7 @@ import { cligen, otherWeppResources } from "@/data/tools.js";
 interface NavLinkProps {
   href: string;
   label: string;
-  external?: boolean;
+  isExternal?: boolean;
   className?: string;
   onClick?: () => void;
 }
@@ -55,14 +55,14 @@ const menuConfig = {
   ],
 };
 
-const NavLink: React.FC<NavLinkProps> = ({
+function NavLink({
   href,
   label,
-  external = false,
+  isExternal = false,
   className = "",
   onClick,
-}) => {
-  return external ? (
+}: NavLinkProps){
+  return isExternal ? (
     <a
       href={href}
       target="_blank"
@@ -82,30 +82,33 @@ const NavLink: React.FC<NavLinkProps> = ({
       {label}
     </Link>
   );
-};
+}
 
-const MenuSection: React.FC<MenuSectionProps> = ({ title, items, onLinkClick }) => (
-  <div className="inline-flex flex-col items-start justify-start lg:gap-3">
-    <div className="inline-flex grow-1 flex-col items-start justify-start gap-2.5 self-stretch rounded-md bg-white px-6 py-2 lg:p-3">
-      <div className="justify-start text-base leading-tight font-normal text-slate-500 lg:text-base">
-        {title}
-      </div>
-    </div>
-    {items.map((item, index) => (
+function MenuSection ({ title, items, onLinkClick }: MenuSectionProps) {
+  return (
+    <div className="inline-flex flex-col items-start justify-start lg:gap-3">
       <div
-        key={index}
-        className="flex grow-1 flex-row items-center justify-start gap-2.5 self-stretch rounded-md bg-white p-3"
-      >
-        <div className="flex flex-row items-start justify-start gap-1">
-          <NavLink {...item} onClick={onLinkClick} />
+        className="inline-flex grow-1 flex-col items-start justify-start gap-2.5 self-stretch rounded-md bg-white px-6 py-2 lg:p-3">
+        <div className="justify-start text-base leading-tight font-normal text-slate-500 lg:text-base">
+          {title}
         </div>
       </div>
-    ))}
-  </div>
-);
+      {items.map((item, index) => (
+        <div
+          key={index}
+          className="flex grow-1 flex-row items-center justify-start gap-2.5 self-stretch rounded-md bg-white p-3"
+        >
+          <div className="flex flex-row items-start justify-start gap-1">
+            <NavLink {...item} onClick={onLinkClick} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 // Navbar component
-const Navbar: React.FC<NavbarProps> = ({ isVisible, toggleVisibility }) => {
+function Navbar ({ isVisible, toggleVisibility }: NavbarProps) {
   // State to keep track of which dropdown is open
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
