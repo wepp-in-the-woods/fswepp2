@@ -1,4 +1,4 @@
-import path from "path";
+import * as path from "path";
 /// <reference types="vitest/config" />
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
@@ -7,11 +7,8 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   base: "/",
   plugins: [tailwindcss(), react()],
-  css: {
-    postcss: "./postcss.config.js",
-  },
   resolve: {
-    extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
+    extensions: [".mjs", ".mts", ".js", ".ts", ".jsx", ".tsx", ".json"],
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
