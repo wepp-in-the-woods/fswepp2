@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { api } from '../../api';
+import { api } from "../../api";
 
 // Parse station description to get name and state
 const parseStationDesc = (desc) => {
@@ -41,7 +41,7 @@ function ClimateData() {
   if (stationDesc) {
     ({ name, state } = parseStationDesc(stationDesc));
   }
-  
+
   // Unabbreviated months
   const months = [
     "January",
@@ -73,7 +73,7 @@ function ClimateData() {
     "Nov.",
     "Dec.",
   ];
-  
+
   // When page is loaded, fetch the climate data based on parameters.
   useEffect(() => {
     const fetchClimateData = async () => {
@@ -91,11 +91,11 @@ function ClimateData() {
               use_prism: usePrismClim,
               user_defined_par_mod: user_defined_par_mod,
             };
-        
+
         // API Call to get climate data
         const response = await api.post(
           "/api/rockclim/GET/climate_monthlies",
-          updatedCustomPar
+          updatedCustomPar,
         );
         // Set climate data
         setClimateData(response.data);
@@ -109,14 +109,13 @@ function ClimateData() {
     if (!climateData) {
       fetchClimateData();
     }
-
   }, [par_id, loc, usePrismClim, user_defined_par_mod]);
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex h-screen flex-col">
       {/* Mobile Navbar */}
       <div
-        className="top-0 left-0 right-0 shadow-md p-4 flex justify-between items-center h-16 lg:hidden"
+        className="top-0 right-0 left-0 flex h-16 items-center justify-between p-4 shadow-md lg:hidden"
         style={{ zIndex: 10 }}
       >
         <div>
@@ -125,7 +124,7 @@ function ClimateData() {
         </div>
         <button
           onClick={() => navigate("/")}
-          className="px-4 py-2 bg-[#16a34a] text-white rounded"
+          className="rounded-sm bg-[#16a34a] px-4 py-2 text-white"
         >
           Home
         </button>
@@ -133,15 +132,15 @@ function ClimateData() {
       <div className="flex items-center">
         <button
           onClick={() => navigate("/rockclime")}
-          className="px-4 py-2 bg-white text-black underline rounded items-start"
+          className="items-start rounded-sm bg-white px-4 py-2 text-black underline"
         >
           Back
         </button>
       </div>
       {/* Climate Data page header*/}
-      <div className="flex flex-col items-start ml-4 mr-4">
+      <div className="mr-4 ml-4 flex flex-col items-start">
         <div className="text-2xl font-semibold">
-          { /* If custom parameters are present, render the 
+          {/* If custom parameters are present, render the 
           description, otherwise parsed name and state from station*/}
           {customPar
             ? customPar.user_defined_par_mod.description
@@ -149,41 +148,39 @@ function ClimateData() {
         </div>
         <div className="text-l mb-4">
           {/* Render station or custom par ID */}
-          {customPar
-            ? `Parameter ID: ${selectedPar}`
-            : `Station ID: ${par_id}`}
+          {customPar ? `Parameter ID: ${selectedPar}` : `Station ID: ${par_id}`}
         </div>{" "}
         {/* If not a custom par, display coordinates.*/}
         {!customPar && coordinates && (
           <div className="text-xl">
-            <h3 className="text-[17px] font-semibold -mt-2">
+            <h3 className="-mt-2 text-[17px] font-semibold">
               Station Coordinates
             </h3>
-            <p className="text-[14px] -mt-1">
+            <p className="-mt-1 text-[14px]">
               Latitude: {coordinates.latitude}
             </p>
-            <p className="text-[14px] -mt-2">
+            <p className="-mt-2 text-[14px]">
               Longitude: {coordinates.longitude}
             </p>
           </div>
         )}
         {/* Div for climate data table*/}
-        <div className="mt-4 w-full mb-4">
+        <div className="mt-4 mb-4 w-full">
           <h3 className="text-2xl font-semibold">Climate Data:</h3>
           {usePrismClim && (
-            <p className="text-[12px] mb-2">
+            <p className="mb-2 text-[12px]">
               *Precip. & Mean Min/Max Temp. from PRISM
             </p>
           )}
           {climateData && (
             <div>
-              <table className="table-auto border-collapse border border-gray-400 w-full max-[374px]:text-xs">
+              <table className="w-full table-auto border-collapse border border-gray-400 max-[374px]:text-xs">
                 <thead>
                   <tr>
-                    <th className="border border-gray-300 py-2 px-2 text-left">
+                    <th className="border border-gray-300 px-2 py-2 text-left">
                       Month
                     </th>
-                    <th className="border border-gray-300 py-2 px-2 text-left">
+                    <th className="border border-gray-300 px-2 py-2 text-left">
                       Mean Precip.
                     </th>
                     <th className="border border-gray-300 px-2 py-2 text-left">
@@ -228,6 +225,6 @@ function ClimateData() {
       </div>
     </div>
   );
-};
+}
 
 export default ClimateData;

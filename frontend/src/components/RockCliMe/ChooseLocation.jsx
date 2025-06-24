@@ -1,6 +1,9 @@
+// @ts-nocheck
+// ...rest of your code
+
 import React, { useState, useEffect, useRef, memo } from "react";
 import axios from "axios";
-import { api } from '../../api';
+import { api } from "../../api";
 import {
   MapContainer,
   TileLayer,
@@ -9,9 +12,27 @@ import {
   useMapEvents,
   Popup,
 } from "react-leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css";
 import "leaflet-defaulticon-compatibility";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
+import { Label } from "@/components/ui/label"
 
 // Defines the location marker on the map based on the user's click.
 const LocationMarker = memo(
@@ -44,25 +65,33 @@ const LocationMarker = memo(
 
     // Return the marker on the map.
     return position === null ? null : <Marker position={position}></Marker>;
-  }
+  },
 );
 
 // Updates the map based on the coordinates.
 const MapUpdater = ({ coordinates }) => {
-    // useMap is a hook from react-leaflet that allows you to access the map instance.
-    const map = useMap();
+  // useMap is a hook from react-leaflet that allows you to access the map instance.
+  const map = useMap();
 
-    // Set the map view based on the coordinates and the current zoom.
-    useEffect(() => {
-        if (coordinates) {
-        map.setView(coordinates, map.getZoom());
-        }
-    }, [coordinates, map]);
-    return null;
+  // Set the map view based on the coordinates and the current zoom.
+  useEffect(() => {
+    if (coordinates) {
+      map.setView(coordinates, map.getZoom());
+    }
+  }, [coordinates, map]);
+  return null;
 };
 
 // MapEvents handles the zoom and move events on the map.
-const MapBBoxHandler = ({ setZoom, setBbox, fetchStations, zoom, bbox, minZoomLevel, prevBboxRef }) => {
+const MapBBoxHandler = ({
+  setZoom,
+  setBbox,
+  fetchStations,
+  zoom,
+  bbox,
+  minZoomLevel,
+  prevBboxRef,
+}) => {
   const map = useMapEvents({
     // Once user is no longer changing zoom level, update BBox bounds.
     zoomend: () => {
@@ -107,7 +136,7 @@ const MapBBoxHandler = ({ setZoom, setBbox, fetchStations, zoom, bbox, minZoomLe
 // setShowLocationDiv: Function to show the location div.
 // latInput: The latitude input.
 // lngInput: The longitude input.
-function ChooseLocation ({
+function ChooseLocation({
   coordinates,
   setCoordinates,
   setLatInput,
@@ -116,6 +145,17 @@ function ChooseLocation ({
   latInput,
   lngInput,
 }) {
+  // Fixes Leaflet icon issues with Vite
+  useEffect(() => {
+    // Fix for the missing icon issue in production builds with Vite
+    delete L.Icon.Default.prototype._getIconUrl;
+
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+      iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+      shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+    });
+  }, []);
 
   // State variables
 
@@ -139,11 +179,17 @@ function ChooseLocation ({
   const [showOptionsDiv, setShowOptionsDiv] = useState(false);
 
   // cligenVersion: The version of the Cligen model. Used in the Options dropdown.
-  const [cligenVersion, setCligenVersion] = useState("5.3.2");
+  const [cligenVersion, setCligenVersion] = useState(() => localStorage.getItem("cligenVersion") || "5.3.2");
+  useEffect(() => {
+    localStorage.setItem("cligenVersion", cligenVersion);
+  }, [cligenVersion]);
 
   // databaseVersion: The version of the database. Used in the Options dropdown.
-  const [databaseVersion, setDatabaseVersion] = useState("legacy");
-  
+  const [databaseVersion, setDatabaseVersion] = useState(() => localStorage.getItem("databaseVersion") || "legacy");
+  useEffect(() => {
+    localStorage.setItem("databaseVersion", databaseVersion);
+  }, [databaseVersion]);
+
   // Fetch stations based on the bounding box.
   const fetchStations = async (bbox) => {
     try {
@@ -159,7 +205,7 @@ function ChooseLocation ({
       console.error("Error fetching stations:", error);
     }
   };
-  
+
   // Handle the coordinate submit button.
   const handleCoordinateSubmit = () => {
     const lat = parseFloat(latInput);
@@ -170,168 +216,200 @@ function ChooseLocation ({
       console.log("Invalid coordinates input.");
     }
   };
-  
+
   // Return the component.
   return (
     <>
       {/* Darkened background overlay */}
-      <div className="fixed inset-0 bg-black opacity-50 z-11"></div>
+      {/*<div className="fixed inset-0 z-11 bg-black opacity-50"></div>*/}
 
       {/* Location div */}
-      <div className="fixed inset-0 flex items-center justify-center z-40">
-        <div className="bg-white pl-4 pr-4 pb-4 rounded shadow-lg w-full ml-2 mr-2 border-2 h-2.3">
-          <div className="flex justify-between items-center relative">
-            
-            {/* Close button */}
-            <button
-              className="text-xl opacity-70"
-              onClick={() => setShowLocationDiv(false)}
-            >
-              X
-            </button>
+      <div className="flex flex-col h-[400px] md:max-h-[70vh] w-full">
+        <div className="relative mb-2">
 
-            {/* Options button */}
-            <button
-              className="mb-1 flex flex-row items-end text-md rounded h-[30px] opacity-70"
-              onClick={() => setShowOptionsDiv(!showOptionsDiv)}
-            >
-              Options
-              <img
-                src={showOptionsDiv ? "/upArrow.png" : "/downArrow.png"}
-                alt="Arrow"
-                className="ml-1 mb-1 h-3 w-3 lg:w-3 lg:h-3 lg:ml-1 lg:mt-1"
-              />
-            </button>
-
-            {/* Options dropdown */}
-            {showOptionsDiv && (
-              <div className="absolute border top-full right-0 w-[190px] -mt-1 -mr-1 p-2 pt-1 bg-gray-100 rounded shadow-lg z-50">
-                <div className="mb-2">
-                  <label className="block mb-1">Cligen version</label>
-                  <select
-                    className="w-full p-2 border rounded"
-                    value={cligenVersion}
-                    onChange={(event) => setCligenVersion(event.target.value)}
-                  >
-                    <option value="5.3.2">5.3.2 (WEPPcloud)</option>
-                    <option value="4.3">4.3 (Legacy)</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block mb-1">Database version</label>
-                  <select
-                    className="w-full p-2 border rounded"
-                    value={databaseVersion}
-                    onChange={(event) => setDatabaseVersion(event.target.value)}
-                  >
-                    <option value="legacy">Legacy</option>
-                    <option value="2015">2015</option>
-                    <option value="au">au</option>
-                    <option value="ghcn">ghcn</option>
-                    <option value="None">None</option>
-                  </select>
-                </div>
-              </div>
-            )}
+          {/* Options button */}
+          <div className="flex flex-col w-full items-center justify-center sm:justify-end sm:flex-row gap-3">
+              <Select value={cligenVersion} onValueChange={setCligenVersion}>
+                <SelectTrigger id="cligenVersion" className="w-full sm:w-fit">
+                  <SelectValue defaultValue={cligenVersion}>
+                    <span>Cligen Version: {cligenVersion}</span>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5.3.2">5.3.2 (WEPPcloud)</SelectItem>
+                  <SelectItem value="4.3">4.3 (Legacy)</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={databaseVersion} onValueChange={setDatabaseVersion}>
+                <SelectTrigger id="databaseVersion" className="w-full sm:w-fit">
+                  <SelectValue defaultValue={databaseVersion}>
+                    <span>Database Version: {databaseVersion}</span>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="legacy">Legacy</SelectItem>
+                  <SelectItem value="2015">2015</SelectItem>
+                  <SelectItem value="au">au</SelectItem>
+                  <SelectItem value="ghcn">ghcn</SelectItem>
+                </SelectContent>
+              </Select>
           </div>
 
-          {/* Map */}
-          <div className="flex-grow z-0 h-60">
-            <MapContainer
-              center={coordinates || [39.8283, -98.5795]}
-              zoom={4}
-              scrollWheelZoom={true}
-              attributionControl={false}
-              style={{ zIndex: 0 }}
-              className="h-full w-full"
-            >
-              {/* OpenStreetMap tile layer for map*/}
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
 
-              {/* Location Marker for when the user clicks*/}
-              <LocationMarker
-                coordinates={coordinates}
-                setCoordinates={setCoordinates}
-                setLatInput={setLatInput}
-                setLngInput={setLngInput}
-                style={{ color: "green" }}
-              />
-              {/* MapBBoxHandler for handling zoom and move events on the map */}
-              <MapBBoxHandler
-                setZoom={setZoom}
-                setBbox={setBbox}
-                fetchStations={fetchStations}
-                zoom={zoom}
-                bbox={bbox}
-                minZoomLevel={minZoomLevel}
-                prevBboxRef={prevBboxRef}
-              />
+          {/*<button*/}
+          {/*  className="text-md mb-1 flex h-[30px] flex-row items-end rounded-sm opacity-70"*/}
+          {/*  onClick={() => setShowOptionsDiv(!showOptionsDiv)}*/}
+          {/*>*/}
+          {/*  Options*/}
+          {/*  <img*/}
+          {/*    src={showOptionsDiv ? "/upArrow.png" : "/downArrow.png"}*/}
+          {/*    alt="Arrow"*/}
+          {/*    className="mb-1 ml-1 h-3 w-3 lg:mt-1 lg:ml-1 lg:h-3 lg:w-3"*/}
+          {/*  />*/}
+          {/*</button>*/}
 
-              {/* MapUpdater for updating the map based on the coordinates */}
-              <MapUpdater coordinates={coordinates} />
+          {/* Options dropdown */}
+          {/*{showOptionsDiv && (*/}
+          {/*  <div className="absolute top-full right-0 z-50 -mt-1 -mr-1 w-[190px] rounded-sm border bg-gray-100 p-2 pt-1 shadow-lg">*/}
+          {/*    <div className="mb-2">*/}
+          {/*      <label className="mb-1 block">Cligen version</label>*/}
+          {/*      <select*/}
+          {/*        className="w-full rounded-sm border p-2"*/}
+          {/*        value={cligenVersion}*/}
+          {/*        onChange={(event) => setCligenVersion(event.target.value)}*/}
+          {/*      >*/}
+          {/*        <option value="5.3.2">5.3.2 (WEPPcloud)</option>*/}
+          {/*        <option value="4.3">4.3 (Legacy)</option>*/}
+          {/*      </select>*/}
+          {/*    </div>*/}
+          {/*    <div>*/}
+          {/*      <label className="mb-1 block">Database version</label>*/}
+          {/*      <select*/}
+          {/*        className="w-full rounded-sm border p-2"*/}
+          {/*        value={databaseVersion}*/}
+          {/*        onChange={(event) => setDatabaseVersion(event.target.value)}*/}
+          {/*      >*/}
+          {/*        <option value="legacy">Legacy</option>*/}
+          {/*        <option value="2015">2015</option>*/}
+          {/*        <option value="au">au</option>*/}
+          {/*        <option value="ghcn">ghcn</option>*/}
+          {/*        <option value="None">None</option>*/}
+          {/*      </select>*/}
+          {/*    </div>*/}
+          {/*  </div>*/}
+          {/*)}*/}
+        </div>
 
-                {/* Display stations on the map, marking them with Markers. Currently
+        {/* Map */}
+        <div className="relative flex-1 w-full h-full overflow-hidden">
+          <MapContainer
+            center={coordinates || [39.8283, -98.5795]}
+            zoom={4}
+            scrollWheelZoom={true}
+            attributionControl={false}
+            style={{ zIndex: 0 }}
+            className="map-container w-full h-full overflow-hidden"
+          >
+            {/* OpenStreetMap tile layer for map*/}
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+
+            {/* Location Marker for when the user clicks*/}
+            <LocationMarker
+              coordinates={coordinates}
+              setCoordinates={setCoordinates}
+              setLatInput={setLatInput}
+              setLngInput={setLngInput}
+              style={{ color: "green" }}
+            />
+            {/* MapBBoxHandler for handling zoom and move events on the map */}
+            <MapBBoxHandler
+              setZoom={setZoom}
+              setBbox={setBbox}
+              fetchStations={fetchStations}
+              zoom={zoom}
+              bbox={bbox}
+              minZoomLevel={minZoomLevel}
+              prevBboxRef={prevBboxRef}
+            />
+
+            {/* MapUpdater for updating the map based on the coordinates */}
+            <MapUpdater coordinates={coordinates} />
+
+            {/* Display stations on the map, marking them with Markers. Currently
                     the marker is the same as the user placeable one, and it is possible
                     to update the Marker texture. */}
-              {stations.map((station) => (
-                <Marker
-                  key={station.properties.id}
-                  position={[
-                    station.geometry.coordinates[1],
-                    station.geometry.coordinates[0],
-                  ]}
-                >
-                  {/* Popup for the station name and ID */}
-                  <Popup>
-                    <div>
-                      <strong>{station.properties.desc}</strong>
-                      <br />
-                      ID: {station.properties.id}
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
-          </div>
-          {/* Latitude and Longitude input fields and "Set Coords." button */}
-          <div className="mt-4">
-            <div className="flex flex-row justify-center w-full">
-              <input
-                type="text"
-                placeholder="Latitude"
-                value={
-                  isNaN(parseFloat(latInput)) ? "" : parseFloat(latInput).toFixed(5)
-                }
-                onChange={(e) => setLatInput(parseFloat(e.target.value).toFixed(5))}
-                className="flex-shrink px-2 py-1 border border-gray-300 rounded mr-2 w-1/3"
-              />
-              <input
-                type="text"
-                placeholder="Longitude"
-                value={
-                  isNaN(parseFloat(lngInput)) ? "" : parseFloat(lngInput).toFixed(5)
-                }
-                onChange={(e) => setLngInput(parseFloat(e.target.value).toFixed(5))}
-                className="flex-shrink px-2 py-1 border border-gray-300 rounded mr-2 w-1/3"
-              />
-              <button
-                onClick={() => {
-                  handleCoordinateSubmit();
-                  setShowLocationDiv(false);
-                }}
-                className="flex-shrink px-2 py-2 bg-[#16a34a] text-white rounded w-1/3 text-sm"
+            {stations.map((station) => (
+              <Marker
+                key={station.properties.id}
+                position={[
+                  station.geometry.coordinates[1],
+                  station.geometry.coordinates[0],
+                ]}
               >
-                Set Coords.
-              </button>
-            </div>
+                {/* Popup for the station name and ID */}
+                <Popup>
+                  <div>
+                    <strong>{station.properties.desc}</strong>
+                    <br />
+                    ID: {station.properties.id}
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MapContainer>
+        </div>
+        {/* Latitude and Longitude input fields and "Set Coords." button */}
+        <div className="mt-4">
+          <div className="flex w-full flex-col sm:flex-row justify-center gap-2">
+            <input
+              id="latInput"
+              type="text"
+              placeholder="Latitude"
+              value={latInput}
+              onChange={e => setLatInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === "Enter") {
+                  handleCoordinateSubmit();
+                }
+              }}
+              onBlur={() => {
+                handleCoordinateSubmit();
+              }}
+              className="mr-2 w-full sm:w-1/3 shrink rounded-sm border border-gray-300 px-2 py-1"
+            />
+            <input
+              id="lngInput"
+              type="text"
+              placeholder="Longitude"
+              value={lngInput}
+              onChange={e => setLngInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === "Enter") {
+                  handleCoordinateSubmit();
+                }
+              }}
+              onBlur={() => {
+                handleCoordinateSubmit();
+              }}
+              className="mr-2 w-full sm:w-1/3 shrink rounded-sm border border-gray-300 px-2 py-1"
+            />
+            <button
+              onClick={() => {
+                handleCoordinateSubmit();
+                setShowLocationDiv(false);
+              }}
+              className="cursor-pointer w-full sm:w-1/3 shrink rounded-sm bg-[#16a34a] px-2 py-2 text-sm text-white"
+            >
+              Set Coordinates
+            </button>
           </div>
         </div>
       </div>
     </>
   );
-};
+}
 
 export default ChooseLocation;

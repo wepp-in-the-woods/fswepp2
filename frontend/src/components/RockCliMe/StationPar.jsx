@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { api } from '../../api';
+import { api } from "../../api";
 
 // StationPar Component that displays custom or station parameter data
 function StationPar() {
@@ -23,7 +23,7 @@ function StationPar() {
   const [parData, setParData] = useState(null);
   const [isModified, setIsModified] = useState(false);
   const [description, setDescription] = useState(stationDesc);
-  
+
   // Initialize input values for precipitation, max temp, min temp, and number of wet days
   const [inputValues, setInputValues] = useState({
     ppts: [],
@@ -72,16 +72,13 @@ function StationPar() {
     };
 
     // Post user-defined parameter data to server
-    api.post(
-        "/api/rockclim/PUT/user_defined_par",
-        user_defined_par,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      )
+    api
+      .post("/api/rockclim/PUT/user_defined_par", user_defined_par, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      })
       .then((response) => {
         console.log("Server response:", response);
         setDescription("");
@@ -89,7 +86,7 @@ function StationPar() {
       .catch((error) => {
         console.error("Error posting data:", error);
       });
-    
+
     // Once saved, reset view
     setIsModified(false);
     setDescription("");
@@ -120,7 +117,7 @@ function StationPar() {
             par_id: par_id,
             location: loc,
             use_prism: usePrismPar,
-          }
+          },
         );
         setParData(response.data);
       } catch (error) {
@@ -131,7 +128,7 @@ function StationPar() {
     // If not user defined parameter, fetch station data
     if (!user_defined_par_mod) {
       fetchStationData();
-    // Otherwise set user defined parameter data
+      // Otherwise set user defined parameter data
     } else {
       setParData(user_defined_par_mod);
     }
@@ -170,10 +167,10 @@ function StationPar() {
   ];
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex h-screen flex-col">
       {/* Mobile Navbar */}
       <div
-        className="top-0 left-0 right-0 shadow-md p-4 flex justify-between items-center h-16 lg:hidden"
+        className="top-0 right-0 left-0 flex h-16 items-center justify-between p-4 shadow-md lg:hidden"
         style={{ zIndex: 10 }}
       >
         {/* Headers*/}
@@ -185,7 +182,7 @@ function StationPar() {
         {/* Home Button */}
         <button
           onClick={() => navigate("/")}
-          className="px-4 py-2 bg-[#16a34a] text-white rounded"
+          className="rounded-sm bg-[#16a34a] px-4 py-2 text-white"
         >
           Home
         </button>
@@ -193,35 +190,37 @@ function StationPar() {
       <div className="flex items-center">
         <button
           onClick={() => navigate("/rockclime")}
-          className="px-4 py-2 bg-white text-black underline rounded items-start"
+          className="items-start rounded-sm bg-white px-4 py-2 text-black underline"
         >
           Back
         </button>
       </div>
 
       {/* Main Content */}
-      <div className="flex flex-col items-start ml-4 mr-4">
+      <div className="mr-4 ml-4 flex flex-col items-start">
         <div className="w-full">
           <div className="text-2xl font-semibold">
-
             {/* Parameter description with modifiable state */}
             {isModified ? (
               <input
                 type="text"
                 defaultValue={
-                  (user_defined_par_mod
-                    ? user_defined_par_mod.description : stationDesc)
+                  user_defined_par_mod
+                    ? user_defined_par_mod.description
+                    : stationDesc
                 }
                 onChange={(e) => handleTitleChange(e, "description")}
-                className={`w-full border-none rounded ${
+                className={`w-full rounded-sm border-none ${
                   isModified
-                    ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
+                    ? "outline-rounded-sm outline-1 outline-offset-1 outline-gray-300"
                     : ""
                 }`}
               />
             ) : (
               <>
-                {user_defined_par_mod ? user_defined_par_mod.description : stationDesc}
+                {user_defined_par_mod
+                  ? user_defined_par_mod.description
+                  : stationDesc}
               </>
             )}
           </div>
@@ -229,21 +228,22 @@ function StationPar() {
           {/* Station ID or Parameter ID*/}
           <div className="text-md mb-4">
             {user_defined_par_mod
-              ? `Par. ID: ${selected_par}` : `Par. ID: ${par_id.slice(0, -4)}`}
+              ? `Par. ID: ${selected_par}`
+              : `Par. ID: ${par_id.slice(0, -4)}`}
           </div>
 
           {/* Station Coordinates if not a custom parameter */}
           {!user_defined_par_mod && (
             <div className="text-xl">
-              <h3 className="text-[17px] font-semibold -mt-2">
+              <h3 className="-mt-2 text-[17px] font-semibold">
                 Station Coordinates
               </h3>
               {!user_defined_par_mod && (
                 <>
-                  <p className="text-[14px] -mt-1">
+                  <p className="-mt-1 text-[14px]">
                     Latitude: {coordinates.latitude}
                   </p>
-                  <p className="text-[14px] -mt-2">
+                  <p className="-mt-2 text-[14px]">
                     Longitude: {coordinates.longitude}
                   </p>
                 </>
@@ -253,7 +253,7 @@ function StationPar() {
         </div>
 
         {/* Display station data in a table*/}
-        <div className="mt-4 w-full mb-4">
+        <div className="mt-4 mb-4 w-full">
           <div className="mb-2 flex flex-row">
             <div className="">
               <h3 className="text-2xl font-semibold">Station Data:</h3>
@@ -263,13 +263,13 @@ function StationPar() {
             </div>
 
             {/* Save or Modify Button */}
-            <div className="flex-grow flex items-end justify-end">
+            <div className="flex grow items-end justify-end">
               <button
                 onClick={handleClick}
-                className={`px-2 py-2 rounded whitespace-nowrap w-32 ${
+                className={`w-32 rounded-sm px-2 py-2 whitespace-nowrap ${
                   isModified
                     ? "border border-[#16a34a] bg-[#16a34a] text-white"
-                    : "border border-[#16a34a] text-black bg-white"
+                    : "border border-[#16a34a] bg-white text-black"
                 }`}
               >
                 {isModified ? "Save Param." : "Modify Param."}
@@ -280,87 +280,82 @@ function StationPar() {
           {/* Table of station data */}
           {parData && (
             <div>
-              <table className="table-auto border-collapse border border-gray-400 w-full max-[374px]:text-xs">
+              <table className="w-full table-auto border-collapse border border-gray-400 max-[374px]:text-xs">
                 <thead>
                   <tr>
-                    <th className="border border-gray-300 py-2 px-2 text-left w-1/5">
+                    <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
                       Month
                     </th>
-                    <th className="border border-gray-300 py-2 px-2 text-left w-1/5">
+                    <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
                       Mean Precip.
                     </th>
-                    <th className="border border-gray-300 px-2 py-2 text-left w-1/5">
+                    <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
                       Mean Max Temp.
                     </th>
-                    <th className="border border-gray-300 px-2 py-2 text-left w-1/5">
+                    <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
                       Mean Min Temp.
                     </th>
                     {parData.nwds && parData.nwds.length > 0 && (
-                      <th className="border border-gray-300 px-2 py-2 text-left w-1/5">
+                      <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
                         # of Wet Days
                       </th>
                     )}
                   </tr>
                 </thead>
                 <tbody>
-
                   {/* Map par data to table */}
                   {parData.ppts.map((ppt, index) => (
                     <tr key={index}>
-                      <td className="border border-gray-300 px-2 py-2 w-1/5">
+                      <td className="w-1/5 border border-gray-300 px-2 py-2">
                         <span className="hidden md:inline">
                           {months[index]}
                         </span>
                         <span className="md:hidden">{monthsAbbrev[index]}</span>
                       </td>
-                      <td className="border border-gray-300 px-2 py-2 w-1/5">
-
+                      <td className="w-1/5 border border-gray-300 px-2 py-2">
                         {/* Allow user to change values if isModified state is true*/}
                         <input
                           type="text"
                           defaultValue={ppt.toFixed(2)}
                           onChange={(e) => handleInputChange(e, index, "ppts")}
-                          className={`w-full border-none rounded ${
+                          className={`w-full rounded-sm border-none ${
                             isModified
-                              ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
+                              ? "outline-rounded-sm outline-1 outline-offset-1 outline-gray-300"
                               : ""
                           }`}
                           readOnly={!isModified}
                         />
                       </td>
-                      <td className="border border-gray-300 px-2 py-2 w-1/5">
-                        
+                      <td className="w-1/5 border border-gray-300 px-2 py-2">
                         {/* Allow user to change values if isModified state is true*/}
                         <input
                           type="text"
                           defaultValue={parData.tmaxs[index].toFixed(2)}
                           onChange={(e) => handleInputChange(e, index, "tmaxs")}
-                          className={`w-full border-none rounded ${
+                          className={`w-full rounded-sm border-none ${
                             isModified
-                              ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
+                              ? "outline-rounded-sm outline-1 outline-offset-1 outline-gray-300"
                               : ""
                           }`}
                           readOnly={!isModified}
                         />
                       </td>
-                      <td className="border border-gray-300 px-2 py-2 w-1/5">
-
+                      <td className="w-1/5 border border-gray-300 px-2 py-2">
                         {/* Allow user to change values if isModified state is true*/}
                         <input
                           type="text"
                           defaultValue={parData.tmins[index].toFixed(2)}
                           onChange={(e) => handleInputChange(e, index, "tmins")}
-                          className={`w-full border-none rounded ${
+                          className={`w-full rounded-sm border-none ${
                             isModified
-                              ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
+                              ? "outline-rounded-sm outline-1 outline-offset-1 outline-gray-300"
                               : ""
                           }`}
                           readOnly={!isModified}
                         />
                       </td>
                       {parData.nwds && parData.nwds.length > 0 && (
-                        <td className="border border-gray-300 px-2 py-2 w-1/5">
-
+                        <td className="w-1/5 border border-gray-300 px-2 py-2">
                           {/* Allow user to change values if isModified state is true*/}
                           <input
                             type="text"
@@ -368,9 +363,9 @@ function StationPar() {
                             onChange={(e) =>
                               handleInputChange(e, index, "nwds")
                             }
-                            className={`w-full border-none rounded ${
+                            className={`w-full rounded-sm border-none ${
                               isModified
-                                ? "outline outline-1 outline-offset-1 outline-gray-300 outline-rounded"
+                                ? "outline-rounded-sm outline-1 outline-offset-1 outline-gray-300"
                                 : ""
                             }`}
                             readOnly={!isModified}
@@ -387,6 +382,6 @@ function StationPar() {
       </div>
     </div>
   );
-};
+}
 
 export default StationPar;

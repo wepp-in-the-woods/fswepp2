@@ -9,6 +9,8 @@ api/logs/
 
 # dependencies
 frontend/fswepp2-frontend/node_modules
+frontend/node_modules
+frontend/dist
 frontend/fswepp2-frontend/.pnp
 frontend/fswepp2-frontend/.pnp.js
 
