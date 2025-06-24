@@ -101,6 +101,15 @@
   .text-foreground {
     color: var(--foreground);
   }
+
+  .map-container,
+  .leaflet-container {
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0;
+    padding: 0;
+    position: relative;
+  }
 }
 
 @theme {

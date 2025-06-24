@@ -8,6 +8,13 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
+
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { ExternalLink } from "lucide-react";
@@ -225,21 +232,8 @@ const RockCliMe = () => {
           Rocky Mountain Research Station Climate Generator
         </p>
       </div>
-      {/* Mobile Navbar */}
-      <div className="top-0 right-0 left-0 z-0 flex h-16 items-center justify-between p-4 shadow-md lg:hidden">
-        <div>
-          <h1 className="text-xl font-semibold">RockClime</h1>
-          <p className="text-sm text-gray-700">RMRS Climate Generator</p>
-        </div>
-        <button
-          onClick={() => navigate("/")}
-          className="rounded-sm bg-[#16a34a] px-4 py-2 text-white"
-        >
-          Home
-        </button>
-      </div>
       {/* Current Location Div */}
-      <div className="mt-2 mb-2 flex w-full flex-row items-center justify-between pt-2 pr-2 pb-2 pl-2">
+      <div className="mt-2 mb-2 flex w-full flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
         <div className="text-sm md:text-base">
           Current Location:{" "}
           {latInput && lngInput
@@ -248,19 +242,20 @@ const RockCliMe = () => {
               ).toFixed(3)}`
             : "None"}
         </div>
-        <Dialog>
+        <Dialog open={showLocationDiv} onOpenChange={setShowLocationDiv}>
           <DialogTrigger asChild>
             <Button
               variant="outline"
               onClick={() => setShowLocationDiv(true)}
+              className="hover:cursor-pointer"
             >
               Choose Location
             </Button>
           </DialogTrigger>
           {/* Conditionally render ChooseLocation */}
           {showLocationDiv && (
-            <DialogContent className="max-w-[90vw] max-h-[90vh]">
-              <DialogHeader>
+            <DialogContent className="w-full sm:max-w-xl lg:max-w-2xl">
+              <DialogHeader className="w-full">
                 <DialogTitle>Choose a location</DialogTitle>
               </DialogHeader>
               <ChooseLocation
@@ -269,6 +264,8 @@ const RockCliMe = () => {
                 setLatInput={setLatInput}
                 setLngInput={setLngInput}
                 setShowLocationDiv={setShowLocationDiv}
+                latInput={latInput}
+                lngInput={lngInput}
               />
             </DialogContent>
           )}
@@ -276,164 +273,293 @@ const RockCliMe = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex w-full border-t border-gray-300">
-        <div className="flex w-1/2 flex-row border-r-2">
-          <button
-            onClick={() => {
-              setActiveTab("closestStations");
-              setParametersFetched(false);
-            }}
-            className={`w-full px-4 py-2 ${
-              activeTab === "closestStations"
-                ? "border-b border-green-700 bg-gray-100"
-                : "border-b border-white bg-white pb-2"
-            }`}
-          >
-            Closest Stations
-          </button>
-        </div>
-        <div className="flex w-1/2 flex-row">
-          <button
-            onClick={() => {
-              setActiveTab("savedParameters");
-              setSelectedStation(null);
-            }}
-            className={`w-full px-4 py-2 ${
-              activeTab === "savedParameters"
-                ? "border-b border-green-700 bg-gray-100"
-                : "border-b border-white bg-white pb-2"
-            }`}
-          >
-            Saved Parameters
-          </button>
-        </div>
-      </div>
       <div className="grow overflow-auto p-4">
-        {activeTab === "closestStations" && (
-          <div className="grid grid-cols-1 gap-4">
-            {/* Gets the 6 closest stations. When clicked,
-            the selected station is set and additional options appear. */}
-
-            {closestStations.slice(0, 6).map((station, index) => (
-              <div key={index}>
-                <button
-                  className={`w-full rounded-sm border p-2 text-left ${
-                    selectedStation === station ? "bg-[#015838] text-white" : ""
-                  }`}
-                  onClick={() => {
-                    handleStationClick(station);
-                  }}
-                >
-                  <strong>{station.desc.slice(0, -2)}</strong> <br />
-                  Latitude: {station.latitude}, Longitude: {station.longitude}
-                  <br />
-                  Distance: {station.distance_to_query_location.toFixed(2)} km
-                </button>
-                {selectedStation === station && (
-                  <div className="mt-2 rounded-sm border bg-gray-100 p-2">
-                    <div className="mb-2">
-                      {/* "au" e.g. the Australia database does not have PRISM, so we grey out the option. */}
-                      {databaseVersion !== "au" && (
-                        <label className="mb-2 inline-flex items-center">
-                          <input
-                            type="checkbox"
-                            className="form-checkbox"
-                            checked={usePrismPar}
-                            onChange={(e) => setUsePrismPar(e.target.checked)}
-                          />
-                          <span className="ml-2">Use Prism monthlies</span>
+        <Tabs defaultValue="closestStations">
+          <TabsList>
+            <TabsTrigger value="closestStations">Closest Stations</TabsTrigger>
+            <TabsTrigger value="savedParameters">Saved Parameters</TabsTrigger>
+          </TabsList>
+          <TabsContent value="closestStations">
+            <div className="grid grid-cols-1 gap-4">
+            {/* Gets the 6 closest stations. When clicked, the selected station is set and additional options appear. */}
+              {closestStations.slice(0, 6).map((station, index) => (
+                <div key={index}>
+                  <button
+                    className={`w-full rounded-sm border p-2 text-left ${
+                      selectedStation === station ? "bg-[#015838] text-white" : ""
+                    }`}
+                    onClick={() => {
+                      handleStationClick(station);
+                    }}
+                  >
+                    <strong>{station.desc.slice(0, -2)}</strong> <br />
+                    Latitude: {station.latitude}, Longitude: {station.longitude}
+                    <br />
+                    Distance: {station.distance_to_query_location.toFixed(2)} km
+                  </button>
+                  {selectedStation === station && (
+                    <div className="mt-2 rounded-sm border bg-gray-100 p-2">
+                      <div className="mb-2">
+                        {/* "au" e.g. the Australia database does not have PRISM, so we grey out the option. */}
+                        {databaseVersion !== "au" && (
+                          <label className="mb-2 inline-flex items-center">
+                            <input
+                              type="checkbox"
+                              className="form-checkbox"
+                              checked={usePrismPar}
+                              onChange={(e) => setUsePrismPar(e.target.checked)}
+                            />
+                            <span className="ml-2">Use Prism monthlies</span>
+                          </label>
+                        )}
+                        <button
+                          className="mb-2 block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
+                          onClick={handleViewStationPar}
+                        >
+                          View Station Parameters
+                        </button>
+                      </div>
+                      <div className="mb-2 border-t-2 border-gray-300">
+                        <label className="mt-2 block text-sm font-medium text-gray-700">
+                          Number of Years
                         </label>
-                      )}
+                        <input
+                          type="number"
+                          className="mt-1 block w-full rounded-sm border border-gray-300 p-2"
+                          value={years}
+                          onChange={(e) => setYears(e.target.value)}
+                        />
+                        {databaseVersion !== "au" && (
+                          <label className="mt-2 inline-flex items-center">
+                            <input
+                              type="checkbox"
+                              className="form-checkbox"
+                              checked={usePrismClim}
+                              onChange={(e) => setUsePrismClim(e.target.checked)}
+                            />
+                            <span className="ml-2">Use Prism monthlies</span>
+                          </label>
+                        )}
+                      </div>
                       <button
-                        className="mb-2 block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
-                        onClick={handleViewStationPar}
+                        className="block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
+                        onClick={handleViewStationClimateData}
                       >
-                        View Station Parameters
+                        Generate Climate Data
                       </button>
                     </div>
-                    <div className="mb-2 border-t-2 border-gray-300">
-                      <label className="mt-2 block text-sm font-medium text-gray-700">
-                        Number of Years
-                      </label>
-                      <input
-                        type="number"
-                        className="mt-1 block w-full rounded-sm border border-gray-300 p-2"
-                        value={years}
-                        onChange={(e) => setYears(e.target.value)}
-                      />
-                      {databaseVersion !== "au" && (
-                        <label className="mt-2 inline-flex items-center">
-                          <input
-                            type="checkbox"
-                            className="form-checkbox"
-                            checked={usePrismClim}
-                            onChange={(e) => setUsePrismClim(e.target.checked)}
-                          />
-                          <span className="ml-2">Use Prism monthlies</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+          <TabsContent value="savedParameters">
+            <div className="grid grid-cols-1 gap-4">
+              {Object.keys(savedParameters).map((par, index) => (
+                <div key={index}>
+                  <button
+                    className={`w-full rounded-sm border p-2 text-left ${
+                      selectedPar === par ? "bg-[#015838] text-white" : ""
+                    }`}
+                    onClick={() => handleSavedParClick(par)}
+                  >
+                    <strong>
+                      {savedParameters[par].user_defined_par_mod.description}
+                    </strong>
+                  </button>
+                  {selectedPar === par && (
+                    <div className="mt-2 rounded-sm border bg-gray-100 p-2">
+                      <div className="mb-2">
+                        <button
+                          className="mb-2 block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
+                          onClick={handleViewSavedPar}
+                        >
+                          View Saved Parameters
+                        </button>
+                      </div>
+                      <div className="mb-2 border-t-2 border-gray-300">
+                        <label className="mt-2 block text-sm font-medium text-gray-700">
+                          Number of Years
                         </label>
-                      )}
-                    </div>
-                    <button
-                      className="block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
-                      onClick={handleViewStationClimateData}
-                    >
-                      Generate Climate Data
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-        {/* Display the fetched saved parameters. */}
-        {activeTab === "savedParameters" && (
-          <div className="grid grid-cols-1 gap-4">
-            {Object.keys(savedParameters).map((par, index) => (
-              <div key={index}>
-                <button
-                  className={`w-full rounded-sm border p-2 text-left ${
-                    selectedPar === par ? "bg-[#015838] text-white" : ""
-                  }`}
-                  onClick={() => handleSavedParClick(par)}
-                >
-                  <strong>
-                    {savedParameters[par].user_defined_par_mod.description}
-                  </strong>
-                </button>
-                {selectedPar === par && (
-                  <div className="mt-2 rounded-sm border bg-gray-100 p-2">
-                    <div className="mb-2">
+                        <input
+                          type="number"
+                          className="mt-1 block w-full rounded-sm border border-gray-300 p-2"
+                          value={years}
+                          onChange={(e) => setYears(e.target.value)}
+                        />
+                      </div>
                       <button
-                        className="mb-2 block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
-                        onClick={handleViewSavedPar}
+                        className="block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
+                        onClick={handleViewSavedParClimateData}
                       >
-                        View Saved Parameters
+                        Generate Climate Data
                       </button>
                     </div>
-                    <div className="mb-2 border-t-2 border-gray-300">
-                      <label className="mt-2 block text-sm font-medium text-gray-700">
-                        Number of Years
-                      </label>
-                      <input
-                        type="number"
-                        className="mt-1 block w-full rounded-sm border border-gray-300 p-2"
-                        value={years}
-                        onChange={(e) => setYears(e.target.value)}
-                      />
-                    </div>
-                    <button
-                      className="block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
-                      onClick={handleViewSavedParClimateData}
-                    >
-                      Generate Climate Data
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+                  )}
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
+      {/*<div className="flex w-full border-t border-gray-300 mx-6">*/}
+      {/*  <div className="flex w-1/2 flex-row border-r-2">*/}
+      {/*    <button*/}
+      {/*      onClick={() => {*/}
+      {/*        setActiveTab("closestStations");*/}
+      {/*        setParametersFetched(false);*/}
+      {/*      }}*/}
+      {/*      className={`w-full px-4 py-2 ${*/}
+      {/*        activeTab === "closestStations"*/}
+      {/*          ? "border-b border-green-700 bg-gray-100"*/}
+      {/*          : "border-b border-white bg-white pb-2"*/}
+      {/*      }`}*/}
+      {/*    >*/}
+      {/*      Closest Stations*/}
+      {/*    </button>*/}
+      {/*  </div>*/}
+      {/*  <div className="flex w-1/2 flex-row">*/}
+      {/*    <button*/}
+      {/*      onClick={() => {*/}
+      {/*        setActiveTab("savedParameters");*/}
+      {/*        setSelectedStation(null);*/}
+      {/*      }}*/}
+      {/*      className={`w-full px-4 py-2 ${*/}
+      {/*        activeTab === "savedParameters"*/}
+      {/*          ? "border-b border-green-700 bg-gray-100"*/}
+      {/*          : "border-b border-white bg-white pb-2"*/}
+      {/*      }`}*/}
+      {/*    >*/}
+      {/*      Saved Parameters*/}
+      {/*    </button>*/}
+      {/*  </div>*/}
+      {/*</div>*/}
+      {/*<div className="grow overflow-auto p-4">*/}
+      {/*  {activeTab === "closestStations" && (*/}
+      {/*    <div className="grid grid-cols-1 gap-4">*/}
+      {/*      /!* Gets the 6 closest stations. When clicked,*/}
+      {/*      the selected station is set and additional options appear. *!/*/}
+
+      {/*      {closestStations.slice(0, 6).map((station, index) => (*/}
+      {/*        <div key={index}>*/}
+      {/*          <button*/}
+      {/*            className={`w-full rounded-sm border p-2 text-left ${*/}
+      {/*              selectedStation === station ? "bg-[#015838] text-white" : ""*/}
+      {/*            }`}*/}
+      {/*            onClick={() => {*/}
+      {/*              handleStationClick(station);*/}
+      {/*            }}*/}
+      {/*          >*/}
+      {/*            <strong>{station.desc.slice(0, -2)}</strong> <br />*/}
+      {/*            Latitude: {station.latitude}, Longitude: {station.longitude}*/}
+      {/*            <br />*/}
+      {/*            Distance: {station.distance_to_query_location.toFixed(2)} km*/}
+      {/*          </button>*/}
+      {/*          {selectedStation === station && (*/}
+      {/*            <div className="mt-2 rounded-sm border bg-gray-100 p-2">*/}
+      {/*              <div className="mb-2">*/}
+      {/*                /!* "au" e.g. the Australia database does not have PRISM, so we grey out the option. *!/*/}
+      {/*                {databaseVersion !== "au" && (*/}
+      {/*                  <label className="mb-2 inline-flex items-center">*/}
+      {/*                    <input*/}
+      {/*                      type="checkbox"*/}
+      {/*                      className="form-checkbox"*/}
+      {/*                      checked={usePrismPar}*/}
+      {/*                      onChange={(e) => setUsePrismPar(e.target.checked)}*/}
+      {/*                    />*/}
+      {/*                    <span className="ml-2">Use Prism monthlies</span>*/}
+      {/*                  </label>*/}
+      {/*                )}*/}
+      {/*                <button*/}
+      {/*                  className="mb-2 block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"*/}
+      {/*                  onClick={handleViewStationPar}*/}
+      {/*                >*/}
+      {/*                  View Station Parameters*/}
+      {/*                </button>*/}
+      {/*              </div>*/}
+      {/*              <div className="mb-2 border-t-2 border-gray-300">*/}
+      {/*                <label className="mt-2 block text-sm font-medium text-gray-700">*/}
+      {/*                  Number of Years*/}
+      {/*                </label>*/}
+      {/*                <input*/}
+      {/*                  type="number"*/}
+      {/*                  className="mt-1 block w-full rounded-sm border border-gray-300 p-2"*/}
+      {/*                  value={years}*/}
+      {/*                  onChange={(e) => setYears(e.target.value)}*/}
+      {/*                />*/}
+      {/*                {databaseVersion !== "au" && (*/}
+      {/*                  <label className="mt-2 inline-flex items-center">*/}
+      {/*                    <input*/}
+      {/*                      type="checkbox"*/}
+      {/*                      className="form-checkbox"*/}
+      {/*                      checked={usePrismClim}*/}
+      {/*                      onChange={(e) => setUsePrismClim(e.target.checked)}*/}
+      {/*                    />*/}
+      {/*                    <span className="ml-2">Use Prism monthlies</span>*/}
+      {/*                  </label>*/}
+      {/*                )}*/}
+      {/*              </div>*/}
+      {/*              <button*/}
+      {/*                className="block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"*/}
+      {/*                onClick={handleViewStationClimateData}*/}
+      {/*              >*/}
+      {/*                Generate Climate Data*/}
+      {/*              </button>*/}
+      {/*            </div>*/}
+      {/*          )}*/}
+      {/*        </div>*/}
+      {/*      ))}*/}
+      {/*    </div>*/}
+      {/*  )}*/}
+      {/*  /!* Display the fetched saved parameters. *!/*/}
+      {/*  {activeTab === "savedParameters" && (*/}
+      {/*    <div className="grid grid-cols-1 gap-4">*/}
+      {/*      {Object.keys(savedParameters).map((par, index) => (*/}
+      {/*        <div key={index}>*/}
+      {/*          <button*/}
+      {/*            className={`w-full rounded-sm border p-2 text-left ${*/}
+      {/*              selectedPar === par ? "bg-[#015838] text-white" : ""*/}
+      {/*            }`}*/}
+      {/*            onClick={() => handleSavedParClick(par)}*/}
+      {/*          >*/}
+      {/*            <strong>*/}
+      {/*              {savedParameters[par].user_defined_par_mod.description}*/}
+      {/*            </strong>*/}
+      {/*          </button>*/}
+      {/*          {selectedPar === par && (*/}
+      {/*            <div className="mt-2 rounded-sm border bg-gray-100 p-2">*/}
+      {/*              <div className="mb-2">*/}
+      {/*                <button*/}
+      {/*                  className="mb-2 block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"*/}
+      {/*                  onClick={handleViewSavedPar}*/}
+      {/*                >*/}
+      {/*                  View Saved Parameters*/}
+      {/*                </button>*/}
+      {/*              </div>*/}
+      {/*              <div className="mb-2 border-t-2 border-gray-300">*/}
+      {/*                <label className="mt-2 block text-sm font-medium text-gray-700">*/}
+      {/*                  Number of Years*/}
+      {/*                </label>*/}
+      {/*                <input*/}
+      {/*                  type="number"*/}
+      {/*                  className="mt-1 block w-full rounded-sm border border-gray-300 p-2"*/}
+      {/*                  value={years}*/}
+      {/*                  onChange={(e) => setYears(e.target.value)}*/}
+      {/*                />*/}
+      {/*              </div>*/}
+      {/*              <button*/}
+      {/*                className="block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"*/}
+      {/*                onClick={handleViewSavedParClimateData}*/}
+      {/*              >*/}
+      {/*                Generate Climate Data*/}
+      {/*              </button>*/}
+      {/*            </div>*/}
+      {/*          )}*/}
+      {/*        </div>*/}
+      {/*      ))}*/}
+      {/*    </div>*/}
+      {/*  )}*/}
+      {/*</div>*/}
     </main>
   );
 };

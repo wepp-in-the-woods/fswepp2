@@ -32,6 +32,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+import { Label } from "@/components/ui/label"
+
 // Defines the location marker on the map based on the user's click.
 const LocationMarker = memo(
   ({ coordinates, setCoordinates, setLatInput, setLngInput }) => {
@@ -149,11 +151,9 @@ function ChooseLocation({
     delete L.Icon.Default.prototype._getIconUrl;
 
     L.Icon.Default.mergeOptions({
-      iconRetinaUrl:
-        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+      iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
       iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-      shadowUrl:
-        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+      shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
     });
   }, []);
 
@@ -179,10 +179,16 @@ function ChooseLocation({
   const [showOptionsDiv, setShowOptionsDiv] = useState(false);
 
   // cligenVersion: The version of the Cligen model. Used in the Options dropdown.
-  const [cligenVersion, setCligenVersion] = useState("5.3.2");
+  const [cligenVersion, setCligenVersion] = useState(() => localStorage.getItem("cligenVersion") || "5.3.2");
+  useEffect(() => {
+    localStorage.setItem("cligenVersion", cligenVersion);
+  }, [cligenVersion]);
 
   // databaseVersion: The version of the database. Used in the Options dropdown.
-  const [databaseVersion, setDatabaseVersion] = useState("legacy");
+  const [databaseVersion, setDatabaseVersion] = useState(() => localStorage.getItem("databaseVersion") || "legacy");
+  useEffect(() => {
+    localStorage.setItem("databaseVersion", databaseVersion);
+  }, [databaseVersion]);
 
   // Fetch stations based on the bounding box.
   const fetchStations = async (bbox) => {
@@ -218,30 +224,27 @@ function ChooseLocation({
       {/*<div className="fixed inset-0 z-11 bg-black opacity-50"></div>*/}
 
       {/* Location div */}
-      <div className="flex flex-col h-full max-h-[70vh]">
-        <div className="relative flex items-center justify-between mb-2">
+      <div className="flex flex-col h-[400px] md:max-h-[70vh] w-full">
+        <div className="relative mb-2">
 
           {/* Options button */}
-          <DropdownMenu>
-            <DropdownMenuTrigger className="text-md mb-1 flex h-[30px] flex-row items-end rounded-sm opacity-70">
-              Options
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>Cligen Version</DropdownMenuLabel>
-              <Select onChange={(event) => setCligenVersion(event.target.value)}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue value={cligenVersion} />
+          <div className="flex flex-col w-full items-center justify-center sm:justify-end sm:flex-row gap-3">
+              <Select value={cligenVersion} onValueChange={setCligenVersion}>
+                <SelectTrigger id="cligenVersion" className="w-full sm:w-fit">
+                  <SelectValue defaultValue={cligenVersion}>
+                    <span>Cligen Version: {cligenVersion}</span>
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="5.3.2">5.3.2 (WEPPcloud)</SelectItem>
                   <SelectItem value="4.3">4.3 (Legacy)</SelectItem>
                 </SelectContent>
               </Select>
-              <DropdownMenuSeparator />
-              <DropdownMenuLabel>Database Version</DropdownMenuLabel>
-              <Select onChange={(event) => setDatabaseVersion(event.target.value)}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue value={databaseVersion} />
+              <Select value={databaseVersion} onValueChange={setDatabaseVersion}>
+                <SelectTrigger id="databaseVersion" className="w-full sm:w-fit">
+                  <SelectValue defaultValue={databaseVersion}>
+                    <span>Database Version: {databaseVersion}</span>
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="legacy">Legacy</SelectItem>
@@ -250,8 +253,9 @@ function ChooseLocation({
                   <SelectItem value="ghcn">ghcn</SelectItem>
                 </SelectContent>
               </Select>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          </div>
+
+
           {/*<button*/}
           {/*  className="text-md mb-1 flex h-[30px] flex-row items-end rounded-sm opacity-70"*/}
           {/*  onClick={() => setShowOptionsDiv(!showOptionsDiv)}*/}
@@ -265,46 +269,46 @@ function ChooseLocation({
           {/*</button>*/}
 
           {/* Options dropdown */}
-          {showOptionsDiv && (
-            <div className="absolute top-full right-0 z-50 -mt-1 -mr-1 w-[190px] rounded-sm border bg-gray-100 p-2 pt-1 shadow-lg">
-              <div className="mb-2">
-                <label className="mb-1 block">Cligen version</label>
-                <select
-                  className="w-full rounded-sm border p-2"
-                  value={cligenVersion}
-                  onChange={(event) => setCligenVersion(event.target.value)}
-                >
-                  <option value="5.3.2">5.3.2 (WEPPcloud)</option>
-                  <option value="4.3">4.3 (Legacy)</option>
-                </select>
-              </div>
-              <div>
-                <label className="mb-1 block">Database version</label>
-                <select
-                  className="w-full rounded-sm border p-2"
-                  value={databaseVersion}
-                  onChange={(event) => setDatabaseVersion(event.target.value)}
-                >
-                  <option value="legacy">Legacy</option>
-                  <option value="2015">2015</option>
-                  <option value="au">au</option>
-                  <option value="ghcn">ghcn</option>
-                  <option value="None">None</option>
-                </select>
-              </div>
-            </div>
-          )}
+          {/*{showOptionsDiv && (*/}
+          {/*  <div className="absolute top-full right-0 z-50 -mt-1 -mr-1 w-[190px] rounded-sm border bg-gray-100 p-2 pt-1 shadow-lg">*/}
+          {/*    <div className="mb-2">*/}
+          {/*      <label className="mb-1 block">Cligen version</label>*/}
+          {/*      <select*/}
+          {/*        className="w-full rounded-sm border p-2"*/}
+          {/*        value={cligenVersion}*/}
+          {/*        onChange={(event) => setCligenVersion(event.target.value)}*/}
+          {/*      >*/}
+          {/*        <option value="5.3.2">5.3.2 (WEPPcloud)</option>*/}
+          {/*        <option value="4.3">4.3 (Legacy)</option>*/}
+          {/*      </select>*/}
+          {/*    </div>*/}
+          {/*    <div>*/}
+          {/*      <label className="mb-1 block">Database version</label>*/}
+          {/*      <select*/}
+          {/*        className="w-full rounded-sm border p-2"*/}
+          {/*        value={databaseVersion}*/}
+          {/*        onChange={(event) => setDatabaseVersion(event.target.value)}*/}
+          {/*      >*/}
+          {/*        <option value="legacy">Legacy</option>*/}
+          {/*        <option value="2015">2015</option>*/}
+          {/*        <option value="au">au</option>*/}
+          {/*        <option value="ghcn">ghcn</option>*/}
+          {/*        <option value="None">None</option>*/}
+          {/*      </select>*/}
+          {/*    </div>*/}
+          {/*  </div>*/}
+          {/*)}*/}
         </div>
 
         {/* Map */}
-        <div className="relative flex-1 h-full w-full max-h-[70vh] overflow-hidden">
+        <div className="relative flex-1 w-full h-full overflow-hidden">
           <MapContainer
             center={coordinates || [39.8283, -98.5795]}
             zoom={4}
             scrollWheelZoom={true}
             attributionControl={false}
             style={{ zIndex: 0 }}
-            className="h-full w-full"
+            className="map-container w-full h-full overflow-hidden"
           >
             {/* OpenStreetMap tile layer for map*/}
             <TileLayer
@@ -359,39 +363,45 @@ function ChooseLocation({
         </div>
         {/* Latitude and Longitude input fields and "Set Coords." button */}
         <div className="mt-4">
-          <div className="flex w-full flex-row justify-center">
+          <div className="flex w-full flex-col sm:flex-row justify-center gap-2">
             <input
+              id="latInput"
               type="text"
               placeholder="Latitude"
-              value={
-                isNaN(parseFloat(latInput))
-                  ? ""
-                  : parseFloat(latInput).toFixed(5)
-              }
-              onChange={(e) =>
-                setLatInput(parseFloat(e.target.value).toFixed(5))
-              }
-              className="mr-2 w-1/3 shrink rounded-sm border border-gray-300 px-2 py-1"
+              value={latInput}
+              onChange={e => setLatInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === "Enter") {
+                  handleCoordinateSubmit();
+                }
+              }}
+              onBlur={() => {
+                handleCoordinateSubmit();
+              }}
+              className="mr-2 w-full sm:w-1/3 shrink rounded-sm border border-gray-300 px-2 py-1"
             />
             <input
+              id="lngInput"
               type="text"
               placeholder="Longitude"
-              value={
-                isNaN(parseFloat(lngInput))
-                  ? ""
-                  : parseFloat(lngInput).toFixed(5)
-              }
-              onChange={(e) =>
-                setLngInput(parseFloat(e.target.value).toFixed(5))
-              }
-              className="mr-2 w-1/3 shrink rounded-sm border border-gray-300 px-2 py-1"
+              value={lngInput}
+              onChange={e => setLngInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === "Enter") {
+                  handleCoordinateSubmit();
+                }
+              }}
+              onBlur={() => {
+                handleCoordinateSubmit();
+              }}
+              className="mr-2 w-full sm:w-1/3 shrink rounded-sm border border-gray-300 px-2 py-1"
             />
             <button
               onClick={() => {
                 handleCoordinateSubmit();
                 setShowLocationDiv(false);
               }}
-              className="w-1/3 shrink rounded-sm bg-[#16a34a] px-2 py-2 text-sm text-white"
+              className="cursor-pointer w-full sm:w-1/3 shrink rounded-sm bg-[#16a34a] px-2 py-2 text-sm text-white"
             >
               Set Coordinates
             </button>
