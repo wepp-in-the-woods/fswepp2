@@ -17,7 +17,8 @@ import { hillslopeModels, watershedModels } from "@/data/models.js";
 // Lazy load route components
 const RockCliMe = lazy(() => import("./components/RockCliMe/RockCliMe.jsx"));
 const StationPar = lazy(() => import("./components/RockCliMe/StationPar.jsx"));
-const ClimateData = lazy(() => import("./components/RockCliMe/ClimateData.jsx"),
+const ClimateData = lazy(
+  () => import("./components/RockCliMe/ClimateData.jsx"),
 );
 
 const Home: React.FC = () => (

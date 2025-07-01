@@ -189,7 +189,7 @@ function StationPar() {
       </div>
       <div className="flex items-center">
         <button
-          onClick={() => navigate("/rockclime")}
+          onClick={() => navigate("/rock-clime")}
           className="items-start rounded-sm bg-white px-4 py-2 text-black underline"
         >
           Back

@@ -101,14 +101,13 @@
   .text-foreground {
     color: var(--foreground);
   }
+  .leaflet-marker-icon {
+    margin-left: -12px !important;
+    margin-top: -41px !important;
+  }
 
-  .map-container,
   .leaflet-container {
-    width: 100% !important;
-    height: 100% !important;
-    margin: 0;
-    padding: 0;
-    position: relative;
+    font-family: inherit;
   }
 }
 

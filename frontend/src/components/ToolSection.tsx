@@ -5,7 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import { HTMLAttributes } from "react";
 
 // Type definition for individual tool items
@@ -17,7 +17,7 @@ interface Tool {
 }
 
 // Props interface for ToolSection component
-interface ToolSectionProps extends HTMLAttributes<HTMLElement>{
+interface ToolSectionProps extends HTMLAttributes<HTMLElement> {
   title: string;
   tools: Tool[];
   className?: string;
