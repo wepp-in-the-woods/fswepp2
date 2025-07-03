@@ -4,16 +4,15 @@ import { api } from "../../api";
 import { useNavigate } from "react-router-dom";
 
 import {
-  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
-  DialogTrigger
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,18 +24,22 @@ import {
 
 // Icons
 import { Icon } from "@/components/ui/icon";
-import { Info } from "lucide-react";
-import { MapPin } from "lucide-react";
+import { Info, MapPin, ChevronUp, ChevronDown } from "lucide-react";
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label"
+import { Label } from "@/components/ui/label";
 import { Combobox } from "@/components/ui/combobox";
 
 const ChooseLocation = lazy(() => import("./ChooseLocation.jsx"));
 
 const RockCliMe = () => {
-
   // Add loading states
   const [isLoadingRegions, setIsLoadingRegions] = useState(false);
   const [isLoadingStations, setIsLoadingStations] = useState(false);
@@ -51,12 +54,23 @@ const RockCliMe = () => {
 
   // State variables. This is the main reason refactoring may be necessary.
   const [coordinates, setCoordinates] = useState(() =>
-    (sessionStorage.getItem("lat") !== null && sessionStorage.getItem("lng") !== null) ? [Number(sessionStorage.getItem("lat")), Number(sessionStorage.getItem("lng"))] : null
+    sessionStorage.getItem("lat") !== null &&
+    sessionStorage.getItem("lng") !== null
+      ? [
+          Number(sessionStorage.getItem("lat")),
+          Number(sessionStorage.getItem("lng")),
+        ]
+      : null,
   );
-  const [latInput, setLatInput] = useState(() => (sessionStorage.getItem("lat") || ""));
-  const [lngInput, setLngInput] = useState(() => (sessionStorage.getItem("lng") || ""));
+  const [latInput, setLatInput] = useState(
+    () => sessionStorage.getItem("lat") || "",
+  );
+  const [lngInput, setLngInput] = useState(
+    () => sessionStorage.getItem("lng") || "",
+  );
   const [regionOptions, setRegionOptions] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState("");
+  const [locationToggle, setLocationToggle] = useState(false);
   const [closestStations, setClosestStations] = useState([]);
   const [savedParameters, setSavedParameters] = useState([]);
   const [selectedStation, setSelectedStation] = useState(null);
@@ -69,15 +83,19 @@ const RockCliMe = () => {
   const [prevCoordinates, setPrevCoordinates] = useState([null, null]);
   const [parametersFetched, setParametersFetched] = useState(false);
   const [selectedPar, setSelectedPar] = useState(null);
-  
+
   // cligenVersion: The version of the Cligen model. Used in the Options dropdown. Stored in sessionStorage so that it persists across page reloads.
-  const [cligenVersion, setCligenVersion] = useState(() => sessionStorage.getItem("cligenVersion") || "5.3.2");
+  const [cligenVersion, setCligenVersion] = useState(
+    () => sessionStorage.getItem("cligenVersion") || "5.3.2",
+  );
   useEffect(() => {
     sessionStorage.setItem("cligenVersion", cligenVersion);
   }, [cligenVersion]);
 
   // databaseVersion: The version of the database. Used in the Options dropdown. Stored in sessionStorage so that it persists across page reloads.
-  const [databaseVersion, setDatabaseVersion] = useState(() => sessionStorage.getItem("databaseVersion") || "legacy");
+  const [databaseVersion, setDatabaseVersion] = useState(
+    () => sessionStorage.getItem("databaseVersion") || "legacy",
+  );
   useEffect(() => {
     sessionStorage.setItem("databaseVersion", databaseVersion);
   }, [databaseVersion]);
@@ -91,7 +109,7 @@ const RockCliMe = () => {
       (coordinates[0] !== prevCoordinates[0] ||
         coordinates[1] !== prevCoordinates[1])
     ) {
-      setSearchMethod('location');
+      setSearchMethod("location");
       handleGetClosestStations();
       setPrevCoordinates(coordinates);
     }
@@ -147,7 +165,7 @@ const RockCliMe = () => {
         setSelectedStation(null); // Clear selected station when data changes
       } catch (error) {
         console.error("Error fetching closest stations:", error);
-        setClosestStations([]); 
+        setClosestStations([]);
       } finally {
         setIsLoadingStations(false); // Clear loading state
       }
@@ -166,10 +184,13 @@ const RockCliMe = () => {
     const fetchRegionData = async () => {
       setIsLoadingRegions(true);
       try {
-        const response = await api.post("/api/rockclim/GET/available_state_codes", {
-          database: databaseVersion // Use actual database version
-        });
-        
+        const response = await api.post(
+          "/api/rockclim/GET/available_state_codes",
+          {
+            database: databaseVersion, // Use actual database version
+          },
+        );
+
         // Remove duplicates using Map (keeps first occurrence)
         const uniqueEntries = new Map();
         Object.entries(response.data).forEach(([code, name]) => {
@@ -177,12 +198,14 @@ const RockCliMe = () => {
             uniqueEntries.set(code, name);
           }
         });
-        
-        const options = Array.from(uniqueEntries.entries()).map(([code, name]) => ({
-          value: code,
-          label: name
-        }));
-        
+
+        const options = Array.from(uniqueEntries.entries()).map(
+          ([code, name]) => ({
+            value: code,
+            label: name,
+          }),
+        );
+
         setRegionOptions(options);
         setSelectedRegion("");
       } catch (error) {
@@ -224,7 +247,7 @@ const RockCliMe = () => {
   // Re-fetch stations when region changes
   useEffect(() => {
     if (activeTab === "closestStations" && selectedRegion) {
-      setSearchMethod('region');
+      setSearchMethod("region");
       handleGetStationsByRegion();
     }
   }, [selectedRegion]); // Only trigger on region changes
@@ -232,12 +255,14 @@ const RockCliMe = () => {
   // Sort stations differently based on search method
   const sortedStations = useMemo(() => {
     if (!closestStations.length) return [];
-    
-    if (searchMethod === 'location') {
+
+    if (searchMethod === "location") {
       // Sort by distance for location-based search
       return closestStations
-        .filter(station => station.distance_to_query_location !== null)
-        .sort((a, b) => a.distance_to_query_location - b.distance_to_query_location);
+        .filter((station) => station.distance_to_query_location !== null)
+        .sort(
+          (a, b) => a.distance_to_query_location - b.distance_to_query_location,
+        );
     } else {
       // Sort alphabetically for region-based search
       return closestStations.sort((a, b) => a.desc.localeCompare(b.desc));
@@ -263,18 +288,18 @@ const RockCliMe = () => {
 
   // Calculate the number of stations to show based on search method
   const stationsToShow = useMemo(() => {
-    if (searchMethod === 'region') {
+    if (searchMethod === "region") {
       return closestStations.length; // Show all stations for region browsing
-    } else if (searchMethod === 'location') {
+    } else if (searchMethod === "location") {
       // For location search, use numberOfStationsToShow but cap it at available stations
       return Math.min(numberOfStationsToShow, closestStations.length);
     }
     return 6; // Default fallback
   }, [searchMethod, closestStations.length, numberOfStationsToShow]);
-  
+
   // Clear opposing method when one is selected
   useEffect(() => {
-    if (searchMethod === 'region' && coordinates) {
+    if (searchMethod === "region" && coordinates) {
       setCoordinates(null);
       setLatInput("");
       setLngInput("");
@@ -283,7 +308,7 @@ const RockCliMe = () => {
 
   // Clear selected region when switching to location search
   useEffect(() => {
-    if (searchMethod === 'location' && selectedRegion) {
+    if (searchMethod === "location" && selectedRegion) {
       setSelectedRegion("");
     }
   }, [searchMethod]);
@@ -411,7 +436,10 @@ const RockCliMe = () => {
   return (
     // Main div
     <main className="mx-auto flex w-full flex-col gap-0 md:max-w-2xl lg:max-w-3xl xl:max-w-6xl">
-      <div className="flex flex-col lg:flex-row justify-between">
+      <div
+        className="mb-6 flex flex-col justify-between lg:flex-row"
+        dataslot="header"
+      >
         <div className="flex w-full flex-col items-start gap-3 p-6">
           <div className="flex flex-row items-center gap-3">
             <h1 className="text-foreground">Rock: Clime</h1>
@@ -502,226 +530,223 @@ const RockCliMe = () => {
           </Select>
         </div>
       </div>
-      <div className="flex flex-col lg:flex-row">
-        {/* Method 1: Browse by Region */}
-        <div className="flex flex-col w-full gap-3 p-6">
-          <h2 className="text-lg font-semibold">Browse by Region</h2>
-          <p className="text-sm text-gray-600">
-              Select a region to view all available climate stations in a region.
-          </p>
-          <Combobox
-            options={regionOptions}
-            value={selectedRegion}
-            onValueChange={(value) => {
-              setSelectedRegion(value);
-            }}
-            placeholder={isLoadingRegions ? "Loading regions..." : "Select a region..."}
-            className="w-full sm:w-[400px]"
+      <div className="flex flex-col xl:flex-row">
+        <Button
+          variant="ghost"
+          className="sm:hidden"
+          onClick={() => setLocationToggle(!locationToggle)}
+        >
+          {locationToggle ? "Hide Location Options" : "Show Location Options"}
+          <Icon
+            icon={locationToggle ? ChevronUp : ChevronDown}
+            className="ml-2 h-4 w-4"
           />
-        </div>
-        {/* Current Location Div */}
-        <div className="flex w-full flex-col gap-4 p-6">
-          <h3 className="text-lg font-semibold">Find by Location</h3>
-          <p className="text-sm text-gray-600">
-            Set coordinates to find the closest climate stations
-          </p>
-          <div className="text-sm md:text-base">
-            <strong>Current Location: </strong>
-            {latInput && lngInput
-              ? `${parseFloat(latInput).toFixed(3)}, ${parseFloat(
-                lngInput
-              ).toFixed(3)}`
-              : "None"}
-          </div>
-          <Dialog open={showLocationDiv} onOpenChange={setShowLocationDiv}>
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                onClick={() => setShowLocationDiv(true)}
-                className="w-full sm:w-fit hover:cursor-pointer"
-              >
-                <Icon icon={MapPin} className="h-5 w-5" />
-                Choose Location
-              </Button>
-            </DialogTrigger>
-            {/* Conditionally render ChooseLocation */}
-            {showLocationDiv && (
-              <DialogContent className="w-full sm:max-w-xl lg:max-w-2xl">
-                <DialogHeader className="w-full">
-                  <DialogTitle>Choose a location</DialogTitle>
-                </DialogHeader>
-                <ChooseLocation
-                  coordinates={coordinates}
-                  setCoordinates={setCoordinates}
-                  setLatInput={setLatInput}
-                  setLngInput={setLngInput}
-                  setShowLocationDiv={setShowLocationDiv}
-                  latInput={latInput}
-                  lngInput={lngInput}
-                  cligenVersion={cligenVersion}
-                  databaseVersion={databaseVersion}
-                  setSearchMethod={setSearchMethod}
-                />
-              </DialogContent>
-            )}
-          </Dialog>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="numberOfStationsToShow">Number of Stations to Show:</Label>
-            <Input
-              id="numberOfStationsToShow"
-              type="number"
-              value={numberOfStationsToShow}
-              onChange={(e) => setNumberOfStationsToShow(e.target.value)}
-              className="w-16"
+        </Button>
+        <div
+          className={`${locationToggle ? "flex" : "hidden"} flex-col sm:flex sm:flex-row xl:flex-col`}
+        >
+          {/* Method 1: Browse by Region */}
+          <div className="flex w-full shrink flex-col gap-3 p-6">
+            <h2 className="text-lg font-semibold">Browse by region</h2>
+            <p className="text-sm text-gray-600">
+              Select a region to view all available climate stations in a
+              region.
+            </p>
+            <Combobox
+              options={regionOptions}
+              value={selectedRegion}
+              onValueChange={(value) => {
+                setSelectedRegion(value);
+              }}
+              placeholder={
+                isLoadingRegions ? "Loading regions..." : "Select a region..."
+              }
+              className="w-full sm:min-w-[200px]"
             />
           </div>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="grow overflow-auto p-4">
-        <Tabs defaultValue="closestStationsTab">
-          <TabsList>
-            <TabsTrigger value="closestStationsTab">
-              Closest Stations
-            </TabsTrigger>
-            <TabsTrigger value="savedParametersTab">
-              Saved Parameters
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="closestStationsTab">
-            <div className="grid grid-cols-1 gap-4">
-              {/* Dynamic header based on search method */}
-              {searchMethod === 'region' && selectedRegion && (
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-semibold">
-                    Climate Stations in {regionOptions.find(r => r.value === selectedRegion)?.label}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    Showing all available stations in this region
-                  </p>
-                </div>
-              )}
-              
-              {searchMethod === 'location' && coordinates && (
-                <div className="p-4 bg-blue-50 rounded-lg">
-                  <h3 className="font-semibold">
-                    Closest Climate Stations
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    Showing {numberOfStationsToShow} stations nearest to {coordinates[0].toFixed(3)}, {coordinates[1].toFixed(3)}
-                  </p>
-                </div>
-              )}
-
-              {/* Loading state */}
-              {isLoadingStations && (
-                <div className="flex items-center justify-center p-8">
-                  <div className="flex items-center gap-2">
-                    <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
-                    <span>Loading stations...</span>
-                  </div>
-                </div>
-              )}
-
-              {/* List of stations */}
-              {!isLoadingStations && closestStations.length !== 0 ? (
-                <Accordion
-                  type="single"
-                  collapsible
-                  className="w-full"
-                  value={
-                    selectedStation !== null
-                      ? `item-${selectedStation.id}`
-                      : null
-                  }
-                  onValueChange={(value) => {
-                    const id = value ? value.split("-")[1] : null;
-                    const station = closestStations.find(
-                      (s) => String(s.id) === id,
-                    );
-                    setSelectedStation(station || null);
-                  }}
+          <div className="flex flex-row items-center gap-2 text-gray-500 sm:flex-col lg:h-[240px] xl:h-fit xl:flex-row">
+            <div className="h-px w-full grow bg-gray-300 sm:h-full sm:w-px xl:h-px xl:w-full" />
+            OR
+            <div className="h-px w-full grow bg-gray-300 sm:h-full sm:w-px xl:h-px xl:w-full" />
+          </div>
+          {/* Current Location Div */}
+          <div className="flex w-full grow flex-col gap-4 p-6">
+            <h3 className="text-lg font-semibold">Find by location</h3>
+            <p className="text-sm text-gray-600">
+              Set coordinates to find the closest climate stations
+            </p>
+            <div className="text-sm md:text-base">
+              <strong>Current Location: </strong>
+              {latInput && lngInput
+                ? `${parseFloat(latInput).toFixed(3)}, ${parseFloat(
+                    lngInput,
+                  ).toFixed(3)}`
+                : "None"}
+            </div>
+            <Dialog open={showLocationDiv} onOpenChange={setShowLocationDiv}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowLocationDiv(true)}
+                  className="w-full hover:cursor-pointer sm:w-fit"
                 >
-                  {sortedStations.slice(0, stationsToShow).map((station) => (
-                    <AccordionItem
-                      key={station.id}
-                      value={`item-${station.id}`}
-                      className="mb-2 p-2"
-                    >
-                      <AccordionTrigger
-                        className="cursor-pointer items-center p-0"
+                  <Icon icon={MapPin} className="h-5 w-5" />
+                  Choose Location
+                </Button>
+              </DialogTrigger>
+              {/* Conditionally render ChooseLocation */}
+              {showLocationDiv && (
+                <DialogContent className="flex h-screen max-h-screen w-screen max-w-screen flex-col sm:max-h-5/6 sm:max-w-5/6 xl:max-h-2/3 xl:max-w-2/3">
+                  <DialogHeader className="h-fit w-full">
+                    <DialogTitle>Choose a location</DialogTitle>
+                  </DialogHeader>
+                  <ChooseLocation
+                    coordinates={coordinates}
+                    setCoordinates={setCoordinates}
+                    setLatInput={setLatInput}
+                    setLngInput={setLngInput}
+                    setShowLocationDiv={setShowLocationDiv}
+                    latInput={latInput}
+                    lngInput={lngInput}
+                    cligenVersion={cligenVersion}
+                    databaseVersion={databaseVersion}
+                    setSearchMethod={setSearchMethod}
+                  />
+                </DialogContent>
+              )}
+            </Dialog>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="numberOfStationsToShow">
+                Number of Stations to Show:
+              </Label>
+              <Input
+                id="numberOfStationsToShow"
+                type="number"
+                value={numberOfStationsToShow}
+                onChange={(e) => setNumberOfStationsToShow(e.target.value)}
+                className="w-16"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="w-full grow overflow-auto p-6">
+          <Tabs defaultValue="closestStationsTab">
+            <TabsList className="w-full sm:w-fit">
+              <TabsTrigger value="closestStationsTab">
+                Closest Stations
+              </TabsTrigger>
+              <TabsTrigger value="savedParametersTab">
+                Saved Parameters
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="closestStationsTab">
+              <div className="grid grid-cols-1 gap-4">
+                {/* Dynamic header based on search method */}
+                {searchMethod === "region" && selectedRegion && (
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <h3 className="font-semibold">
+                      Climate Stations in{" "}
+                      {
+                        regionOptions.find((r) => r.value === selectedRegion)
+                          ?.label
+                      }
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Showing all available stations in this region
+                    </p>
+                  </div>
+                )}
+
+                {searchMethod === "location" && coordinates && (
+                  <div className="rounded-lg bg-blue-50 p-4">
+                    <h3 className="font-semibold">Closest Climate Stations</h3>
+                    <p className="text-sm text-gray-600">
+                      Showing {numberOfStationsToShow} stations nearest to{" "}
+                      {coordinates[0].toFixed(3)}, {coordinates[1].toFixed(3)}
+                    </p>
+                  </div>
+                )}
+
+                {/* Loading state */}
+                {isLoadingStations && (
+                  <div className="flex items-center justify-center p-8">
+                    <div className="flex items-center gap-2">
+                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+                      <span>Loading stations...</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* List of stations */}
+                {!isLoadingStations && closestStations.length !== 0 ? (
+                  <Accordion
+                    type="single"
+                    collapsible
+                    className="w-full"
+                    value={
+                      selectedStation !== null
+                        ? `item-${selectedStation.id}`
+                        : null
+                    }
+                    onValueChange={(value) => {
+                      const id = value ? value.split("-")[1] : null;
+                      const station = closestStations.find(
+                        (s) => String(s.id) === id,
+                      );
+                      setSelectedStation(station || null);
+                    }}
+                  >
+                    {sortedStations.slice(0, stationsToShow).map((station) => (
+                      <AccordionItem
+                        key={station.id}
+                        value={`item-${station.id}`}
+                        className="mb-2 p-2"
                       >
-                        <div className="flex w-full flex-col gap-2 p-2 md:flex-row md:justify-between">
-                          <div className="flex flex-row gap-4 items-baseline">
-                            <span className="text-sm text-gray-500">
-                              {sortedStations.indexOf(station) + 1}
-                            </span>
-                            <strong className="text-lg">
-                              {station.desc.slice(0, -2)}
-                            </strong>
-                          </div>
-                          <div className="flex flex-col gap-2 md:items-end">
-                            <p>
-                              Latitude: {station.latitude}, Longitude:{" "}
-                              {station.longitude}
-                            </p>
-                            {/* Conditional distance display */}
-                            {searchMethod === 'location' && station.distance_to_query_location !== null && (
-                              <p className="text-sm">
-                                Distance: {station.distance_to_query_location.toFixed(2)} km
+                        <AccordionTrigger className="cursor-pointer items-center p-0">
+                          <div className="flex w-full flex-col gap-2 p-2 md:flex-row md:justify-between">
+                            <div className="flex flex-row items-baseline gap-4">
+                              <span className="text-sm text-gray-500">
+                                {sortedStations.indexOf(station) + 1}
+                              </span>
+                              <strong className="text-lg">
+                                {station.desc.slice(0, -2)}
+                              </strong>
+                            </div>
+                            <div className="flex flex-col gap-2 md:items-end">
+                              <p>
+                                Latitude: {station.latitude}, Longitude:{" "}
+                                {station.longitude}
                               </p>
-                            )}
-                          </div>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="">
-                        {selectedStation &&
-                          selectedStation.id === station.id && (
-                            <div className="mt-4 flex flex-col justify-between gap-4 p-2 sm:flex-row">
-                              <div className="mb-2 flex w-full flex-col">
-                                {/* "au" e.g. the Australia database does not have PRISM, so we grey out the option. */}
-                                {databaseVersion !== "au" && (
-                                  <label className="mb-2 inline-flex items-center">
-                                    <input
-                                      type="checkbox"
-                                      className="form-checkbox"
-                                      checked={usePrismPar}
-                                      onChange={(e) =>
-                                        setUsePrismPar(e.target.checked)
-                                      }
-                                    />
-                                    <span className="ml-2">
-                                      Use Prism monthlies
-                                    </span>
-                                  </label>
+                              {/* Conditional distance display */}
+                              {searchMethod === "location" &&
+                                station.distance_to_query_location !== null && (
+                                  <p className="text-sm">
+                                    Distance:{" "}
+                                    {station.distance_to_query_location.toFixed(
+                                      2,
+                                    )}{" "}
+                                    km
+                                  </p>
                                 )}
-                                <Button
-                                  className=""
-                                  onClick={handleViewStationPar}
-                                >
-                                  View Station Parameters
-                                </Button>
-                              </div>
-                              <div className="mb-2 flex w-full flex-col">
-                                <form className="mb-2">
-                                  <label className="mt-2 block text-sm font-medium text-gray-700">
-                                    Number of Years
-                                  </label>
-                                  <input
-                                    type="number"
-                                    className="mt-1 block w-full rounded-sm border border-gray-300 p-2"
-                                    value={years}
-                                    onChange={(e) => setYears(e.target.value)}
-                                  />
+                            </div>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="">
+                          {selectedStation &&
+                            selectedStation.id === station.id && (
+                              <div className="mt-4 flex flex-col justify-between gap-4 p-2 sm:flex-row">
+                                <div className="mb-2 flex w-full flex-col">
+                                  {/* "au" e.g. the Australia database does not have PRISM, so we grey out the option. */}
                                   {databaseVersion !== "au" && (
-                                    <label className="mt-2 inline-flex items-center">
+                                    <label className="mb-2 inline-flex items-center">
                                       <input
                                         type="checkbox"
                                         className="form-checkbox"
-                                        checked={usePrismClim}
+                                        checked={usePrismPar}
                                         onChange={(e) =>
-                                          setUsePrismClim(e.target.checked)
+                                          setUsePrismPar(e.target.checked)
                                         }
                                       />
                                       <span className="ml-2">
@@ -729,82 +754,127 @@ const RockCliMe = () => {
                                       </span>
                                     </label>
                                   )}
-                                </form>
-                                <Button
-                                  className=""
-                                  onClick={handleViewStationClimateData}
-                                >
-                                  Generate Climate Data
-                                </Button>
+                                  <Button
+                                    className=""
+                                    onClick={handleViewStationPar}
+                                  >
+                                    View Station Parameters
+                                  </Button>
+                                </div>
+                                <div className="mb-2 flex w-full flex-col">
+                                  <form className="mb-2">
+                                    <label className="mt-2 block text-sm font-medium text-gray-700">
+                                      Number of Years
+                                    </label>
+                                    <input
+                                      type="number"
+                                      className="mt-1 block w-full rounded-sm border border-gray-300 p-2"
+                                      value={years}
+                                      onChange={(e) => setYears(e.target.value)}
+                                    />
+                                    {databaseVersion !== "au" && (
+                                      <label className="mt-2 inline-flex items-center">
+                                        <input
+                                          type="checkbox"
+                                          className="form-checkbox"
+                                          checked={usePrismClim}
+                                          onChange={(e) =>
+                                            setUsePrismClim(e.target.checked)
+                                          }
+                                        />
+                                        <span className="ml-2">
+                                          Use Prism monthlies
+                                        </span>
+                                      </label>
+                                    )}
+                                  </form>
+                                  <Button
+                                    className=""
+                                    onClick={handleViewStationClimateData}
+                                  >
+                                    Generate Climate Data
+                                  </Button>
+                                </div>
                               </div>
-                            </div>
-                          )}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              ) : (
-              <div className="flex w-full flex-col items-center justify-center p-12">
-                <p className="text-center text-neutral-700">
-                  {searchMethod === 'region' 
-                    ? "Select a region to view available stations"
-                    : "Choose a location to find the closest stations"
-                  }
-                </p>
+                            )}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                ) : (
+                  <div className="flex w-full flex-col items-center justify-center p-12">
+                    <p className="text-center text-neutral-700">
+                      {searchMethod === "region"
+                        ? "Select a region to view available stations"
+                        : "Choose a location to find the closest stations"}
+                    </p>
+                  </div>
+                )}
               </div>
-              )}
-            </div>
-          </TabsContent>
+            </TabsContent>
 
-          {/*TODO: Fix API call to get saved parameters.*/}
-          <TabsContent value="savedParametersTab">
-            <div className="grid grid-cols-1 gap-4">
-              {Object.keys(savedParameters).map((par, index) => (
-                <div key={index}>
-                  <button
-                    className={`w-full rounded-sm border p-2 text-left ${
-                      selectedPar === par ? "bg-[#015838] text-white" : ""
-                    }`}
-                    onClick={() => handleSavedParClick(par)}
-                  >
-                    <strong>
-                      {savedParameters[par].user_defined_par_mod.description}
-                    </strong>
-                  </button>
-                  {selectedPar === par && (
-                    <div className="mt-2 rounded-sm border bg-gray-100 p-2">
-                      <div className="mb-2">
-                        <button
-                          className="mb-2 block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
-                          onClick={handleViewSavedPar}
-                        >
-                          View Saved Parameters
-                        </button>
-                      </div>
-                      <div className="mb-2 border-t-2 border-gray-300">
-                        <label className="mt-2 block text-sm font-medium text-gray-700">
-                          Number of Years
-                        </label>
-                        <input
-                          type="number"
-                          className="mt-1 block w-full rounded-sm border border-gray-300 p-2"
-                          value={years}
-                          onChange={(e) => setYears(e.target.value)}
-                        />
-                      </div>
+            {/*TODO: Fix API call to get saved parameters.*/}
+            <TabsContent value="savedParametersTab">
+              {savedParameters.length !== 0 ? (
+                <div className="grid grid-cols-1 gap-4">
+                  {Object.keys(savedParameters).map((par, index) => (
+                    <div key={index}>
                       <button
-                        className="block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
-                        onClick={handleViewSavedParClimateData}
+                        className={`w-full rounded-sm border p-2 text-left ${
+                          selectedPar === par ? "bg-[#015838] text-white" : ""
+                        }`}
+                        onClick={() => handleSavedParClick(par)}
                       >
-                        Generate Climate Data
+                        <strong>
+                          {
+                            savedParameters[par].user_defined_par_mod
+                              .description
+                          }
+                        </strong>
                       </button>
+                      {selectedPar === par && (
+                        <div className="mt-2 rounded-sm border bg-gray-100 p-2">
+                          <div className="mb-2">
+                            <button
+                              className="mb-2 block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
+                              onClick={handleViewSavedPar}
+                            >
+                              View Saved Parameters
+                            </button>
+                          </div>
+                          <div className="mb-2 border-t-2 border-gray-300">
+                            <label className="mt-2 block text-sm font-medium text-gray-700">
+                              Number of Years
+                            </label>
+                            <input
+                              type="number"
+                              className="mt-1 block w-full rounded-sm border border-gray-300 p-2"
+                              value={years}
+                              onChange={(e) => setYears(e.target.value)}
+                            />
+                          </div>
+                          <button
+                            className="block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
+                            onClick={handleViewSavedParClimateData}
+                          >
+                            Generate Climate Data
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  ))}
                 </div>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
+              ) : (
+                <div className="flex w-full flex-col items-center justify-center p-12">
+                  <p className="text-center text-neutral-700">
+                    No saved parameters found. Please create and save parameters
+                    to view them here.
+                  </p>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </main>
   );

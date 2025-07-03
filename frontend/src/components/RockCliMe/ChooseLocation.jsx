@@ -23,16 +23,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
-import { Label } from "@/components/ui/label"
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 // Defines the location marker on the map based on the user's click.
 const LocationMarker = memo(
@@ -156,7 +158,7 @@ function ChooseLocation({
   lngInput,
   cligenVersion,
   databaseVersion,
-  setSearchMethod
+  setSearchMethod,
 }) {
   // Fixes Leaflet icon issues with Vite
   useEffect(() => {
@@ -164,13 +166,15 @@ function ChooseLocation({
     delete L.Icon.Default.prototype._getIconUrl;
 
     L.Icon.Default.mergeOptions({
-      iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+      iconRetinaUrl:
+        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
       iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-      shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+      shadowUrl:
+        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
       iconSize: [25, 41],
       iconAnchor: [12, 41], // Point of the icon which will correspond to marker's location
       popupAnchor: [1, -34], // Point from which the popup should open relative to the iconAnchor
-      shadowSize: [41, 41]
+      shadowSize: [41, 41],
     });
   }, []);
 
@@ -231,7 +235,7 @@ function ChooseLocation({
       setCoordinates([lat, lng]);
       sessionStorage.setItem("lat", lat);
       sessionStorage.setItem("lng", lng);
-      setSearchMethod('location');
+      setSearchMethod("location");
       // setCligenVersion(cligenVersion);
       // setDatabaseVersion(databaseVersion);
     } else {
@@ -243,25 +247,22 @@ function ChooseLocation({
   return (
     <>
       {/* Location div */}
-      <div className="flex flex-col h-[400px] md:max-h-[70vh] w-full">
-        <div className="relative mb-2">
-
-          {/* Options button */}
-          <div className="flex flex-col w-full items-center sm:flex-row gap-6 text-sm text-gray-700 mb-2">
-            <span>Cligen Version: {cligenVersion}</span>
-            <span>Database Version: {databaseVersion}</span>
-          </div>
+      <div className="flex w-full grow flex-col">
+        {/* Options button */}
+        <div className="mb-2 flex w-full flex-col items-center gap-6 text-sm text-gray-700 sm:flex-row">
+          <span>Cligen Version: {cligenVersion}</span>
+          <span>Database Version: {databaseVersion}</span>
         </div>
 
         {/* Map */}
-        <div className="w-full h-full overflow-hidden">
+        <div className="h-full w-full overflow-hidden">
           <MapContainer
             center={coordinates || [39.8283, -98.5795]}
             zoom={4}
             scrollWheelZoom={true}
             attributionControl={false}
             style={{ zIndex: 0 }}
-            className="map-container w-full h-full overflow-hidden"
+            className="map-container h-full w-full overflow-hidden"
           >
             {/* OpenStreetMap tile layer for map*/}
             <TileLayer
@@ -295,20 +296,20 @@ function ChooseLocation({
                     the marker is the same as the user placeable one, and it is possible
                     to update the Marker texture. */}
             {stations.map((station) => (
-                <StationMarker key={station.properties.id} station={station} />
+              <StationMarker key={station.properties.id} station={station} />
             ))}
           </MapContainer>
         </div>
         {/* Latitude and Longitude input fields and "Set Coords." button */}
         <div className="mt-4">
-          <div className="flex w-full flex-col sm:flex-row justify-center gap-2">
-            <input
+          <div className="flex w-full flex-col justify-center gap-2 sm:flex-row">
+            <Input
               id="latInput"
               type="text"
               placeholder="Latitude"
               value={latInput}
-              onChange={e => setLatInput(e.target.value)}
-              onKeyDown={e => {
+              onChange={(e) => setLatInput(e.target.value)}
+              onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   handleCoordinateSubmit();
                 }
@@ -316,15 +317,15 @@ function ChooseLocation({
               // onBlur={() => {
               //   handleCoordinateSubmit();
               // }}
-              className="mr-2 w-full sm:w-1/3 shrink rounded-sm border border-gray-300 px-2 py-1"
+              className="mr-2 w-full grow rounded-sm border border-gray-300 px-2 py-1"
             />
-            <input
+            <Input
               id="lngInput"
               type="text"
               placeholder="Longitude"
               value={lngInput}
-              onChange={e => setLngInput(e.target.value)}
-              onKeyDown={e => {
+              onChange={(e) => setLngInput(e.target.value)}
+              onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   handleCoordinateSubmit();
                 }
@@ -332,17 +333,28 @@ function ChooseLocation({
               // onBlur={() => {
               //   handleCoordinateSubmit();
               // }}
-              className="mr-2 w-full sm:w-1/3 shrink rounded-sm border border-gray-300 px-2 py-1"
+              className="mr-2 w-full grow rounded-sm border border-gray-300 px-2 py-1"
             />
-            <button
-              onClick={() => {
-                handleCoordinateSubmit();
-                setShowLocationDiv(false);
-              }}
-              className="cursor-pointer w-full sm:w-1/3 shrink rounded-sm bg-[#16a34a] px-2 py-2 text-sm text-white"
-            >
-              Set Coordinates
-            </button>
+            <div className="flex w-full shrink flex-col justify-center gap-2 sm:flex-row">
+              <Button
+                onClick={() => {
+                  handleCoordinateSubmit();
+                  setShowLocationDiv(false);
+                }}
+                className="w-full shrink cursor-pointer"
+              >
+                Set Coordinates
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowLocationDiv(false);
+                }}
+                className="w-full shrink cursor-pointer"
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
         </div>
       </div>
