@@ -112,23 +112,7 @@ function ClimateData() {
   }, [par_id, loc, usePrismClim, user_defined_par_mod]);
 
   return (
-    <div className="flex h-screen flex-col">
-      {/* Mobile Navbar */}
-      <div
-        className="top-0 right-0 left-0 flex h-16 items-center justify-between p-4 shadow-md lg:hidden"
-        style={{ zIndex: 10 }}
-      >
-        <div>
-          <h1 className="text-xl font-semibold">RockClime</h1>
-          <p className="text-sm text-gray-700">RMRS Climate Generator</p>
-        </div>
-        <button
-          onClick={() => navigate("/")}
-          className="rounded-sm bg-[#16a34a] px-4 py-2 text-white"
-        >
-          Home
-        </button>
-      </div>
+    <main className="page-container">
       <div className="flex items-center">
         <button
           onClick={() => navigate("/rock-clime")}
@@ -223,7 +207,7 @@ function ClimateData() {
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 

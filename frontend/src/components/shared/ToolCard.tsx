@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Icon } from "@/components/ui/icon";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.tsx";
+import { Icon } from "@/components/ui/icon.tsx";
 import { ExternalLink } from "lucide-react";
 // import { HTMLAttributes } from "react";
 

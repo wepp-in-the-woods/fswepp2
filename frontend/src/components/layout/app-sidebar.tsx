@@ -15,7 +15,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+} from "@/components/ui/collapsible.tsx"
 import {
   Sidebar,
   SidebarContent,
@@ -30,7 +30,7 @@ import {
   SidebarMenuSubItem,
   SidebarMenuSubButton,
   useSidebar
-} from "@/components/ui/sidebar";
+} from "@/components/ui/sidebar.tsx";
 import { Icon } from "@/components/ui/icon.tsx";
 import { Link } from "react-router-dom";
 
@@ -238,7 +238,7 @@ function NavLink({
       {...props as any}
       className={`${className}`}
     >
-      {icon && <Icon icon={icon} className="h-4 w-4" />}
+      {icon && <Icon icon={icon} className="size-5!"/>}
       <span>{label}</span>
       {isExternal && <Icon icon={ExternalLink} className="ml-1 h-3.5 w-3.5" />}
     </Component>
@@ -246,7 +246,7 @@ function NavLink({
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { state } = useSidebar();
+  const { state, isMobile } = useSidebar();
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -255,12 +255,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <a href="/" className="flex items-center lg:h-full transition-all duration-300 ease-in-out">
                 <img
-                  src={state === "collapsed" ? "/logo512.png" : "/FSWEPPLOGO.png"}
+                  src={state === "collapsed" && !isMobile ? "/fswepp-icon.png" : "/fswepp-logo.png"}
                   alt="FSWEPP Logo"
                   className={`object-contain transition-all duration-300 ease-in-out ${
                     state === "collapsed"
-                      ? "h-8 w-8"
-                      : "h-8 max-w-full"
+                      ? "h-10 w-fit"
+                      : "h-10 w-fit"
                   }`}
                 />
               </a>
@@ -276,14 +276,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <Collapsible
                 key={item.title}
                 title={item.title}
-                defaultOpen
                 className="group/collapsible"
               >
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip={item.title} className="transition-all duration-200 ease-in-out">
+                    <SidebarMenuButton tooltip={item.title} className="transition-all duration-200 ease-in-out [&>svg]:size-5 [&>svg]:shrink-0">
                       {item.icon && <item.icon className="transition-transform duration-200 ease-in-out"/>}
-                      <span className="transition-opacity duration-200 ease-in-out">{item.title}</span>
+                      <span className="text-lg transition-opacity duration-200 ease-in-out">{item.title}</span>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 ease-in-out" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
@@ -294,7 +293,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           <SidebarMenuSubItem key={subItem.title}>
                             <SidebarMenuSubButton size="lg" asChild>
                               {/*<a href={item.url}>{item.title}</a>*/}
-                              <NavLink {...subItem} />
+                              <NavLink className="text-md" {...subItem} />
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
                         ))}
@@ -319,6 +318,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             ))}
           </SidebarMenu>
         </SidebarGroup>
+        {/* Info about unit of measurement used/ version*/}
+        {/* Settings button */}
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

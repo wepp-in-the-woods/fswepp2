@@ -1,10 +1,10 @@
-import ToolCard from "./ToolCard";
+import ToolCard from "./ToolCard.tsx";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@/components/ui/accordion.tsx";
 import { cn } from "@/lib/utils";
 import { HTMLAttributes } from "react";
 

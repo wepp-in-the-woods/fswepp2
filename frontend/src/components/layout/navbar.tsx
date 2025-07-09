@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Icon } from "@/components/ui/icon";
+import { Icon } from "@/components/ui/icon.tsx";
 import { ChevronDown, ChevronUp, ExternalLink, Menu, X } from "lucide-react";
 
 import { hillslopeModels, watershedModels } from "@/data/models.js";
@@ -156,7 +156,7 @@ function Navbar ({ isVisible, toggleVisibility }: NavbarProps) {
               onClick={handleLogoClick}
             >
               <img
-                src="/FSWEPPLOGO.png"
+                src="/fswepp-logo.png"
                 alt="FSWEPP Logo"
                 className="mb-2 h-full max-h-8 items-center object-contain"
               />
