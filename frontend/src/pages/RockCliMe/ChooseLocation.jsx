@@ -10,31 +10,35 @@ import {
   Marker,
   useMap,
   useMapEvents,
-  Popup,
+  Popup, LayerGroup, LayersControl
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css";
 import "leaflet-defaulticon-compatibility";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
+const MARKER_ICONS = {
+  default: {
+    iconUrl: "/default-map-marker.png",
+    iconRetinaUrl: "/default-map-marker.png",
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
+    popupAnchor: [1, -34],
+  },
+  station: {
+    iconUrl: "/station-map-marker.png",
+    iconRetinaUrl: "/station-map-marker.png",
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
+    popupAnchor: [0, -35],
+  },
+};
+
+// Helper function to create Leaflet icons
+const createIcon = (iconConfig) => L.icon(iconConfig);
 
 // Defines the location marker on the map based on the user's click.
 const LocationMarker = memo(
@@ -58,27 +62,37 @@ const LocationMarker = memo(
     }, [coordinates]);
 
     // Return the marker on the map.
-    return position === null ? null : <Marker position={position}></Marker>;
+    return position === null ? null : <Marker position={position} icon={createIcon(MARKER_ICONS.default)} ></Marker>;
   },
 );
 
 // Defines the station markers on the map visible when zoomed in.
-const StationMarker = memo(({ station }) => (
-  <Marker
-    position={[
-      station.geometry.coordinates[1],
-      station.geometry.coordinates[0],
-    ]}
-  >
-    <Popup>
-      <div>
-        <strong>{station.properties.desc}</strong>
-        <br />
-        ID: {station.properties.id}
-      </div>
-    </Popup>
-  </Marker>
-));
+const StationMarkers = memo(
+  ({ stations }) => {
+    const stationsList = stations.map((station) => (
+      <Marker
+        key={station.properties.id}
+        position={[
+          station.geometry.coordinates[1],
+          station.geometry.coordinates[0],
+        ]}
+        icon={createIcon(MARKER_ICONS.station)}
+      >
+        <Popup>
+          <div>
+            <strong>{station.properties.desc}</strong>
+            <br />
+            ID: {station.properties.id}
+          </div>
+        </Popup>
+      </Marker>
+    ));
+
+    return (
+      <LayerGroup>{stationsList}</LayerGroup>
+    );
+  }
+);
 
 // Updates the map based on the coordinates.
 const MapUpdater = ({ coordinates }) => {
@@ -161,22 +175,22 @@ function ChooseLocation({
   setSearchMethod,
 }) {
   // Fixes Leaflet icon issues with Vite
-  useEffect(() => {
-    // Fix for the missing icon issue in production builds with Vite
-    delete L.Icon.Default.prototype._getIconUrl;
-
-    L.Icon.Default.mergeOptions({
-      iconRetinaUrl:
-        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-      iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-      shadowUrl:
-        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-      iconSize: [25, 41],
-      iconAnchor: [12, 41], // Point of the icon which will correspond to marker's location
-      popupAnchor: [1, -34], // Point from which the popup should open relative to the iconAnchor
-      shadowSize: [41, 41],
-    });
-  }, []);
+  // useEffect(() => {
+  //   // Fix for the missing icon issue in production builds with Vite
+  //   delete L.Icon.Default.prototype._getIconUrl;
+  //
+  //   L.Icon.Default.mergeOptions({
+  //     iconRetinaUrl:
+  //       "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  //     iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  //     shadowUrl:
+  //       "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  //     iconSize: [25, 41],
+  //     iconAnchor: [12, 41], // Point of the icon which will correspond to marker's location
+  //     popupAnchor: [1, -34], // Point from which the popup should open relative to the iconAnchor
+  //     shadowSize: [41, 41],
+  //   });
+  // }, []);
 
   // State variables
 
@@ -249,7 +263,7 @@ function ChooseLocation({
       {/* Location div */}
       <div className="flex w-full grow flex-col">
         {/* Options button */}
-        <div className="mb-2 flex w-full flex-col items-center gap-6 text-sm text-gray-700 sm:flex-row">
+        <div className="mb-2 flex w-full flex-col gap-2 sm:gap-6 text-sm text-gray-700 sm:flex-row">
           <span>Cligen Version: {cligenVersion}</span>
           <span>Database Version: {databaseVersion}</span>
         </div>
@@ -262,7 +276,7 @@ function ChooseLocation({
             scrollWheelZoom={true}
             attributionControl={false}
             style={{ zIndex: 0 }}
-            className="map-container h-full w-full overflow-hidden"
+            className="h-full w-full"
           >
             {/* OpenStreetMap tile layer for map*/}
             <TileLayer
@@ -295,9 +309,11 @@ function ChooseLocation({
             {/* Display stations on the map, marking them with Markers. Currently
                     the marker is the same as the user placeable one, and it is possible
                     to update the Marker texture. */}
-            {stations.map((station) => (
-              <StationMarker key={station.properties.id} station={station} />
-            ))}
+            <LayersControl position="topright">
+              <LayersControl.Overlay name="Show Stations" checked>
+                <StationMarkers stations={stations} />
+              </LayersControl.Overlay>
+            </LayersControl>
           </MapContainer>
         </div>
         {/* Latitude and Longitude input fields and "Set Coords." button */}

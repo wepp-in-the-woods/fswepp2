@@ -1,14 +1,11 @@
 import axios from "axios";
 
-const baseURL = "https://fswepp2-api.bearhive.duckdns.org";
+const baseURL = "http://127.0.0.1:8090";
 
 export const api = axios.create({
   baseURL,
   headers: {
     "Content-Type": "application/json",
-    "x-corsfix-headers": JSON.stringify({
-      Origin: "https://www.google.com",
-      Referer: "https://www.google.com",
-    }),
   },
+  withCredentials: true, // Enable sending cookies with requests
 });

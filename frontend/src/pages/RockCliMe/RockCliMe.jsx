@@ -360,6 +360,8 @@ const RockCliMe = () => {
     });
   };
 
+  console.log("savedParameters: ", savedParameters);
+
   // Navigates to /rock-clime/climate/:par_id based on user's selected station.
   const handleViewStationClimateData = async () => {
     if (!selectedStation || !selectedStation.id) {
@@ -445,7 +447,7 @@ const RockCliMe = () => {
         <div className="page-container">
           <div
             className="mb-6 flex flex-col justify-between lg:flex-row"
-            dataslot="header"
+            dataslot="page-header"
           >
             <div className="flex w-full flex-col items-start gap-3 p-6">
               <div className="flex flex-row items-center gap-3">
@@ -458,7 +460,10 @@ const RockCliMe = () => {
                       title="Info"
                     />
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-prose">
+                  <DialogContent
+                    className="sm:max-w-prose"
+                    aria-describedby="about-rock-clime-dialog"
+                  >
                     <DialogHeader>
                       <DialogTitle>About Rock: Clime</DialogTitle>
                     </DialogHeader>
@@ -552,32 +557,8 @@ const RockCliMe = () => {
             <div
               className={`${locationToggle ? "flex" : "hidden"} flex-col sm:flex sm:flex-row xl:flex-col`}
             >
-              {/* Method 1: Browse by Region */}
-              <div className="flex w-full shrink flex-col gap-3 p-6">
-                <h2 className="text-lg font-semibold">Browse by region</h2>
-                <p className="text-sm text-gray-600">
-                  Select a region to view all available climate stations in a
-                  region.
-                </p>
-                <Combobox
-                  options={regionOptions}
-                  value={selectedRegion}
-                  onValueChange={(value) => {
-                    setSelectedRegion(value);
-                  }}
-                  placeholder={
-                    isLoadingRegions ? "Loading regions..." : "Select a region..."
-                  }
-                  className="w-full sm:min-w-[200px]"
-                />
-              </div>
-              <div className="flex flex-row items-center gap-2 text-gray-500 sm:flex-col lg:h-[240px] xl:h-fit xl:flex-row">
-                <div className="h-px w-full grow bg-gray-300 sm:h-full sm:w-px xl:h-px xl:w-full" />
-                OR
-                <div className="h-px w-full grow bg-gray-300 sm:h-full sm:w-px xl:h-px xl:w-full" />
-              </div>
-              {/* Current Location Div */}
-              <div className="flex w-full grow flex-col gap-4 p-6">
+              {/* Method 1: Browse by chosen location */}
+              <div className="flex w-full shrink flex-col gap-4 p-6">
                 <h3 className="text-lg font-semibold">Find by location</h3>
                 <p className="text-sm text-gray-600">
                   Set coordinates to find the closest climate stations
@@ -603,7 +584,10 @@ const RockCliMe = () => {
                   </DialogTrigger>
                   {/* Conditionally render ChooseLocation */}
                   {showLocationDiv && (
-                    <DialogContent className="flex h-screen max-h-screen w-screen max-w-screen flex-col sm:max-h-5/6 sm:max-w-5/6 xl:max-h-2/3 xl:max-w-2/3">
+                    <DialogContent
+                      className="flex h-screen max-h-screen w-screen max-w-screen flex-col sm:max-h-5/6 sm:max-w-5/6 xl:max-h-3/4 xl:max-w-2/3 px-3 sm:p-6 rounded-none sm:rounded-lg"
+                      aria-describedby="choose-location-dialog"
+                    >
                       <DialogHeader className="h-fit w-full">
                         <DialogTitle>Choose a location</DialogTitle>
                       </DialogHeader>
@@ -635,6 +619,31 @@ const RockCliMe = () => {
                   />
                 </div>
               </div>
+              <div className="flex flex-row items-center gap-2 text-gray-500 sm:flex-col lg:h-[240px] xl:h-fit xl:flex-row">
+                <div className="h-px w-full grow bg-gray-300 sm:h-full sm:w-px xl:h-px xl:w-full" />
+                OR
+                <div className="h-px w-full grow bg-gray-300 sm:h-full sm:w-px xl:h-px xl:w-full" />
+              </div>
+              {/* Method 2: Browse by Region */}
+              <div className="flex w-full shrink flex-col gap-3 p-6">
+                <h2 className="text-lg font-semibold">Browse by region</h2>
+                <p className="text-sm text-gray-600">
+                  Select a region to view all available climate stations in a
+                  region.
+                </p>
+                <Combobox
+                  options={regionOptions}
+                  value={selectedRegion}
+                  onValueChange={(value) => {
+                    setSelectedRegion(value);
+                  }}
+                  placeholder={
+                    isLoadingRegions ? "Loading regions..." : "Select a region..."
+                  }
+                  className="w-full sm:min-w-[200px]"
+                />
+              </div>
+
             </div>
 
             {/* Tabs */}
@@ -813,7 +822,7 @@ const RockCliMe = () => {
 
                 {/*TODO: Fix API call to get saved parameters.*/}
                 <TabsContent value="savedParametersTab">
-                  {savedParameters.length !== 0 ? (
+                  {isLoadingParameters && savedParameters.length !== 0 ? (
                     <div className="grid grid-cols-1 gap-4">
                       {Object.keys(savedParameters).map((par, index) => (
                         <div key={index}>

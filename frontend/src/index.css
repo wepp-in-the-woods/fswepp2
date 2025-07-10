@@ -78,9 +78,6 @@
 }
 
 @layer base {
-  /* * {
-    font-family: var(--font-sans);
-  } */
   h1 {
     font-size: var(--text-2xl);
     font-weight: var(--font-weight-semibold);
@@ -106,8 +103,8 @@
     color: var(--foreground);
   }
   .leaflet-marker-icon {
-    margin-left: -12px !important;
-    margin-top: -41px !important;
+    margin-left: -20px !important;
+    margin-top: -40px !important;
   }
 
   .leaflet-container {
