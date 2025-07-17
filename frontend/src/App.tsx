@@ -17,12 +17,6 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      {/*<header className="sticky top-0 z-50 w-full shadow-sm">*/}
-      {/*  <Navbar*/}
-      {/*    isVisible={isNavbarVisible}*/}
-      {/*    toggleVisibility={() => setNavbarVisible(!isNavbarVisible)}*/}
-      {/*  />*/}
-      {/*</header>*/}
       <Suspense
         fallback={
           <div className="flex h-screen items-center justify-center">

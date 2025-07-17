@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { api } from "../../api";
+import { ClimateValidation, validatePrecipitation } from "@/utils/climateValidation";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
@@ -40,7 +41,7 @@ function StationPar() {
   });
 
   // Handle click event to save or modify parameter data
-  const handleClick = () => {
+  const handleButtonClick = () => {
     if (isModified) {
       handleSave();
     } else {
@@ -72,12 +73,13 @@ function StationPar() {
       par_id: par_id,
       user_defined_par_mod: {
         description: description,
-        ppts: parData.ppts,
-        tmaxs: parData.tmaxs,
-        tmins: parData.tmins,
+        ppts: inputValues.ppts,
+        tmaxs: inputValues.tmaxs,
+        tmins: inputValues.tmins,
       },
     };
 
+    {/* TODO: fix data sent in post request to changed data instead of default */}
     // Post user-defined parameter data to server
     api
       .post("/api/rockclim/PUT/user_defined_par", user_defined_par, {
@@ -99,17 +101,28 @@ function StationPar() {
     setDescription("");
   };
 
-  // Handle cancel event to reset view and table values
-  useEffect(() => {
+  // Function to handle cancel event and reset input values from parData
+  const resetInputValues = () => {
     if (parData) {
       setInputValues({
-        ppts: parData.ppts,
-        tmaxs: parData.tmaxs,
-        tmins: parData.tmins,
-        nwds: parData.nwds || [],
+        ppts: [...parData.ppts],
+        tmaxs: [...parData.tmaxs],
+        tmins: [...parData.tmins],
+        nwds: parData.nwds ? [...parData.nwds] : [],
       });
     }
+  };
+
+  useEffect(() => {
+    resetInputValues();
   }, [parData]);
+
+  // Function to handle discard changes event
+  const handleDiscard = () => {
+    resetInputValues(); // Reset to original parData values
+    setIsModified(false); // Exit edit mode
+    setDescription(stationDesc); // Reset description to original
+  };
 
   // Fetch station parameter data from server
   useEffect(() => {
@@ -181,11 +194,12 @@ function StationPar() {
         <div className="page-container">
           {/* Main Content */}
           <div
-            className="flex flex-col justify-between lg:flex-row"
+            className="flex flex-col justify-between lg:flex-row px-4 lg:px-6"
             dataslot="page-header"
           >
-            <div className="flex w-full flex-col items-start gap-3 p-6 pb-2">
-              <div className="flex flex-row w-full h-8 text-2xl font-semibold">
+            {/*TODO: Add button to remove custom parameters*/}
+            <div className="flex w-full flex-col items-start gap-3">
+              <div className="flex h-8 w-full flex-row text-2xl font-semibold">
                 {/* Parameter description with modifiable state */}
                 {isModified ? (
                   <Input
@@ -196,7 +210,7 @@ function StationPar() {
                         : stationDesc
                     }
                     onChange={(e) => handleTitleChange(e, "description")}
-                    className={`w-full h-fit font-medium !text-xl`}
+                    className={`h-fit w-full !text-xl font-medium`}
                   />
                 ) : (
                   <>
@@ -217,9 +231,7 @@ function StationPar() {
               {/* Station Coordinates if not a custom parameter */}
               {!user_defined_par_mod && (
                 <div className="text-gray-800">
-                  <h3 className="font-bold">
-                    Station Coordinates
-                  </h3>
+                  <h3 className="font-bold">Station Coordinates</h3>
                   {!user_defined_par_mod && (
                     <>
                       <p className="text-sm md:text-base">
@@ -234,10 +246,10 @@ function StationPar() {
               )}
             </div>
           </div>
-          <div className="flex flex-col p-6 items-start">
+          <div className="flex flex-col items-start px-4 lg:px-6">
             {/* Display station data in a table*/}
             <div className="mb-4 w-full">
-              <div className="mb-3 flex flex-row items-center justify-between w-full">
+              <div className="mb-3 flex w-full flex-row items-center justify-between">
                 <div className="gap-2">
                   <h3 className="text-xl font-semibold">Station Data</h3>
                   {usePrismPar && (
@@ -249,13 +261,14 @@ function StationPar() {
                 <div className="flex grow items-end justify-end gap-2">
                   <Button
                     variant="outline"
-                    className={`${!isModified ? "hidden" : ""}`} onClick={() => setIsModified(false)}
+                    className={`${!isModified ? "hidden" : ""}`}
+                    onClick={handleDiscard}
                   >
                     Discard Changes
                   </Button>
                   <Button
                     variant={isModified ? "default" : "outline"}
-                    onClick={handleClick}
+                    onClick={handleButtonClick}
                     className="transition-none"
                   >
                     {isModified ? (
@@ -306,66 +319,79 @@ function StationPar() {
                             <span className="hidden md:inline">
                               {months[index]}
                             </span>
-                            <span className="md:hidden">{monthsAbbrev[index]}</span>
+                            <span className="md:hidden">
+                              {monthsAbbrev[index]}
+                            </span>
+                          </td>
+                          {/*TODO: Color highlight to indicate values changed from original PAR data*/}
+                          <td className="w-1/5 border border-gray-300 px-2 py-2">
+                            {/* Allow user to change values if isModified state is true*/}
+                            {isModified ? (
+                              <Input
+                                type="number"
+                                defaultValue={ppt.toFixed(2)}
+                                onBlur={(e) => {
+                                  const result = validatePrecipitation(parseFloat(e.target.value));
+                                  if (!result.isValid) {
+                                    alert(result.message);
+                                    // Reset to original parData value
+                                    e.target.value = ppt.toFixed(2);
+                                    return;
+                                  }
+                                  handleInputChange(e, index, "ppts");
+                                }}
+                                className={``}
+                              />
+                            ) : (
+                              <>{ppt.toFixed(2)}</>
+                            )}
                           </td>
                           <td className="w-1/5 border border-gray-300 px-2 py-2">
                             {/* Allow user to change values if isModified state is true*/}
-                            <input
-                              type="text"
-                              defaultValue={ppt.toFixed(2)}
-                              onChange={(e) => handleInputChange(e, index, "ppts")}
-                              className={`w-full rounded-sm border-none ${
-                                isModified
-                                  ? "outline-rounded-sm outline-1 outline-offset-1 outline-gray-300"
-                                  : ""
-                              }`}
-                              readOnly={!isModified}
-                            />
+                            {isModified ? (
+                              <Input
+                                type="number"
+                                defaultValue={parData.tmaxs[index].toFixed(2)}
+                                onChange={(e) =>
+                                  handleInputChange(e, index, "tmaxs")
+                                }
+                                className={``}
+                              />
+                            ) : (
+                              <>{parData.tmaxs[index].toFixed(2)}</>
+                            )}
                           </td>
                           <td className="w-1/5 border border-gray-300 px-2 py-2">
                             {/* Allow user to change values if isModified state is true*/}
-                            <input
-                              type="text"
-                              defaultValue={parData.tmaxs[index].toFixed(2)}
-                              onChange={(e) => handleInputChange(e, index, "tmaxs")}
-                              className={`w-full rounded-sm border-none ${
-                                isModified
-                                  ? "outline-rounded-sm outline-1 outline-offset-1 outline-gray-300"
-                                  : ""
-                              }`}
-                              readOnly={!isModified}
-                            />
+                            {isModified ? (
+                              <Input
+                                type="number"
+                                defaultValue={parData.tmins[index].toFixed(2)}
+                                onChange={(e) =>
+                                  handleInputChange(e, index, "tmins")
+                                }
+                                className={``}
+                              />
+                            ) : (
+                              <>{parData.tmins[index].toFixed(2)}</>
+                            )}
                           </td>
-                          <td className="w-1/5 border border-gray-300 px-2 py-2">
-                            {/* Allow user to change values if isModified state is true*/}
-                            <input
-                              type="text"
-                              defaultValue={parData.tmins[index].toFixed(2)}
-                              onChange={(e) => handleInputChange(e, index, "tmins")}
-                              className={`w-full rounded-sm border-none ${
-                                isModified
-                                  ? "outline-rounded-sm outline-1 outline-offset-1 outline-gray-300"
-                                  : ""
-                              }`}
-                              readOnly={!isModified}
-                            />
-                          </td>
+                          {/*TODO: Make number of wet days read-only*/}
                           {parData.nwds && parData.nwds.length > 0 && (
                             <td className="w-1/5 border border-gray-300 px-2 py-2">
                               {/* Allow user to change values if isModified state is true*/}
-                              <input
-                                type="text"
-                                defaultValue={parData.nwds[index].toFixed(2)}
-                                onChange={(e) =>
-                                  handleInputChange(e, index, "nwds")
-                                }
-                                className={`w-full rounded-sm border-none ${
-                                  isModified
-                                    ? "outline-rounded-sm outline-1 outline-offset-1 outline-gray-300"
-                                    : ""
-                                }`}
-                                readOnly={!isModified}
-                              />
+                              {isModified ? (
+                                <Input
+                                  type="number"
+                                  defaultValue={parData.nwds[index].toFixed(2)}
+                                  onChange={(e) =>
+                                    handleInputChange(e, index, "nwds")
+                                  }
+                                  className={``}
+                                />
+                              ) : (
+                                <>{parData.nwds[index].toFixed(2)}</>
+                              )}
                             </td>
                           )}
                         </tr>

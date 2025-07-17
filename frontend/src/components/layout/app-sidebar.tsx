@@ -7,6 +7,7 @@ import {
   Mail,
   MonitorPlay,
   MountainSnow,
+  Settings2,
   Waves,
   type LucideIcon,
 } from "lucide-react";
@@ -19,6 +20,7 @@ import {
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -31,6 +33,8 @@ import {
   SidebarMenuSubButton,
   useSidebar
 } from "@/components/ui/sidebar.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { ButtonGroup } from "@/components/ui/button-group.tsx";
 import { Icon } from "@/components/ui/icon.tsx";
 import { Link } from "react-router-dom";
 
@@ -248,7 +252,10 @@ function NavLink({
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { state, isMobile } = useSidebar();
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar
+      collapsible="icon"
+      {...props}
+    >
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -257,11 +264,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <img
                   src={state === "collapsed" && !isMobile ? "/fswepp-icon.png" : "/fswepp-logo.png"}
                   alt="FSWEPP Logo"
-                  className={`object-contain transition-all duration-300 ease-in-out ${
-                    state === "collapsed"
-                      ? "h-10 w-fit"
-                      : "h-10 w-fit"
-                  }`}
+                  className={`h-10 w-fit object-contain transition-all duration-300 ease-in-out`}
                 />
               </a>
             </SidebarMenuButton>
@@ -269,7 +272,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent className="transition-all duration-300 ease-in-out">
-        {/* We create a collapsible SidebarGroup for each parent. */}
         <SidebarGroup>
           <SidebarMenu>
             {data.navMain.map((item) => (
@@ -318,9 +320,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             ))}
           </SidebarMenu>
         </SidebarGroup>
-        {/* Info about unit of measurement used/ version*/}
-        {/* Settings button */}
       </SidebarContent>
+      {/* Info about unit of measurement used/ version*/}
+      {/* Settings button */}
+      <SidebarFooter className="flex flex-row items-center">
+        <ButtonGroup className="p-2">
+          <Button variant="outline">Metric</Button>
+          <Button variant="secondary">US Customary</Button>
+        </ButtonGroup>
+        <Button variant="ghost" title="Unit Settings">
+          <Icon icon={Settings2} className="size-5!"/>
+        </Button>
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )

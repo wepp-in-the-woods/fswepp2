@@ -28,7 +28,12 @@ const getBreadcrumbs = (pathname: string): BreadcrumbItemType[] => {
       const isLast = index === segments.length - 1;
       const label = breadcrumbMap[segment] || segment;
 
-      if (!isLast) {
+      const isParSegment = segment === 'par';
+      const isOnParPage = segments.includes('par') && segments.length > 2;
+      const isClimateSegment = segment === 'climate';
+      const isOnClimatePage = segments.includes('climate') && segments.length > 2;
+
+      if (!isLast && !(isParSegment && isOnParPage) && !(isClimateSegment && isOnClimatePage)) {
         const href = '/' + segments.slice(0, index + 1).join('/');
         breadcrumbs.push({ label, href });
       } else {
@@ -80,7 +85,7 @@ export const AppHeader: React.FC = () => {
                   <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
                 )}
               </BreadcrumbItem>
-              {index < breadcrumbs.length - 1 && (
+              {index < breadcrumbs.length - 1 && (crumb.href) && (
                 <BreadcrumbSeparator />
               )}
             </React.Fragment>

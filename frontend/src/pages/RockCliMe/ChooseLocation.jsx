@@ -234,6 +234,7 @@ function ChooseLocation({
         database: databaseVersion === "None" ? null : databaseVersion,
         bbox: bbox,
       });
+      setStations([]); // Clear previous stations before setting new ones
       // Set returned stations
       setStations(response.data.features);
     } catch (error) {

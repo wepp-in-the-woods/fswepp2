@@ -78,7 +78,7 @@ const RockCliMe = () => {
   const [closestStations, setClosestStations] = useState([]);
   const [savedParameters, setSavedParameters] = useState([]);
   const [selectedStation, setSelectedStation] = useState(null);
-  const [years, setYears] = useState("");
+  const [years, setYears] = useState(30);
   const [usePrismPar, setUsePrismPar] = useState(false);
   const [usePrismClim, setUsePrismClim] = useState(false);
   const navigate = useNavigate();
@@ -122,6 +122,7 @@ const RockCliMe = () => {
   // Fetch and display saved parameters
   useEffect(() => {
     if (
+      !showLocationDiv &&
       activeTab === "savedParametersTab" &&
       !parametersFetched &&
       parametersFetched !== null
@@ -132,15 +133,24 @@ const RockCliMe = () => {
 
   // Fetch saved parameters from the database based on user cookies. Cookies stay for one week.
   const handleGetSavedParameters = async () => {
+    // if (isLoadingParameters) {
+    //   return;
+    // }
+    setIsLoadingParameters(true);
+    console.log("Saved parameters: Fetching saved parameters...");
     try {
       const response = await api.get("/api/rockclim/GET/user_defined_pars", {
         withCredentials: true,
       });
       setSavedParameters(response.data);
       setParametersFetched(true);
+      console.log("Saved parameters fetched successfully.");
     } catch (error) {
       console.error("Error fetching saved parameters:", error);
-      setParametersFetched(true);
+      setParametersFetched(false);
+      setSavedParameters({});
+    } finally {
+    setIsLoadingParameters(false); // Clear loading state
     }
   };
 
@@ -178,10 +188,18 @@ const RockCliMe = () => {
 
   // Re-fetch closest stations when versions change
   useEffect(() => {
-    if (coordinates && !showLocationDiv && activeTab === "closestStations") {
+    if (coordinates && !showLocationDiv && activeTab === "stationsTab") {
       handleGetClosestStations();
     }
   }, [databaseVersion, cligenVersion]); // Only trigger on version changes
+
+  useEffect(() => {
+    if (activeTab === "stationsTab") {
+      handleGetClosestStations();
+    } else if (activeTab === "savedParametersTab") {
+      handleGetSavedParameters();
+    }
+  }, [activeTab]); // Re-fetch when tab changes
 
   // Fetch region data when component mounts or databaseVersion changes
   useEffect(() => {
@@ -250,7 +268,7 @@ const RockCliMe = () => {
 
   // Re-fetch stations when region changes
   useEffect(() => {
-    if (activeTab === "closestStations" && selectedRegion) {
+    if (activeTab === "stationsTab" && selectedRegion) {
       setSearchMethod("region");
       handleGetStationsByRegion();
     }
@@ -328,8 +346,8 @@ const RockCliMe = () => {
   };
 
   // Navigates to /rock-clime/par/:par_id based on user's selected station.
-  const handleViewStationPar = () => {
-    if (!selectedStation || !selectedStation.id) {
+  const handleViewStationPar = (station) => {
+    if (!station || !station.id) {
       console.error("No station selected or par_id is missing");
       return;
     }
@@ -339,32 +357,30 @@ const RockCliMe = () => {
     const location = usePrismPar
       ? { longitude: parseFloat(lngInput), latitude: parseFloat(latInput) }
       : {
-          longitude: selectedStation.longitude,
-          latitude: selectedStation.latitude,
+          longitude: station.longitude,
+          latitude: station.latitude,
         };
 
     const stationCoords = {
-      longitude: selectedStation.longitude,
-      latitude: selectedStation.latitude,
+      longitude: station.longitude,
+      latitude: station.latitude,
     };
-    navigate(`/rock-clime/par/${selectedStation.id}`, {
+    navigate(`/rock-clime/par/${station.id}`, {
       state: {
         databaseVersion,
         cligenVersion,
         stationCoords,
         location,
         usePrismPar,
-        stationDesc: selectedStation.desc,
-        par_id: selectedStation.par,
+        stationDesc: station.desc,
+        par_id: station.par,
       },
     });
   };
 
-  console.log("savedParameters: ", savedParameters);
-
   // Navigates to /rock-clime/climate/:par_id based on user's selected station.
-  const handleViewStationClimateData = async () => {
-    if (!selectedStation || !selectedStation.id) {
+  const handleViewStationClimateData = async (station) => {
+    if (!station || !station.id) {
       console.error("No station selected or par_id is missing");
       return;
     }
@@ -379,42 +395,40 @@ const RockCliMe = () => {
     const location = usePrismClim
       ? { longitude: parseFloat(lngInput), latitude: parseFloat(latInput) }
       : {
-          longitude: selectedStation.longitude,
-          latitude: selectedStation.latitude,
+          longitude: station.longitude,
+          latitude: station.latitude,
         };
 
     const stationCoords = {
-      longitude: selectedStation.longitude,
-      latitude: selectedStation.latitude,
+      longitude: station.longitude,
+      latitude: station.latitude,
     };
 
-    navigate(`/rock-clime/climate/${selectedStation.id}`, {
+    navigate(`/rock-clime/climate/${station.id}`, {
       state: {
         stationCoords,
         location,
         years,
         usePrismClim,
-        par_id: selectedStation.id,
-        stationDesc: selectedStation.desc,
+        par_id: station.id,
+        stationDesc: station.desc,
       },
     });
   };
 
   // Navigates to /rock-clime/par/:par_id based on user's selected saved parameter.
-  const handleViewSavedPar = () => {
-    if (!selectedPar) {
+  const handleViewSavedPar = (key) => {
+    if (!key || !savedParameters[key]) {
       console.error("No saved parameter selected");
       return;
     }
 
-    const customPar = savedParameters[selectedPar];
+    const customPar = savedParameters[key];
 
-    console.log(customPar.par_id);
-
-    navigate(`/rock-clime/par/${selectedPar}`, {
+    navigate(`/rock-clime/par/${key}`, {
       state: {
         par_id: customPar.par_id,
-        selected_par: selectedPar,
+        selected_par: key,
         usePrismPar: customPar.use_prism,
         user_defined_par_mod: customPar.user_defined_par_mod,
       },
@@ -422,17 +436,22 @@ const RockCliMe = () => {
   };
 
   // Navigates to /rock-clime/climate/:par_id based on user's selected saved parameter.
-  const handleViewSavedParClimateData = async () => {
+  const handleViewSavedParClimateData = async (key) => {
+    if (!key || !savedParameters[key]) {
+      console.error("No saved parameter selected");
+      return;
+    }
+
     if (!years) {
       console.error("Number of years is missing");
       return;
     }
 
-    const customPar = savedParameters[selectedPar];
+    const customPar = savedParameters[key];
 
-    navigate(`/rock-clime/climate/${selectedPar}`, {
+    navigate(`/rock-clime/climate/${key}`, {
       state: {
-        selectedPar,
+        key,
         years,
         customPar,
       },
@@ -446,10 +465,10 @@ const RockCliMe = () => {
         <AppHeader />
         <div className="page-container">
           <div
-            className="mb-6 flex flex-col justify-between lg:flex-row"
-            dataslot="page-header"
+            className="flex flex-col justify-between lg:flex-row px-4 lg:px-6 gap-4"
+            dataslot="page-title"
           >
-            <div className="flex w-full flex-col items-start gap-3 p-6">
+            <div className="flex w-full flex-col items-start gap-3">
               <div className="flex flex-row items-center gap-3">
                 <h1 className="text-foreground">Rock: Clime</h1>
                 <Dialog>
@@ -469,17 +488,18 @@ const RockCliMe = () => {
                     </DialogHeader>
                     <DialogDescription className="flex flex-col gap-4 text-neutral-800">
                       <p>
-                        The Rocky Mountain Climate Generator (Rock: Clime) creates a
-                        daily weather file using the ARS CLIGEN weather generator.
-                        The file is intended to be used with the WEPP Windows and
-                        GeoWEPP interfaces, but also can be a source of weather data
-                        for any application. It creates up to 200 years of simulated
-                        weather values from a database of more than 2600 weather
-                        stations and the PRISM 2.5-mile grid of precipitation data.
+                        The Rocky Mountain Climate Generator (Rock: Clime)
+                        creates a daily weather file using the ARS CLIGEN
+                        weather generator. The file is intended to be used with
+                        the WEPP Windows and GeoWEPP interfaces, but also can be
+                        a source of weather data for any application. It creates
+                        up to 200 years of simulated weather values from a
+                        database of more than 2600 weather stations and the
+                        PRISM 2.5-mile grid of precipitation data.
                       </p>
                       <p>
-                        This version of Rock: Clime is based on the legacy version
-                        of Rock: Clime available at <br />
+                        This version of Rock: Clime is based on the legacy
+                        version of Rock: Clime available at <br />
                         <a
                           href="https://forest.moscowfsl.wsu.edu/cgi-bin/fswepp/rc/rockclim.pl"
                           target="_blank"
@@ -492,11 +512,11 @@ const RockCliMe = () => {
                       <p>
                         <strong>Citation:</strong>
                         <br />
-                        Elliot, William J.; Dayna L. Scheele, Dayna L.; Hall, David
-                        E. 1999. Rock:Clime – Rocky Mountain Research Station
-                        Climate Generator. Moscow, ID: U.S.D.A. Forest Service,
-                        Rocky Mountain Research Station, Moscow Forestry Sciences
-                        Laboratory. [Online at{" "}
+                        Elliot, William J.; Dayna L. Scheele, Dayna L.; Hall,
+                        David E. 1999. Rock:Clime – Rocky Mountain Research
+                        Station Climate Generator. Moscow, ID: U.S.D.A. Forest
+                        Service, Rocky Mountain Research Station, Moscow
+                        Forestry Sciences Laboratory. [Online at{" "}
                         <a
                           href="https://forest.moscowfsl.wsu.edu/fswepp"
                           target="_blank"
@@ -515,7 +535,7 @@ const RockCliMe = () => {
                 Rocky Mountain Research Station Climate Generator
               </p>
             </div>
-            <div className="flex w-full flex-col items-center gap-3 px-6 sm:flex-row lg:justify-end">
+            <div className="flex w-full flex-col items-center gap-3 sm:flex-row lg:justify-end">
               <Select value={cligenVersion} onValueChange={setCligenVersion}>
                 <SelectTrigger id="cligenVersion" className="w-full sm:w-fit">
                   <SelectValue defaultValue={cligenVersion}>
@@ -527,7 +547,10 @@ const RockCliMe = () => {
                   <SelectItem value="4.3">4.3 (Legacy)</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={databaseVersion} onValueChange={setDatabaseVersion}>
+              <Select
+                value={databaseVersion}
+                onValueChange={setDatabaseVersion}
+              >
                 <SelectTrigger id="databaseVersion" className="w-full sm:w-fit">
                   <SelectValue defaultValue={databaseVersion}>
                     <span>Database Version: {databaseVersion}</span>
@@ -542,122 +565,181 @@ const RockCliMe = () => {
               </Select>
             </div>
           </div>
-          <div className="flex flex-col xl:flex-row">
+          <div className="flex flex-col xl:flex-row px-4 lg:px-6 py-6">
             <Button
               variant="ghost"
               className="sm:hidden"
               onClick={() => setLocationToggle(!locationToggle)}
             >
-              {locationToggle ? "Hide Location Options" : "Show Location Options"}
+              {locationToggle
+                ? "Hide Location Options"
+                : "Show Location Options"}
               <Icon
                 icon={locationToggle ? ChevronUp : ChevronDown}
                 className="ml-2 h-4 w-4"
               />
             </Button>
-            <div
-              className={`${locationToggle ? "flex" : "hidden"} flex-col sm:flex sm:flex-row xl:flex-col`}
+            <Accordion
+              type="multiple"
+              collapsible
+              className={`w-full shrink flex-1/4 xl:pr-6`}
+              defaultValue={["dataSettings", "location"]}
             >
-              {/* Method 1: Browse by chosen location */}
-              <div className="flex w-full shrink flex-col gap-4 p-6">
-                <h3 className="text-lg font-semibold">Find by location</h3>
-                <p className="text-sm text-gray-600">
-                  Set coordinates to find the closest climate stations
-                </p>
-                <div className="text-sm md:text-base">
-                  <strong>Current Location: </strong>
-                  {latInput && lngInput
-                    ? `${parseFloat(latInput).toFixed(3)}, ${parseFloat(
-                      lngInput,
-                    ).toFixed(3)}`
-                    : "None"}
-                </div>
-                <Dialog open={showLocationDiv} onOpenChange={setShowLocationDiv}>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowLocationDiv(true)}
-                      className="w-full hover:cursor-pointer sm:w-fit"
-                    >
-                      <Icon icon={MapPin} className="h-5 w-5" />
-                      Choose Location
-                    </Button>
-                  </DialogTrigger>
-                  {/* Conditionally render ChooseLocation */}
-                  {showLocationDiv && (
-                    <DialogContent
-                      className="flex h-screen max-h-screen w-screen max-w-screen flex-col sm:max-h-5/6 sm:max-w-5/6 xl:max-h-3/4 xl:max-w-2/3 px-3 sm:p-6 rounded-none sm:rounded-lg"
-                      aria-describedby="choose-location-dialog"
-                    >
-                      <DialogHeader className="h-fit w-full">
-                        <DialogTitle>Choose a location</DialogTitle>
-                      </DialogHeader>
-                      <ChooseLocation
-                        coordinates={coordinates}
-                        setCoordinates={setCoordinates}
-                        setLatInput={setLatInput}
-                        setLngInput={setLngInput}
-                        setShowLocationDiv={setShowLocationDiv}
-                        latInput={latInput}
-                        lngInput={lngInput}
-                        cligenVersion={cligenVersion}
-                        databaseVersion={databaseVersion}
-                        setSearchMethod={setSearchMethod}
+              <AccordionItem value="dataSettings">
+                <AccordionTrigger>
+                  <h2 className="text-base font-semibold mb-2">Climate Generation Settings</h2>
+                </AccordionTrigger>
+                <AccordionContent className="flex flex-col gap-3 pb-4 md:pb-6">
+                  {/* Checkbox for using Prism monthlies for station parameters and climate data*/}
+                  {/* "au" e.g. the Australia database does not have PRISM, so we grey out the option. */}
+                  {databaseVersion !== "au" && (
+                    <Label htmlFor="usePrismCheckbox" className="mt-2 text-sm font-medium text-gray-700">
+                      <Checkbox
+                        id="usePrismCheckbox"
+                        checked={usePrismPar || usePrismClim}
+                        onCheckedChange={(checked) => {
+                          setUsePrismPar(checked);
+                          setUsePrismClim(checked);
+                        }}
                       />
-                    </DialogContent>
+                      <span>Use Prism monthlies</span>
+                    </Label>
                   )}
-                </Dialog>
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="numberOfStationsToShow">
-                    Number of Stations to Show:
-                  </Label>
-                  <Input
-                    id="numberOfStationsToShow"
-                    type="number"
-                    value={numberOfStationsToShow}
-                    onChange={(e) => setNumberOfStationsToShow(e.target.value)}
-                    className="w-16"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-row items-center gap-2 text-gray-500 sm:flex-col lg:h-[240px] xl:h-fit xl:flex-row">
-                <div className="h-px w-full grow bg-gray-300 sm:h-full sm:w-px xl:h-px xl:w-full" />
-                OR
-                <div className="h-px w-full grow bg-gray-300 sm:h-full sm:w-px xl:h-px xl:w-full" />
-              </div>
-              {/* Method 2: Browse by Region */}
-              <div className="flex w-full shrink flex-col gap-3 p-6">
-                <h2 className="text-lg font-semibold">Browse by region</h2>
-                <p className="text-sm text-gray-600">
-                  Select a region to view all available climate stations in a
-                  region.
-                </p>
-                <Combobox
-                  options={regionOptions}
-                  value={selectedRegion}
-                  onValueChange={(value) => {
-                    setSelectedRegion(value);
-                  }}
-                  placeholder={
-                    isLoadingRegions ? "Loading regions..." : "Select a region..."
-                  }
-                  className="w-full sm:min-w-[200px]"
-                />
-              </div>
-
-            </div>
+                  <div className="flex flex-col gap-3">
+                    <Label htmlFor="numberOfYearsInput" className="block text-sm font-medium text-gray-700">
+                      Number of years to genarate data:
+                    </Label>
+                    <Input
+                      id="numberOfYearsInput"
+                      type="number"
+                      className="w-18"
+                      value={years}
+                      onChange={(e) =>
+                        setYears(e.target.value)
+                      }
+                    />
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="location">
+                <AccordionTrigger>
+                  <h2 className="text-base font-semibold mb-2">Location</h2>
+                </AccordionTrigger>
+                <AccordionContent className="flex flex-col gap-3">
+                  {/* Method 1: Browse by chosen location */}
+                  <div className="flex w-full shrink flex-col">
+                    <h3 className="text-sm font-semibold mb-2">Find by location</h3>
+                    <div className="flex flex-col gap-3">
+                      <p className="text-sm text-gray-600">
+                        Set coordinates to find the closest climate stations
+                      </p>
+                      <div className="flex flex-col gap-2">
+                        <div className="text-sm">
+                          <span className="text-sm font-medium text-gray-700">Current Location: </span>
+                          {latInput && lngInput
+                            ? `${parseFloat(latInput).toFixed(3)}, ${parseFloat(
+                              lngInput,
+                            ).toFixed(3)}`
+                            : "None"}
+                        </div>
+                        <Dialog
+                          open={showLocationDiv}
+                          onOpenChange={setShowLocationDiv}
+                        >
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              onClick={() => setShowLocationDiv(true)}
+                              className="w-full hover:cursor-pointer sm:w-fit"
+                            >
+                              <Icon icon={MapPin} className="h-5 w-5" />
+                              Choose Location
+                            </Button>
+                          </DialogTrigger>
+                          {/* Conditionally render ChooseLocation */}
+                          {showLocationDiv && (
+                            <DialogContent
+                              className="flex h-screen max-h-screen w-screen max-w-screen flex-col rounded-none px-3 sm:max-h-5/6 sm:max-w-5/6 sm:rounded-lg sm:p-6 xl:max-h-3/4 xl:max-w-2/3"
+                              aria-describedby="choose-location-dialog"
+                            >
+                              <DialogHeader className="h-fit w-full">
+                                <DialogTitle>Choose a location</DialogTitle>
+                              </DialogHeader>
+                              <ChooseLocation
+                                coordinates={coordinates}
+                                setCoordinates={setCoordinates}
+                                setLatInput={setLatInput}
+                                setLngInput={setLngInput}
+                                setShowLocationDiv={setShowLocationDiv}
+                                latInput={latInput}
+                                lngInput={lngInput}
+                                cligenVersion={cligenVersion}
+                                databaseVersion={databaseVersion}
+                                setSearchMethod={setSearchMethod}
+                              />
+                            </DialogContent>
+                          )}
+                        </Dialog>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="numberOfStationsToShow">
+                          Number of Stations to Show:
+                        </Label>
+                        <Input
+                          id="numberOfStationsToShow"
+                          type="number"
+                          value={numberOfStationsToShow}
+                          onChange={(e) => setNumberOfStationsToShow(e.target.value)}
+                          className="w-16"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-row items-center gap-2 text-gray-500 sm:flex-col lg:h-[240px] xl:h-fit xl:flex-row">
+                    <div className="h-px w-full grow bg-gray-300 sm:h-full sm:w-px xl:h-px xl:w-full" />
+                    OR
+                    <div className="h-px w-full grow bg-gray-300 sm:h-full sm:w-px xl:h-px xl:w-full" />
+                  </div>
+                  {/* Method 2: Browse by Region */}
+                  <div className="flex w-full shrink flex-col">
+                    <h3 className="text-sm font-semibold mb-2">
+                      {(databaseVersion ===  "legacy") || (databaseVersion === "2015") ? "Browse by state" : "Browse by region"}
+                    </h3>
+                    <div className="flex flex-col gap-2">
+                      <p className="text-sm text-gray-600">
+                        Select a {(databaseVersion ===  "legacy") || (databaseVersion === "2015") ? "state" : "region"} to view all available climate stations in the {(databaseVersion ===  "legacy") || (databaseVersion === "2015") ? "state" : "region"}.
+                      </p>
+                      <Combobox
+                        options={regionOptions}
+                        value={selectedRegion}
+                        onValueChange={(value) => {
+                          setSelectedRegion(value);
+                        }}
+                        placeholder={
+                          isLoadingRegions
+                            ? "Loading..."
+                            : `Select a ${(databaseVersion ===  "legacy") || (databaseVersion === "2015") ? "state" : "region"}...`
+                        }
+                        className="w-full sm:min-w-[200px]"
+                      />
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
 
             {/* Tabs */}
-            <div className="w-full grow overflow-auto p-6">
-              <Tabs defaultValue="closestStationsTab">
+            <div className="w-full flex-4/5 overflow-auto">
+              <Tabs defaultValue="stationsTab">
                 <TabsList className="w-full sm:w-fit">
-                  <TabsTrigger value="closestStationsTab">
-                    Closest Stations
+                  <TabsTrigger value="stationsTab" onClick={() => setActiveTab("stationsTab")}>
+                    Climate Stations
                   </TabsTrigger>
-                  <TabsTrigger value="savedParametersTab">
+                  <TabsTrigger value="savedParametersTab" onClick={() => setActiveTab("savedParametersTab")}>
                     Saved Parameters
                   </TabsTrigger>
                 </TabsList>
-                <TabsContent value="closestStationsTab">
+                <TabsContent value="stationsTab">
                   <div className="grid grid-cols-1 gap-4">
                     {/* Dynamic header based on search method */}
                     {searchMethod === "region" && selectedRegion && (
@@ -665,8 +747,9 @@ const RockCliMe = () => {
                         <h3 className="font-semibold">
                           Climate Stations in{" "}
                           {
-                            regionOptions.find((r) => r.value === selectedRegion)
-                              ?.label
+                            regionOptions.find(
+                              (r) => r.value === selectedRegion,
+                            )?.label
                           }
                         </h3>
                         <p className="text-sm text-gray-600">
@@ -674,211 +757,190 @@ const RockCliMe = () => {
                         </p>
                       </div>
                     )}
-
                     {searchMethod === "location" && coordinates && (
                       <div className="rounded-lg bg-blue-50 p-4">
-                        <h3 className="font-semibold">Closest Climate Stations</h3>
+                        <h3 className="font-semibold">
+                          Closest Climate Stations
+                        </h3>
                         <p className="text-sm text-gray-600">
                           Showing {numberOfStationsToShow} stations nearest to{" "}
-                          {coordinates[0].toFixed(3)}, {coordinates[1].toFixed(3)}
-                        </p>
-                      </div>
-                    )}
-
-                    {!isLoadingStations && !coordinates && !selectedRegion && (
-                      <div className="flex w-full flex-col items-center justify-center p-12">
-                        <p className="text-center text-neutral-700">
-                          {searchMethod === "region"
-                            ? "Select a region to view available stations"
-                            : "Choose a location to find the closest stations"}
+                          {coordinates[0].toFixed(3)},{" "}
+                          {coordinates[1].toFixed(3)}
                         </p>
                       </div>
                     )}
 
                     {/* Loading state */}
-                    {isLoadingStations && (
+                    {isLoadingStations ? (
                       <div className="flex items-center justify-center p-8">
                         <div className="flex items-center gap-2">
                           <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
                           <span>Loading stations...</span>
                         </div>
                       </div>
+                    ) : (
+                      closestStations.length === 0 && (
+                        <div className="flex w-full flex-col items-center justify-center p-12">
+                          <p className="text-center text-neutral-700">
+                            {searchMethod === "region"
+                              ? "Select a region to view available stations"
+                              : "Choose a location to find the closest stations"}
+                          </p>
+                        </div>
+                      )
                     )}
 
                     {/* List of stations */}
+                    {/* TODO: Use data table for sorting and filtering */}
                     {!isLoadingStations && closestStations.length !== 0 && (
-                      <Accordion
-                        type="single"
-                        collapsible
-                        className="w-full"
-                        value={
-                          selectedStation !== null
-                            ? `item-${selectedStation.id}`
-                            : null
-                        }
-                        onValueChange={(value) => {
-                          const id = value ? value.split("-")[1] : null;
-                          const station = closestStations.find(
-                            (s) => String(s.id) === id,
-                          );
-                          setSelectedStation(station || null);
-                        }}
-                      >
-                        {sortedStations.slice(0, stationsToShow).map((station) => (
-                          <AccordionItem
-                            key={station.id}
-                            value={`item-${station.id}`}
-                            className="mb-2 p-2 data-[state=open]:bg-green-50/20 data-[state=open]:border-green-200 data-[state=open]:ring-2 data-[state=open]:ring-green-500/20 rounded-md border border-gray-200"
-                          >
-                            <AccordionTrigger className="cursor-pointer items-center p-0">
-                              <div className="flex w-full flex-col gap-2 p-2 md:flex-row md:justify-between">
-                                <div className="flex flex-row items-baseline gap-4">
-                              <span className="text-sm text-gray-500">
-                                {sortedStations.indexOf(station) + 1}
-                              </span>
-                                  <strong className="text-lg">
-                                    {station.desc.slice(0, -2)}
-                                  </strong>
-                                </div>
-                                <div className="flex flex-col gap-2 md:items-end">
-                                  <p>
-                                    Latitude: {station.latitude}, Longitude:{" "}
-                                    {station.longitude}
-                                  </p>
-                                  {/* Conditional distance display */}
-                                  {searchMethod === "location" &&
-                                    station.distance_to_query_location !== null && (
-                                      <p className="text-sm">
-                                        Distance:{" "}
-                                        {station.distance_to_query_location.toFixed(
-                                          2,
-                                        )}{" "}
-                                        km
-                                      </p>
-                                    )}
-                                </div>
+                      sortedStations.slice(0, stationsToShow).map((station) => (
+                        <div key={station.id} className="flex w-full flex-col gap-2 p-4 mb-2 md:flex-row md:justify-between items-center rounded-md border border-gray-200">
+                          <div className="flex flex-row items-baseline gap-4">
+                            <span className="text-sm text-gray-500">
+                              {sortedStations.indexOf(station) + 1}
+                            </span>
+                            <div className="flex flex-col gap-1">
+                              <strong className="text-lg">
+                                {station.desc.slice(0, -2)}
+                              </strong>
+                              <div className="flex flex-col gap-1">
+                                <p className="text-sm">
+                                  Latitude: {station.latitude}, Longitude: {station.longitude}
+                                </p>
+                                {/* Conditional distance display */}
+                                {searchMethod === "location" &&
+                                  station.distance_to_query_location !==
+                                  null && (
+                                    <p className="text-sm">
+                                      Distance: {station.distance_to_query_location.toFixed(2)} km
+                                    </p>
+                                  )}
                               </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="">
-                              {selectedStation && selectedStation.id === station.id && (
-                                <div className="mt-4 flex flex-col justify-between gap-4 p-2 sm:flex-row">
-                                  <div className="mb-2 flex w-full flex-col gap-3">
-                                    {/* "au" e.g. the Australia database does not have PRISM, so we grey out the option. */}
-                                    {databaseVersion !== "au" && (
-                                      <Label className="mt-2">
-                                        <Checkbox
-                                          id="usePrismPar"
-                                          checked={usePrismPar}
-                                          onCheckedChange={(checked) => setUsePrismPar(checked)}
-                                        />
-                                        <span>Use Prism monthlies</span>
-                                      </Label>
-                                    )}
-                                    <Button
-                                      className=""
-                                      onClick={handleViewStationPar}
-                                    >
-                                      View Station Parameters
-                                    </Button>
-                                  </div>
-                                  <div className="mb-2 flex w-full flex-col gap-3">
-                                    <div className="flex flex-col gap-2">
-                                      <Label className="mt-2 block text-sm font-medium text-gray-700">
-                                        Number of Years
-                                      </Label>
-                                      <Input
-                                        type="number"
-                                        className="mt-1 block w-16 rounded-sm border border-gray-300 p-2"
-                                        value={years}
-                                        onChange={(e) => setYears(e.target.value)}
-                                      />
-                                      {databaseVersion !== "au" && (
-                                        <Label className="mt-2">
-                                          <Checkbox
-                                            id="usePrismClim"
-                                            checked={usePrismClim}
-                                            onCheckedChange={(checked) => setUsePrismClim(checked)}
-                                          />
-                                          <span>Use Prism monthlies</span>
-                                        </Label>
-                                      )}
-                                    </div>
-                                    <Button
-                                      className=""
-                                      onClick={handleViewStationClimateData}
-                                    >
-                                      Generate Climate Data
-                                    </Button>
-                                  </div>
-                                </div>
-                              )}
-                            </AccordionContent>
-                          </AccordionItem>
-                        ))}
-                      </Accordion>
-                    )}
+                            </div>
+                          </div>
+                          <div className="flex flex-row items-center gap-2">
+                            <Button
+                              className=""
+                              variant="outline"
+                              onClick={() => handleViewStationPar(station)}
+                            >
+                              View Station Parameters
+                            </Button>
+                            <Button
+                              className=""
+                              onClick={() => handleViewStationClimateData(station)}
+                            >
+                              Generate Climate Data
+                            </Button>
+                          </div>
+                        </div>
+                      )
+                    ))}
                   </div>
                 </TabsContent>
 
                 {/*TODO: Fix API call to get saved parameters.*/}
                 <TabsContent value="savedParametersTab">
-                  {isLoadingParameters && savedParameters.length !== 0 ? (
-                    <div className="grid grid-cols-1 gap-4">
-                      {Object.keys(savedParameters).map((par, index) => (
-                        <div key={index}>
-                          <button
-                            className={`w-full rounded-sm border p-2 text-left ${
-                              selectedPar === par ? "bg-[#015838] text-white" : ""
-                            }`}
-                            onClick={() => handleSavedParClick(par)}
-                          >
-                            <strong>
-                              {
-                                savedParameters[par].user_defined_par_mod
-                                  .description
-                              }
-                            </strong>
-                          </button>
-                          {selectedPar === par && (
-                            <div className="mt-2 rounded-sm border bg-gray-100 p-2">
-                              <div className="mb-2">
-                                <button
-                                  className="mb-2 block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
-                                  onClick={handleViewSavedPar}
-                                >
-                                  View Saved Parameters
-                                </button>
-                              </div>
-                              <div className="mb-2 border-t-2 border-gray-300">
-                                <label className="mt-2 block text-sm font-medium text-gray-700">
-                                  Number of Years
-                                </label>
-                                <input
-                                  type="number"
-                                  className="mt-1 block w-full rounded-sm border border-gray-300 p-2"
-                                  value={years}
-                                  onChange={(e) => setYears(e.target.value)}
-                                />
-                              </div>
-                              <button
-                                className="block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"
-                                onClick={handleViewSavedParClimateData}
-                              >
-                                Generate Climate Data
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                  {/* Loading state */}
+                  {isLoadingParameters ? (
+                    <div className="flex items-center justify-center p-8">
+                      <div className="flex items-center gap-2">
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+                        <span>Loading saved parameters...</span>
+                      </div>
                     </div>
                   ) : (
-                    <div className="flex w-full flex-col items-center justify-center p-12">
-                      <p className="text-center text-neutral-700">
-                        No saved parameters found. Please create and save parameters
-                        to view them here.
-                      </p>
-                    </div>
+                    savedParameters.length === 0 && (
+                      <div className="flex items-center justify-center p-8">
+                        <div className="flex items-center gap-2">
+                          <p className="text-center text-neutral-700">
+                            No saved parameters found. Please create and save parameters to view them here.
+                          </p>
+                        </div>
+                      </div>
+                    )
                   )}
+
+                  {/*List of saved parameters*/}
+                  {!isLoadingParameters && savedParameters && Object.keys(savedParameters).length !== 0 && (
+                    Object.entries(savedParameters).map(([key, savedParameter]) => (
+                      <div key={key} className="flex w-full flex-col gap-2 p-4 mb-2 md:flex-row md:justify-between items-center rounded-md border border-gray-200">
+                        <div className="flex flex-row items-baseline gap-4">
+                            <span className="text-sm text-gray-500">
+                              {Object.keys(savedParameters).indexOf(key) + 1}
+                            </span>
+                          <div className="flex flex-col gap-1">
+                            <strong className="text-lg">
+                              {savedParameter.user_defined_par_mod.description}
+                            </strong>
+                          </div>
+                        </div>
+                        <div className="flex flex-row items-center gap-2">
+                          <Button
+                            className=""
+                            variant="outline"
+                            onClick={() => handleViewSavedPar(key)}
+                          >
+                            View Station Parameters
+                          </Button>
+                          <Button
+                            className=""
+                            onClick={() => handleViewSavedParClimateData(key)}
+                          >
+                            Generate Climate Data
+                          </Button>
+                        </div>
+                        {/*{Object.keys(savedParameters).map((par, index) => (*/}
+                        {/*  <div key={index}>*/}
+                        {/*    <button*/}
+                        {/*      className={`w-full rounded-sm border p-2 text-left ${*/}
+                        {/*        selectedPar === par*/}
+                        {/*          ? "bg-[#015838] text-white"*/}
+                        {/*          : ""*/}
+                        {/*      }`}*/}
+                        {/*      onClick={() => handleSavedParClick(par)}*/}
+                        {/*    >*/}
+                        {/*      <strong>*/}
+                        {/*        {*/}
+                        {/*          savedParameters[par].user_defined_par_mod*/}
+                        {/*            .description*/}
+                        {/*        }*/}
+                        {/*      </strong>*/}
+                        {/*    </button>*/}
+                        {/*    {selectedPar === par && (*/}
+                        {/*      <div className="mt-2 rounded-sm border bg-gray-100 p-2">*/}
+                        {/*        <div className="mb-2">*/}
+                        {/*          <button*/}
+                        {/*            className="mb-2 block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"*/}
+                        {/*            onClick={handleViewSavedPar}*/}
+                        {/*          >*/}
+                        {/*            View Saved Parameters*/}
+                        {/*          </button>*/}
+                        {/*        </div>*/}
+                        {/*        <div className="mb-2 border-t-2 border-gray-300">*/}
+                        {/*          <label className="mt-2 block text-sm font-medium text-gray-700">*/}
+                        {/*            Number of Years*/}
+                        {/*          </label>*/}
+                        {/*          <input*/}
+                        {/*            type="number"*/}
+                        {/*            className="mt-1 block w-full rounded-sm border border-gray-300 p-2"*/}
+                        {/*            value={years}*/}
+                        {/*            onChange={(e) => setYears(e.target.value)}*/}
+                        {/*          />*/}
+                        {/*        </div>*/}
+                        {/*        <button*/}
+                        {/*          className="block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"*/}
+                        {/*          onClick={handleViewSavedParClimateData}*/}
+                        {/*        >*/}
+                        {/*          Generate Climate Data*/}
+                        {/*        </button>*/}
+                        {/*      </div>*/}
+                        {/*    )}*/}
+                        {/*  </div>*/}
+                        {/*))}*/}
+                      </div>
+                    )
+                  ))}
                 </TabsContent>
               </Tabs>
             </div>

@@ -93,7 +93,8 @@
 
 @layer components {
   .page-container {
-    @apply mx-auto flex w-full flex-col gap-0 md:max-w-2xl lg:max-w-3xl xl:max-w-6xl pt-16;
+    /*@apply mx-auto flex w-full flex-col gap-0 md:max-w-2xl lg:max-w-3xl xl:max-w-6xl pt-16;*/
+    @apply flex flex-col gap-4 py-4 md:gap-6 md:py-6 mt-16;
   }
 
   .border-border {
@@ -119,7 +120,7 @@
   --color-card-foreground: oklch(0.141 0.005 285.823);
   --color-popover: oklch(1 0 0);
   --color-popover-foreground: oklch(0.141 0.005 285.823);
-  --color-primary: oklch(0.723 0.219 149.579);
+  --color-primary: oklch(0.648 0.2 131.684);
   --color-primary-foreground: oklch(0.982 0.018 155.826);
   --color-secondary: oklch(0.967 0.001 286.375);
   --color-secondary-foreground: oklch(0.21 0.006 285.885);

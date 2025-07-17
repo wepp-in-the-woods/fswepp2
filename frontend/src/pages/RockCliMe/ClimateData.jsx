@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { api } from "../../api";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/layout/app-sidebar";
+import { AppHeader } from "@/components/layout/app-header";
 
 // Parse station description to get name and state
 const parseStationDesc = (desc) => {
@@ -112,102 +115,114 @@ function ClimateData() {
   }, [par_id, loc, usePrismClim, user_defined_par_mod]);
 
   return (
-    <main className="page-container">
-      <div className="flex items-center">
-        <button
-          onClick={() => navigate("/rock-clime")}
-          className="items-start rounded-sm bg-white px-4 py-2 text-black underline"
-        >
-          Back
-        </button>
-      </div>
-      {/* Climate Data page header*/}
-      <div className="mr-4 ml-4 flex flex-col items-start">
-        <div className="text-2xl font-semibold">
-          {/* If custom parameters are present, render the 
-          description, otherwise parsed name and state from station*/}
-          {customPar
-            ? customPar.user_defined_par_mod.description
-            : `${name}, ${state}`}
-        </div>
-        <div className="text-l mb-4">
-          {/* Render station or custom par ID */}
-          {customPar ? `Parameter ID: ${selectedPar}` : `Station ID: ${par_id}`}
-        </div>{" "}
-        {/* If not a custom par, display coordinates.*/}
-        {!customPar && coordinates && (
-          <div className="text-xl">
-            <h3 className="-mt-2 text-[17px] font-semibold">
-              Station Coordinates
-            </h3>
-            <p className="-mt-1 text-[14px]">
-              Latitude: {coordinates.latitude}
-            </p>
-            <p className="-mt-2 text-[14px]">
-              Longitude: {coordinates.longitude}
-            </p>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <AppHeader />
+        <div className="page-container">
+          {/* Climate Data page header*/}
+          <div
+            className="flex flex-col justify-between lg:flex-row px-4 lg:px-6"
+            dataslot="page-header"
+          >
+            <div className="flex w-full flex-col items-start gap-3">
+              <div className="flex h-8 w-full flex-row text-2xl font-semibold">
+                {/* If custom parameters are present, render the
+                description, otherwise parsed name and state from station*/}
+                {customPar
+                  ? customPar.user_defined_par_mod.description
+                  : `${name}, ${state}`}
+              </div>
+              <div className="text-mdtext-gray-800">
+                {/* Render station or custom par ID */}
+                {customPar ? `Parameter ID: ${selectedPar}` : `Station ID: ${par_id}`}
+              </div>{" "}
+              {/* If not a custom par, display coordinates.*/}
+              {!customPar && coordinates && (
+                <div className="text-gray-800">
+                  <h3 className="font-bold">
+                    Station Coordinates
+                  </h3>
+                  <p className="text-sm md:text-base">
+                    Latitude: {coordinates.latitude}
+                  </p>
+                  <p className="text-sm md:text-base">
+                    Longitude: {coordinates.longitude}
+                  </p>
+                </div>
+              )}
+              <div>
+                {years} years of data.
+              </div>
+            </div>
           </div>
-        )}
-        {/* Div for climate data table*/}
-        <div className="mt-4 mb-4 w-full">
-          <h3 className="text-2xl font-semibold">Climate Data:</h3>
-          {usePrismClim && (
-            <p className="mb-2 text-[12px]">
-              *Precip. & Mean Min/Max Temp. from PRISM
-            </p>
-          )}
-          {climateData && (
-            <div>
-              <table className="w-full table-auto border-collapse border border-gray-400 max-[374px]:text-xs">
-                <thead>
+
+          {/*TODO: Add button to download climate data as a .cli file*/}
+          {/*TODO: Units in table header*/}
+          {/*TODO: Add button to remove custom parameters*/}
+          {/* Div for climate data table*/}
+          <div className="flex flex-col items-start px-4 lg:px-6 mb-4 w-full">
+            <div className="mb-3 flex flex-row w-full gap-2">
+              <h3 className="text-xl font-semibold">Climate Data</h3>
+              {usePrismClim && (
+                <p className="text-sm">
+                  *Precip. & Mean Min/Max Temp. from PRISM
+                </p>
+              )}
+            </div>
+            {climateData && (
+              <div className="w-full">
+                <table className="w-full table-auto border-collapse border border-gray-400 max-[374px]:text-xs">
+                  <thead>
                   <tr>
-                    <th className="border border-gray-300 px-2 py-2 text-left">
+                    <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
                       Month
                     </th>
-                    <th className="border border-gray-300 px-2 py-2 text-left">
+                    <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
                       Mean Precip.
                     </th>
-                    <th className="border border-gray-300 px-2 py-2 text-left">
+                    <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
                       Mean Max Temp.
                     </th>
-                    <th className="border border-gray-300 px-2 py-2 text-left">
+                    <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
                       Mean Min Temp.
                     </th>
-                    <th className="border border-gray-300 px-2 py-2 text-left">
+                    <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
                       # of Wet Days
                     </th>
                   </tr>
-                </thead>
-                <tbody>
+                  </thead>
+                  <tbody>
                   {climateData.ppts.map((ppt, index) => (
                     <tr key={index}>
-                      <td className="border border-gray-300 px-2 py-2">
-                        <span className="hidden md:inline">
-                          {months[index]}
-                        </span>
+                      <td className="w-1/5 border border-gray-300 px-2 py-2 text-left">
+                            <span className="hidden md:inline">
+                              {months[index]}
+                            </span>
                         <span className="md:hidden">{monthsAbbrev[index]}</span>
                       </td>
-                      <td className="border border-gray-300 px-2 py-2">
+                      <td className="w-1/5 border border-gray-300 px-2 py-2">
                         {ppt.toFixed(2)}
                       </td>
-                      <td className="border border-gray-300 px-2 py-2">
+                      <td className="w-1/5 border border-gray-300 px-2 py-2">
                         {climateData.tmaxs[index].toFixed(2)}
                       </td>
-                      <td className="border border-gray-300 px-2 py-2">
+                      <td className="w-1/5 border border-gray-300 px-2 py-2">
                         {climateData.tmins[index].toFixed(2)}
                       </td>
-                      <td className="border border-gray-300 px-2 py-2">
+                      <td className="w-1/5 border border-gray-300 px-2 py-2">
                         {climateData.nwds[index].toFixed(2)}
                       </td>
                     </tr>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
 
