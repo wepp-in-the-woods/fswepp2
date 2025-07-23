@@ -126,7 +126,7 @@ function ClimateData() {
             dataslot="page-header"
           >
             <div className="flex w-full flex-col items-start gap-3">
-              <div className="flex h-8 w-full flex-row text-2xl font-semibold">
+              <div className="flex w-full flex-row text-2xl font-semibold">
                 {/* If custom parameters are present, render the
                 description, otherwise parsed name and state from station*/}
                 {customPar

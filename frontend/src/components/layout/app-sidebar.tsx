@@ -1,16 +1,6 @@
-import * as React from "react"
-import {
-  BookOpenText,
-  ChevronRight,
-  Earth,
-  ExternalLink,
-  Mail,
-  MonitorPlay,
-  MountainSnow,
-  Settings2,
-  Waves,
-  type LucideIcon,
-} from "lucide-react";
+import * as React from "react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 import {
   Collapsible,
@@ -32,11 +22,23 @@ import {
   SidebarMenuSubItem,
   SidebarMenuSubButton,
   useSidebar
-} from "@/components/ui/sidebar.tsx";
-import { Button } from "@/components/ui/button.tsx";
-import { ButtonGroup } from "@/components/ui/button-group.tsx";
-import { Icon } from "@/components/ui/icon.tsx";
-import { Link } from "react-router-dom";
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
+
+import { Icon } from "@/components/ui/icon";
+import {
+  BookOpenText,
+  ChevronRight,
+  Earth,
+  ExternalLink,
+  Mail,
+  MonitorPlay,
+  MountainSnow,
+  Settings2,
+  Waves,
+  type LucideIcon,
+} from "lucide-react";
 
 // Type definitions
 interface NavLinkProps {
@@ -251,18 +253,24 @@ function NavLink({
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { state, isMobile } = useSidebar();
+  const [units, setUnits] = useState(() => localStorage.getItem("units") || "metric"); // Default to metric units
+
   return (
-    <Sidebar
-      collapsible="icon"
-      {...props}
-    >
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="/" className="flex items-center lg:h-full transition-all duration-300 ease-in-out">
+              <a
+                href="/"
+                className="flex items-center transition-all duration-300 ease-in-out lg:h-full"
+              >
                 <img
-                  src={state === "collapsed" && !isMobile ? "/fswepp-icon.png" : "/fswepp-logo.png"}
+                  src={
+                    state === "collapsed" && !isMobile
+                      ? "/fswepp-icon.png"
+                      : "/fswepp-logo.png"
+                  }
                   alt="FSWEPP Logo"
                   className={`h-10 w-fit object-contain transition-all duration-300 ease-in-out`}
                 />
@@ -282,10 +290,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               >
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip={item.title} className="transition-all duration-200 ease-in-out [&>svg]:size-5 [&>svg]:shrink-0">
-                      {item.icon && <item.icon className="transition-transform duration-200 ease-in-out"/>}
-                      <span className="text-lg transition-opacity duration-200 ease-in-out">{item.title}</span>
-                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 ease-in-out" />
+                    <SidebarMenuButton
+                      tooltip={item.title}
+                      className="transition-all duration-200 ease-in-out [&>svg]:size-5 [&>svg]:shrink-0"
+                    >
+                      {item.icon && (
+                        <item.icon className="transition-transform duration-200 ease-in-out" />
+                      )}
+                      <span className="text-lg transition-opacity duration-200 ease-in-out">
+                        {item.title}
+                      </span>
+                      <ChevronRight className="ml-auto transition-transform duration-200 ease-in-out group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
@@ -312,7 +327,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenu>
             {data.navExtra.map((item) => (
               <SidebarMenuItem key={item.title} title={item.title}>
-                <SidebarMenuButton asChild tooltip={item.title} className="transition-all duration-200 ease-in-out ">
+                <SidebarMenuButton
+                  asChild
+                  tooltip={item.title}
+                  className="transition-all duration-200 ease-in-out"
+                >
                   {/*<Icon icon = {item.icon} />*/}
                   <NavLink {...item} />
                 </SidebarMenuButton>
@@ -325,14 +344,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {/* Settings button */}
       <SidebarFooter className="flex flex-row items-center">
         <ButtonGroup className="p-2">
-          <Button variant="outline">Metric</Button>
-          <Button variant="secondary">US Customary</Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setUnits("metric");
+              console.log("Units set to metric");
+            }}
+          >
+            Metric
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setUnits("imerial");
+              console.log("Units set to imperial");
+            }}
+          >
+            US Customary
+          </Button>
         </ButtonGroup>
         <Button variant="ghost" title="Unit Settings">
-          <Icon icon={Settings2} className="size-5!"/>
+          <Icon icon={Settings2} className="size-5!" />
         </Button>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.tsx";
+import { Card, CardContent, CardHeader } from "@/components/ui/card.tsx";
 import { Icon } from "@/components/ui/icon.tsx";
 import { ExternalLink } from "lucide-react";
 // import { HTMLAttributes } from "react";
@@ -16,20 +16,18 @@ function ToolCard({ title, description, icon, href }: ToolCardProps) {
   const isExternal = href?.startsWith("http") || href?.includes("http");
 
   const content = (
-    <Card className="flex h-full w-full cursor-pointer flex-row items-start gap-5 px-5 transition hover:shadow-md">
-      <CardHeader className="flex w-20 flex-shrink-0 justify-center p-0">
+    <Card className="flex h-full w-full cursor-pointer flex-col items-start gap-5 px-6 transition hover:shadow-md">
+      <CardHeader className="flex flex-row w-full flex-shrink-0 items-center p-0 gap-4">
         {icon && (
-          <div className="flex w-fit items-center">
-            <img src={icon} alt="" className="w-16" />
-          </div>
+          <img src={icon} alt="" className="w-16" />
         )}
-      </CardHeader>
-      <CardContent className="flex flex-col gap-2 p-0">
-        <CardTitle className="flex flex-row items-center gap-2 text-lg font-semibold">
+        <div className="flex flex-row items-center gap-2 text-lg font-semibold">
           {title}
           {isExternal && <Icon icon={ExternalLink} className="h-4 w-4" />}
-        </CardTitle>
-        <p className="line-clamp-2 text-base text-slate-800">{description}</p>
+        </div>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-2 p-0 h-full">
+        <p className="line-clamp-4 text-base text-slate-800">{description}</p>
       </CardContent>
     </Card>
   );

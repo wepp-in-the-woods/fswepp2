@@ -3,18 +3,21 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { api } from "../../api";
 import { ClimateValidation, validatePrecipitation } from "@/utils/climateValidation";
+import { useUnits, UnitsContext, UnitsProvider } from "../../contexts/UnitsContext";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Save, SquarePen } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { Toaster, toast } from "sonner"
+import { Save, SquarePen } from "lucide-react";
 
 // StationPar Component that displays custom or station parameter data
 function StationPar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { units } = useUnits();
 
   // Destructure location state from RockCliMe component
   const {
@@ -96,6 +99,7 @@ function StationPar() {
         console.error("Error posting data:", error);
       });
 
+    toast.success("Parameters saved to " + description);
     // Once saved, reset view
     setIsModified(false);
     setDescription("");
@@ -122,6 +126,7 @@ function StationPar() {
     resetInputValues(); // Reset to original parData values
     setIsModified(false); // Exit edit mode
     setDescription(stationDesc); // Reset description to original
+    toast.info("Changes discarded");
   };
 
   // Fetch station parameter data from server
@@ -187,7 +192,8 @@ function StationPar() {
   ];
 
   return (
-    <SidebarProvider>
+    <>
+      <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
         <AppHeader />
@@ -199,7 +205,7 @@ function StationPar() {
           >
             {/*TODO: Add button to remove custom parameters*/}
             <div className="flex w-full flex-col items-start gap-3">
-              <div className="flex h-8 w-full flex-row text-2xl font-semibold">
+              <div className="flex w-full flex-row text-2xl font-semibold">
                 {/* Parameter description with modifiable state */}
                 {isModified ? (
                   <Input
@@ -291,111 +297,118 @@ function StationPar() {
                 <div>
                   <table className="w-full table-auto border-collapse border border-gray-400 max-[374px]:text-xs">
                     <thead>
-                      <tr>
+                    <tr>
+                      <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
+                        Month
+                      </th>
+                      <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
+                        Mean Precip.
+                        {units === "imperial" ? " (in)" : " (mm)"}
+                      </th>
+                      <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
+                        Mean Max Temp.
+                        {units === "imperial" ? " (°F)" : " (°C)"}
+                      </th>
+                      <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
+                        Mean Min Temp.
+                        {units === "imperial" ? " (°F)" : " (°C)"}
+                      </th>
+                      {parData.nwds && parData.nwds.length > 0 && (
                         <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
-                          Month
+                          # of Wet Days
                         </th>
-                        <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
-                          Mean Precip.
-                        </th>
-                        <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
-                          Mean Max Temp.
-                        </th>
-                        <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
-                          Mean Min Temp.
-                        </th>
-                        {parData.nwds && parData.nwds.length > 0 && (
-                          <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
-                            # of Wet Days
-                          </th>
-                        )}
-                      </tr>
+                      )}
+                    </tr>
                     </thead>
                     <tbody>
-                      {/* Map par data to table */}
-                      {parData.ppts.map((ppt, index) => (
-                        <tr key={index}>
-                          <td className="w-1/5 border border-gray-300 px-2 py-2">
+                    {/* Map par data to table */}
+                    {parData.ppts.map((ppt, index) => (
+                      <tr key={index}>
+                        <td className="w-1/5 border border-gray-300 px-2 py-2">
                             <span className="hidden md:inline">
                               {months[index]}
                             </span>
-                            <span className="md:hidden">
+                          <span className="md:hidden">
                               {monthsAbbrev[index]}
                             </span>
-                          </td>
-                          {/*TODO: Color highlight to indicate values changed from original PAR data*/}
-                          <td className="w-1/5 border border-gray-300 px-2 py-2">
-                            {/* Allow user to change values if isModified state is true*/}
-                            {isModified ? (
-                              <Input
-                                type="number"
-                                defaultValue={ppt.toFixed(2)}
-                                onBlur={(e) => {
-                                  const result = validatePrecipitation(parseFloat(e.target.value));
-                                  if (!result.isValid) {
-                                    alert(result.message);
-                                    // Reset to original parData value
-                                    e.target.value = ppt.toFixed(2);
-                                    return;
-                                  }
-                                  handleInputChange(e, index, "ppts");
-                                }}
-                                className={``}
-                              />
-                            ) : (
-                              <>{ppt.toFixed(2)}</>
-                            )}
-                          </td>
-                          <td className="w-1/5 border border-gray-300 px-2 py-2">
-                            {/* Allow user to change values if isModified state is true*/}
-                            {isModified ? (
-                              <Input
-                                type="number"
-                                defaultValue={parData.tmaxs[index].toFixed(2)}
-                                onChange={(e) =>
-                                  handleInputChange(e, index, "tmaxs")
+                        </td>
+                        {/*TODO: Color highlight to indicate values changed from original PAR data*/}
+                        <td className="w-1/5 border border-gray-300 px-2 py-2">
+                          {/* Allow user to change values if isModified state is true*/}
+                          {isModified ? (
+                            <Input
+                              type="number"
+                              defaultValue={ppt.toFixed(2)}
+                              onBlur={(e) => {
+                                const result = validatePrecipitation(parseFloat(e.target.value));
+                                if (!result.isValid) {
+                                  alert(result.message);
+                                  // Reset to original parData value
+                                  e.target.value = ppt.toFixed(2);
+                                  return;
                                 }
-                                className={``}
-                              />
-                            ) : (
-                              <>{parData.tmaxs[index].toFixed(2)}</>
-                            )}
-                          </td>
-                          <td className="w-1/5 border border-gray-300 px-2 py-2">
-                            {/* Allow user to change values if isModified state is true*/}
-                            {isModified ? (
-                              <Input
-                                type="number"
-                                defaultValue={parData.tmins[index].toFixed(2)}
-                                onChange={(e) =>
-                                  handleInputChange(e, index, "tmins")
-                                }
-                                className={``}
-                              />
-                            ) : (
-                              <>{parData.tmins[index].toFixed(2)}</>
-                            )}
-                          </td>
-                          {/*TODO: Make number of wet days read-only*/}
-                          {parData.nwds && parData.nwds.length > 0 && (
-                            <td className="w-1/5 border border-gray-300 px-2 py-2">
-                              {/* Allow user to change values if isModified state is true*/}
-                              {isModified ? (
-                                <Input
-                                  type="number"
-                                  defaultValue={parData.nwds[index].toFixed(2)}
-                                  onChange={(e) =>
-                                    handleInputChange(e, index, "nwds")
-                                  }
-                                  className={``}
-                                />
-                              ) : (
-                                <>{parData.nwds[index].toFixed(2)}</>
-                              )}
-                            </td>
+                                handleInputChange(e, index, "ppts");
+                              }}
+                              className={``}
+                            />
+                          ) : (
+                            <>
+                              {ppt.toFixed(2)}
+                              {/*{ UnitsProvider.formatTemperature(ppt, "mm") }*/}
+                            </>
                           )}
-                        </tr>
-                      ))}
+                        </td>
+                        <td className="w-1/5 border border-gray-300 px-2 py-2">
+                          {/* Allow user to change values if isModified state is true*/}
+                          {isModified ? (
+                            <Input
+                              type="number"
+                              defaultValue={parData.tmaxs[index].toFixed(2)}
+                              onChange={(e) =>
+                                handleInputChange(e, index, "tmaxs")
+                              }
+                              className={``}
+                            />
+                          ) : (
+                            <>{parData.tmaxs[index].toFixed(2)}</>
+                          )}
+                        </td>
+                        <td className="w-1/5 border border-gray-300 px-2 py-2">
+                          {/* Allow user to change values if isModified state is true*/}
+                          {isModified ? (
+                            <Input
+                              type="number"
+                              defaultValue={parData.tmins[index].toFixed(2)}
+                              onChange={(e) =>
+                                handleInputChange(e, index, "tmins")
+                              }
+                              className={``}
+                            />
+                          ) : (
+                            <>{parData.tmins[index].toFixed(2)}</>
+                          )}
+                        </td>
+                        {/*TODO: Make number of wet days read-only*/}
+                        {parData.nwds && parData.nwds.length > 0 && (
+                          <td className="w-1/5 border border-gray-300 px-2 py-2">
+                            {/* Allow user to change values if isModified state is true*/}
+                            {/*{isModified ? (*/}
+                            {/*  <Input*/}
+                            {/*    type="number"*/}
+                            {/*    defaultValue={parData.nwds[index].toFixed(2)}*/}
+                            {/*    onChange={(e) =>*/}
+                            {/*      handleInputChange(e, index, "nwds")*/}
+                            {/*    }*/}
+                            {/*    className={``}*/}
+                            {/*  />*/}
+                            {/*) : (*/}
+                            {/*  <>{parData.nwds[index].toFixed(2)}</>*/}
+                            {/*)}*/}
+                            <>{parData.nwds[index].toFixed(2)}</>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
                     </tbody>
                   </table>
                 </div>
@@ -405,6 +418,8 @@ function StationPar() {
         </div>
       </SidebarInset>
     </SidebarProvider>
+    <Toaster position="top-right" richColors/>
+    </>
   );
 }
 

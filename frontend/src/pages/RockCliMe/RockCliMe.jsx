@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo, lazy, use } from "react";
 import axios from "axios";
 import { api } from "../../api";
 import { useNavigate } from "react-router-dom";
+import { useMediaQuery } from "@/hooks/use-media-query.ts";
 
 import {
   Dialog,
@@ -24,7 +25,7 @@ import {
 
 // Icons
 import { Icon } from "@/components/ui/icon";
-import { Info, MapPin, ChevronUp, ChevronDown } from "lucide-react";
+import { Info, MapPin, ChevronUp, ChevronDown, EllipsisVertical, SlidersHorizontal } from "lucide-react";
 
 import {
   Select,
@@ -41,9 +42,32 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
 
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader, DrawerOverlay,
+  DrawerTitle,
+  DrawerTrigger
+} from "@/components/ui/drawer";
+import { Separator } from "@/components/ui/separator";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 const ChooseLocation = lazy(() => import("./ChooseLocation.jsx"));
 
 const RockCliMe = () => {
+  const isMobile = useMediaQuery("(max-width: 30rem)");
+
   // Add loading states
   const [isLoadingRegions, setIsLoadingRegions] = useState(false);
   const [isLoadingStations, setIsLoadingStations] = useState(false);
@@ -82,7 +106,7 @@ const RockCliMe = () => {
   const [usePrismPar, setUsePrismPar] = useState(false);
   const [usePrismClim, setUsePrismClim] = useState(false);
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("closestStations");
+  const [activeTab, setActiveTab] = useState("stationsTab");
   const [showLocationDiv, setShowLocationDiv] = useState(false);
   const [prevCoordinates, setPrevCoordinates] = useState([null, null]);
   const [parametersFetched, setParametersFetched] = useState(false);
@@ -108,8 +132,10 @@ const RockCliMe = () => {
   useEffect(() => {
     if (
       coordinates &&
+      coordinates[0] !== null &&
+      coordinates[1] !== null &&
       !showLocationDiv &&
-      activeTab === "closestStations" &&
+      activeTab === "stationsTab" &&
       (coordinates[0] !== prevCoordinates[0] ||
         coordinates[1] !== prevCoordinates[1])
     ) {
@@ -294,20 +320,6 @@ const RockCliMe = () => {
   // Allow user to set how many stations to show (when not browsing by region)
   const [numberOfStationsToShow, setNumberOfStationsToShow] = useState(6); // Default to 6 stations
 
-  // // Update the number of stations to show when the user changes the input
-  // useEffect(() => {
-  //   if (searchMethod === 'location' && closestStations.length > 0) {
-  //     setNumberOfStationsToShow(prev => {
-  //       // If user hasn't changed from default (6), reset to 6 or max available
-  //       if (prev === 6) {
-  //         return Math.min(6, closestStations.length);
-  //       }
-  //       // If user set a custom value, keep it but don't exceed available stations and never go below 1
-  //       return Math.max(1, Math.min(prev, closestStations.length));
-  //     });
-  //   }
-  // }, [closestStations, searchMethod]);
-
   // Calculate the number of stations to show based on search method
   const stationsToShow = useMemo(() => {
     if (searchMethod === "region") {
@@ -465,7 +477,7 @@ const RockCliMe = () => {
         <AppHeader />
         <div className="page-container">
           <div
-            className="flex flex-col justify-between lg:flex-row px-4 lg:px-6 gap-4"
+            className="flex flex-row justify-between px-4 lg:px-6 gap-4"
             dataslot="page-title"
           >
             <div className="flex w-full flex-col items-start gap-3">
@@ -535,7 +547,7 @@ const RockCliMe = () => {
                 Rocky Mountain Research Station Climate Generator
               </p>
             </div>
-            <div className="flex w-full flex-col items-center gap-3 sm:flex-row lg:justify-end">
+            <div className="hidden lg:flex lg:flex-row w-full sm:items-end sm:justify-end md:items-center gap-3 lg:justify-end">
               <Select value={cligenVersion} onValueChange={setCligenVersion}>
                 <SelectTrigger id="cligenVersion" className="w-full sm:w-fit">
                   <SelectValue defaultValue={cligenVersion}>
@@ -547,10 +559,7 @@ const RockCliMe = () => {
                   <SelectItem value="4.3">4.3 (Legacy)</SelectItem>
                 </SelectContent>
               </Select>
-              <Select
-                value={databaseVersion}
-                onValueChange={setDatabaseVersion}
-              >
+              <Select value={databaseVersion} onValueChange={setDatabaseVersion}>
                 <SelectTrigger id="databaseVersion" className="w-full sm:w-fit">
                   <SelectValue defaultValue={databaseVersion}>
                     <span>Database Version: {databaseVersion}</span>
@@ -565,24 +574,196 @@ const RockCliMe = () => {
               </Select>
             </div>
           </div>
-          <div className="flex flex-col xl:flex-row px-4 lg:px-6 py-6">
-            <Button
-              variant="ghost"
-              className="sm:hidden"
-              onClick={() => setLocationToggle(!locationToggle)}
-            >
-              {locationToggle
-                ? "Hide Location Options"
-                : "Show Location Options"}
-              <Icon
-                icon={locationToggle ? ChevronUp : ChevronDown}
-                className="ml-2 h-4 w-4"
-              />
-            </Button>
+          <div className="flex flex-col lg:flex-row px-4 lg:px-6 py-2 lg:py-6">
+            <div className="flex flex-row items-center justify-between p-4 mb-6 gap-4 border border-border rounded-2xl lg:hidden">
+              <div className="flex flex-col text-sm gap-2">
+                <div className="flex flex-row gap-3">
+                  <span>Cligen Version: {cligenVersion}</span>
+                  <Separator orientation="vertical" className="h-4 w-px" />
+                  <span>Database Version: {databaseVersion}</span>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {databaseVersion !== "au" && (
+                    <div>
+                      {usePrismPar && usePrismClim ? (
+                        <span>Using Prism monthlies</span>
+                        ) : (
+                          <span>Not using Prism monthlies</span>
+                        )
+                      }
+                    </div>
+                  )}
+                  <div className="flex flex-col xs:flex-row xs:items-center gap-3">
+                    <p className="text-sm font-medium text-gray-700">
+                      Generate climate data for {years} years.
+                    </p>
+                  </div>
+                </div>
+                <strong className="text-gray-700">
+                  Current Location:
+                  {coordinates && latInput && lngInput
+                    ? ` ${parseFloat(coordinates[0]).toFixed(3)}, ${parseFloat(coordinates[1]).toFixed(3)}`
+                    : " None"}
+                </strong>
+              </div>
+              {/*When not in desktop mode: Show sheet to change cligen version, database version, data settings and location*/}
+              <Sheet>
+                <SheetTrigger asChild className="lg:hidden">
+                  <Button variant="ghost">
+                    <Icon icon={SlidersHorizontal} className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent>
+                  <SheetHeader>
+                    <SheetTitle>Filter results</SheetTitle>
+                    <SheetDescription></SheetDescription>
+                  </SheetHeader>
+                  <div className="grid flex-1 auto-rows-min gap-6 px-4">
+                    <Select value={cligenVersion} onValueChange={setCligenVersion}>
+                      <SelectTrigger id="cligenVersion" className="w-full sm:w-fit">
+                        <SelectValue defaultValue={cligenVersion}>
+                          <span>Cligen Version: {cligenVersion}</span>
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="5.3.2">5.3.2 (WEPPcloud)</SelectItem>
+                        <SelectItem value="4.3">4.3 (Legacy)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={databaseVersion} onValueChange={setDatabaseVersion}>
+                      <SelectTrigger id="databaseVersion" className="w-full sm:w-fit">
+                        <SelectValue defaultValue={databaseVersion}>
+                          <span>Database Version: {databaseVersion}</span>
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="legacy">Legacy</SelectItem>
+                        <SelectItem value="2015">2015</SelectItem>
+                        <SelectItem value="au">au</SelectItem>
+                        <SelectItem value="ghcn">ghcn</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="flex flex-row gap-4">
+                      {databaseVersion !== "au" && (
+                        <Label htmlFor="usePrismCheckbox" className="text-sm font-medium text-gray-700">
+                          <Checkbox
+                            id="usePrismCheckbox"
+                            checked={usePrismPar || usePrismClim}
+                            onCheckedChange={(checked) => {
+                              setUsePrismPar(checked);
+                              setUsePrismClim(checked);
+                            }}
+                          />
+                          <span>Use Prism monthlies</span>
+                        </Label>
+                      )}
+                      <Separator orientation="vertical" className="h-4 w-px bg-gray-300" />
+                      <div className="flex flex-col xs:flex-row xs:items-center gap-3">
+                        <Label htmlFor="numberOfYearsInput" className="text-sm font-medium text-gray-700">
+                          Generate data for
+                        </Label>
+                        <div className="flex flex-row items-center gap-2">
+                          <Input
+                            id="numberOfYearsInput"
+                            type="number"
+                            className="min-w-18 max-w-18"
+                            value={years}
+                            onChange={(e) =>
+                              setYears(e.target.value)
+                            }
+                          />
+                          <span className="block text-sm font-medium text-gray-700"> years</span>
+                        </div>
+                      </div>
+                    </div>
+                    {/* Method 1: Browse by chosen location */}
+                    <div className="flex shrink flex-col">
+                      <h3 className="text-sm font-semibold mb-2">Find by location</h3>
+                      <div className="flex flex-col gap-3">
+                        <p className="text-sm text-gray-600">
+                          Set coordinates to find the closest climate stations
+                        </p>
+                        <div className="flex flex-col gap-2">
+                          <div className="text-sm">
+                            <span className="text-sm font-medium text-gray-700">Current Location: </span>
+                            {latInput && lngInput
+                              ? `${parseFloat(latInput).toFixed(3)}, ${parseFloat(
+                                lngInput,
+                              ).toFixed(3)}`
+                              : "None"}
+                          </div>
+                          <ChooseLocation
+                            coordinates={coordinates}
+                            setCoordinates={setCoordinates}
+                            setLatInput={setLatInput}
+                            setLngInput={setLngInput}
+                            showLocationDiv={showLocationDiv}
+                            setShowLocationDiv={setShowLocationDiv}
+                            latInput={latInput}
+                            lngInput={lngInput}
+                            cligenVersion={cligenVersion}
+                            databaseVersion={databaseVersion}
+                            setSearchMethod={setSearchMethod}
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor="numberOfStationsToShow">
+                            Number of Stations to Show:
+                          </Label>
+                          <Input
+                            id="numberOfStationsToShow"
+                            type="number"
+                            value={numberOfStationsToShow}
+                            onChange={(e) => setNumberOfStationsToShow(e.target.value)}
+                            className="w-16"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-row items-center gap-2 text-gray-500">
+                      <div className="h-px grow bg-gray-300 xl:h-px" />
+                      OR
+                      <div className="h-px grow bg-gray-300 xl:h-px" />
+                    </div>
+                    {/* Method 2: Browse by Region */}
+                    <div className="flex shrink flex-col">
+                      <h3 className="text-sm font-semibold mb-2">
+                        {(databaseVersion ===  "legacy") || (databaseVersion === "2015") ? "Browse by state" : "Browse by region"}
+                      </h3>
+                      <div className="flex flex-col gap-2">
+                        <p className="text-sm text-gray-600">
+                          Select a {(databaseVersion ===  "legacy") || (databaseVersion === "2015") ? "state" : "region"} to view all available climate stations in the {(databaseVersion ===  "legacy") || (databaseVersion === "2015") ? "state" : "region"}.
+                        </p>
+                        <Combobox
+                          options={regionOptions}
+                          value={selectedRegion}
+                          onValueChange={(value) => {
+                            setSelectedRegion(value);
+                            setActiveTab("stationsTab");
+                          }}
+                          placeholder={
+                            isLoadingRegions
+                              ? "Loading..."
+                              : `Select a ${(databaseVersion ===  "legacy") || (databaseVersion === "2015") ? "state" : "region"}...`
+                          }
+                          className="sm:min-w-[200px]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <SheetFooter>
+                    <Button type="submit">Save changes</Button>
+                    <SheetClose asChild>
+                      <Button variant="outline">Close</Button>
+                    </SheetClose>
+                  </SheetFooter>
+                </SheetContent>
+              </Sheet>
+            </div>
             <Accordion
               type="multiple"
-              collapsible
-              className={`w-full shrink flex-1/4 xl:pr-6`}
+              collapsible="true"
+              className={`hidden lg:flex lg:flex-col flex-1/4 mb-4 lg:pr-6 min-w-60`}
               defaultValue={["dataSettings", "location"]}
             >
               <AccordionItem value="dataSettings">
@@ -607,7 +788,7 @@ const RockCliMe = () => {
                   )}
                   <div className="flex flex-col gap-3">
                     <Label htmlFor="numberOfYearsInput" className="block text-sm font-medium text-gray-700">
-                      Number of years to genarate data:
+                      Number of years to generate data:
                     </Label>
                     <Input
                       id="numberOfYearsInput"
@@ -621,13 +802,13 @@ const RockCliMe = () => {
                   </div>
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="location">
-                <AccordionTrigger>
+              <AccordionItem value="location" className="w-full">
+                <AccordionTrigger className="w-full">
                   <h2 className="text-base font-semibold mb-2">Location</h2>
                 </AccordionTrigger>
-                <AccordionContent className="flex flex-col gap-3">
+                <AccordionContent className="flex flex-col gap-3 max-w-full">
                   {/* Method 1: Browse by chosen location */}
-                  <div className="flex w-full shrink flex-col">
+                  <div className="flex shrink flex-col">
                     <h3 className="text-sm font-semibold mb-2">Find by location</h3>
                     <div className="flex flex-col gap-3">
                       <p className="text-sm text-gray-600">
@@ -642,44 +823,19 @@ const RockCliMe = () => {
                             ).toFixed(3)}`
                             : "None"}
                         </div>
-                        <Dialog
-                          open={showLocationDiv}
-                          onOpenChange={setShowLocationDiv}
-                        >
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              onClick={() => setShowLocationDiv(true)}
-                              className="w-full hover:cursor-pointer sm:w-fit"
-                            >
-                              <Icon icon={MapPin} className="h-5 w-5" />
-                              Choose Location
-                            </Button>
-                          </DialogTrigger>
-                          {/* Conditionally render ChooseLocation */}
-                          {showLocationDiv && (
-                            <DialogContent
-                              className="flex h-screen max-h-screen w-screen max-w-screen flex-col rounded-none px-3 sm:max-h-5/6 sm:max-w-5/6 sm:rounded-lg sm:p-6 xl:max-h-3/4 xl:max-w-2/3"
-                              aria-describedby="choose-location-dialog"
-                            >
-                              <DialogHeader className="h-fit w-full">
-                                <DialogTitle>Choose a location</DialogTitle>
-                              </DialogHeader>
-                              <ChooseLocation
-                                coordinates={coordinates}
-                                setCoordinates={setCoordinates}
-                                setLatInput={setLatInput}
-                                setLngInput={setLngInput}
-                                setShowLocationDiv={setShowLocationDiv}
-                                latInput={latInput}
-                                lngInput={lngInput}
-                                cligenVersion={cligenVersion}
-                                databaseVersion={databaseVersion}
-                                setSearchMethod={setSearchMethod}
-                              />
-                            </DialogContent>
-                          )}
-                        </Dialog>
+                        <ChooseLocation
+                          coordinates={coordinates}
+                          setCoordinates={setCoordinates}
+                          setLatInput={setLatInput}
+                          setLngInput={setLngInput}
+                          showLocationDiv={showLocationDiv}
+                          setShowLocationDiv={setShowLocationDiv}
+                          latInput={latInput}
+                          lngInput={lngInput}
+                          cligenVersion={cligenVersion}
+                          databaseVersion={databaseVersion}
+                          setSearchMethod={setSearchMethod}
+                        />
                       </div>
                       <div className="flex items-center gap-2">
                         <Label htmlFor="numberOfStationsToShow">
@@ -695,13 +851,13 @@ const RockCliMe = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-row items-center gap-2 text-gray-500 sm:flex-col lg:h-[240px] xl:h-fit xl:flex-row">
-                    <div className="h-px w-full grow bg-gray-300 sm:h-full sm:w-px xl:h-px xl:w-full" />
+                  <div className="flex flex-row items-center gap-2 text-gray-500">
+                    <div className="h-px grow bg-gray-300 xl:h-px" />
                     OR
-                    <div className="h-px w-full grow bg-gray-300 sm:h-full sm:w-px xl:h-px xl:w-full" />
+                    <div className="h-px grow bg-gray-300 xl:h-px" />
                   </div>
                   {/* Method 2: Browse by Region */}
-                  <div className="flex w-full shrink flex-col">
+                  <div className="flex shrink flex-col">
                     <h3 className="text-sm font-semibold mb-2">
                       {(databaseVersion ===  "legacy") || (databaseVersion === "2015") ? "Browse by state" : "Browse by region"}
                     </h3>
@@ -714,13 +870,14 @@ const RockCliMe = () => {
                         value={selectedRegion}
                         onValueChange={(value) => {
                           setSelectedRegion(value);
+                          setActiveTab("stationsTab");
                         }}
                         placeholder={
                           isLoadingRegions
                             ? "Loading..."
                             : `Select a ${(databaseVersion ===  "legacy") || (databaseVersion === "2015") ? "state" : "region"}...`
                         }
-                        className="w-full sm:min-w-[200px]"
+                        className="sm:min-w-[200px]"
                       />
                     </div>
                   </div>
@@ -794,12 +951,22 @@ const RockCliMe = () => {
                     {/* TODO: Use data table for sorting and filtering */}
                     {!isLoadingStations && closestStations.length !== 0 && (
                       sortedStations.slice(0, stationsToShow).map((station) => (
-                        <div key={station.id} className="flex w-full flex-col gap-2 p-4 mb-2 md:flex-row md:justify-between items-center rounded-md border border-gray-200">
-                          <div className="flex flex-row items-baseline gap-4">
+                        <div
+                          key={station.id}
+                          className="@container flex w-full flex-row xs:flex-col gap-2 p-4 mb-2 sm:flex-row justify-between sm:items-center rounded-md border border-gray-200"
+                        >
+                          <div className="flex flex-row items-baseline grow gap-4 w-full">
                             <span className="text-sm text-gray-500">
                               {sortedStations.indexOf(station) + 1}
                             </span>
-                            <div className="flex flex-col gap-1">
+                            <div
+                              className="flex flex-col gap-1 min-w-0 w-full"
+                              onClick={(e) => {
+                                if (isMobile) {
+                                  handleViewStationPar(station);
+                                }
+                              }}
+                            >
                               <strong className="text-lg">
                                 {station.desc.slice(0, -2)}
                               </strong>
@@ -817,17 +984,68 @@ const RockCliMe = () => {
                                   )}
                               </div>
                             </div>
+                            <Drawer>
+                              <DrawerTrigger asChild>
+                                <Button
+                                  id="stationDrawerTrigger"
+                                  variant="ghost"
+                                  className="xs:hidden h-8 w-8 p-0"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <Icon icon={EllipsisVertical} className="h-5 w-5" />
+                                </Button>
+                              </DrawerTrigger>
+                              <DrawerContent>
+                                <DrawerHeader>
+                                  <DrawerTitle>{station.desc.slice(0, -2)}</DrawerTitle>
+                                  <DrawerDescription></DrawerDescription>
+                                </DrawerHeader>
+                                <DrawerFooter>
+                                  <Button
+                                    className="grow"
+                                    onClick={() => handleViewStationPar(station)}
+                                  >
+                                    View Station Parameters
+                                  </Button>
+                                  <div className="flex flex-col my-4 gap-2">
+                                    <div className="flex flex-row items-center gap-3">
+                                      <Label htmlFor="numberOfYearsInput" className="block text-sm font-medium text-gray-700">
+                                        Number of years to generate data:
+                                      </Label>
+                                      <Input
+                                        id="numberOfYearsInput"
+                                        type="number"
+                                        className="w-18"
+                                        value={years}
+                                        onChange={(e) =>
+                                          setYears(e.target.value)
+                                        }
+                                      />
+                                    </div>
+                                    <Button
+                                      className="grow"
+                                      onClick={() => handleViewStationClimateData(station)}
+                                    >
+                                      Generate Climate Data
+                                    </Button>
+                                  </div>
+                                  <DrawerClose className="py-2">
+                                    <span>Cancel</span>
+                                  </DrawerClose>
+                                </DrawerFooter>
+                              </DrawerContent>
+                            </Drawer>
                           </div>
-                          <div className="flex flex-row items-center gap-2">
+                          <div className="hidden xs:flex flex-col @lg:flex-row items-center gap-2 shrink">
                             <Button
-                              className=""
+                              className="w-full shrink"
                               variant="outline"
                               onClick={() => handleViewStationPar(station)}
                             >
                               View Station Parameters
                             </Button>
                             <Button
-                              className=""
+                              className="w-full shrink"
                               onClick={() => handleViewStationClimateData(station)}
                             >
                               Generate Climate Data
@@ -838,8 +1056,6 @@ const RockCliMe = () => {
                     ))}
                   </div>
                 </TabsContent>
-
-                {/*TODO: Fix API call to get saved parameters.*/}
                 <TabsContent value="savedParametersTab">
                   {/* Loading state */}
                   {isLoadingParameters ? (
@@ -864,32 +1080,86 @@ const RockCliMe = () => {
                   {/*List of saved parameters*/}
                   {!isLoadingParameters && savedParameters && Object.keys(savedParameters).length !== 0 && (
                     Object.entries(savedParameters).map(([key, savedParameter]) => (
-                      <div key={key} className="flex w-full flex-col gap-2 p-4 mb-2 md:flex-row md:justify-between items-center rounded-md border border-gray-200">
-                        <div className="flex flex-row items-baseline gap-4">
-                            <span className="text-sm text-gray-500">
-                              {Object.keys(savedParameters).indexOf(key) + 1}
-                            </span>
-                          <div className="flex flex-col gap-1">
+                      <div key={key} className="flex w-full flex-row xs:flex-col gap-2 p-4 mb-2 sm:flex-row justify-between sm:items-center rounded-md border border-gray-200">
+                        <div className="flex flex-row items-baseline gap-4 w-full">
+                          <span className="text-sm text-gray-500">
+                            {Object.keys(savedParameters).indexOf(key) + 1}
+                          </span>
+                          <div
+                            className="flex flex-col gap-1 min-w-0 w-full"
+                            onClick={(e) => {
+                              if (isMobile) {
+                                handleViewSavedPar(key);
+                              }
+                            }}
+                          >
                             <strong className="text-lg">
                               {savedParameter.user_defined_par_mod.description}
                             </strong>
                           </div>
+                          <Drawer>
+                            <DrawerTrigger asChild>
+                              <Button variant="ghost" className="xs:hidden h-8 w-8 p-0">
+                                <Icon icon={EllipsisVertical} className="h-5 w-5" />
+                              </Button>
+                            </DrawerTrigger>
+                            <DrawerContent>
+                              <DrawerHeader>
+                                <DrawerTitle>{savedParameter.user_defined_par_mod.description}</DrawerTitle>
+                                <DrawerDescription></DrawerDescription>
+                              </DrawerHeader>
+                              <DrawerFooter>
+                                <Button
+                                  className="grow"
+                                  onClick={() => handleViewSavedPar(key)}
+                                >
+                                  View Station Parameters
+                                </Button>
+                                <div className="flex flex-col my-4 gap-2">
+                                  <div className="flex flex-row items-center gap-3">
+                                    <Label htmlFor="numberOfYearsInput" className="block text-sm font-medium text-gray-700">
+                                      Number of years to generate data:
+                                    </Label>
+                                    <Input
+                                      id="numberOfYearsInput"
+                                      type="number"
+                                      className="w-18"
+                                      value={years}
+                                      onChange={(e) =>
+                                        setYears(e.target.value)
+                                      }
+                                    />
+                                  </div>
+                                  <Button
+                                    className="grow"
+                                    onClick={() => handleViewSavedParClimateData(key)}
+                                  >
+                                    Generate Climate Data
+                                  </Button>
+                                </div>
+                                <DrawerClose className="py-2">
+                                  <span>Cancel</span>
+                                </DrawerClose>
+                              </DrawerFooter>
+                            </DrawerContent>
+                          </Drawer>
                         </div>
-                        <div className="flex flex-row items-center gap-2">
+                        <div className="hidden xs:flex flex-row items-center gap-2">
                           <Button
-                            className=""
+                            className="grow"
                             variant="outline"
                             onClick={() => handleViewSavedPar(key)}
                           >
                             View Station Parameters
                           </Button>
                           <Button
-                            className=""
+                            className="grow"
                             onClick={() => handleViewSavedParClimateData(key)}
                           >
                             Generate Climate Data
                           </Button>
                         </div>
+
                         {/*{Object.keys(savedParameters).map((par, index) => (*/}
                         {/*  <div key={index}>*/}
                         {/*    <button*/}

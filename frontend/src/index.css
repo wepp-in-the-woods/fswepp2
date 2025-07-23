@@ -78,6 +78,13 @@
 }
 
 @layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
   h1 {
     font-size: var(--text-2xl);
     font-weight: var(--font-weight-semibold);
@@ -94,7 +101,7 @@
 @layer components {
   .page-container {
     /*@apply mx-auto flex w-full flex-col gap-0 md:max-w-2xl lg:max-w-3xl xl:max-w-6xl pt-16;*/
-    @apply flex flex-col gap-4 py-4 md:gap-6 md:py-6 mt-16;
+    @apply flex flex-col gap-2 sm:gap-4 py-4 md:gap-6 md:py-6 mt-12;
   }
 
   .border-border {
@@ -152,6 +159,8 @@
     sans-serif;
   --font-code:
     source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+
+  --breakpoint-xs: 30rem;
 }
 
 :root {
@@ -176,11 +185,10 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }

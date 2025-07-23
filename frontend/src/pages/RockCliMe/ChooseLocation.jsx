@@ -19,6 +19,10 @@ import "leaflet-defaulticon-compatibility";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Icon } from "@/components/ui/icon";
+import { MapPin } from "lucide-react";
+import { Label } from "@/components/ui/label";
 
 const MARKER_ICONS = {
   default: {
@@ -42,13 +46,14 @@ const createIcon = (iconConfig) => L.icon(iconConfig);
 
 // Defines the location marker on the map based on the user's click.
 const LocationMarker = memo(
-  ({ coordinates, setCoordinates, setLatInput, setLngInput }) => {
+  ({ previewCoordinates, setPreviewCoordinates, setLatInput, setLngInput }) => {
     const [position, setPosition] = useState(null);
     // useMapEvents is a hook from react-leaflet that allows you to listen to events on the map.
     const map = useMapEvents({
       click(e) {
+        const newCoords = [e.latlng.lat, e.latlng.lng];
         setPosition(e.latlng);
-        setCoordinates([e.latlng.lat, e.latlng.lng]);
+        setPreviewCoordinates(newCoords);
         setLatInput(e.latlng.lat.toFixed(6));
         setLngInput(e.latlng.lng.toFixed(6));
       },
@@ -56,10 +61,10 @@ const LocationMarker = memo(
 
     // Set the marker position based on the coordinates.
     useEffect(() => {
-      if (coordinates) {
-        setPosition({ lat: coordinates[0], lng: coordinates[1] });
+      if (previewCoordinates) {
+        setPosition({ lat: previewCoordinates[0], lng: previewCoordinates[1] });
       }
-    }, [coordinates]);
+    }, [previewCoordinates]);
 
     // Return the marker on the map.
     return position === null ? null : <Marker position={position} icon={createIcon(MARKER_ICONS.default)} ></Marker>;
@@ -117,6 +122,7 @@ const MapBBoxHandler = ({
   bbox,
   minZoomLevel,
   prevBboxRef,
+  setStations
 }) => {
   const map = useMapEvents({
     // Once user is no longer changing zoom level, update BBox bounds.
@@ -148,6 +154,8 @@ const MapBBoxHandler = ({
     ) {
       prevBboxRef.current = bbox;
       fetchStations(bbox);
+    } else if (zoom < minZoomLevel) {
+      setStations([]);
     }
   }, [zoom, bbox]);
   return null;
@@ -167,6 +175,7 @@ function ChooseLocation({
   setCoordinates,
   setLatInput,
   setLngInput,
+  showLocationDiv,
   setShowLocationDiv,
   latInput,
   lngInput,
@@ -194,14 +203,29 @@ function ChooseLocation({
 
   // State variables
 
+  const [previewCoordinates, setPreviewCoordinates] = useState(coordinates);
+  useEffect(() => {
+    if (showLocationDiv) {
+      setPreviewCoordinates(coordinates);
+    }
+  }, [showLocationDiv, coordinates]);
+
   // stations: The stations to display on the map, fetched from the server as JSON.
   const [stations, setStations] = useState([]);
 
   // zoom: The current zoom level of the map. Ranges from 0 to 18.
-  const [zoom, setZoom] = useState(0);
+  const [zoom, setZoom] = useState(() => parseInt(sessionStorage.getItem("mapZoom")) || 4);
+  // Save zoom level to sessionStorage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem("mapZoom", zoom.toString());
+  }, [zoom]);
 
   // bbox: The bounding box of the map. Contains the coordinates of the top-left and bottom-right corners.
-  const [bbox, setBbox] = useState([-180, -90, 180, 90]);
+  const [bbox, setBbox] = useState(() => JSON.parse(sessionStorage.getItem("mapBbox")) || [-180, -90, 180, 90]);
+  // Save bbox to sessionStorage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem("mapBbox", JSON.stringify(bbox));
+  }, [bbox]);
 
   // minZoomLevel: The minimum zoom level to display the stations on the map.
   // Caution: If the zoom level is lower than 5-7, then ~100+ stations will be fetched and it will be slow.
@@ -260,122 +284,167 @@ function ChooseLocation({
 
   // Return the component.
   return (
-    <>
-      {/* Location div */}
-      <div className="flex w-full grow flex-col">
-        {/* Options button */}
-        <div className="mb-2 flex w-full flex-col gap-2 sm:gap-6 text-sm text-gray-700 sm:flex-row">
-          <span>Cligen Version: {cligenVersion}</span>
-          <span>Database Version: {databaseVersion}</span>
-        </div>
+    <Dialog
+      open={showLocationDiv}
+      onOpenChange={(open) => {
+        if (!open) {
+          // Discard preview changes when closed (via X button or clicking outside)
+          setLatInput(coordinates ? coordinates[0].toString() : "");
+          setLngInput(coordinates ? coordinates[1].toString() : "");
+          setPreviewCoordinates(coordinates);
+        }
+        setShowLocationDiv(open);
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          onClick={() => setShowLocationDiv(true)}
+          className="w-full hover:cursor-pointer sm:w-fit"
+        >
+          <Icon icon={MapPin} className="h-5 w-5" />
+          Choose Location
+        </Button>
+      </DialogTrigger>
+      <DialogContent
+        className="flex h-screen max-h-screen w-screen max-w-screen flex-col rounded-none px-3 sm:max-h-5/6 sm:max-w-5/6 sm:rounded-lg sm:p-6 xl:max-h-3/4 xl:max-w-2/3"
+        aria-describedby="choose-location-dialog"
+      >
+        <DialogHeader className="h-fit w-full">
+          <DialogTitle>Choose a location</DialogTitle>
+        </DialogHeader>
+        {/* Location div */}
+        <div className="flex w-full grow flex-col">
+          {/* Options button */}
+          <div className="mb-2 flex w-full flex-col gap-2 sm:gap-6 text-sm text-gray-700 sm:flex-row">
+            <span>Cligen Version: {cligenVersion}</span>
+            <span>Database Version: {databaseVersion}</span>
+          </div>
 
-        {/* Map */}
-        <div className="h-full w-full overflow-hidden">
-          <MapContainer
-            center={coordinates || [39.8283, -98.5795]}
-            zoom={4}
-            scrollWheelZoom={true}
-            attributionControl={false}
-            style={{ zIndex: 0 }}
-            className="h-full w-full"
-          >
-            {/* OpenStreetMap tile layer for map*/}
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-
-            {/* Location Marker for when the user clicks*/}
-            <LocationMarker
-              coordinates={coordinates}
-              setCoordinates={setCoordinates}
-              setLatInput={setLatInput}
-              setLngInput={setLngInput}
-              style={{ color: "green" }}
-            />
-            {/* MapBBoxHandler for handling zoom and move events on the map */}
-            <MapBBoxHandler
-              setZoom={setZoom}
-              setBbox={setBbox}
-              fetchStations={fetchStations}
+          {/* Map */}
+          <div className="h-full w-full overflow-hidden">
+            <MapContainer
+              center={coordinates || [39.8283, -98.5795]}
               zoom={zoom}
-              bbox={bbox}
-              minZoomLevel={minZoomLevel}
-              prevBboxRef={prevBboxRef}
-            />
+              scrollWheelZoom={true}
+              attributionControl={false}
+              style={{ zIndex: 0 }}
+              className="h-full w-full"
+            >
+              {/* OpenStreetMap tile layer for map*/}
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
 
-            {/* MapUpdater for updating the map based on the coordinates */}
-            <MapUpdater coordinates={coordinates} />
+              {/* Location Marker for when the user clicks*/}
+              <LocationMarker
+                previewCoordinates={previewCoordinates}
+                setPreviewCoordinates={setPreviewCoordinates}
+                setLatInput={setLatInput}
+                setLngInput={setLngInput}
+                style={{ color: "green" }}
+              />
+              {/* MapBBoxHandler for handling zoom and move events on the map */}
+              <MapBBoxHandler
+                setZoom={setZoom}
+                setBbox={setBbox}
+                fetchStations={fetchStations}
+                zoom={zoom}
+                bbox={bbox}
+                minZoomLevel={minZoomLevel}
+                prevBboxRef={prevBboxRef}
+                setStations={setStations}
+              />
 
-            {/* Display stations on the map, marking them with Markers. Currently
+              {/* MapUpdater for updating the map based on the coordinates */}
+              <MapUpdater coordinates={previewCoordinates} />
+
+              {/* Display stations on the map, marking them with Markers. Currently
                     the marker is the same as the user placeable one, and it is possible
                     to update the Marker texture. */}
-            <LayersControl position="topright">
-              <LayersControl.Overlay name="Show Stations" checked>
-                <StationMarkers stations={stations} />
-              </LayersControl.Overlay>
-            </LayersControl>
-          </MapContainer>
-        </div>
-        {/* Latitude and Longitude input fields and "Set Coords." button */}
-        <div className="mt-4">
-          <div className="flex w-full flex-col justify-center gap-2 sm:flex-row">
-            <Input
-              id="latInput"
-              type="text"
-              placeholder="Latitude"
-              value={latInput}
-              onChange={(e) => setLatInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleCoordinateSubmit();
-                }
-              }}
-              // onBlur={() => {
-              //   handleCoordinateSubmit();
-              // }}
-              className="mr-2 w-full grow rounded-sm border border-gray-300 px-2 py-1"
-            />
-            <Input
-              id="lngInput"
-              type="text"
-              placeholder="Longitude"
-              value={lngInput}
-              onChange={(e) => setLngInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleCoordinateSubmit();
-                }
-              }}
-              // onBlur={() => {
-              //   handleCoordinateSubmit();
-              // }}
-              className="mr-2 w-full grow rounded-sm border border-gray-300 px-2 py-1"
-            />
-            <div className="flex w-full shrink flex-col justify-center gap-2 sm:flex-row">
-              <Button
-                onClick={() => {
-                  handleCoordinateSubmit();
-                  setShowLocationDiv(false);
-                }}
-                className="w-full shrink cursor-pointer"
-              >
-                Set Coordinates
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowLocationDiv(false);
-                }}
-                className="w-full shrink cursor-pointer"
-              >
-                Cancel
-              </Button>
+              <LayersControl position="topright">
+                <LayersControl.Overlay name="Show Stations" checked>
+                  <StationMarkers stations={stations} />
+                </LayersControl.Overlay>
+              </LayersControl>
+            </MapContainer>
+          </div>
+          {/* Latitude and Longitude input fields and "Set Coords." button */}
+          <div className="mt-4">
+            <div className="flex w-full flex-col justify-center gap-2 md:flex-row">
+              <div className="flex w-full flex-col justify-center gap-2 mr-2 sm:flex-row">
+                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 grow w-full">
+                  <Label htmlFor="latInput" className="block text-sm font-medium text-gray-700">
+                    Latitude
+                  </Label>
+                  <Input
+                    id="latInput"
+                    type="text"
+                    placeholder="Latitude"
+                    value={latInput}
+                    onChange={(e) => setLatInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        setPreviewCoordinates([parseFloat(e.target), parseFloat(lngInput)]);
+                      }
+                    }}
+                    // onBlur={() => {
+                    //   handleCoordinateSubmit();
+                    // }}
+                    className="rounded-sm border border-gray-300 px-2 py-1"
+                  />
+                </div>
+                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 grow w-full">
+                  <Label htmlFor="lngInput" className="block text-sm font-medium text-gray-700">
+                    Longitude
+                  </Label>
+                  <Input
+                    id="lngInput"
+                    type="text"
+                    placeholder="Longitude"
+                    value={lngInput}
+                    onChange={(e) => setLngInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        setPreviewCoordinates([parseFloat(latInput), parseFloat(e.target)]);
+                      }
+                    }}
+                    // onBlur={() => {
+                    //   handleCoordinateSubmit();
+                    // }}
+                    className="rounded-sm border border-gray-300 px-2 py-1"
+                  />
+                </div>
+              </div>
+              <div className="flex w-full shrink flex-col justify-center gap-2 sm:flex-row">
+                <Button
+                  onClick={() => {
+                    handleCoordinateSubmit();
+                    setShowLocationDiv(false);
+                  }}
+                  className="w-full shrink cursor-pointer"
+                >
+                  Set Coordinates
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowLocationDiv(false);
+                    setLatInput(coordinates ? coordinates[0].toString() : "");
+                    setLngInput(coordinates ? coordinates[1].toString() : "");
+                    setPreviewCoordinates(coordinates);
+                  }}
+                  className="w-full shrink cursor-pointer"
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </>
+      </DialogContent>
+    </Dialog>
   );
 }
 

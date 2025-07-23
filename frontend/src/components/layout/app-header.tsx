@@ -64,7 +64,7 @@ export const AppHeader: React.FC = () => {
 
   return (
     <header
-      className="fixed top-0 right-0 z-50 flex h-16 shrink-0 items-center gap-2 border-b border-border bg-background px-4"
+      className="fixed top-0 right-0 z-50 flex h-12 shrink-0 items-center gap-2 border-b border-border bg-background px-4"
       style={getHeaderStyle()}
     >
       <SidebarTrigger className="-ml-1" />
@@ -72,26 +72,28 @@ export const AppHeader: React.FC = () => {
         orientation="vertical"
         className="mr-2 data-[orientation=vertical]:h-4"
       />
-      <Breadcrumb>
-        <BreadcrumbList>
-          {breadcrumbs.map((crumb, index) => (
-            <React.Fragment key={index}>
-              <BreadcrumbItem>
-                {crumb.href ? (
-                  <BreadcrumbLink href={crumb.href}>
-                    {crumb.label}
-                  </BreadcrumbLink>
-                ) : (
-                  <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+      <div className="min-w-0 flex-1 overflow-hidden">
+        <Breadcrumb>
+          <BreadcrumbList className="flex-nowrap items-center overflow-x-auto no-scrollbar whitespace-nowrap">
+            {breadcrumbs.map((crumb, index) => (
+              <React.Fragment key={index}>
+                <BreadcrumbItem className="shrink-0">
+                  {crumb.href ? (
+                    <BreadcrumbLink href={crumb.href}>
+                      {crumb.label}
+                    </BreadcrumbLink>
+                  ) : (
+                    <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                  )}
+                </BreadcrumbItem>
+                {index < breadcrumbs.length - 1 && (crumb.href) && (
+                  <BreadcrumbSeparator className="shrink-0"/>
                 )}
-              </BreadcrumbItem>
-              {index < breadcrumbs.length - 1 && (crumb.href) && (
-                <BreadcrumbSeparator />
-              )}
-            </React.Fragment>
-          ))}
-        </BreadcrumbList>
-      </Breadcrumb>
+              </React.Fragment>
+            ))}
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
     </header>
   );
 };

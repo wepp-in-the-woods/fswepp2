@@ -13,7 +13,7 @@ export const Home: React.FC = () => (
     <SidebarInset>
       <AppHeader />
       <div className="page-container">
-        <div className="flex w-full flex-col justify-between gap-3 p-6 align-middle xl:flex-row">
+        <div className="flex w-full flex-col justify-between gap-3 px-6 align-middle xl:flex-row">
           <p className="text-foreground">
             The <strong>Water Erosion Prediction Project (WEPP)</strong> is a
             process based model that predicts soil erosion.
@@ -32,13 +32,13 @@ export const Home: React.FC = () => (
           id="hillslope-models"
           title="Hillslope Scale Erosion and Runoff Prediction"
           tools={hillslopeModels}
-          className="mb-6 bg-green-50 text-green-900"
+          className="bg-green-50 text-green-900"
         />
         <ToolSection
           id="watershed-models"
           title="Watershed Prediction"
           tools={watershedModels}
-          className="mb-6 bg-blue-50 text-blue-900"
+          className="bg-blue-50 text-blue-900"
         />
       </div>
     </SidebarInset>

@@ -26,7 +26,7 @@ interface ToolSectionProps extends HTMLAttributes<HTMLElement> {
 function ToolSection({ title, tools, className, ...props }: ToolSectionProps) {
   return (
     <section
-      className={cn("flex w-full flex-col p-6 md:rounded-xl", className)}
+      className={cn("flex w-full flex-col p-6", className)}
       {...props}
     >
       <Accordion
@@ -40,7 +40,7 @@ function ToolSection({ title, tools, className, ...props }: ToolSectionProps) {
             <h2 className="text-xl font-bold">{title}</h2>
           </AccordionTrigger>
           <AccordionContent className="">
-            <div className="mt-4 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
+            <div className="mt-4 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {tools.map((tool) => (
                 <ToolCard
                   key={tool.title}
