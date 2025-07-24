@@ -246,9 +246,9 @@ function NavLink({
   return (
     <Component
       {...props as any}
-      className={`${className}`}
+      className={`${className} flex flex-row items-center gap-2 text-lg flex-nowrap`}
     >
-      {icon && <Icon icon={icon} className="size-5!"/>}
+      {icon && <Icon icon={icon} className="size-5! shrink-0"/>}
       <span>{label}</span>
       {isExternal && <Icon icon={ExternalLink} className="ml-1 h-3.5 w-3.5" />}
     </Component>
@@ -331,11 +331,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {data.navExtra.map((item) => (
               <SidebarMenuItem key={item.title} title={item.title}>
                 <SidebarMenuButton
-                  asChild
                   tooltip={item.title}
                   className="transition-all duration-200 ease-in-out"
                 >
-                  {/*<Icon icon = {item.icon} />*/}
                   <NavLink {...item} />
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -346,59 +344,75 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {/* Info about unit of measurement used/ version*/}
       {/* Settings button */}
       <SidebarFooter className="flex flex-row items-center justify-between">
-        {
-          state === "collapsed" && !isMobile ? (
-            <div className="flex items-center justify-center w-full h-full text-sm font-bold color-foreground py-1">
-              { units === "metric" ? (
-                <span className="">m<br/>kg</span>
-              ) : (
-                <span className="">ft<br/>lb</span>
-              )}
-            </div>
-          ) : (
-            <>
-              <ButtonGroup className="flex items-center w-full p-1 rounded-4xl bg-gray-100">
-                <Button
-                  variant={units === "metric" ? "outline" : "secondary"}
-                  className={`grow rounded-tl-4xl rounded-bl-4xl hover:bg-background`}
-                  onClick={() => {
-                    if (units === "imperial") {
-                      setUnits("metric");
-                      console.log("Units set to metric");
-                    }
+        <SidebarMenu>
+          <SidebarMenuItem>
+            {state === "collapsed" && !isMobile ? (
+              <div className="color-foreground flex h-full w-full items-center justify-center py-1 text-sm font-bold">
+                {units === "metric" ? (
+                  <span className="">
+                    m<br />
+                    kg
+                  </span>
+                ) : (
+                  <span className="">
+                    ft
+                    <br />
+                    lb
+                  </span>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-row items-center justify-between gap-1">
+                <ButtonGroup className="flex w-full items-center rounded-4xl bg-gray-100 p-1">
+                  <Button
+                    variant={units === "metric" ? "outline" : "secondary"}
+                    className={`hover:bg-background grow rounded-tl-4xl rounded-bl-4xl`}
+                    onClick={() => {
+                      if (units === "imperial") {
+                        setUnits("metric");
+                        console.log("Units set to metric");
+                      }
 
-                    localStorage.setItem("units", "metric");
-                    window.dispatchEvent(new Event("unitsChanged"));
-                  }}
-                >
-                  { units === "metric" &&
-                    <Icon icon={Check} className="size-5 mr-1" />
-                  }
-                  Metric
-                </Button>
-                <Button
-                  variant={units === "imperial" ? "outline" : "secondary"}
-                  className={`grow rounded-tr-4xl rounded-br-4xl hover:bg-background`}
-                  onClick={() => {
-                    if (units === "metric") {
-                      setUnits("imperial");
-                      // change button variant to outline
-                      console.log("Units set to imperial");
-                    }
-                    localStorage.setItem("units", "imperial");
-                    window.dispatchEvent(new Event("unitsChanged"));
-                  }}
-                >
-                  { units === "imperial" &&
-                    <Icon icon={Check} className="size-5 mr-1" />
-                  }
-                  US Customary
-                </Button>
-              </ButtonGroup>
+                      localStorage.setItem("units", "metric");
+                      window.dispatchEvent(new Event("unitsChanged"));
+                    }}
+                  >
+                    {units === "metric" && (
+                      <Icon icon={Check} className="mr-1 size-5" />
+                    )}
+                    Metric
+                  </Button>
+                  <Button
+                    variant={units === "imperial" ? "outline" : "secondary"}
+                    className={`hover:bg-background grow rounded-tr-4xl rounded-br-4xl`}
+                    onClick={() => {
+                      if (units === "metric") {
+                        setUnits("imperial");
+                        // change button variant to outline
+                        console.log("Units set to imperial");
+                      }
+                      localStorage.setItem("units", "imperial");
+                      window.dispatchEvent(new Event("unitsChanged"));
+                    }}
+                  >
+                    {units === "imperial" && (
+                      <Icon icon={Check} className="mr-1 size-5" />
+                    )}
+                    US Customary
+                  </Button>
+                </ButtonGroup>
+              </div>
+            )}
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip={"Units Settings"}
+              className="transition-all duration-200 ease-in-out hover:cursor-pointer"
+            >
               <UnitsDialog />
-            </>
-          )
-        }
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

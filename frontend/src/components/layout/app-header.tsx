@@ -45,7 +45,7 @@ const getBreadcrumbs = (pathname: string): BreadcrumbItemType[] => {
   return breadcrumbs;
 };
 
-export const AppHeader: React.FC = () => {
+export const AppHeader = () => {
   const location = useLocation();
   const breadcrumbs = getBreadcrumbs(location.pathname);
   const { state, isMobile } = useSidebar();

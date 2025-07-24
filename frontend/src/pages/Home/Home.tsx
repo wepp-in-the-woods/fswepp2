@@ -7,7 +7,7 @@ import { ExternalLink } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { hillslopeModels, watershedModels } from "@/data/models";
 
-export const Home: React.FC = () => (
+export const Home = () => (
   <SidebarProvider>
     <AppSidebar />
     <SidebarInset>

@@ -504,7 +504,7 @@ const RockCliMe = () => {
                       <DialogTitle>About Rock: Clime</DialogTitle>
                     </DialogHeader>
                     <DialogDescription className="flex flex-col gap-4 text-neutral-800">
-                      <p>
+                      <span>
                         The Rocky Mountain Climate Generator (Rock: Clime)
                         creates a daily weather file using the ARS CLIGEN
                         weather generator. The file is intended to be used with
@@ -513,8 +513,8 @@ const RockCliMe = () => {
                         up to 200 years of simulated weather values from a
                         database of more than 2600 weather stations and the
                         PRISM 2.5-mile grid of precipitation data.
-                      </p>
-                      <p>
+                      </span>
+                      <span>
                         This version of Rock: Clime is based on the legacy
                         version of Rock: Clime available at <br />
                         <a
@@ -525,8 +525,8 @@ const RockCliMe = () => {
                         >
                           https://forest.moscowfsl.wsu.edu/cgi-bin/fswepp/rc/rockclim.pl
                         </a>
-                      </p>
-                      <p>
+                      </span>
+                      <span>
                         <strong>Citation:</strong>
                         <br />
                         Elliot, William J.; Dayna L. Scheele, Dayna L.; Hall,
@@ -543,7 +543,7 @@ const RockCliMe = () => {
                           forest.moscowfsl.wsu.edu/fswepp
                         </a>
                         ].
-                      </p>
+                      </span>
                     </DialogDescription>
                   </DialogContent>
                 </Dialog>

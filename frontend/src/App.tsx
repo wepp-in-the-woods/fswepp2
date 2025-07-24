@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import { Suspense, lazy } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -9,11 +9,10 @@ import { Home } from "@/pages/Home/Home";
 // Lazy load route components
 const RockCliMe = lazy(() => import("@/pages/RockCliMe/RockCliMe.jsx"));
 const StationPar = lazy(() => import("@/pages/RockCliMe/StationPar.jsx"));
-const ClimateData = lazy(
-  () => import("@/pages/RockCliMe/ClimateData.jsx"),
-);
+const ClimateData = lazy(() => import("@/pages/RockCliMe/ClimateData.jsx"));
+const PeakFlow = lazy(() => import("@/pages/PeakFlow/PeakFlow.tsx"));
 
-const App: React.FC = () => {
+const App = () => {
 
   return (
     <div className="min-h-screen">
@@ -28,17 +27,15 @@ const App: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/rock-clime" element={<RockCliMe />} />
           <Route path="/rock-clime/par/:stationId" element={<StationPar />} />
-          <Route
-            path="/rock-clime/climate/:stationId"
-            element={<ClimateData />}
-          />
+          <Route path="/rock-clime/climate/:stationId" element={<ClimateData />} />
+          <Route path="/peak-flow-calculator" element={<PeakFlow />} />
         </Routes>
       </Suspense>
     </div>
   );
 };
 
-const AppWrapper: React.FC = () => (
+const AppWrapper = () => (
   <Router future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
     <App />
   </Router>

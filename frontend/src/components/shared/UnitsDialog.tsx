@@ -26,6 +26,7 @@ import {
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/ui/icon.tsx";
 import { Settings2 } from "lucide-react";
+import * as React from "react";
 
 function UnitsForm({ onClose }: { onClose: () => void }) {
   const [units, setUnits] = useState(() => localStorage.getItem("units") || "metric"); // Default to metric units
@@ -106,9 +107,10 @@ export default function UnitsDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" title="Unit Settings">
-          <Icon icon={Settings2} className="size-5!" />
-        </Button>
+        <div className="flex flex-row items-center gap-2 text-lg flex-nowrap">
+          <Icon icon={Settings2} className="size-5! shrink-0" />
+          Units Settings
+        </div>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
