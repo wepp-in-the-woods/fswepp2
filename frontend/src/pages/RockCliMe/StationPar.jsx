@@ -85,8 +85,7 @@ function StationPar() {
 
     {/* TODO: fix data sent in post request to changed data instead of default */}
     // Post user-defined parameter data to server
-    api
-      .post("/api/rockclim/PUT/user_defined_par", user_defined_par, {
+    api.post("/api/rockclim/PUT/user_defined_par", user_defined_par, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -94,7 +93,11 @@ function StationPar() {
       })
       .then((response) => {
         console.log("Server response:", response);
-        setDescription("");
+        // setDescription("");
+        setParData(prev => ({
+          ...prev,
+          description: description
+        }));
       })
       .catch((error) => {
         console.error("Error posting data:", error);

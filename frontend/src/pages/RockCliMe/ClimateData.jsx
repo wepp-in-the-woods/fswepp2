@@ -7,6 +7,9 @@ import { useUnits, useConversions } from "@/hooks/use-units.ts";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 
 // Parse station description to get name and state
 const parseStationDesc = (desc) => {
@@ -119,6 +122,52 @@ function ClimateData() {
     }
   }, [par_id, loc, usePrismClim, user_defined_par_mod]);
 
+  // Fetch climate data file to download based on station parameters OR custom parameters
+  const fetchClimateDataFile = async () => {
+    try {
+      const updatedCustomPar = customPar
+        ? {
+          ...customPar,
+          input_years: years || customPar.input_years,
+        }
+        : {
+          par_id: par_id,
+          input_years: years,
+          location: loc,
+          use_prism: usePrismClim,
+          user_defined_par_mod: user_defined_par_mod,
+        };
+
+      // API Call to get climate data file
+      const response = await api.post(
+        "/api/rockclim/GET/climate",
+        updatedCustomPar,
+        {
+          responseType: 'text'
+        }
+      );
+
+      // Create blob and download file
+      const blob = new Blob([response.data], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+
+      // Set filename - customize as needed
+      const fileName = customPar
+        ? `climate_data_${selectedPar}.cli`
+        : `climate_data_${par_id}.cli`;
+
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error generating climate data file:", error);
+    }
+  };
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -127,13 +176,13 @@ function ClimateData() {
         <div className="page-container">
           {/* Climate Data page header*/}
           <div
-            className="flex flex-col justify-between lg:flex-row px-4 lg:px-6"
+            className="flex flex-col justify-between md:flex-row px-4 lg:px-6 gap-2"
             dataslot="page-header"
           >
             <div className="flex w-full flex-col items-start gap-3">
               <div className="flex w-full flex-row text-2xl font-semibold">
                 {/* If custom parameters are present, render the
-                description, otherwise parsed name and state from station*/}
+                description, otherwise parsed name and state from station */}
                 {customPar
                   ? customPar.user_defined_par_mod.description
                   : `${name}, ${state}`}
@@ -160,6 +209,14 @@ function ClimateData() {
                 {years} years of data.
               </div>
             </div>
+            <Button
+              variant="outline"
+              className=""
+              onClick={fetchClimateDataFile}
+            >
+              <Icon icon={Download} className="h-5 w-5" />
+              Download Climate Data file
+            </Button>
           </div>
 
           {/*TODO: Add button to download climate data as a .cli file*/}

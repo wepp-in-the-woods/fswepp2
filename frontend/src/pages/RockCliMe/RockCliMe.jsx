@@ -471,6 +471,7 @@ const RockCliMe = () => {
         key,
         years,
         customPar,
+        selectedPar: key,
       },
     });
   };
