@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { api } from "../../api";
+import { validatePrecipitation, validateTemperature } from "@/utils/climateValidation";
+import { useUnits, useConversions } from "@/hooks/use-units.ts";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
@@ -23,6 +25,9 @@ const parseStationDesc = (desc) => {
 function ClimateData() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { units, setUnits } = useUnits();
+  const { convert } = useConversions();
+
   const {
     // For station parameters
     stationCoords: coordinates = { latitude: 0, longitude: 0 },
@@ -180,12 +185,15 @@ function ClimateData() {
                     </th>
                     <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
                       Mean Precip.
+                      {units === "imperial" ? " (in)" : " (mm)"}
                     </th>
                     <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
                       Mean Max Temp.
+                      {units === "imperial" ? " (°F)" : " (°C)"}
                     </th>
                     <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
                       Mean Min Temp.
+                      {units === "imperial" ? " (°F)" : " (°C)"}
                     </th>
                     <th className="w-1/5 border border-gray-300 px-2 py-2 text-left">
                       # of Wet Days
@@ -202,13 +210,25 @@ function ClimateData() {
                         <span className="md:hidden">{monthsAbbrev[index]}</span>
                       </td>
                       <td className="w-1/5 border border-gray-300 px-2 py-2">
-                        {ppt.toFixed(2)}
+                        {units === "metric" ? (
+                          `${ppt.toFixed(2)}`
+                        ) : (
+                          `${(convert.mmToInches(ppt)).toFixed(2)}`
+                        )}
                       </td>
                       <td className="w-1/5 border border-gray-300 px-2 py-2">
-                        {climateData.tmaxs[index].toFixed(2)}
+                        {units === "metric" ? (
+                          `${climateData.tmaxs[index].toFixed(2)}`
+                        ) : (
+                          `${(convert.celsiusToFahrenheit(climateData.tmaxs[index])).toFixed(2)}`
+                        )}
                       </td>
                       <td className="w-1/5 border border-gray-300 px-2 py-2">
-                        {climateData.tmins[index].toFixed(2)}
+                        {units === "metric" ? (
+                          `${climateData.tmins[index].toFixed(2)}`
+                        ) : (
+                          `${(convert.celsiusToFahrenheit(climateData.tmins[index])).toFixed(2)}`
+                        )}
                       </td>
                       <td className="w-1/5 border border-gray-300 px-2 py-2">
                         {climateData.nwds[index].toFixed(2)}

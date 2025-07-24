@@ -1,12 +1,13 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useUnits } from "@/hooks/use-units";
 
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible.tsx"
+
 import {
   Sidebar,
   SidebarContent,
@@ -23,19 +24,22 @@ import {
   SidebarMenuSubButton,
   useSidebar
 } from "@/components/ui/sidebar";
+
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
+
+import UnitsDialog from "@/components/shared/UnitsDialog";
 
 import { Icon } from "@/components/ui/icon";
 import {
   BookOpenText,
+  Check,
   ChevronRight,
   Earth,
   ExternalLink,
   Mail,
   MonitorPlay,
   MountainSnow,
-  Settings2,
   Waves,
   type LucideIcon,
 } from "lucide-react";
@@ -253,7 +257,7 @@ function NavLink({
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { state, isMobile } = useSidebar();
-  const [units, setUnits] = useState(() => localStorage.getItem("units") || "metric"); // Default to metric units
+  const {units, setUnits} = useUnits();
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -309,7 +313,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         {item.items?.map((subItem) => (
                           <SidebarMenuSubItem key={subItem.title}>
                             <SidebarMenuSubButton size="lg" asChild>
-                              {/*<a href={item.url}>{item.title}</a>*/}
                               <NavLink className="text-md" {...subItem} />
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
@@ -342,30 +345,60 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       {/* Info about unit of measurement used/ version*/}
       {/* Settings button */}
-      <SidebarFooter className="flex flex-row items-center">
-        <ButtonGroup className="p-2">
-          <Button
-            variant="outline"
-            onClick={() => {
-              setUnits("metric");
-              console.log("Units set to metric");
-            }}
-          >
-            Metric
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setUnits("imerial");
-              console.log("Units set to imperial");
-            }}
-          >
-            US Customary
-          </Button>
-        </ButtonGroup>
-        <Button variant="ghost" title="Unit Settings">
-          <Icon icon={Settings2} className="size-5!" />
-        </Button>
+      <SidebarFooter className="flex flex-row items-center justify-between">
+        {
+          state === "collapsed" && !isMobile ? (
+            <div className="flex items-center justify-center w-full h-full text-sm font-bold color-foreground py-1">
+              { units === "metric" ? (
+                <span className="">m<br/>kg</span>
+              ) : (
+                <span className="">ft<br/>lb</span>
+              )}
+            </div>
+          ) : (
+            <>
+              <ButtonGroup className="flex items-center w-full p-1 rounded-4xl bg-gray-100">
+                <Button
+                  variant={units === "metric" ? "outline" : "secondary"}
+                  className={`grow rounded-tl-4xl rounded-bl-4xl hover:bg-background`}
+                  onClick={() => {
+                    if (units === "imperial") {
+                      setUnits("metric");
+                      console.log("Units set to metric");
+                    }
+
+                    localStorage.setItem("units", "metric");
+                    window.dispatchEvent(new Event("unitsChanged"));
+                  }}
+                >
+                  { units === "metric" &&
+                    <Icon icon={Check} className="size-5 mr-1" />
+                  }
+                  Metric
+                </Button>
+                <Button
+                  variant={units === "imperial" ? "outline" : "secondary"}
+                  className={`grow rounded-tr-4xl rounded-br-4xl hover:bg-background`}
+                  onClick={() => {
+                    if (units === "metric") {
+                      setUnits("imperial");
+                      // change button variant to outline
+                      console.log("Units set to imperial");
+                    }
+                    localStorage.setItem("units", "imperial");
+                    window.dispatchEvent(new Event("unitsChanged"));
+                  }}
+                >
+                  { units === "imperial" &&
+                    <Icon icon={Check} className="size-5 mr-1" />
+                  }
+                  US Customary
+                </Button>
+              </ButtonGroup>
+              <UnitsDialog />
+            </>
+          )
+        }
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

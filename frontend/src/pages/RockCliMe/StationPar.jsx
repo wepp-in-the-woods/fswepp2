@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { api } from "../../api";
-import { ClimateValidation, validatePrecipitation } from "@/utils/climateValidation";
-import { useUnits, UnitsContext, UnitsProvider } from "../../contexts/UnitsContext";
+import { validatePrecipitation, validateTemperature } from "@/utils/climateValidation";
+import { useUnits, useConversions } from "@/hooks/use-units.ts";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
@@ -17,7 +17,8 @@ import { Save, SquarePen } from "lucide-react";
 function StationPar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { units } = useUnits();
+  const { units, setUnits } = useUnits();
+  const { convert } = useConversions();
 
   // Destructure location state from RockCliMe component
   const {
@@ -338,23 +339,39 @@ function StationPar() {
                           {isModified ? (
                             <Input
                               type="number"
-                              defaultValue={ppt.toFixed(2)}
+                              defaultValue={units === "metric" ? (
+                                `${ppt.toFixed(2)}`
+                              ) : (
+                                `${(convert.mmToInches(ppt)).toFixed(2)}`
+                              )}
                               onBlur={(e) => {
-                                const result = validatePrecipitation(parseFloat(e.target.value));
+                                // database uses metric units, so we need to convert values accordingly
+                                const inputValue = parseFloat(e.target.value);
+                                const valueInMm = units === "metric" ? inputValue : convert.inchesToMm(inputValue);
+                                const valueInInches = units === "imperial" ? inputValue : convert.mmToInches(inputValue);
+                                const result = units === "metric" ? validatePrecipitation(valueInMm, "metric") : validatePrecipitation(valueInInches, "imperial");
+
                                 if (!result.isValid) {
                                   alert(result.message);
-                                  // Reset to original parData value
-                                  e.target.value = ppt.toFixed(2);
+                                  e.target.value = units === "metric" ? ppt.toFixed(2) : (convert.mmToInches(ppt)).toFixed(2);
                                   return;
                                 }
-                                handleInputChange(e, index, "ppts");
+
+                                const eventForHandler = units === "metric"
+                                  ? e
+                                  : { target: { value: valueInMm } };
+
+                                handleInputChange(eventForHandler, index, "ppts");
                               }}
                               className={``}
                             />
                           ) : (
                             <>
-                              {ppt.toFixed(2)}
-                              {/*{ UnitsProvider.formatTemperature(ppt, "mm") }*/}
+                              {units === "metric" ? (
+                                `${ppt.toFixed(2)}`
+                              ) : (
+                                `${(convert.mmToInches(ppt)).toFixed(2)}`
+                              )}
                             </>
                           )}
                         </td>
@@ -363,14 +380,40 @@ function StationPar() {
                           {isModified ? (
                             <Input
                               type="number"
-                              defaultValue={parData.tmaxs[index].toFixed(2)}
-                              onChange={(e) =>
-                                handleInputChange(e, index, "tmaxs")
-                              }
+                              defaultValue={units === "metric" ? (
+                                `${parData.tmaxs[index].toFixed(2)}`
+                              ) : (
+                                `${(convert.celsiusToFahrenheit(parData.tmaxs[index])).toFixed(2)}`
+                              )}
+                              onBlur={(e) => {
+                                // database uses metric units, so we need to convert values accordingly
+                                const inputValue = parseFloat(e.target.value);
+                                const valueInC = units === "metric" ? inputValue : convert.fahrenheitToCelsius(inputValue);
+                                const valueInF = units === "imperial" ? inputValue : convert.celsiusToFahrenheit(inputValue);
+                                const result = units === "metric" ? validateTemperature(valueInC, "metric") : validateTemperature(valueInF, "imperial");
+
+                                if (!result.isValid) {
+                                  alert(result.message);
+                                  e.target.value = units === "metric" ? parData.tmaxs[index].toFixed(2) : (convert.celsiusToFahrenheit(parData.tmaxs[index])).toFixed(2);
+                                  return;
+                                }
+
+                                const eventForHandler = units === "metric"
+                                  ? e
+                                  : { target: { value: valueInC } };
+
+                                handleInputChange(eventForHandler, index, "tmaxs");
+                              }}
                               className={``}
                             />
                           ) : (
-                            <>{parData.tmaxs[index].toFixed(2)}</>
+                            <>
+                              {units === "metric" ? (
+                                `${parData.tmaxs[index].toFixed(2)}`
+                              ) : (
+                                `${(convert.celsiusToFahrenheit(parData.tmaxs[index])).toFixed(2)}`
+                              )}
+                            </>
                           )}
                         </td>
                         <td className="w-1/5 border border-gray-300 px-2 py-2">
@@ -378,14 +421,40 @@ function StationPar() {
                           {isModified ? (
                             <Input
                               type="number"
-                              defaultValue={parData.tmins[index].toFixed(2)}
-                              onChange={(e) =>
-                                handleInputChange(e, index, "tmins")
-                              }
+                              defaultValue={units === "metric" ? (
+                                `${parData.tmins[index].toFixed(2)}`
+                              ) : (
+                                `${(convert.celsiusToFahrenheit(parData.tmins[index])).toFixed(2)}`
+                              )}
+                              onBlur={(e) => {
+                                // database uses metric units, so we need to convert values accordingly
+                                const inputValue = parseFloat(e.target.value);
+                                const valueInC = units === "metric" ? inputValue : convert.fahrenheitToCelsius(inputValue);
+                                const valueInF = units === "imperial" ? inputValue : convert.celsiusToFahrenheit(inputValue);
+                                const result = units === "metric" ? validateTemperature(valueInC, "metric") : validateTemperature(valueInF, "imperial");
+
+                                if (!result.isValid) {
+                                  alert(result.message);
+                                  e.target.value = units === "metric" ? parData.tmins[index].toFixed(2) : (convert.celsiusToFahrenheit(parData.tmins[index])).toFixed(2);
+                                  return;
+                                }
+
+                                const eventForHandler = units === "metric"
+                                  ? e
+                                  : { target: { value: valueInC } };
+
+                                handleInputChange(eventForHandler, index, "tmins");
+                              }}
                               className={``}
                             />
                           ) : (
-                            <>{parData.tmins[index].toFixed(2)}</>
+                            <>
+                              {units === "metric" ? (
+                                `${parData.tmins[index].toFixed(2)}`
+                              ) : (
+                                `${(convert.celsiusToFahrenheit(parData.tmins[index])).toFixed(2)}`
+                              )}
+                            </>
                           )}
                         </td>
                         {/*TODO: Make number of wet days read-only*/}

@@ -32,12 +32,12 @@ export function precision(value: number, decimals: number): number {
   return Math.round(value * factor) / factor;
 }
 
-// Validation functions
+// Validation functions: based on metric measurements
 // Temperature validation
-export function validateTemperature(value: number, units: 'ft' | 'm' = 'ft'): ValidationResult {
-  const min = units === 'm' ? -200 : -50;
-  const max = units === 'm' ? 200 : 130;
-  const unit = units === 'm' ? 'deg C' : 'deg F';
+export function validateTemperature(value: number, units: 'imperial' | 'metric' = 'imperial'): ValidationResult {
+  const min = units === 'metric' ? -200 : -50;
+  const max = units === 'metric' ? 200 : 130;
+  const unit = units === 'metric' ? 'deg C' : 'deg F';
 
   if (!isNumber(value)) {
     return { isValid: false, value: 0, message: `Invalid temperature entry: ${value}` };
@@ -55,10 +55,10 @@ export function validateTemperature(value: number, units: 'ft' | 'm' = 'ft'): Va
 }
 
 // Precipitation validation
-export function validatePrecipitation(value: number, units: 'ft' | 'm' = 'ft'): ValidationResult {
+export function validatePrecipitation(value: number, units: 'imperial' | 'metric' = 'imperial'): ValidationResult {
   const min = 0;
-  const max = units === 'm' ? 999 : 39;
-  const unit = units === 'm' ? 'mm' : 'in';
+  const max = units === 'metric' ? 999 : 39;
+  const unit = units === 'metric' ? 'mm' : 'in';
 
   if (!isNumber(value)) {
     return { isValid: false, value: 0, message: 'Invalid precipitation entry' };

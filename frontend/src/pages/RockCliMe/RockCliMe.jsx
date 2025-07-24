@@ -3,6 +3,7 @@ import axios from "axios";
 import { api } from "../../api";
 import { useNavigate } from "react-router-dom";
 import { useMediaQuery } from "@/hooks/use-media-query.ts";
+import { useUnits, useConversions } from "@/hooks/use-units.ts";
 
 import {
   Dialog,
@@ -67,6 +68,10 @@ const ChooseLocation = lazy(() => import("./ChooseLocation.jsx"));
 
 const RockCliMe = () => {
   const isMobile = useMediaQuery("(max-width: 30rem)");
+  const {units, setUnits} = useUnits();
+
+  // Conversion functions for distance
+  const { convert } = useConversions();
 
   // Add loading states
   const [isLoadingRegions, setIsLoadingRegions] = useState(false);
@@ -979,7 +984,11 @@ const RockCliMe = () => {
                                   station.distance_to_query_location !==
                                   null && (
                                     <p className="text-sm">
-                                      Distance: {station.distance_to_query_location.toFixed(2)} km
+                                      Distance: {units === "metric" ? (
+                                        `${station.distance_to_query_location.toFixed(2)} km`
+                                      ) : (
+                                        `${(convert.kmToMiles(station.distance_to_query_location)).toFixed(2)} mi`
+                                      )}
                                     </p>
                                   )}
                               </div>
