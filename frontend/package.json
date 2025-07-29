@@ -52,7 +52,7 @@
   },
   "scripts": {
     "start": "vite",
-    "dev": "vite --host",
+    "dev": "vite",
     "build": "vite build --mode dev",
     "build:dev": "vite build --mode dev",
     "build:staging": "vite build --mode staging",

@@ -35,6 +35,7 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     middlewareMode: false,
+    host: true,
     fs: {
       // Allow serving files from one level up to the project root
       allow: [".."],
@@ -44,6 +45,11 @@ export default defineConfig({
         target: 'http://localhost:8090',
         changeOrigin: true,
         secure: false,
+      },
+      '/ws': {
+        target: 'ws://localhost:8090',
+        ws: true,
+        changeOrigin: true,
       }
     },
   },
