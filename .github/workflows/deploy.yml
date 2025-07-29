@@ -18,7 +18,7 @@ jobs:
         run: |
           git fetch --all
           git reset --hard origin/main
-          git clean -fdx                 # wipe artefacts that confuse Docker cache
+          git clean -fdx
       - name: Build & start containers
         run: |
           docker compose up -d --build --remove-orphans
