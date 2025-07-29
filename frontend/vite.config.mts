@@ -34,6 +34,13 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
+    allowedHosts: [
+      "dev",                       // HAProxy health-check header
+      "192.168.1.51",              // direct IP access
+      "localhost",                 // local testing
+      "fswepp2-dev.bearhive.duckdns.org" // public dev domain
+    ],
+    hmr: { host: "192.168.1.51", port: 5173 },
     middlewareMode: false,
     host: true,
     fs: {

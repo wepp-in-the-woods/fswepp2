@@ -19,19 +19,21 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-      target: builder      # ← use the node:20-alpine stage
+      target: builder
     working_dir: /app
     ports:
-      - "3091:3000"
+      - "3091:5173"
     volumes:
       - ./frontend:/app
-      - /app/node_modules
-    command: npm start 
+    environment:
+      - HOST=0.0.0.0
+      - PORT=5173
+      - CHOKIDAR_USEPOLLING=true
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"
 
   frontend-prod:
     build:
       context: .
-      dockerfile: Dockerfile.frontend
-      # no target → uses final (nginx) stage
+      dockerfile: Dockerfile.frontend   # final nginx stage serves /dist
     ports:
       - "8091:80"
