@@ -38,9 +38,10 @@ export default defineConfig({
       "dev",                       // HAProxy health-check header
       "192.168.1.51",              // direct IP access
       "localhost",                 // local testing
+      "fswepp2.bearhive.duckdns.org", // public dev domain
       "fswepp2-dev.bearhive.duckdns.org" // public dev domain
     ],
-    hmr: { host: "192.168.1.51", port: 5173 },
+    hmr: { host: "fswepp2-dev.bearhive.duckdns.org", port: 443 },
     middlewareMode: false,
     host: true,
     fs: {
