@@ -19,18 +19,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-      target: builder        # node:20-alpine stage
+      target: builder
     working_dir: /app
     ports:
-      - "3091:5173"          # external 3091 → Vite 5173
+      - "3091:5173"
     volumes:
       - ./frontend:/app
-      - /app/node_modules
     environment:
-      - HOST=0.0.0.0         # Vite listens on all interfaces
+      - HOST=0.0.0.0
       - PORT=5173
-      - CHOKIDAR_USEPOLLING=true  # reliable file-watching in Docker
-    command: npm run dev -- --host 0.0.0.0 --port 5173
+      - CHOKIDAR_USEPOLLING=true
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"
 
   frontend-prod:
     build:
