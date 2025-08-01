@@ -11,6 +11,7 @@ const RockCliMe = lazy(() => import("@/pages/RockCliMe/RockCliMe.jsx"));
 const StationPar = lazy(() => import("@/pages/RockCliMe/StationPar.jsx"));
 const ClimateData = lazy(() => import("@/pages/RockCliMe/ClimateData.jsx"));
 const PeakFlow = lazy(() => import("@/pages/PeakFlow/PeakFlow.tsx"));
+const PeakFlowCalculator = lazy(() => import("@/pages/PeakFlow/PeakFlowCalculator.tsx"));
 
 const App = () => {
 
@@ -29,6 +30,7 @@ const App = () => {
           <Route path="/rock-clime/par/:stationId" element={<StationPar />} />
           <Route path="/rock-clime/climate/:stationId" element={<ClimateData />} />
           <Route path="/peak-flow-calculator" element={<PeakFlow />} />
+          <Route path="/peak-flow-calculator-simple" element={<PeakFlowCalculator />} />
         </Routes>
       </Suspense>
     </div>
