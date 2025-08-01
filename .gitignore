@@ -30,3 +30,6 @@ frontend/fswepp2-frontend/.env.production.local
 frontend/fswepp2-frontend/npm-debug.log*
 frontend/fswepp2-frontend/yarn-debug.log*
 frontend/fswepp2-frontend/yarn-error.log*
+
+# github actions
+.runner/

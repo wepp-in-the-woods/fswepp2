@@ -41,7 +41,7 @@ export default defineConfig({
       "fswepp2.bearhive.duckdns.org", // public dev domain
       "fswepp2-dev.bearhive.duckdns.org" // public dev domain
     ],
-    hmr: { host: "fswepp2-dev.bearhive.duckdns.org", port: 443 },
+    hmr: { host: "fswepp2-dev.bearhive.duckdns.org" },
     middlewareMode: false,
     host: true,
     fs: {

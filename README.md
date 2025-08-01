@@ -55,6 +55,7 @@ Planned enhancements include:
 - Developing a desktop view for RockCliMe.
 - Refactoring RockCliMe components.
 - Implementing error messages for incorrect inputs.
+- Should deploy automatically to https://fswepp.bearhive.duckdns.org
 
 For further context on development decisions and conversations, refer to the FSWEPP Discord. If you do not have access, please contact Roger or another team member.
 

@@ -1,0 +1,24 @@
+name: homelab-deploy
+
+on:
+  push:
+    branches: [ main ]       # change as needed
+
+
+jobs:
+  deploy:
+    # limit to runners that carry a custom label so other self-hosted boxes don't pick it up
+    runs-on: [self-hosted, fswepp2]
+
+    # if the repo path ever changes you can stay portable
+    env:
+      COMPOSE_HTTP_TIMEOUT: 180
+    steps:
+      - name: Sync source
+        run: |
+          git fetch --all
+          git reset --hard origin/main
+          git clean -fdx
+      - name: Build & start containers
+        run: |
+          docker compose up -d --build --remove-orphans
