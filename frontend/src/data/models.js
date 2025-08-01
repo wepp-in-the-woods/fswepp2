@@ -67,7 +67,7 @@ const hillslopeModels = [
     label: "Rock CliMe",
     description:
       " The Rocky Mountain Climate Generator creates a daily weather file using the ARS CLIGEN weather generator. The file is intended to be used with the WEPP Windows and GeoWEPP interfaces, but also can be a source of weather data for any application. It creates up to 200 years of simlated weather values from a database of more than 2600 weather stations and the PRISM 2.5-mile grid of precipitation data.",
-    icon: "placeholder-model-icon.svg",
+    icon: "rockclime-icon.svg",
     href: "/rock-clime",
     isExternal: false,
   },

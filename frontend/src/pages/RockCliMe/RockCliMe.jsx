@@ -486,72 +486,75 @@ const RockCliMe = () => {
             className="flex flex-row justify-between px-4 lg:px-6 gap-4"
             dataslot="page-title"
           >
-            <div className="flex w-full flex-col items-start gap-3">
-              <div className="flex flex-row items-center gap-3">
-                <h1 className="text-foreground">Rock: Clime</h1>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Icon
-                      icon={Info}
-                      className="h-5 w-5 hover:cursor-pointer"
-                      title="Info"
-                    />
-                  </DialogTrigger>
-                  <DialogContent
-                    className="sm:max-w-prose"
-                    aria-describedby="about-rock-clime-dialog"
-                  >
-                    <DialogHeader>
-                      <DialogTitle>About Rock: Clime</DialogTitle>
-                    </DialogHeader>
-                    <DialogDescription className="flex flex-col gap-4 text-neutral-800">
-                      <span>
-                        The Rocky Mountain Climate Generator (Rock: Clime)
-                        creates a daily weather file using the ARS CLIGEN
-                        weather generator. The file is intended to be used with
-                        the WEPP Windows and GeoWEPP interfaces, but also can be
-                        a source of weather data for any application. It creates
-                        up to 200 years of simulated weather values from a
-                        database of more than 2600 weather stations and the
-                        PRISM 2.5-mile grid of precipitation data.
-                      </span>
-                      <span>
-                        This version of Rock: Clime is based on the legacy
-                        version of Rock: Clime available at <br />
-                        <a
-                          href="https://forest.moscowfsl.wsu.edu/cgi-bin/fswepp/rc/rockclim.pl"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 underline"
-                        >
-                          https://forest.moscowfsl.wsu.edu/cgi-bin/fswepp/rc/rockclim.pl
-                        </a>
-                      </span>
-                      <span>
-                        <strong>Citation:</strong>
-                        <br />
-                        Elliot, William J.; Dayna L. Scheele, Dayna L.; Hall,
-                        David E. 1999. Rock:Clime – Rocky Mountain Research
-                        Station Climate Generator. Moscow, ID: U.S.D.A. Forest
-                        Service, Rocky Mountain Research Station, Moscow
-                        Forestry Sciences Laboratory. [Online at{" "}
-                        <a
-                          href="https://forest.moscowfsl.wsu.edu/fswepp"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 underline"
-                        >
-                          forest.moscowfsl.wsu.edu/fswepp
-                        </a>
-                        ].
-                      </span>
-                    </DialogDescription>
-                  </DialogContent>
-                </Dialog>
+            <div className="flex flex-row items-start gap-3">
+              <img src="/rockclime-icon.svg" alt="Rock: Clime Icon" className="w-16" />
+              <div className="flex w-full flex-col items-start gap-3">
+                <div className="flex flex-row items-center gap-3">
+                  <h1 className="text-foreground">Rock: Clime</h1>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Icon
+                        icon={Info}
+                        className="h-5 w-5 hover:cursor-pointer"
+                        title="Info"
+                      />
+                    </DialogTrigger>
+                    <DialogContent
+                      className="sm:max-w-prose"
+                      aria-describedby="about-rock-clime-dialog"
+                    >
+                      <DialogHeader>
+                        <DialogTitle>About Rock: Clime</DialogTitle>
+                      </DialogHeader>
+                      <DialogDescription className="flex flex-col gap-4 text-neutral-800">
+                        <span>
+                          The Rocky Mountain Climate Generator (Rock: Clime)
+                          creates a daily weather file using the ARS CLIGEN
+                          weather generator. The file is intended to be used with
+                          the WEPP Windows and GeoWEPP interfaces, but also can be
+                          a source of weather data for any application. It creates
+                          up to 200 years of simulated weather values from a
+                          database of more than 2600 weather stations and the
+                          PRISM 2.5-mile grid of precipitation data.
+                        </span>
+                        <span>
+                          This version of Rock: Clime is based on the legacy
+                          version of Rock: Clime available at <br />
+                          <a
+                            href="https://forest.moscowfsl.wsu.edu/cgi-bin/fswepp/rc/rockclim.pl"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 underline"
+                          >
+                            https://forest.moscowfsl.wsu.edu/cgi-bin/fswepp/rc/rockclim.pl
+                          </a>
+                        </span>
+                        <span>
+                          <strong>Citation:</strong>
+                          <br />
+                          Elliot, William J.; Dayna L. Scheele, Dayna L.; Hall,
+                          David E. 1999. Rock:Clime – Rocky Mountain Research
+                          Station Climate Generator. Moscow, ID: U.S.D.A. Forest
+                          Service, Rocky Mountain Research Station, Moscow
+                          Forestry Sciences Laboratory. [Online at{" "}
+                          <a
+                            href="https://forest.moscowfsl.wsu.edu/fswepp"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 underline"
+                          >
+                            forest.moscowfsl.wsu.edu/fswepp
+                          </a>
+                          ].
+                        </span>
+                      </DialogDescription>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+                <p className="text-gray-700">
+                  Rocky Mountain Research Station Climate Generator
+                </p>
               </div>
-              <p className="text-gray-700">
-                Rocky Mountain Research Station Climate Generator
-              </p>
             </div>
             <div className="hidden lg:flex lg:flex-row w-full sm:items-end sm:justify-end md:items-center gap-3 lg:justify-end">
               <Select value={cligenVersion} onValueChange={setCligenVersion}>
