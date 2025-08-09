@@ -101,7 +101,7 @@
 @layer components {
   .page-container {
     /*@apply mx-auto flex w-full flex-col gap-0 md:max-w-2xl lg:max-w-3xl xl:max-w-6xl pt-16;*/
-    @apply flex flex-col gap-2 sm:gap-4 py-4 md:gap-6 md:py-6 mt-12;
+    @apply flex flex-col min-w-[360px] gap-2 sm:gap-4 py-4 md:gap-6 md:py-6 mt-12;
   }
 
   .border-border {
