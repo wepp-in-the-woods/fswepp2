@@ -8,6 +8,7 @@
 - **FSWEPP Old Interface:** [https://forest.moscowfsl.wsu.edu/fswepp/](https://forest.moscowfsl.wsu.edu/fswepp/)
 - **FSWEPP Mockups:** [Figma Prototype](https://www.figma.com/proto/TuWyx6iGytyIz8fGr6B6Oy/FSWEPP-Mockups?page-id=227%3A3553&node-id=259-4289&viewport=1763%2C965%2C0.23&t=QUhvvcPe2mccdsFT-8&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=227%3A3554&hide-ui=1)
 - **FSWEPP2 Repository:** [https://github.com/wepp-in-the-woods/fswepp2](https://github.com/wepp-in-the-woods/fswepp2)
+- **FSWEPP2 Web Demo:** [wepp2-dev.bearhive.duckdns.org/](https://fswepp2-dev.bearhive.duckdns.org/)
 
 ## Introduction
 
