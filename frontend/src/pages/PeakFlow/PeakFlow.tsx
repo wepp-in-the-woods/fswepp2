@@ -1,9 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { lazy, useEffect, useState } from "react";
 import { useWatch } from "react-hook-form";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
 import { useUnits, useConversions } from "@/hooks/use-units.ts";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   Dialog,
   DialogContent,
@@ -23,11 +29,27 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-// import StormRunoffInfo from "@/pages/PeakFlow/PeakFlowFieldsInfo";
+
+// Dialog with info about the fields in the form
+const lazyFieldInfo = (name: string) =>
+  lazy(() =>
+    import("./PeakFlowFieldsInfo.tsx").then(mod => ({
+      default: (mod as Record<string, React.ComponentType<any>>)[name],
+    })));
+
+const StormRunoffInfo = lazyFieldInfo("StormRunoffInfo");
+const StormPrecipitationInfo = lazyFieldInfo("StormPrecipitationInfo");
+const WatershedAreaInfo = lazyFieldInfo("WatershedAreaInfo");
+const WatershedFlowLengthInfo = lazyFieldInfo("WatershedFlowLengthInfo");
+const AvgWatershedGradientInfo = lazyFieldInfo("AvgWatershedGradientInfo");
+const CurveNumberInfo = lazyFieldInfo("CurveNumberInfo");
+const TimeOfConcentrationInfo = lazyFieldInfo("TimeOfConcentrationInfo");
+const PondingAdjustmentFactorInfo = lazyFieldInfo("PondingAdjustmentFactorInfo");
+const CulvertDistanceInfo = lazyFieldInfo("CulvertDistanceInfo");
 
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon.tsx";
-import { Info, HelpCircle } from "lucide-react";
+import { Info } from "lucide-react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -98,11 +120,19 @@ type FormFieldConfig = {
     SI: string;
     US: string;
   } | string;
+  fieldInfo?: React.ReactNode;
 }
 
 const PeakFlow = () => {
   const { units } = useUnits();
   const { convert } = useConversions();
+  const [curveNumberValue, setCurveNumberValue] = useState(null);
+
+  useEffect(() => {
+    if (curveNumberValue !== null) {
+      form.setValue("curveNumber", curveNumberValue);
+    }
+  }, [curveNumberValue]);
 
   const defaultValues = {
     description: "",
@@ -195,6 +225,7 @@ const PeakFlow = () => {
       placeholder: "0.0",
       description: "Storm runoff from ERMiT analysis",
       unit: { SI: "mm", US: "in" },
+      fieldInfo: <StormRunoffInfo />,
     },
     {
       name: "stormPrecipitation",
@@ -204,6 +235,7 @@ const PeakFlow = () => {
       placeholder: "0.0",
       description: "If Q > P, use P ~ 2Q",
       unit: { SI: "mm", US: "in" },
+      fieldInfo: <StormPrecipitationInfo />,
     },
 
     // Watershed Physical Characteristics (from wepp.cloud or manual)
@@ -215,6 +247,7 @@ const PeakFlow = () => {
       placeholder: "0.0",
       description: "Watershed area above the structure of interest or watershed outlet. ",
       unit: { SI: "ha", US: "ac" },
+      fieldInfo: <WatershedAreaInfo />,
     },
     {
       name: "watershedFlowLength",
@@ -224,6 +257,7 @@ const PeakFlow = () => {
       placeholder: "0.0",
       description: "Watershed flow length is the horizontal distance from the top of the watershed to the structure or watershed outlet of interest.",
       unit: { SI: "m", US: "ft" },
+      fieldInfo: <WatershedFlowLengthInfo />,
     },
     {
       name: "avgWatershedGradient",
@@ -233,6 +267,7 @@ const PeakFlow = () => {
       placeholder: "0.0",
       description: "Average watershed gradient",
       unit: { SI: "m/m", US: "ft/ft" },
+      fieldInfo: <AvgWatershedGradientInfo />,
     },
 
     // Hydrologic Parameters (Manual entry with estimation tools)
@@ -243,6 +278,7 @@ const PeakFlow = () => {
       abbreviation: "CN",
       placeholder: "90",
       description: "Curve number from wepp.cloud",
+      fieldInfo: <CurveNumberInfo curveNumberValue={curveNumberValue} setCurveNumberValue={setCurveNumberValue} />,
     },
     {
       name: "timeOfConcentration",
@@ -252,6 +288,7 @@ const PeakFlow = () => {
       placeholder: "10.0",
       description: "The theoretical time it takes a drop of rainwater to travel from the top of the watershed to the watershed outlet. ",
       unit: "hr",
+      fieldInfo: <TimeOfConcentrationInfo />,
     },
 
     // Flow Routing Adjustments
@@ -262,31 +299,21 @@ const PeakFlow = () => {
       abbreviation: "Fp",
       placeholder: "1.0",
       description: "The ponding adjustment factor is for standing water, bog, pond, or swamp.",
+      fieldInfo: <PondingAdjustmentFactorInfo />,
     },
 
     // Infrastructure Design
     {
       name: "culvertDistance",
-      label: "Culvert Height",
+      label: "Culvert Distance",
       type: "number",
       abbreviation: "h",
       placeholder: units === "imperial" ? "6.0" : "1.83",
       description: "Distance from culvert center to 1ft below road surface",
       unit: { SI: "m", US: "ft" },
+      fieldInfo: <CulvertDistanceInfo />,
     }
   ]
-
-  // const peakFlowInputsSI: PeakFlowInputs = {
-  //   Q: form.watch("stormRunoff.SI"),
-  //   P: form.watch("stormPrecipitation.SI"),
-  //   A: form.watch("watershedArea.SI"),
-  //   L: form.watch("watershedFlowLength.SI"),
-  //   Sg: form.watch("avgWatershedGradient.SI"),
-  //   Tc: form.watch("timeOfConcentration"),
-  //   CN: form.watch("curveNumber"),
-  //   Fp: form.watch("pondingAdjustmentFactor"),
-  //   h: form.watch("culvertDistance.SI"),
-  // }
 
   const peakFlowInputsSI: PeakFlowInputs = {
     Q: useWatch({ control: form.control, name: "stormRunoff" })?.SI || 0,
@@ -300,18 +327,6 @@ const PeakFlow = () => {
     h: useWatch({ control: form.control, name: "culvertDistance" })?.SI || 0,
   };
 
-  // const peakFlowInputsUS: PeakFlowInputs  = {
-  //   Q: form.watch("stormRunoff.US"),
-  //   P: form.watch("stormPrecipitation.US"),
-  //   A: form.watch("watershedArea.US"),
-  //   L: form.watch("watershedFlowLength.US"),
-  //   Sg: form.watch("avgWatershedGradient.US"),
-  //   Tc: form.watch("timeOfConcentration"),
-  //   CN: form.watch("curveNumber"),
-  //   Fp: form.watch("pondingAdjustmentFactor"),
-  //   h: form.watch("culvertDistance.US"),
-  // }
-
   const peakFlowInputsUS: PeakFlowInputs = {
     Q: useWatch({ control: form.control, name: "stormRunoff" })?.US || 0,
     P: useWatch({ control: form.control, name: "stormPrecipitation" })?.US || 0,
@@ -323,8 +338,6 @@ const PeakFlow = () => {
     Fp: useWatch({ control: form.control, name: "pondingAdjustmentFactor" }) || 0,
     h: useWatch({ control: form.control, name: "culvertDistance" })?.US || 0,
   };
-
-  // console.log(peakFlowInputs);
 
   const [estimatedCN, setEstimatedCN] = useState<number | null>(null);
   const [calculatedTC, setCalculatedTC] = useState<number | null>(null);
@@ -417,22 +430,6 @@ const PeakFlow = () => {
     };
   };
 
-  // function to convert all results from US to SI units
-  const convertResultsToSI = (results: PeakFlowResults) => {
-    if (!results) return null;
-    return {
-      ...results,
-      S: Number(convert.inchesToMm(results.S).toFixed(2)),
-      Ia: Number(convert.inchesToMm(results.Ia).toFixed(2)),
-      qu: Number(convert.quUStoSI(results.qu).toFixed(4)),
-      q: Number(convert.cubicFeetPerSecToCubicMetersPerSec(results.q).toFixed(2)),
-      D: Number(convert.inchesToCm(results.D).toFixed(2)),
-    };
-  };
-
-  //async function to calculate peak flow using curve number
-
-
   const handleCalculateSI = () => {
     console.log("Peak Flow Inputs SI:", peakFlowInputsSI);
     try {
@@ -454,26 +451,11 @@ const PeakFlow = () => {
     }
   }
 
-  // Estimate CN from ERMiT data when Q and P are provided
-  // useEffect(() => {
-  //   if (Number(peakFlowInputs.Q) && Number(peakFlowInputs.P)) {
-  //    setEstimatedCN(Number(estimateCN(peakFlowInputs.Q, peakFlowInputs.P).toFixed(0)));
-  //   }
-  // }, [peakFlowInputs.Q, peakFlowInputs.P]);
-
   useEffect(() => {
     if (Number(peakFlowInputsSI.Q) && Number(peakFlowInputsSI.P)) {
       setEstimatedCN(Number(estimateCN(peakFlowInputsSI.Q, peakFlowInputsSI.P).toFixed(0)));
     }
   }, [peakFlowInputsSI.Q, peakFlowInputsSI.P]);
-
-  // Estimate Tc
-  // useEffect(() => {
-  //   // Calculate time of concentration if needed
-  //   if (Number(peakFlowInputs.Sg) && Number(peakFlowInputs.CN) && Number(peakFlowInputs.L)) {
-  //     setCalculatedTC(Number(calculateTc(peakFlowInputs.Sg, peakFlowInputs.CN, peakFlowInputs.L).toFixed(2)));
-  //   }
-  // }, [peakFlowInputs.Sg, peakFlowInputs.CN, peakFlowInputs.L]);
 
   useEffect(() => {
     // Calculate time of concentration if needed
@@ -482,45 +464,9 @@ const PeakFlow = () => {
     }
   }, [peakFlowInputsSI.Sg, peakFlowInputsSI.CN, peakFlowInputsSI.L]);
 
-  // Recalculate results when units or form values change
-  // useEffect(() => {
-  //   if (form.formState.isDirty) {
-  //     try {
-  //       const conversions = units === "imperial"
-  //         ? [
-  //           { field: "stormRunoff", fn: convert.mmToInches },
-  //           { field: "stormPrecipitation", fn: convert.mmToInches },
-  //           { field: "watershedArea", fn: convert.hectaresToAcres },
-  //           { field: "watershedFlowLength", fn: convert.mToFt },
-  //           { field: "culvertDistance", fn: convert.mToFt },
-  //         ]
-  //         : [
-  //           { field: "stormRunoff", fn: convert.inchesToMm },
-  //           { field: "stormPrecipitation", fn: convert.inchesToMm },
-  //           { field: "watershedArea", fn: convert.acresToHectares },
-  //           { field: "watershedFlowLength", fn: convert.ftToM },
-  //           { field: "culvertDistance", fn: convert.ftToM },
-  //         ];
-  //
-  //       conversions.forEach(({ field, fn }) => {
-  //         const value = form.watch(field as any);
-  //         if (!isNaN(value)) {
-  //           form.setValue(field as any, Number(fn(value).toFixed(2)));
-  //         }
-  //       });
-  //     } catch (error) {
-  //       console.error("Unit conversion error:", error);
-  //     }
-  //   }
-  // }, [units, form]);
-
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log("Submit handler called!"); // Add this line
-    console.log("Form values:", values);
+    console.log("Form inputs:", values);
     handleCalculateSI();
-    console.log(values);
   }
 
   useEffect(() => {
@@ -535,7 +481,8 @@ const PeakFlow = () => {
       <SidebarInset>
         <AppHeader />
         <div className="page-container">
-          <div className="flex flex-row justify-between gap-4 px-4 lg:px-6">
+          <div className="flex flex-row justify-between gap-3 px-4 lg:px-6 items-start">
+            <img src="/peak-flow-icon.svg" alt="Peak Flow calculator icon" className="w-16" />
             <div className="flex w-full flex-col items-start gap-3">
               <div className="flex flex-row items-center gap-3">
                 <h1 className="text-foreground">
@@ -595,148 +542,210 @@ const PeakFlow = () => {
                 Estimated peak flow for burned areas using Curve Number
                 technology
               </p>
+              <Accordion
+                type="single"
+                collapsible
+                className="w-full"
+              >
+                <AccordionItem value="methods">
+                  <AccordionTrigger className="py-2">Methods</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="flex flex-col gap-2 text-base mb-3">
+                      <p>
+                        To predict peak runoff from total storm runoff:
+                      </p>
+                      <ol className="list-decimal list-outside pl-12">
+                        <li>
+                          Run ERMiT for climate and hillslope typical of the watershed.
+                        </li>
+                        <li>
+                          Note the return period runoff volume from first ERMiT table (Rainfall Event Rankings and Characteristics From Selected Storms).
+                        </li>
+                        <li>
+                          Estimate the peak runoff rate from the runoff volume using the TR-55 method.
+                        </li>
+                      </ol>
+                      <p>
+                        Changing the length and steepness of the hillslope is unlikely to change the predicted runoff amount. It will make a bit of difference in erosion.
+                      </p>
+                      <p>
+                        The SCS-TR55 method has been widely used to estimate peak runoff rates from small rural and urban watersheds (SCS, 1986). This method of estimating peak runoff rate is applicable to watersheds that are smaller than 900 ha and with average slopes greater than 0.5 percent with one main channel or two tributaries with nearly the same time of concentration. (Fangmeier et al., 2006. 5.16-TR55 Method For Estimating Peak Runoff Rate.)
+                      </p>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="references">
+                  <AccordionTrigger className="py-2">References</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="flex flex-col gap-2 mb-2">
+                      <p className="reference">
+                        Elliot,W.J.; Robichaud, P.R. 2014. <b><a href="https://forest.moscowfsl.wsu.edu/fswepp/docs/1404%20BAER%20Tools%20Webinar%20Worksheet.pdf" target="_pdf" rel="noopener noreferrer" className="text-blue-600 underline">Wildfire Erosion Analysis with ERMiT and Peak Flow Calculator</a>.</b>
+                        USDA Forest Service, Rocky Mountain Research Station. 4&nbsp;p.
+                      </p>
+                      <p className="reference">
+                        Fangmeier, D.D.; Elliot, W.J.; Workman, S.R.; Huffman, R.L.; Schwab, G.O. 2006.
+                        <b>Soil and Water Conservation Engineering,</b> Fifth Edition.
+                        Clifton Park, NJ: Thompson Delmar Learning. 95-97.
+                      </p>
+                      <p className="reference">
+                        Foltz, R.B.; Robichaud, P.R.; Rhee, H. 2009. <b>Post-Fire Peak Flow and Erosion Estimation;</b>
+                        <b>Use of Post-Fire CNs by BAER Specialists.</b>
+                        Moscow, ID: USDA Forest Service, Rocky Mountain Research Station.
+                        Web page. Last Modified 05/13/2009.
+                        <a href="https://forest.moscowfsl.wsu.edu/BAERTOOLS/ROADTRT/Peakflow/CN/supplement.html#CNGuideline" target="_ref" rel="noopener noreferrer" className="text-blue-600 underline">forest.moscowfsl.wsu.edu/BAERTOOLS/ROADTRT/Peakflow/CN/supplement.html#CNGuideline</a>
+                      </p>
+                      <p className="reference">
+                        Iowa State University, 2008.
+                        <b>Iowa Stormwater Management Manual. Version 2.</b> Chapter 2C.5, NRCS TR-55 Methodology.
+                        Iowa State University.
+                        <a href="https://www.ctre.iastate.edu/PUBS/stormwater/documents/2C-5NRCSTR-55Methodology.pdf" target="_ref" rel="noopener noreferrer" className="text-blue-600 underline">www.ctre.iastate.edu/PUBS/stormwater/documents/2C-5NRCSTR-55Methodology.pdf</a>
+                      </p>
+                      <p className="reference">
+                        Soil Conservation Service, 1986. <b>Urban Hydrology for Small Watersheds.</b>
+                        USDA Natural Resources Conservation Service, Conservation Engineering Division, Technical Release 55. June 1986. 164&nbsp;p.
+                        <a href="https://www.cpesc.org/reference/tr55.pdf" target="_ref" rel="noopener noreferrer" className="text-blue-600 underline">www.cpesc.org/reference/tr55.pdf</a>
+                      </p>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
           </div>
           <div className="@container flex flex-col gap-4 self-center px-4 py-2 lg:gap-6 lg:px-6 lg:py-6 w-full">
-            <div className="flex flex-row gap-4 w-full max-w-xl self-center">
-              <div className="flex grow w-full flex-col gap-4">
-                <h3 className="text-xl font-semibold">Inputs</h3>
-                <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit, (errors) => {
-                      console.log("Form validation failed:", errors);
-                    })}
-                    className="space-y-4"
-                  >
-                    {/*Description*/}
-                    <FormField
-                      key={formFields[0].name}
-                      control={form.control}
-                      name={formFields[0].name}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{formFields[0].label}</FormLabel>
-                          <div className="flex flex-row items-center gap-2">
-                            <FormControl>
-                              <Input
-                                type={formFields[0].type}
-                                placeholder={formFields[0].placeholder}
-                                {...field}
-                                value={field.value as string}
-                                className=""
-                                onChange={field.onChange}
-                              />
-                            </FormControl>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+            {/*Inputs*/}
+            <div className="flex flex-col grow w-full gap-4 max-w-xl self-center">
+              <h3 className="text-xl font-semibold">Inputs</h3>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit, (errors) => {
+                    console.log("Form validation failed:", errors);
+                  })}
+                  className="space-y-4"
+                >
+                  {/*Description*/}
+                  <FormField
+                    key={formFields[0].name}
+                    control={form.control}
+                    name={formFields[0].name}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{formFields[0].label}</FormLabel>
+                        <div className="flex flex-row items-center gap-2">
+                          <FormControl>
+                            <Input
+                              type={formFields[0].type}
+                              placeholder={formFields[0].placeholder}
+                              {...field}
+                              value={field.value as string}
+                              className=""
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-4">
-                      <div className="flex flex-col gap-4">
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-green-500">
-                            From ERMit
-                          </span>
-                          {/*Storm Runoff and Storm Precipitation*/}
-                          <div className="mt-2 flex flex-col space-y-4 rounded-xl border-2 border-green-300 bg-green-50/5 p-4">
-                            {formFields.slice(1, 3).map((fieldConfig) => (
-                              <FormField
-                                key={fieldConfig.name}
-                                control={form.control}
-                                name={fieldConfig.name}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>
-                                      {fieldConfig.label}
-                                      {fieldConfig.abbreviation && (
-                                        <>
-                                          ,{" "}
-                                          <strong>
-                                            {fieldConfig.abbreviation}
-                                          </strong>
-                                        </>
-                                      )}
-                                    </FormLabel>
-                                    <div className="flex flex-row items-center gap-4">
-                                      {/*Render SI and US input fields for each properties*/}
-                                      {renderUnitInputs(field, fieldConfig)}
-                                      <Icon
-                                        icon={HelpCircle}
-                                        className="h-4 w-4 text-gray-700 hover:cursor-pointer"
-                                      />
-                                    </div>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-orange-500">
-                            From wepp.cloud
-                          </span>
-                          <div className="mt-2 flex flex-col space-y-4 rounded-xl border-2 border-orange-300 bg-orange-50/5 p-4">
-                            {formFields.slice(3, 6).map((fieldConfig) => (
-                              <FormField
-                                key={fieldConfig.name}
-                                control={form.control}
-                                name={fieldConfig.name}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>
-                                      {fieldConfig.label}
-                                      {fieldConfig.abbreviation && (
-                                        <>
-                                          ,{" "}
-                                          <strong>
-                                            {fieldConfig.abbreviation}
-                                          </strong>
-                                        </>
-                                      )}
-                                    </FormLabel>
-                                    <div className="flex flex-row items-center gap-2">
-                                      <div className="flex flex-row items-center gap-4">
-                                        {renderUnitInputs(field, fieldConfig)}
-                                        <Icon
-                                          icon={HelpCircle}
-                                          className="h-4 w-4 text-gray-700 hover:cursor-pointer"
-                                        />
-                                      </div>
-                                    </div>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex grow flex-col">
-                        <span className="font-semibold text-blue-500">
-                          Manual Entry
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-green-500">
+                          From ERMit
                         </span>
-                        <div className="mt-2 flex flex-col space-y-4 rounded-xl border-2 border-blue-300 bg-blue-50/5 p-4">
-                          {/* Curve Number */}
-                          <div className="flex flex-col gap-2">
+                        {/*Storm Runoff and Storm Precipitation*/}
+                        <div className="mt-2 flex flex-col space-y-4 rounded-xl border-2 border-green-300 bg-green-50/5 p-4">
+                          {formFields.slice(1, 3).map((fieldConfig) => (
                             <FormField
-                              key={formFields[6].name}
+                              key={fieldConfig.name}
                               control={form.control}
-                              name={formFields[6].name}
+                              name={fieldConfig.name}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>
-                                    {formFields[6].label}
-                                    {formFields[6].abbreviation && (
+                                    {fieldConfig.label}
+                                    {fieldConfig.abbreviation && (
                                       <>
                                         ,{" "}
                                         <strong>
-                                          {formFields[6].abbreviation}
+                                          {fieldConfig.abbreviation}
                                         </strong>
                                       </>
                                     )}
                                   </FormLabel>
+                                  <div className="flex flex-row items-center gap-4">
+                                    {/*Render SI and US input fields for each properties*/}
+                                    {renderUnitInputs(field, fieldConfig)}
+                                    {fieldConfig.fieldInfo}
+                                  </div>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-orange-500">
+                          From wepp.cloud
+                        </span>
+                        <div className="mt-2 flex flex-col space-y-4 rounded-xl border-2 border-orange-300 bg-orange-50/5 p-4">
+                          {formFields.slice(3, 6).map((fieldConfig) => (
+                            <FormField
+                              key={fieldConfig.name}
+                              control={form.control}
+                              name={fieldConfig.name}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>
+                                    {fieldConfig.label}
+                                    {fieldConfig.abbreviation && (
+                                      <>
+                                        ,{" "}
+                                        <strong>
+                                          {fieldConfig.abbreviation}
+                                        </strong>
+                                      </>
+                                    )}
+                                  </FormLabel>
+                                  <div className="flex flex-row items-center gap-2">
+                                    <div className="flex flex-row items-center gap-4">
+                                      {renderUnitInputs(field, fieldConfig)}
+                                      {fieldConfig.fieldInfo}
+                                    </div>
+                                  </div>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex grow flex-col">
+                      <span className="font-semibold text-blue-500">
+                        Manual Entry
+                      </span>
+                      <div className="mt-2 flex flex-col space-y-4 rounded-xl border-2 border-blue-300 bg-blue-50/5 p-4">
+                        {/* Curve Number */}
+                        <div className="flex flex-col gap-2">
+                          <FormField
+                            key={formFields[6].name}
+                            control={form.control}
+                            name={formFields[6].name}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  {formFields[6].label}
+                                  {formFields[6].abbreviation && (
+                                    <>
+                                      ,{" "}
+                                      <strong>
+                                        {formFields[6].abbreviation}
+                                      </strong>
+                                    </>
+                                  )}
+                                </FormLabel>
+                                <div className="flex flex-row items-center gap-4">
                                   <div className="flex flex-row items-center gap-2">
                                     <FormControl>
                                       <Input
@@ -756,56 +765,59 @@ const PeakFlow = () => {
                                       />
                                     </FormControl>
                                   </div>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <div className="ml-4 flex flex-row items-center gap-4">
-                              <span className="text-sm font-medium">
-                                CN Estimate from ERMiT (forest)
+                                  {formFields[6].fieldInfo}
+                                </div>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div className="ml-4 flex flex-row items-center gap-4">
+                            <span className="text-sm font-medium">
+                              CN Estimate from ERMiT (forest)
+                            </span>
+                            {estimatedCN ? (
+                              <span className="text-md font-bold">
+                                {estimatedCN}
+                                <Button
+                                  variant="link"
+                                  className="w-fit shrink cursor-pointer"
+                                  onClick={() => {
+                                    if (estimatedCN) {
+                                      form.setValue(
+                                        "curveNumber",
+                                        estimatedCN,
+                                      );
+                                    }
+                                  }}
+                                >
+                                  Use ERMiT CN Estimate
+                                </Button>
                               </span>
-                              {estimatedCN ? (
-                                <span className="text-md font-bold">
-                                  {estimatedCN}
-                                  <Button
-                                    variant="link"
-                                    className="w-fit shrink cursor-pointer"
-                                    onClick={() => {
-                                      if (estimatedCN) {
-                                        form.setValue(
-                                          "curveNumber",
-                                          estimatedCN,
-                                        );
-                                      }
-                                    }}
-                                  >
-                                    Use ERMiT CN Estimate
-                                  </Button>
-                                </span>
-                              ) : (
-                                <span className="text-md font-bold"> -- </span>
-                              )}
-                            </div>
+                            ) : (
+                              <span className="text-md font-bold"> -- </span>
+                            )}
                           </div>
-                          {/* Time of Concerntration*/}
-                          <div className="flex flex-col gap-2">
-                            <FormField
-                              key={formFields[7].name}
-                              control={form.control}
-                              name={formFields[7].name}
-                              render={({ field }) => (
-                                <FormItem className="h-fit">
-                                  <FormLabel>
-                                    {formFields[7].label}
-                                    {formFields[7].abbreviation && (
-                                      <>
-                                        ,{" "}
-                                        <strong>
-                                          {formFields[7].abbreviation}
-                                        </strong>
-                                      </>
-                                    )}
-                                  </FormLabel>
+                        </div>
+                        {/* Time of Concerntration*/}
+                        <div className="flex flex-col gap-2">
+                          <FormField
+                            key={formFields[7].name}
+                            control={form.control}
+                            name={formFields[7].name}
+                            render={({ field }) => (
+                              <FormItem className="h-fit">
+                                <FormLabel>
+                                  {formFields[7].label}
+                                  {formFields[7].abbreviation && (
+                                    <>
+                                      ,{" "}
+                                      <strong>
+                                        {formFields[7].abbreviation}
+                                      </strong>
+                                    </>
+                                  )}
+                                </FormLabel>
+                                <div className="flex flex-row items-center gap-4">
                                   <div className="flex flex-row items-center gap-2">
                                     <FormControl>
                                       <Input
@@ -826,59 +838,62 @@ const PeakFlow = () => {
                                     </FormControl>
                                     {formFields[7].unit && (
                                       <span>
-                                        {formFields[7].unit as string}
-                                      </span>
+                                      {formFields[7].unit as string}
+                                    </span>
                                     )}
                                   </div>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <div className="ml-4 flex flex-row items-center gap-4">
-                              <span className="text-sm font-medium">
-                                Tc ~ (flat watershed; dry soil)
+                                  {formFields[7].fieldInfo}
+                                </div>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div className="ml-4 flex flex-row items-center gap-4">
+                            <span className="text-sm font-medium">
+                              Tc ~ (flat watershed; dry soil)
+                            </span>
+                            {calculatedTC ? (
+                              <span className="text-md font-bold">
+                                {calculatedTC + " hr"}
+                                <Button
+                                  variant="link"
+                                  className="w-fit shrink cursor-pointer"
+                                  onClick={() => {
+                                    if (calculatedTC) {
+                                      form.setValue(
+                                        "timeOfConcentration",
+                                        calculatedTC,
+                                      );
+                                    }
+                                  }}
+                                >
+                                  Use Tc ~ Estimate
+                                </Button>
                               </span>
-                              {calculatedTC ? (
-                                <span className="text-md font-bold">
-                                  {calculatedTC + " hr"}
-                                  <Button
-                                    variant="link"
-                                    className="w-fit shrink cursor-pointer"
-                                    onClick={() => {
-                                      if (calculatedTC) {
-                                        form.setValue(
-                                          "timeOfConcentration",
-                                          calculatedTC,
-                                        );
-                                      }
-                                    }}
-                                  >
-                                    Use Tc ~ Estimate
-                                  </Button>
-                                </span>
-                              ) : (
-                                <span className="text-md font-bold"> -- </span>
-                              )}
-                            </div>
+                            ) : (
+                              <span className="text-md font-bold"> -- </span>
+                            )}
                           </div>
-                          {/* Ponding Adjustment Factor*/}
-                          <FormField
-                            key={formFields[8].name}
-                            control={form.control}
-                            name={formFields[8].name}
-                            render={({ field }) => (
-                              <FormItem className="">
-                                <FormLabel>
-                                  {formFields[8].label}
-                                  {formFields[8].abbreviation && (
-                                    <>
-                                      ,{" "}
-                                      <strong>
-                                        {formFields[8].abbreviation}
-                                      </strong>
-                                    </>
-                                  )}
-                                </FormLabel>
+                        </div>
+                        {/* Ponding Adjustment Factor*/}
+                        <FormField
+                          key={formFields[8].name}
+                          control={form.control}
+                          name={formFields[8].name}
+                          render={({ field }) => (
+                            <FormItem className="">
+                              <FormLabel>
+                                {formFields[8].label}
+                                {formFields[8].abbreviation && (
+                                  <>
+                                    ,{" "}
+                                    <strong>
+                                      {formFields[8].abbreviation}
+                                    </strong>
+                                  </>
+                                )}
+                              </FormLabel>
+                              <div className="flex flex-row items-center gap-4">
                                 <div className="flex flex-row items-center gap-2">
                                   <FormControl>
                                     <Input
@@ -898,72 +913,80 @@ const PeakFlow = () => {
                                     />
                                   </FormControl>
                                 </div>
-                                <FormDescription>
-                                  Pond and swamp adjustment (0-1, typically 1)
-                                  <br />
-                                  0% pond: 1.0; 1.0%: 0.87; 5.0%: 0.72
-                                </FormDescription>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          {/*Culvert Distance*/}
-                          <FormField
-                            key={formFields[9].name}
-                            control={form.control}
-                            name={formFields[9].name}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>
-                                  Culvert height, h
-                                </FormLabel>
-                                <div className="flex flex-row items-center gap-4">
-                                  {renderUnitInputs(field, formFields[9])}
-                                </div>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                                {formFields[8].fieldInfo}
+                              </div>
+                              <FormDescription>
+                                Pond and swamp adjustment (0-1, typically 1)
+                                <br />
+                                0% pond: 1.0; 1.0%: 0.87; 5.0%: 0.72
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        {/*Culvert Distance*/}
+                        <FormField
+                          key={formFields[9].name}
+                          control={form.control}
+                          name={formFields[9].name}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>
+                                {formFields[9].label}
+                                {formFields[9].abbreviation && (
+                                  <>
+                                    ,{" "}
+                                    <strong>
+                                      {formFields[9].abbreviation}
+                                    </strong>
+                                  </>
+                                )}
+                              </FormLabel>
+                              <div className="flex flex-row items-center gap-4">
+                                {renderUnitInputs(field, formFields[9])}
+                                {formFields[9].fieldInfo}
+                              </div>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
                     </div>
+                  </div>
 
-                    <div className="flex shrink flex-col gap-2 lg:flex-row lg:gap-4">
-                      <Button
-                        type="submit"
-                        className="w-full shrink cursor-pointer"
-                      >
-                        Calculate
-                      </Button>
-                      <Button
-                        type="reset"
-                        variant="outline"
-                        onClick={() => form.reset(defaultValues)}
-                        className="w-full shrink cursor-pointer"
-                      >
-                        Clear fields
-                      </Button>
-                    </div>
+                  <div className="flex shrink flex-col gap-2 lg:flex-row lg:gap-4">
                     <Button
-                      variant="link"
+                      type="submit"
                       className="w-full shrink cursor-pointer"
-                      onClick={() => {
-                        form.reset(micaCreekData);
-                      }}
                     >
-                      Use Mica Creek example data
+                      Calculate
                     </Button>
-                  </form>
-                </Form>
-              </div>
-              {/*<div className="hidden w-1/2 lg:flex lg:flex-col">*/}
-              {/*  /!*<StormRunoffInfo />*!/*/}
-              {/*</div>*/}
+                    <Button
+                      type="reset"
+                      variant="outline"
+                      onClick={() => form.reset(defaultValues)}
+                      className="w-full shrink cursor-pointer"
+                    >
+                      Clear fields
+                    </Button>
+                  </div>
+                  <Button
+                    variant="link"
+                    className="w-full shrink cursor-pointer"
+                    onClick={() => {
+                      form.reset(micaCreekData);
+                    }}
+                  >
+                    Use Mica Creek example data
+                  </Button>
+                </form>
+              </Form>
             </div>
 
+            {/*Results*/}
             <div className="@container flex flex-col lg:flex-row gap-4">
               <div className="flex flex-col gap-4 flex-1/2">
-                <h3 className="text-xl font-semibold">Results (SI units)</h3>
+                <h3 className="text-xl font-semibold">Results</h3>
                 <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @7xl:grid-cols-4">
                   <Card>
                     <CardHeader>
@@ -971,10 +994,20 @@ const PeakFlow = () => {
                         Surface storage, <strong>S</strong>
                       </CardDescription>
                       <CardTitle className="leading-normal">
-                      <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                        {resultsSI ? resultsSI.S : "--"}
-                      </span>
-                        {" mm"}
+                        <div className="flex flex-col gap-1">
+                          <div className="flex flex-row items-end gap-2">
+                            <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                              {resultsSI ? resultsSI.S : "--"}
+                            </span>
+                            {" mm"}
+                          </div>
+                          <div className="flex flex-row items-end gap-2">
+                            <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                              {resultsUS ? resultsUS.S : "--"}
+                            </span>
+                            {" in"}
+                          </div>
+                        </div>
                       </CardTitle>
                     </CardHeader>
                   </Card>
@@ -987,9 +1020,20 @@ const PeakFlow = () => {
                         </strong>
                       </CardDescription>
                       <CardTitle className="leading-normal">
-                      <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                        {resultsSI ? resultsSI.Ia : "--"}
-                      </span>{" mm"}
+                        <div className="flex flex-col gap-1">
+                          <div className="flex flex-row items-end gap-2">
+                            <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                              {resultsSI ? resultsSI.Ia : "--"}
+                            </span>
+                            {" mm"}
+                          </div>
+                          <div className="flex flex-row items-end gap-2">
+                            <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                              {resultsUS ? resultsUS.Ia : "--"}
+                            </span>
+                            {" in"}
+                          </div>
+                        </div>
                       </CardTitle>
                     </CardHeader>
                   </Card>
@@ -1001,9 +1045,18 @@ const PeakFlow = () => {
                         </strong>
                       </CardDescription>
                       <CardTitle className="leading-normal">
-                      <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                        {resultsSI ? resultsSI.IaOnP : "--"}
-                      </span>
+                        <div className="flex flex-col gap-1">
+                          <div className="flex flex-row items-end gap-2">
+                            <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                              {resultsSI ? resultsSI.IaOnP : "--"}
+                            </span>
+                          </div>
+                          <div className="flex flex-row items-end gap-2">
+                            <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                              {resultsUS ? resultsUS.IaOnP : "--"}
+                            </span>
+                          </div>
+                        </div>
                       </CardTitle>
                     </CardHeader>
                   </Card>
@@ -1016,12 +1069,24 @@ const PeakFlow = () => {
                         </strong>
                       </CardDescription>
                       <CardTitle className="flex flex-col gap-1 leading-normal">
-                        <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                          {resultsSI ? resultsSI.qu : "--"}
-                        </span>{" "}
-                        <span>
-                          m<sup>3</sup>/s per ha/mm × 10<sup>-3</sup>
-                        </span>
+                        <div className="flex flex-col gap-1">
+                          <div className="flex flex-row items-center gap-2">
+                            <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                              {resultsSI ? resultsSI.qu : "--"}
+                            </span>
+                            <span className="text-sm">
+                              m<sup>3</sup>/s per ha/mm × 10<sup>-3</sup>
+                            </span>
+                          </div>
+                          <div className="flex flex-row items-center gap-2">
+                            <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                              {resultsUS ? resultsUS.qu : "--"}
+                            </span>
+                            <span className="text-sm">
+                              ft<sup>3</sup>/s per ac/in × 10<sup>-3</sup>
+                            </span>
+                          </div>
+                        </div>
                       </CardTitle>
                     </CardHeader>
                   </Card>
@@ -1033,10 +1098,20 @@ const PeakFlow = () => {
                         Estimated peak flow rate, <strong>q</strong>
                       </CardDescription>
                       <CardTitle className="leading-normal">
-                      <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                        {resultsSI ? resultsSI.q : "--"}
-                      </span>
-                        {" m³/s"}
+                        <div className="flex flex-col gap-1">
+                          <div className="flex flex-row items-end gap-2">
+                            <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                              {resultsSI ? resultsSI.q : "--"}
+                            </span>
+                            {" m³/s"}
+                          </div>
+                          <div className="flex flex-row items-end gap-2">
+                            <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                              {resultsUS ? resultsUS.q : "--"}
+                            </span>
+                            {" ft³/s"}
+                          </div>
+                        </div>
                       </CardTitle>
                     </CardHeader>
                   </Card>
@@ -1046,103 +1121,20 @@ const PeakFlow = () => {
                         Culvert Diameter, <strong>D</strong>
                       </CardDescription>
                       <CardTitle className="leading-normal">
-                      <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                        {resultsSI ? resultsSI.D : "--"}
-                      </span>
-                        {" cm"}
-                      </CardTitle>
-                    </CardHeader>
-                  </Card>
-                </div>
-              </div>
-              <div className="flex flex-col gap-4 flex-1/2">
-                <h3 className="text-xl font-semibold">Results (US units)</h3>
-                <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @7xl:grid-cols-4">
-                  <Card>
-                    <CardHeader>
-                      <CardDescription className="text-md text-gray-800">
-                        Surface storage, <strong>S</strong>
-                      </CardDescription>
-                      <CardTitle className="leading-normal">
-                      <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                        {resultsUS ? resultsUS.S : "--"}
-                      </span>
-                        {" in"}
-                      </CardTitle>
-                    </CardHeader>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardDescription className="text-md text-gray-800">
-                        Initial abstraction,{" "}
-                        <strong>
-                          I<sub>a</sub>
-                        </strong>
-                      </CardDescription>
-                      <CardTitle className="leading-normal">
-                      <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                        {resultsUS ? resultsUS.Ia : "--"}
-                      </span>{" in"}
-                      </CardTitle>
-                    </CardHeader>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardDescription className="text-md text-gray-800">
-                        <strong>
-                          I<sub>a</sub>/P
-                        </strong>
-                      </CardDescription>
-                      <CardTitle className="leading-normal">
-                      <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                        {resultsUS ? resultsUS.IaOnP : "--"}
-                      </span>
-                      </CardTitle>
-                    </CardHeader>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardDescription className="text-md text-gray-800">
-                        Unit peak flow rate,{" "}
-                        <strong>
-                          q<sub>u</sub>
-                        </strong>
-                      </CardDescription>
-                      <CardTitle className="flex flex-col gap-1 leading-normal">
-                        <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                          {resultsUS ? resultsUS.qu : "--"}
-                        </span>{" "}
-                          <span>
-                          ft<sup>3</sup>/s per ac/in × 10<sup>-3</sup>
-                        </span>
-                      </CardTitle>
-                    </CardHeader>
-                  </Card>
-                </div>
-                <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @md:grid-cols-2">
-                  <Card className="bg-amber-50">
-                    <CardHeader>
-                      <CardDescription className="text-md text-gray-800">
-                        Estimated peak flow rate, <strong>q</strong>
-                      </CardDescription>
-                      <CardTitle className="leading-normal">
-                      <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                        {resultsUS ? resultsUS.q : "--"}
-                      </span>
-                        {" ft³/s"}
-                      </CardTitle>
-                    </CardHeader>
-                  </Card>
-                  <Card className="bg-amber-50">
-                    <CardHeader>
-                      <CardDescription className="text-md text-gray-800">
-                        Culvert Diameter, <strong>D</strong>
-                      </CardDescription>
-                      <CardTitle className="leading-normal">
-                      <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                        {resultsUS ? resultsUS.D : "--"}
-                      </span>
-                        {" in"}
+                        <div className="flex flex-col gap-1">
+                          <div className="flex flex-row items-end gap-2">
+                            <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                              {resultsSI ? resultsSI.D : "--"}
+                            </span>
+                            {" cm"}
+                          </div>
+                          <div className="flex flex-row items-end gap-2">
+                            <span className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                              {resultsUS ? resultsUS.D : "--"}
+                            </span>
+                            {" in"}
+                          </div>
+                        </div>
                       </CardTitle>
                     </CardHeader>
                   </Card>

@@ -101,15 +101,17 @@
 @layer components {
   .page-container {
     /*@apply mx-auto flex w-full flex-col gap-0 md:max-w-2xl lg:max-w-3xl xl:max-w-6xl pt-16;*/
-    @apply flex flex-col min-w-[360px] gap-2 sm:gap-4 py-4 md:gap-6 md:py-6 mt-12;
+    @apply mt-12 flex min-w-[360px] flex-col gap-2 py-4 sm:gap-4 md:gap-6 md:py-6;
   }
 
   .border-border {
     border-color: var(--border);
   }
+
   .text-foreground {
     color: var(--foreground);
   }
+
   .leaflet-marker-icon {
     margin-left: -20px !important;
     margin-top: -40px !important;
@@ -117,6 +119,14 @@
 
   .leaflet-container {
     font-family: inherit;
+  }
+
+  .dialog-container {
+    @apply flex flex-col justify-start h-screen max-h-screen w-screen max-w-screen rounded-none px-3 sm:max-h-5/6 sm:max-w-5/6 sm:rounded-lg sm:p-6 xl:max-h-3/4 xl:max-w-2/3;
+  }
+
+  .reference {
+    @apply ml-[0.3in] indent-[-0.3in] text-base;
   }
 }
 

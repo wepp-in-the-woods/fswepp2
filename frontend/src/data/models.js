@@ -123,7 +123,7 @@ const watershedModels = [
     label: "Peak Flow Calculator",
     description:
       "Estimate peak flow for burned areas using Curve Number technology.",
-    icon: "/placeholder-model-icon.svg",
+    icon: "/peak-flow-icon.svg",
     href: "/peak-flow-calculator",
     isExternal: false,
   },
