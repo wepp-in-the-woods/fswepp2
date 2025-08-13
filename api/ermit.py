@@ -875,9 +875,9 @@ def get_ermit_pre_fire_covers(
     )
 ) -> Any:
     return {
-        "pre_fire_shrub_pct": state.pre_fire_shrub_pct,
-        "pre_fire_grass_pct": state.pre_fire_grass_pct,
-        "pre_fire_bare_pct": state.pre_fire_bare_pct
+        "pre_fire_shrub_pct": state.ermit_pars.pre_fire_shrub_pct,
+        "pre_fire_grass_pct": state.ermit_pars.pre_fire_grass_pct,
+        "pre_fire_bare_pct": state.ermit_pars.pre_fire_bare_pct
     }
 
 @router.post("/ermit/RUN/wepp")
