@@ -864,6 +864,20 @@ def ermit_get_management(spatial_severity: str, state: ErmitState = Body(
         raise HTTPException(status_code=404, detail=str(e))
 
 
+@router.post("/ermit/GET/pre_fire_covers")
+def get_ermit_pre_fire_covers(
+    request: Request,
+    state: ErmitState = Body(
+        ...,
+        example=example_pars
+    )
+) -> Any:
+    return {
+        "pre_fire_shrub_pct": state.pre_fire_shrub_pct,
+        "pre_fire_grass_pct": state.pre_fire_grass_pct,
+        "pre_fire_bare_pct": state.pre_fire_bare_pct
+    }
+
 @router.post("/ermit/RUN/wepp")
 def ermit_run_wepp(
     request: Request, 
