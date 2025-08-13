@@ -28,6 +28,9 @@ from .shared_models import SoilTexture
 from .wepp import parse_wepp_soil_output, get_annual_maxima_events_from_ebe, get_selected_events_from_ebe
 from .logger import log_run
 
+import wepppy2
+wepp_bin_dir = _join(os.path.dirname(wepppy2.__file__), 'wepp_runner/bin')
+
 router = APIRouter()
 
 _thisdir = os.path.dirname(os.path.abspath(__file__))
@@ -539,6 +542,7 @@ def get_management_file(spatial_severity: str, ermit_state: ErmitState) -> str:
 
 
 def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int, cli_fn: str, selected_dates: list):
+    global wepp_bin_dir
     
     cwd = '/ramdisk/ermit'
         
@@ -600,7 +604,7 @@ def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int
     with open(run_fn, 'w') as fp:
         fp.write(content)
         
-    weppversion = f'/usr/lib/python3/dist-packages/wepppy2/wepp_runner/bin/{state.wepp_version}'
+    weppversion = _join(wepp_bin_dir, state.wepp_version)
     
     if not _exists(weppversion):
         return {"error": f"WEPP version {state.wepp_version} not found"}
@@ -637,6 +641,7 @@ def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int
 
 
 def run_ermitwepp(state: ErmitState):
+    global wepp_bin_dir
     
     cwd = '/ramdisk/ermit'
     
@@ -705,7 +710,7 @@ def run_ermitwepp(state: ErmitState):
     with open(run_fn, 'w') as fp:
         fp.write(content)
         
-    weppversion = f'/usr/lib/python3/dist-packages/wepppy2/wepp_runner/bin/{state.wepp_version}'
+    weppversion = _join(wepp_bin_dir, state.wepp_version)
     
     if not _exists(weppversion):
         return {"error": f"WEPP version {state.wepp_version} not found"}
