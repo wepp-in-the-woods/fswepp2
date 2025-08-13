@@ -1,7 +1,6 @@
-import React from "react";
 import { SidebarProvider, SidebarInset} from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/layout/app-sidebar";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppSidebar } from "@/components/layout/AppSidebar.tsx";
+import { AppHeader } from "@/components/layout/AppHeader.tsx";
 import ToolSection from "@/components/shared/ToolSection";
 import { ExternalLink } from "lucide-react";
 import { Icon } from "@/components/ui/icon";

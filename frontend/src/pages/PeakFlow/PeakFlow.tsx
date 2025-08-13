@@ -1,8 +1,8 @@
 import React, { lazy, useEffect, useState } from "react";
 import { useWatch } from "react-hook-form";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/layout/app-sidebar";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppSidebar } from "@/components/layout/AppSidebar.tsx";
+import { AppHeader } from "@/components/layout/AppHeader.tsx";
 import { useUnits, useConversions } from "@/hooks/use-units.ts";
 import {
   Accordion,
@@ -505,7 +505,7 @@ const PeakFlow = () => {
                     </DialogHeader>
                     <DialogDescription className="flex flex-col gap-4 text-neutral-800">
                       <span>
-                        This version of Rock: Clime is based on the legacy
+                        This version of Peak Flow Calculator is based on the legacy
                         version of Peak Flow Calculator available at <br />
                         <a
                           href="https://forest.moscowfsl.wsu.edu/fswepp/ermit/peakflow/"
