@@ -1,6 +1,6 @@
 # FSWEPP2 Frontend Info Doc
 
-**Author:** Damien Flutre  
+**Author:** Damien Flutre
 **Date:** 2/11/2025  
 
 ## Links
