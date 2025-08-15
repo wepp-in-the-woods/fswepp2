@@ -327,7 +327,10 @@ def save_user_defined_par_mod(
     if par_mod_key not in user_data:
         user_data[par_mod_key] = climate_pars.dict()
         save_user_data(user_custom_db_path, user_data)
-        return {"message": f"New entry added with key: {par_mod_key}"}
+        return {
+            "message": f"New entry added with key: {par_mod_key}",
+            "par_mod_key": par_mod_key
+        }
     else:
         return {"message": f"Entry already exists with key: {par_mod_key}"}
 
