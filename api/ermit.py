@@ -1,3 +1,5 @@
+from typing import Any
+
 import os
 from os.path import join as _join
 from os.path import split as _split
@@ -27,6 +29,9 @@ from .rockclim import ClimatePars, get_climate
 from .shared_models import SoilTexture
 from .wepp import parse_wepp_soil_output, get_annual_maxima_events_from_ebe, get_selected_events_from_ebe
 from .logger import log_run
+
+import wepppy2
+wepp_bin_dir = _join(os.path.dirname(wepppy2.__file__), 'wepp_runner/bin')
 
 router = APIRouter()
 
@@ -539,6 +544,7 @@ def get_management_file(spatial_severity: str, ermit_state: ErmitState) -> str:
 
 
 def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int, cli_fn: str, selected_dates: list):
+    global wepp_bin_dir
     
     cwd = '/ramdisk/ermit'
         
@@ -600,7 +606,7 @@ def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int
     with open(run_fn, 'w') as fp:
         fp.write(content)
         
-    weppversion = f'/usr/lib/python3/dist-packages/wepppy2/wepp_runner/bin/{state.wepp_version}'
+    weppversion = _join(wepp_bin_dir, state.wepp_version)
     
     if not _exists(weppversion):
         return {"error": f"WEPP version {state.wepp_version} not found"}
@@ -637,6 +643,7 @@ def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int
 
 
 def run_ermitwepp(state: ErmitState):
+    global wepp_bin_dir
     
     cwd = '/ramdisk/ermit'
     
@@ -705,7 +712,7 @@ def run_ermitwepp(state: ErmitState):
     with open(run_fn, 'w') as fp:
         fp.write(content)
         
-    weppversion = f'/usr/lib/python3/dist-packages/wepppy2/wepp_runner/bin/{state.wepp_version}'
+    weppversion = _join(wepp_bin_dir, state.wepp_version)
     
     if not _exists(weppversion):
         return {"error": f"WEPP version {state.wepp_version} not found"}
@@ -858,6 +865,20 @@ def ermit_get_management(spatial_severity: str, state: ErmitState = Body(
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
+
+@router.post("/ermit/GET/pre_fire_covers")
+def get_ermit_pre_fire_covers(
+    request: Request,
+    state: ErmitState = Body(
+        ...,
+        example=example_pars
+    )
+) -> Any:
+    return {
+        "pre_fire_shrub_pct": state.ermit_pars.pre_fire_shrub_pct,
+        "pre_fire_grass_pct": state.ermit_pars.pre_fire_grass_pct,
+        "pre_fire_bare_pct": state.ermit_pars.pre_fire_bare_pct
+    }
 
 @router.post("/ermit/RUN/wepp")
 def ermit_run_wepp(
