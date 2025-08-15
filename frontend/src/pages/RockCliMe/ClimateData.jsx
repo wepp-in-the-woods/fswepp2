@@ -38,6 +38,7 @@ function ClimateData() {
     years,
     usePrismClim,
     par_id,
+    elevation,
     stationDesc,
     user_defined_par_mod,
 
@@ -193,16 +194,22 @@ function ClimateData() {
               </div>{" "}
               {/* If not a custom par, display coordinates.*/}
               {!customPar && coordinates && (
-                <div className="text-gray-800">
-                  <h3 className="font-bold">
-                    Station Coordinates
-                  </h3>
-                  <p className="text-sm md:text-base">
-                    Latitude: {coordinates.latitude}
-                  </p>
-                  <p className="text-sm md:text-base">
-                    Longitude: {coordinates.longitude}
-                  </p>
+                <div className="flex flex-row gap-8">
+                  <div className="text-gray-800">
+                    <h3 className="font-bold">Station Coordinates</h3>
+                    <p className="text-sm md:text-base">
+                      Latitude: {coordinates.latitude}
+                    </p>
+                    <p className="text-sm md:text-base">
+                      Longitude: {coordinates.longitude}
+                    </p>
+                  </div>
+                  <div className="text-gray-800">
+                    <h3 className="font-bold">Station Elevation</h3>
+                    <p className="text-sm md:text-base">
+                      Elevation: {elevation}
+                    </p>
+                  </div>
                 </div>
               )}
               <div>

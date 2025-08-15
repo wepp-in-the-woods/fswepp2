@@ -7,11 +7,22 @@ import { useUnits, useConversions } from "@/hooks/use-units.ts";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { AppHeader } from "@/components/layout/AppHeader";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Icon } from "@/components/ui/icon";
 import { Toaster, toast } from "sonner"
-import { Save, SquarePen } from "lucide-react";
+import { Save, SquarePen, Trash } from "lucide-react";
 
 // StationPar Component that displays custom or station parameter data
 function StationPar() {
@@ -29,6 +40,7 @@ function StationPar() {
     usePrismPar,
     stationDesc = "",
     par_id,
+    elevation,
     selected_par,
     user_defined_par_mod,
   } = location.state || {};
@@ -72,7 +84,7 @@ function StationPar() {
   };
 
   // Handle save event to update user-defined parameter data
-  const handleSave = () => {
+  const handleSave = async () => {
     const user_defined_par = {
       par_id: par_id,
       user_defined_par_mod: {
@@ -83,30 +95,49 @@ function StationPar() {
       },
     };
 
-    {/* TODO: fix data sent in post request to changed data instead of default */}
     // Post user-defined parameter data to server
-    api.post("/api/rockclim/PUT/user_defined_par", user_defined_par, {
+    try {
+      const response = await api.post("/api/rockclim/PUT/user_defined_par", user_defined_par, {
         headers: {
           "Content-Type": "application/json",
         },
         withCredentials: true,
-      })
-      .then((response) => {
-        console.log("Server response:", response);
-        // setDescription("");
-        setParData(prev => ({
-          ...prev,
-          description: description
-        }));
-      })
-      .catch((error) => {
-        console.error("Error posting data:", error);
       });
-
-    toast.success("Parameters saved to " + description);
-    // Once saved, reset view
-    setIsModified(false);
-    setDescription("");
+      console.log("Server response:", response);
+      setParData(prev => ({
+        ...prev,
+        description: description
+      }));
+      // Check if par_mod_key exists before navigation
+      if (response?.data?.par_mod_key) {
+        const target = `/rock-clime/par/${response.data.par_mod_key}`;
+        console.log('navigating to', target);
+        navigate(target,{
+        state: {
+          par_id: response.data.par_mod_key,
+          selected_par: response.data.par_mod_key,
+          usePrismPar: user_defined_par.use_prism,
+          user_defined_par_mod: user_defined_par.user_defined_par_mod,
+        },
+        });
+      } else {
+        console.error("No par_mod_key in response:", response.data);
+        // Navigate back to main page with success state
+        navigate("/rock-clime/", { 
+          state: { 
+            showSaveToast: true,
+            savedParDescription: description 
+          } 
+        });
+      }
+      toast.success("Parameters saved to " + description);
+    } catch (error) {
+      console.error("Error posting data:", error);
+    } finally {
+      // Once saved, reset view
+      setIsModified(false);
+      setDescription("");
+    }
   };
 
   // Function to handle cancel event and reset input values from parData
@@ -131,6 +162,39 @@ function StationPar() {
     setIsModified(false); // Exit edit mode
     setDescription(stationDesc); // Reset description to original
     toast.info("Changes discarded");
+  };
+
+  // Function to delete the user-defined parameter data
+  const handleDelete = async () => {
+    if (!parData) {
+      console.error("No parData available");
+      return;
+    }
+    const user_defined_par = {
+      par_id: par_id,
+      user_defined_par_mod: {
+        description: parData.description,
+        ppts: [...parData.ppts],
+        tmaxs: [...parData.tmaxs],
+        tmins: [...parData.tmins],
+      },
+    };
+
+    // Delete user-defined parameter data from server
+    try {
+      const response = await api.post("/api/rockclim/DEL/user_defined_par", user_defined_par, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+      console.log("Delete response:", response.data);
+      console.log("Server response:", response);
+      navigate("/rock-clime/", { state: { showDeleteToast: true } });
+    } catch (error) {
+      console.error("Error deleting saved parameters:", error);
+      toast.error("Failed to delete parameters");
+    }
   };
 
   // Fetch station parameter data from server
@@ -230,7 +294,6 @@ function StationPar() {
                   </>
                 )}
               </div>
-
               {/* Station ID or Parameter ID*/}
               <div className="text-md text-gray-800">
                 {user_defined_par_mod
@@ -240,18 +303,28 @@ function StationPar() {
 
               {/* Station Coordinates if not a custom parameter */}
               {!user_defined_par_mod && (
-                <div className="text-gray-800">
-                  <h3 className="font-bold">Station Coordinates</h3>
-                  {!user_defined_par_mod && (
-                    <>
+                <div className="flex flex-row gap-8">
+                  <div className="text-gray-800">
+                    <h3 className="font-bold">Station Coordinates</h3>
+                    {!user_defined_par_mod && (
+                      <>
+                        <p className="text-sm md:text-base">
+                          Latitude: {coordinates.latitude}
+                        </p>
+                        <p className="text-sm md:text-base">
+                          Longitude: {coordinates.longitude}
+                        </p>
+                      </>
+                    )}
+                  </div>
+                  <div className="text-gray-800">
+                    <h3 className="font-bold">Station Elevation</h3>
+                    {!user_defined_par_mod && (
                       <p className="text-sm md:text-base">
-                        Latitude: {coordinates.latitude}
+                        Elevation: {elevation}
                       </p>
-                      <p className="text-sm md:text-base">
-                        Longitude: {coordinates.longitude}
-                      </p>
-                    </>
-                  )}
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -259,7 +332,7 @@ function StationPar() {
           <div className="flex flex-col items-start px-4 lg:px-6">
             {/* Display station data in a table*/}
             <div className="mb-4 w-full">
-              <div className="mb-3 flex w-full flex-row items-center justify-between">
+              <div className="mb-3 flex w-full flex-col xs:flex-row xs:items-center gap-1 xs:justify-between">
                 <div className="gap-2">
                   <h3 className="text-xl font-semibold">Station Data</h3>
                   {usePrismPar && (
@@ -268,10 +341,10 @@ function StationPar() {
                 </div>
 
                 {/* Save or Modify Button */}
-                <div className="flex grow items-end justify-end gap-2">
+                <div className="flex flex-row xs:items-end xs:justify-end gap-2">
                   <Button
                     variant="outline"
-                    className={`${!isModified ? "hidden" : ""}`}
+                    className={`${!isModified ? "hidden" : ""} w-fill grow-1 xs:w-fit`}
                     onClick={handleDiscard}
                   >
                     Discard Changes
@@ -279,12 +352,12 @@ function StationPar() {
                   <Button
                     variant={isModified ? "default" : "outline"}
                     onClick={handleButtonClick}
-                    className="transition-none"
+                    className="transition-none w-fill grow-1 xs:w-fit"
                   >
                     {isModified ? (
                       <>
                         <Icon icon={Save} className="h-5 w-5" />
-                        Save Parameters
+                        Save parameters
                       </>
                     ) : (
                       <>
@@ -293,6 +366,29 @@ function StationPar() {
                       </>
                     )}
                   </Button>
+                  {user_defined_par_mod && !isModified && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50">
+                          <Icon icon={Trash} className="h-5 w-5" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Confirm delete</AlertDialogTitle>
+                        </AlertDialogHeader>
+                        <AlertDialogDescription>
+                          Are you sure you would like to delete these parameters?
+                        </AlertDialogDescription>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction type="button" variant="destructive" onClick={handleDelete}>Continue</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
                 </div>
               </div>
 

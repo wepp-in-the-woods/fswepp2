@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, lazy, use } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { api } from "../../api";
 import { useNavigate } from "react-router-dom";
@@ -23,10 +24,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Toaster, toast } from "sonner"
 
 // Icons
 import { Icon } from "@/components/ui/icon";
-import { Info, MapPin, ChevronUp, ChevronDown, EllipsisVertical, SlidersHorizontal } from "lucide-react";
+import { Info, MapPin, ChevronUp, ChevronDown, EllipsisVertical, SlidersHorizontal, Plus } from "lucide-react";
 
 import {
   Select,
@@ -67,6 +69,8 @@ import {
 const ChooseLocation = lazy(() => import("./ChooseLocation.jsx"));
 
 const RockCliMe = () => {
+  const urlLocation = useLocation();
+  const navigate = useNavigate();
   const isMobile = useMediaQuery("(max-width: 30rem)");
   const {units, setUnits} = useUnits();
 
@@ -110,8 +114,7 @@ const RockCliMe = () => {
   const [years, setYears] = useState(30);
   const [usePrismPar, setUsePrismPar] = useState(false);
   const [usePrismClim, setUsePrismClim] = useState(false);
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("stationsTab");
+  const [activeTab, setActiveTab] = useState(sessionStorage.getItem("activeTab") || "stationsTab");
   const [showLocationDiv, setShowLocationDiv] = useState(false);
   const [prevCoordinates, setPrevCoordinates] = useState([null, null]);
   const [parametersFetched, setParametersFetched] = useState(false);
@@ -391,9 +394,30 @@ const RockCliMe = () => {
         usePrismPar,
         stationDesc: station.desc,
         par_id: station.par,
+        elevation: station.elevation,
       },
     });
   };
+
+  // Toast which shows when a saved parameter has been deleted
+  useEffect(() => {
+    if (urlLocation.state?.showDeleteToast) {
+      console.log("Delete toast shown");
+      toast.info(
+        "Custom parameters deleted successfully.",
+        {
+          id: "delete-toast",
+          duration: 5000
+        },
+      );
+
+      // Clear the state to prevent the toast from showing again
+      navigate(urlLocation.pathname, { 
+        state: { ...urlLocation.state, showDeleteToast: undefined },
+        replace: true 
+      });
+    }
+  }, [urlLocation.state, navigate]);
 
   // Navigates to /rock-clime/climate/:par_id based on user's selected station.
   const handleViewStationClimateData = async (station) => {
@@ -429,6 +453,7 @@ const RockCliMe = () => {
         usePrismClim,
         par_id: station.id,
         stationDesc: station.desc,
+        elevation: station.elevation,
       },
     });
   };
@@ -477,6 +502,7 @@ const RockCliMe = () => {
   };
 
   return (
+    <>
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
@@ -627,7 +653,7 @@ const RockCliMe = () => {
                     <SheetTitle>Filter results</SheetTitle>
                     <SheetDescription></SheetDescription>
                   </SheetHeader>
-                  <div className="grid flex-1 auto-rows-min gap-6 px-4">
+                  <div className="grid flex-1 auto-rows-min gap-6 px-4 overflow-y-auto overflow-x-hidden">
                     <Select value={cligenVersion} onValueChange={setCligenVersion}>
                       <SelectTrigger id="cligenVersion" className="w-full sm:w-fit">
                         <SelectValue defaultValue={cligenVersion}>
@@ -761,9 +787,8 @@ const RockCliMe = () => {
                     </div>
                   </div>
                   <SheetFooter>
-                    <Button type="submit">Save changes</Button>
                     <SheetClose asChild>
-                      <Button variant="outline">Close</Button>
+                      <Button>Show results</Button>
                     </SheetClose>
                   </SheetFooter>
                 </SheetContent>
@@ -896,12 +921,18 @@ const RockCliMe = () => {
 
             {/* Tabs */}
             <div className="w-full flex-4/5 overflow-auto">
-              <Tabs defaultValue="stationsTab">
+              <Tabs defaultValue={sessionStorage.getItem("activeTab") || "stationsTab"}>
                 <TabsList className="w-full sm:w-fit">
-                  <TabsTrigger value="stationsTab" onClick={() => setActiveTab("stationsTab")}>
+                  <TabsTrigger value="stationsTab" onClick={() => {
+                    setActiveTab("stationsTab")
+                    sessionStorage.setItem("activeTab", "stationsTab");
+                  }}>
                     Climate Stations
                   </TabsTrigger>
-                  <TabsTrigger value="savedParametersTab" onClick={() => setActiveTab("savedParametersTab")}>
+                  <TabsTrigger value="savedParametersTab" onClick={() => {
+                    setActiveTab("savedParametersTab")
+                    sessionStorage.setItem("activeTab", "savedParametersTab");
+                  }}>
                     Saved Parameters
                   </TabsTrigger>
                 </TabsList>
@@ -982,6 +1013,9 @@ const RockCliMe = () => {
                               <div className="flex flex-col gap-1">
                                 <p className="text-sm">
                                   Latitude: {station.latitude}, Longitude: {station.longitude}
+                                </p>
+                                <p className="text-sm">
+                                  Elevation: {station.elevation}
                                 </p>
                                 {/* Conditional distance display */}
                                 {searchMethod === "location" &&
@@ -1079,11 +1113,11 @@ const RockCliMe = () => {
                       </div>
                     </div>
                   ) : (
-                    savedParameters.length === 0 && (
+                    Object.keys(savedParameters).length === 0 && (
                       <div className="flex items-center justify-center p-8">
                         <div className="flex items-center gap-2">
                           <p className="text-center text-neutral-700">
-                            No saved parameters found. Please create and save parameters to view them here.
+                            No saved parameters found. Please create custom parameters to view them here.
                           </p>
                         </div>
                       </div>
@@ -1231,6 +1265,8 @@ const RockCliMe = () => {
         </div>
       </SidebarInset>
     </SidebarProvider>
+    <Toaster position="top-right" richColors/>
+    </>
   );
 };
 
