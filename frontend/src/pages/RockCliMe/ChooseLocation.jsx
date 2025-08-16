@@ -373,7 +373,7 @@ function ChooseLocation({
           {/* Latitude and Longitude input fields and "Set Coords." button */}
           <div className="mt-4">
             <div className="flex w-full flex-col justify-center gap-2 md:flex-row">
-              <div className="flex w-full flex-col justify-center gap-2 mr-2 sm:flex-row">
+              <div className="flex w-full flex-col justify-center gap-4 mr-2 sm:flex-row">
                 <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 grow w-full">
                   <Label htmlFor="latInput" className="block text-sm font-medium text-gray-700">
                     Latitude

@@ -23,11 +23,12 @@ import { Input } from "@/components/ui/input";
 import { Icon } from "@/components/ui/icon";
 import { Toaster, toast } from "sonner"
 import { Save, SquarePen, Trash } from "lucide-react";
+import { Label } from "@/components/ui/label";
 
 // StationPar Component that displays custom or station parameter data
 function StationPar() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const urlLocation = useLocation();
   const { units, setUnits } = useUnits();
   const { convert } = useConversions();
 
@@ -36,17 +37,19 @@ function StationPar() {
     databaseVersion,
     cligenVersion,
     stationCoords: coordinates = { latitude: 0, longitude: 0 },
-    location: loc = [0, 0],
+    location,
     usePrismPar,
     stationDesc = "",
     par_id,
     elevation,
     selected_par,
     user_defined_par_mod,
-  } = location.state || {};
+  } = urlLocation.state || {};
   const [parData, setParData] = useState(null);
   const [isModified, setIsModified] = useState(false);
   const [description, setDescription] = useState(stationDesc);
+  const [latInput, setLatInput] = useState(location.latitude || "");
+  const [lngInput, setLngInput] = useState(location.longitude || "");
 
   // Initialize input values for precipitation, max temp, min temp, and number of wet days
   const [inputValues, setInputValues] = useState({
@@ -55,6 +58,17 @@ function StationPar() {
     tmins: [],
     nwds: [],
   });
+
+  // PRISM values for comparison
+  const [prismValues, setPrismValues] = useState({
+    ppts: [],
+    tmaxs: [],
+    tmins: [],
+    nwds: [],
+  });
+
+  // Location coordinates for PRISM
+  // const [prismCoordinates, setPrismCoordinates] = useState({location.latitude, location.longitude});
 
   // Handle click event to save or modify parameter data
   const handleButtonClick = () => {
@@ -87,6 +101,11 @@ function StationPar() {
   const handleSave = async () => {
     const user_defined_par = {
       par_id: par_id,
+      location: {
+        latitude: latInput,
+        longitude: lngInput,
+      },
+      usePrismPar: usePrismPar,
       user_defined_par_mod: {
         description: description,
         ppts: inputValues.ppts,
@@ -118,6 +137,7 @@ function StationPar() {
           selected_par: response.data.par_mod_key,
           usePrismPar: user_defined_par.use_prism,
           user_defined_par_mod: user_defined_par.user_defined_par_mod,
+          location: user_defined_par.location,
         },
         });
       } else {
@@ -172,6 +192,7 @@ function StationPar() {
     }
     const user_defined_par = {
       par_id: par_id,
+      location: location,
       user_defined_par_mod: {
         description: parData.description,
         ppts: [...parData.ppts],
@@ -179,6 +200,7 @@ function StationPar() {
         tmins: [...parData.tmins],
       },
     };
+    console.log("Deleting user-defined parameter:", par_id);
 
     // Delete user-defined parameter data from server
     try {
@@ -197,6 +219,29 @@ function StationPar() {
     }
   };
 
+  // TODO: get PRISM parameters to compare data within the page instead of navigating to a new page
+  // Compare PRISM and non-PRISM data
+  const getPrismData = async () => {
+    console.log(urlLocation.state);
+    const key = urlLocation.state?.selected_par || par_id;
+    try {
+      navigate(`/rock-clime/par/${key}`, {
+        state: {
+          par_id: par_id,
+          selected_par: key,
+          location: {
+            latitude: latInput || location.latitude,
+            longitude: lngInput || location.longitude,
+          },
+          usePrismPar: true,
+          user_defined_par_mod: user_defined_par_mod,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching PRISM data:", error);
+    }
+  };
+
   // Fetch station parameter data from server
   useEffect(() => {
     const fetchStationData = async () => {
@@ -208,7 +253,7 @@ function StationPar() {
             database: databaseVersion,
             cligen_version: cligenVersion,
             par_id: par_id,
-            location: loc,
+            location: location,
             use_prism: usePrismPar,
           },
         );
@@ -224,8 +269,9 @@ function StationPar() {
       // Otherwise set user defined parameter data
     } else {
       setParData(user_defined_par_mod);
+
     }
-  }, [par_id, loc, usePrismPar, user_defined_par_mod]);
+  }, [par_id, location, usePrismPar, user_defined_par_mod]);
 
   // Unabbreviated months
   const months = [
@@ -268,7 +314,7 @@ function StationPar() {
         <div className="page-container">
           {/* Main Content */}
           <div
-            className="flex flex-col justify-between lg:flex-row px-4 lg:px-6"
+            className="flex flex-col justify-between md:items-start md:flex-row px-4 lg:px-6 gap-2"
             dataslot="page-header"
           >
             {/*TODO: Add button to remove custom parameters*/}
@@ -302,30 +348,105 @@ function StationPar() {
               </div>
 
               {/* Station Coordinates if not a custom parameter */}
-              {!user_defined_par_mod && (
-                <div className="flex flex-row gap-8">
-                  <div className="text-gray-800">
-                    <h3 className="font-bold">Station Coordinates</h3>
-                    {!user_defined_par_mod && (
-                      <>
-                        <p className="text-sm md:text-base">
-                          Latitude: {coordinates.latitude}
-                        </p>
-                        <p className="text-sm md:text-base">
-                          Longitude: {coordinates.longitude}
-                        </p>
-                      </>
-                    )}
-                  </div>
-                  <div className="text-gray-800">
-                    <h3 className="font-bold">Station Elevation</h3>
-                    {!user_defined_par_mod && (
+              {/* Saved location coordinates if custom parameter */}
+              {location && (
+                <div className="flex flex-col gap-2">
+                  <h3 className="font-bold">{user_defined_par_mod ? "Coordinates" : "Station Coordinates"}</h3>
+                  {!isModified ? (
+                    // TODO: Add ChooseLocation Dialog to select location
+                    <div className="flex flex-col sm:flex-row gap-4 text-gray-800 ">
                       <p className="text-sm md:text-base">
-                        Elevation: {elevation}
+                        <strong>Latitude:</strong> {location.latitude}
                       </p>
-                    )}
-                  </div>
+                      <p className="text-sm md:text-base">
+                        <strong>Longitude:</strong> {location.longitude}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex w-full flex-col sm:flex-row justify-center gap-4 mr-2">
+                      <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 grow w-full">
+                        <Label htmlFor="latInput" className="block text-sm font-medium text-gray-700">
+                          Latitude
+                        </Label>
+                        <Input
+                          id="latInput"
+                          type="text"
+                          placeholder="Latitude"
+                          defaultValue={location.latitude}
+                          value={latInput}
+                          onChange={(e) => setLatInput(e.target.value)}
+                          className="rounded-sm border border-gray-300 px-2 py-1"
+                        />
+                      </div>
+                      <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 grow w-full">
+                        <Label htmlFor="lngInput" className="block text-sm font-medium text-gray-700">
+                          Longitude
+                        </Label>
+                        <Input
+                          id="lngInput"
+                          type="text"
+                          placeholder="Longitude"
+                          defaultValue={location.latitude}
+                          value={lngInput}
+                          onChange={(e) => setLngInput(e.target.value)}
+                          className="rounded-sm border border-gray-300 px-2 py-1"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
+              )}
+            </div>
+
+
+            {/* Save or Modify Button */}
+            <div className="flex flex-row xs:items-end xs:justify-end gap-2">
+              <Button
+                variant="outline"
+                className={`${!isModified ? "hidden" : ""} w-fill grow-1 xs:w-fit`}
+                onClick={handleDiscard}
+              >
+                Discard Changes
+              </Button>
+              <Button
+                variant={isModified ? "default" : "outline"}
+                onClick={handleButtonClick}
+                className="transition-none w-fill grow-1 xs:w-fit"
+              >
+                {isModified ? (
+                  <>
+                    <Icon icon={Save} className="h-5 w-5" />
+                    Save parameters
+                  </>
+                ) : (
+                  <>
+                    <Icon icon={SquarePen} className="h-5 w-5" />
+                    Modify Parameters
+                  </>
+                )}
+              </Button>
+              {user_defined_par_mod && !isModified && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50">
+                      <Icon icon={Trash} className="h-5 w-5" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Confirm delete</AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <AlertDialogDescription>
+                      Are you sure you would like to delete these parameters?
+                    </AlertDialogDescription>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction type="button" variant="destructive" onClick={handleDelete}>Continue</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               )}
             </div>
           </div>
@@ -339,55 +460,17 @@ function StationPar() {
                     <p className="text-sm">* Precip & Mean Temps. from PRISM</p>
                   )}
                 </div>
-
-                {/* Save or Modify Button */}
                 <div className="flex flex-row xs:items-end xs:justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    className={`${!isModified ? "hidden" : ""} w-fill grow-1 xs:w-fit`}
-                    onClick={handleDiscard}
-                  >
-                    Discard Changes
-                  </Button>
-                  <Button
-                    variant={isModified ? "default" : "outline"}
-                    onClick={handleButtonClick}
-                    className="transition-none w-fill grow-1 xs:w-fit"
-                  >
-                    {isModified ? (
-                      <>
-                        <Icon icon={Save} className="h-5 w-5" />
-                        Save parameters
-                      </>
-                    ) : (
-                      <>
-                        <Icon icon={SquarePen} className="h-5 w-5" />
-                        Modify Parameters
-                      </>
-                    )}
-                  </Button>
-                  {user_defined_par_mod && !isModified && (
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50">
-                          <Icon icon={Trash} className="h-5 w-5" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Confirm delete</AlertDialogTitle>
-                        </AlertDialogHeader>
-                        <AlertDialogDescription>
-                          Are you sure you would like to delete these parameters?
-                        </AlertDialogDescription>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction type="button" variant="destructive" onClick={handleDelete}>Continue</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                  {isModified && (
+                    <div className="flex flex-row gap 2">
+                      <Button
+                        variant="outline"
+                        className="w-fill grow-1 xs:w-fit rainbow text-white hover:text-white"
+                        onClick={getPrismData}
+                      >
+                        Show PRISM Data
+                      </Button>
+                    </div>
                   )}
                 </div>
               </div>

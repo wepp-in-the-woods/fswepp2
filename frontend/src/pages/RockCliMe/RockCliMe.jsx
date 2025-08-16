@@ -110,6 +110,7 @@ const RockCliMe = () => {
   const [locationToggle, setLocationToggle] = useState(false);
   const [closestStations, setClosestStations] = useState([]);
   const [savedParameters, setSavedParameters] = useState([]);
+  const [displayedSavedParCount, setDisplayedSavedParCount] = useState(5);
   const [selectedStation, setSelectedStation] = useState(null);
   const [years, setYears] = useState(30);
   const [usePrismPar, setUsePrismPar] = useState(false);
@@ -471,6 +472,7 @@ const RockCliMe = () => {
       state: {
         par_id: customPar.par_id,
         selected_par: key,
+        location: customPar.location,
         usePrismPar: customPar.use_prism,
         user_defined_par_mod: customPar.user_defined_par_mod,
       },
@@ -1126,138 +1128,106 @@ const RockCliMe = () => {
 
                   {/*List of saved parameters*/}
                   {!isLoadingParameters && savedParameters && Object.keys(savedParameters).length !== 0 && (
-                    Object.entries(savedParameters).map(([key, savedParameter]) => (
-                      <div key={key} className="flex w-full flex-row xs:flex-col gap-2 p-4 mb-2 sm:flex-row justify-between sm:items-center rounded-md border border-gray-200">
-                        <div className="flex flex-row items-baseline gap-4 w-full">
-                          <span className="text-sm text-gray-500">
-                            {Object.keys(savedParameters).indexOf(key) + 1}
-                          </span>
-                          <div
-                            className="flex flex-col gap-1 min-w-0 w-full"
-                            onClick={(e) => {
-                              if (isMobile) {
-                                handleViewSavedPar(key);
-                              }
-                            }}
-                          >
-                            <strong className="text-lg">
-                              {savedParameter.user_defined_par_mod.description}
-                            </strong>
-                          </div>
-                          <Drawer>
-                            <DrawerTrigger asChild>
-                              <Button variant="ghost" className="xs:hidden h-8 w-8 p-0">
-                                <Icon icon={EllipsisVertical} className="h-5 w-5" />
-                              </Button>
-                            </DrawerTrigger>
-                            <DrawerContent>
-                              <DrawerHeader>
-                                <DrawerTitle>{savedParameter.user_defined_par_mod.description}</DrawerTitle>
-                                <DrawerDescription></DrawerDescription>
-                              </DrawerHeader>
-                              <DrawerFooter>
-                                <Button
-                                  className="grow"
-                                  onClick={() => handleViewSavedPar(key)}
-                                >
-                                  View Station Parameters
+                    <div className="flex flex-col">
+                      <Button
+                        variant="secondary"
+                        className="mb-2"
+                        // onClick={() => handleViewAllSavedPar()}
+                      >
+                        <Icon icon={Plus} className="h-4 w-4 mr-2" />
+                        Add custom parameters
+                      </Button>
+                      {Object.entries(savedParameters).slice(0, displayedSavedParCount).map(([key, savedParameter]) => (
+                        <div key={key} className="flex w-full flex-row xs:flex-col gap-2 p-4 mb-2 sm:flex-row justify-between sm:items-center rounded-md border border-gray-200">
+                          <div className="flex flex-row items-baseline gap-4 w-full">
+                            <span className="text-sm text-gray-500">
+                              {Object.keys(savedParameters).indexOf(key) + 1}
+                            </span>
+                            <div
+                              className="flex flex-col gap-1 min-w-0 w-full"
+                              onClick={(e) => {
+                                if (isMobile) {
+                                  handleViewSavedPar(key);
+                                }
+                              }}
+                            >
+                              <strong className="text-lg">
+                                {savedParameter.user_defined_par_mod.description}
+                              </strong>
+                            </div>
+                            <Drawer>
+                              <DrawerTrigger asChild>
+                                <Button variant="ghost" className="xs:hidden h-8 w-8 p-0">
+                                  <Icon icon={EllipsisVertical} className="h-5 w-5" />
                                 </Button>
-                                <div className="flex flex-col my-4 gap-2">
-                                  <div className="flex flex-row items-center gap-3">
-                                    <Label htmlFor="numberOfYearsInput" className="block text-sm font-medium text-gray-700">
-                                      Number of years to generate data:
-                                    </Label>
-                                    <Input
-                                      id="numberOfYearsInput"
-                                      type="number"
-                                      className="w-18"
-                                      value={years}
-                                      onChange={(e) =>
-                                        setYears(e.target.value)
-                                      }
-                                    />
-                                  </div>
+                              </DrawerTrigger>
+                              <DrawerContent>
+                                <DrawerHeader>
+                                  <DrawerTitle>{savedParameter.user_defined_par_mod.description}</DrawerTitle>
+                                  <DrawerDescription></DrawerDescription>
+                                </DrawerHeader>
+                                <DrawerFooter>
                                   <Button
                                     className="grow"
-                                    onClick={() => handleViewSavedParClimateData(key)}
+                                    onClick={() => handleViewSavedPar(key)}
                                   >
-                                    Generate Climate Data
+                                    View Station Parameters
                                   </Button>
-                                </div>
-                                <DrawerClose className="py-2">
-                                  <span>Cancel</span>
-                                </DrawerClose>
-                              </DrawerFooter>
-                            </DrawerContent>
-                          </Drawer>
+                                  <div className="flex flex-col my-4 gap-2">
+                                    <div className="flex flex-row items-center gap-3">
+                                      <Label htmlFor="numberOfYearsInput" className="block text-sm font-medium text-gray-700">
+                                        Number of years to generate data:
+                                      </Label>
+                                      <Input
+                                        id="numberOfYearsInput"
+                                        type="number"
+                                        className="w-18"
+                                        value={years}
+                                        onChange={(e) =>
+                                          setYears(e.target.value)
+                                        }
+                                      />
+                                    </div>
+                                    <Button
+                                      className="grow"
+                                      onClick={() => handleViewSavedParClimateData(key)}
+                                    >
+                                      Generate Climate Data
+                                    </Button>
+                                  </div>
+                                  <DrawerClose className="py-2">
+                                    <span>Cancel</span>
+                                  </DrawerClose>
+                                </DrawerFooter>
+                              </DrawerContent>
+                            </Drawer>
+                          </div>
+                          <div className="hidden xs:flex flex-row items-center gap-2">
+                            <Button
+                              className="grow"
+                              variant="outline"
+                              onClick={() => handleViewSavedPar(key)}
+                            >
+                              View Station Parameters
+                            </Button>
+                            <Button
+                              className="grow"
+                              onClick={() => handleViewSavedParClimateData(key)}
+                            >
+                              Generate Climate Data
+                            </Button>
+                          </div>
                         </div>
-                        <div className="hidden xs:flex flex-row items-center gap-2">
-                          <Button
-                            className="grow"
-                            variant="outline"
-                            onClick={() => handleViewSavedPar(key)}
-                          >
-                            View Station Parameters
-                          </Button>
-                          <Button
-                            className="grow"
-                            onClick={() => handleViewSavedParClimateData(key)}
-                          >
-                            Generate Climate Data
-                          </Button>
-                        </div>
-
-                        {/*{Object.keys(savedParameters).map((par, index) => (*/}
-                        {/*  <div key={index}>*/}
-                        {/*    <button*/}
-                        {/*      className={`w-full rounded-sm border p-2 text-left ${*/}
-                        {/*        selectedPar === par*/}
-                        {/*          ? "bg-[#015838] text-white"*/}
-                        {/*          : ""*/}
-                        {/*      }`}*/}
-                        {/*      onClick={() => handleSavedParClick(par)}*/}
-                        {/*    >*/}
-                        {/*      <strong>*/}
-                        {/*        {*/}
-                        {/*          savedParameters[par].user_defined_par_mod*/}
-                        {/*            .description*/}
-                        {/*        }*/}
-                        {/*      </strong>*/}
-                        {/*    </button>*/}
-                        {/*    {selectedPar === par && (*/}
-                        {/*      <div className="mt-2 rounded-sm border bg-gray-100 p-2">*/}
-                        {/*        <div className="mb-2">*/}
-                        {/*          <button*/}
-                        {/*            className="mb-2 block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"*/}
-                        {/*            onClick={handleViewSavedPar}*/}
-                        {/*          >*/}
-                        {/*            View Saved Parameters*/}
-                        {/*          </button>*/}
-                        {/*        </div>*/}
-                        {/*        <div className="mb-2 border-t-2 border-gray-300">*/}
-                        {/*          <label className="mt-2 block text-sm font-medium text-gray-700">*/}
-                        {/*            Number of Years*/}
-                        {/*          </label>*/}
-                        {/*          <input*/}
-                        {/*            type="number"*/}
-                        {/*            className="mt-1 block w-full rounded-sm border border-gray-300 p-2"*/}
-                        {/*            value={years}*/}
-                        {/*            onChange={(e) => setYears(e.target.value)}*/}
-                        {/*          />*/}
-                        {/*        </div>*/}
-                        {/*        <button*/}
-                        {/*          className="block w-full rounded-sm bg-[#16a34a] p-2 text-left text-white"*/}
-                        {/*          onClick={handleViewSavedParClimateData}*/}
-                        {/*        >*/}
-                        {/*          Generate Climate Data*/}
-                        {/*        </button>*/}
-                        {/*      </div>*/}
-                        {/*    )}*/}
-                        {/*  </div>*/}
-                        {/*))}*/}
-                      </div>
-                    )
-                  ))}
+                      ))}
+                      <Button
+                        variant="outline"
+                        className="mt-2 mx-auto w-fit"
+                        onClick={() => setDisplayedSavedParCount(count => count + 5)}
+                      >
+                        Load more saved parameters
+                      </Button>
+                    </div>
+                  )}
                 </TabsContent>
               </Tabs>
             </div>
