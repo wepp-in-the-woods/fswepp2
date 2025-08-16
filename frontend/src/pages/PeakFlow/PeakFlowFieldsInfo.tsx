@@ -22,7 +22,7 @@ const InfoDialog = ({ title, children, ...props }: InfoDialogProps) => {
           className="h-4 w-4 text-gray-700 hover:cursor-pointer"
         />
       </DialogTrigger>
-      <DialogContent className="flex flex-col justify-start h-screen max-h-screen w-screen max-w-screen rounded-none px-3 sm:max-h-5/6 sm:max-w-5/6 sm:rounded-lg sm:p-6 xl:h-fit xl:max-h-3/4 xl:w-fit xl:max-w-3xl">
+      <DialogContent className="flex flex-col justify-start px-3 rounded-lg sm:p-6 h-fit w-fit min-w-[90%] max-h-[80%] xs:min-w-4/5 xl:min-h-fit xl:min-w-fit xl:max-h-3/4 xl:max-w-3xl">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
@@ -716,3 +716,98 @@ export const CulvertDistanceInfo = () => (
     <img src="/culvertgraphic.png" alt="Culvert height description diagram" className="w-fit mx-auto"/>
   </InfoDialog>
 )
+
+export const SurfaceStorageInfo = () => (
+  <InfoDialog title="Surface storage">
+    <p>
+      Surface storage S is the potential maximum retention after runoff begins. S is related to the soil and cover conditions of the watershed through the CN. CN has a range of 0 to 100, and S is related to CN by:
+    </p>
+    <p>
+      S ~ (25400/CN)-254    (S in mm)
+      <br/>
+      [ISU 2008 p. 3]
+    </p>
+  </InfoDialog>
+);
+
+export const InitialAbstractionInfo = () => (
+  <InfoDialog title="Initial abstraction (IA)">
+    <p>
+      Initial abstraction (I<sub>a</sub>) is all losses before runoff begins. It includes water retained in surface depressions, water intercepted by vegetation, evaporation, and infiltration. I<sub>a</sub> is highly variable but generally is correlated with soil and cover parameters. Through studies of many small agricultural watersheds, I<sub>a</sub> was found to be approximated by the following empirical equation:
+    </p>
+    <p>
+      I<sub>a</sub> = 0.2 * S
+      <br/>
+      [ISU 2008]
+    </p>
+    <p>
+      The initial abstraction is not used in the TR-55 method, but it is used in the NRCS method.
+    </p>
+  </InfoDialog>
+)
+
+export const IaOnPInfo = () => (
+  <InfoDialog title="Ia/P">
+    <p>
+      <b>I<sub>a</sub>/P</b> is the ratio of the initial abstraction, <i>I<sub>a</sub></i>, to precipitation <i>P</i>. A mathematical interpolation routine has been developed to estimate unit peak flow rate <i>q<sub>u</sub></i> from time of concentration <i>T<sub>c</sub></i> and <i>I<sub>a</sub>/P</i>.
+    </p>
+  </InfoDialog>
+);
+
+export const UnitPeakFlowRateInfo = () => (
+  <InfoDialog title="Unit peak flow rate">
+    <p>
+      The unit peak flow rate <i>q<sub>u</sub></i> is estimated from the time of concentration <i>T<sub>c</sub></i> and the ratio of the initial abstraction <i>I<sub>a</sub></i> to the precipitation amount <i>P</i>. <i>q<sub>u</sub></i> can be obtained from the graph below.<br />q<sub>u</sub> = f(T<sub>c</sub>, I<sub>a</sub>/P); 0.1 &lt;= I<sub>a</sub>/P &lt;= 0.5; 0.1 &lt;= T<sub>c</sub> &lt;= 10<br/><img src="fangmeier.gif" title="Fangmeier_2006" /><br/>The SCS developed four dimensionless 24-hour rainfall distributions – type I, IA, II, and III – from the available NWS duration-frequency data to represent various regions of U.S.<br />Types I and IA represent the Pacific maritime climates with wet winters and dry summers.<br/>Type III represents Gulf of Mexico and Atlantic coastal areas where tropical storms result in large 24-hour rainfall.<br/>Type II represents the rest of the U.S. (USDA SCS, 1986).<br/><img src="stormtypes.gif" title="Iowa_2008" />
+    </p>
+  </InfoDialog>
+);
+
+export const EstimatedPeakFlowRateInfo = () => (
+  <InfoDialog title="Estimated Peak flow rate">
+    <p>
+      The <b>estimated peak flow rate</b> is the product of the unit peak flow rate, watershed area, runoff depth, and a ponding adjustment factor.  This value is intended to be used as a guide when estimating peak discharge or designing structures in channels downstream from areas of forested watersheds that have been burned.<br/>q = q<sub>u</sub> * A * Q * Fp
+    </p>
+  </InfoDialog>
+);
+
+export const CulvertDiameterInfo = () => (
+  <InfoDialog title="Estimated Peak flow rate">
+    <p>
+    <strong>Culvert size</strong> is calculated from a solution to a culvert design
+    equation when the inlet area is limiting flow, where <i>D</i> is the minimum
+    culvert diameter (in.), <i>q</i> is the peak flow rate (ft<sup>3</sup> s
+    <sup>-1</sup>), <i>g</i> is acceleration due to gravity (32.2 ft s
+    <sup>-2</sup>) , and <i>h</i> is the distance (ft) from the center of the
+    culvert to about 1 ft below the road surface. This equation is valid for a
+    culvert with a gradient greater than about 5%; for culverts that have
+    flatter slopes, consult with an engineer. <br />
+    <math xmlns="http://www.w3.org/1998/Math/MathML">
+      <mrow>
+        <mi>D</mi>
+        <mo>=</mo>
+        <msqrt>
+          <mfrac>
+            <mrow>
+              <mn>8</mn>
+              <mi>q</mi>
+            </mrow>
+            <mrow>
+              <mi>π</mi>
+              <msqrt>
+                <mrow>
+                  <mn>2</mn>
+                  <mi>g</mi>
+                  <mi>h</mi>
+                </mrow>
+              </msqrt>
+            </mrow>
+          </mfrac>
+        </msqrt>
+        <mo>×</mo>
+        <mn>12</mn>
+      </mrow>
+    </math>
+    <img src="../../images/culvertgraphic.png" />
+  </p>
+  </InfoDialog>
+);

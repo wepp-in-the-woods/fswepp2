@@ -10,6 +10,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Dialog,
   DialogContent,
@@ -46,10 +47,16 @@ const CurveNumberInfo = lazyFieldInfo("CurveNumberInfo");
 const TimeOfConcentrationInfo = lazyFieldInfo("TimeOfConcentrationInfo");
 const PondingAdjustmentFactorInfo = lazyFieldInfo("PondingAdjustmentFactorInfo");
 const CulvertDistanceInfo = lazyFieldInfo("CulvertDistanceInfo");
+const SurfaceStorageInfo = lazyFieldInfo("SurfaceStorageInfo");
+const InitialAbstractionInfo = lazyFieldInfo("InitialAbstractionInfo");
+const IaOnPInfo = lazyFieldInfo("IaOnPInfo");
+const UnitPeakFlowRateInfo = lazyFieldInfo("UnitPeakFlowRateInfo");
+const EstimatedPeakFlowRateInfo = lazyFieldInfo("EstimatedPeakFlowRateInfo");
+const CulvertDiameterInfo = lazyFieldInfo("CulvertDiameterInfo");
 
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon.tsx";
-import { Info } from "lucide-react";
+import { Info, TriangleAlert } from "lucide-react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -987,11 +994,20 @@ const PeakFlow = () => {
             <div className="@container flex flex-col lg:flex-row gap-4">
               <div className="flex flex-col gap-4 flex-1/2">
                 <h3 className="text-xl font-semibold">Results</h3>
+                <Alert>
+                  <Icon icon={TriangleAlert} className="h-5 w-5" />
+                  <AlertTitle>Disclaimer</AlertTitle>
+                  <AlertDescription>
+                    The results are estimates based on the inputs provided and are not intended to be used as definitive values.
+                  </AlertDescription>
+                </Alert>
                 <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @7xl:grid-cols-4">
                   <Card>
                     <CardHeader>
                       <CardDescription className="text-md text-gray-800">
                         Surface storage, <strong>S</strong>
+                        {" "}
+                        <SurfaceStorageInfo />
                       </CardDescription>
                       <CardTitle className="leading-normal">
                         <div className="flex flex-col gap-1">
@@ -1017,6 +1033,8 @@ const PeakFlow = () => {
                         Initial abstraction,{" "}
                         <strong>
                           I<sub>a</sub>
+                          {" "}
+                          <InitialAbstractionInfo />
                         </strong>
                       </CardDescription>
                       <CardTitle className="leading-normal">
@@ -1043,6 +1061,8 @@ const PeakFlow = () => {
                         <strong>
                           I<sub>a</sub>/P
                         </strong>
+                        {" "}
+                        <IaOnPInfo />
                       </CardDescription>
                       <CardTitle className="leading-normal">
                         <div className="flex flex-col gap-1">
@@ -1067,6 +1087,8 @@ const PeakFlow = () => {
                         <strong>
                           q<sub>u</sub>
                         </strong>
+                        {" "}
+                        <UnitPeakFlowRateInfo />
                       </CardDescription>
                       <CardTitle className="flex flex-col gap-1 leading-normal">
                         <div className="flex flex-col gap-1">
@@ -1096,6 +1118,8 @@ const PeakFlow = () => {
                     <CardHeader>
                       <CardDescription className="text-md text-gray-800">
                         Estimated peak flow rate, <strong>q</strong>
+                        {" "}
+                        <EstimatedPeakFlowRateInfo />
                       </CardDescription>
                       <CardTitle className="leading-normal">
                         <div className="flex flex-col gap-1">
@@ -1119,6 +1143,8 @@ const PeakFlow = () => {
                     <CardHeader>
                       <CardDescription className="text-md text-gray-800">
                         Culvert Diameter, <strong>D</strong>
+                        {" "}
+                        <CulvertDiameterInfo />
                       </CardDescription>
                       <CardTitle className="leading-normal">
                         <div className="flex flex-col gap-1">
