@@ -317,7 +317,6 @@ function StationPar() {
             className="flex flex-col justify-between md:items-start md:flex-row px-4 lg:px-6 gap-2"
             dataslot="page-header"
           >
-            {/*TODO: Add button to remove custom parameters*/}
             <div className="flex w-full flex-col items-start gap-3">
               <div className="flex w-full flex-row text-2xl font-semibold">
                 {/* Parameter description with modifiable state */}
@@ -639,7 +638,7 @@ function StationPar() {
                             </>
                           )}
                         </td>
-                        {/*TODO: Make number of wet days read-only*/}
+                        {/*TODO: Fill recalculated nwds based on new precip. values*/}
                         {parData.nwds && parData.nwds.length > 0 && (
                           <td className="w-1/5 border border-gray-300 px-2 py-2">
                             {/* Allow user to change values if isModified state is true*/}

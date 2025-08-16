@@ -1129,6 +1129,7 @@ const RockCliMe = () => {
                   {/*List of saved parameters*/}
                   {!isLoadingParameters && savedParameters && Object.keys(savedParameters).length !== 0 && (
                     <div className="flex flex-col">
+                      {/*TODO: Create a new page to add new custom parameters*/}
                       <Button
                         variant="secondary"
                         className="mb-2"

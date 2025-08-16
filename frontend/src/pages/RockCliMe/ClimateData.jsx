@@ -226,7 +226,6 @@ function ClimateData() {
             </Button>
           </div>
 
-          {/*TODO: Add button to remove custom parameters*/}
           {/* Div for climate data table*/}
           <div className="flex flex-col items-start px-4 lg:px-6 mb-4 w-full">
             <div className="mb-3 flex flex-row w-full gap-2">
