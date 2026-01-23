@@ -13,14 +13,14 @@ Each run is stored under:
 
 ## Workflow
 
-1) Fill in `cases.yaml` with:
-   - API request payload(s)
+1) Fill in the per-model `cases.yaml` with:
    - Legacy curl command(s)
+   - Optional API request payload(s) if you're running the API parity checks
 2) Run the collection script:
 
 ```
 python /workdir/fswepp2/scripts/collect_representative_runs.py \
-  --cases /workdir/fswepp2/parity-runs/cases.yaml \
+  --cases /workdir/fswepp2/parity-runs/ermit/cases.yaml \
   --out /workdir/fswepp2/parity-runs
 ```
 
@@ -28,7 +28,7 @@ Legacy-only (skip API calls):
 
 ```
 python /workdir/fswepp2/scripts/collect_representative_runs.py \
-  --cases /workdir/fswepp2/parity-runs/cases.yaml \
+  --cases /workdir/fswepp2/parity-runs/ermit/cases.yaml \
   --out /workdir/fswepp2/parity-runs \
   --skip-api
 ```
