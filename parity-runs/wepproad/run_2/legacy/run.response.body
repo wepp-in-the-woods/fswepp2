@@ -9,7 +9,7 @@
     filewindow.document.open()
     if (filewindow && filewindow.open && !filewindow.closed) {
       filewindow.focus
-      filewindow.document.writeln("<head><title>WEPP slope file wepp-1073<\/title><\/head>")
+      filewindow.document.writeln("<head><title>WEPP slope file wepp-1098<\/title><\/head>")
       filewindow.document.writeln("<body><font face='courier'><pre>")
       filewindow.document.writeln("97.3")
       filewindow.document.writeln("# Slope file for outrut by WEPP:Road Interface")
@@ -33,9 +33,9 @@
     filewindow.document.open()
     if (filewindow && filewindow.open && !filewindow.closed) {
       filewindow.focus
-      filewindow.document.writeln(" <head><title>WEPP soil file wepp-1073<\/title><\/head>")
+      filewindow.document.writeln(" <head><title>WEPP soil file wepp-1098<\/title><\/head>")
       filewindow.document.writeln(" <body><font face='courier'><pre>")
-//    filewindow.document.writeln("../working/wepp-1073.sol")
+//    filewindow.document.writeln("../working/wepp-1098.sol")
       filewindow.document.writeln("98.4")
       filewindow.document.writeln("#")
       filewindow.document.writeln("#       File:    3gsilt2.sol")
@@ -65,7 +65,7 @@
     filewindow.document.open()
     if (filewindow && filewindow.open && !filewindow.closed) {
       filewindow.focus
-      filewindow.document.writeln("<head><title>WEPP response file wepp-1073<\/title><\/head>")
+      filewindow.document.writeln("<head><title>WEPP response file wepp-1098<\/title><\/head>")
       filewindow.document.writeln("<body><pre>")
       filewindow.document.writeln("97.3")
       filewindow.document.writeln("y")
@@ -74,7 +74,7 @@
       filewindow.document.writeln("n")
       filewindow.document.writeln("1")
       filewindow.document.writeln("n")
-      filewindow.document.writeln("../working/wepp-1073.out")
+      filewindow.document.writeln("../working/wepp-1098.out")
       filewindow.document.writeln("n")
       filewindow.document.writeln("n")
       filewindow.document.writeln("n")
@@ -86,9 +86,9 @@
       filewindow.document.writeln("n")
       filewindow.document.writeln("n")
       filewindow.document.writeln("data/3outrut.man")
-      filewindow.document.writeln("../working/wepp-1073.slp")
-      filewindow.document.writeln("../working/wepp-1073.cli")
-      filewindow.document.writeln("../working/wepp-1073.sol")
+      filewindow.document.writeln("../working/wepp-1098.slp")
+      filewindow.document.writeln("../working/wepp-1098.cli")
+      filewindow.document.writeln("../working/wepp-1098.sol")
       filewindow.document.writeln("0")
       filewindow.document.writeln("50")
       filewindow.document.writeln("0")
@@ -109,7 +109,7 @@
       return false
     }
     filewindow.focus
-    filewindow.document.writeln("<head><title>WEPP output file wepp-1073<\/title><\/head>")
+    filewindow.document.writeln("<head><title>WEPP output file wepp-1098<\/title><\/head>")
     filewindow.document.writeln("<body><font face='courier'><pre>")
       filewindow.document.writeln(" Annual; abbreviated (Metric Units)                                     ")
       filewindow.document.writeln("")
@@ -145,10 +145,10 @@
       filewindow.document.writeln(" MAN. PRACTICE: Road Section for water to follow ruts, and release over     ")
       filewindow.document.writeln("                fill-slope to a forest for deposition                       ")
       filewindow.document.writeln("                W. Elliot & H. Rhee 1/99  USDA Forest Service               ")
-      filewindow.document.writeln("         SLOPE: ../working/wepp-1073.slp                          ")
-      filewindow.document.writeln("       CLIMATE: ../working/wepp-1073.cli                          ")
+      filewindow.document.writeln("         SLOPE: ../working/wepp-1098.slp                          ")
+      filewindow.document.writeln("       CLIMATE: ../working/wepp-1098.cli                          ")
       filewindow.document.writeln("       Station:  DENVER WB AP CO                                CLIGEN VERSION  4.31")
-      filewindow.document.writeln("          SOIL: ../working/wepp-1073.sol                          ")
+      filewindow.document.writeln("          SOIL: ../working/wepp-1098.sol                          ")
       filewindow.document.writeln("      PLANE  1 Road                silt loam           ")
       filewindow.document.writeln("      PLANE  2 Fill                silt loam           ")
       filewindow.document.writeln("      PLANE  3 Forest              silt loam           ")
@@ -362,7 +362,7 @@
     filewindow.document.open()
     if (filewindow && filewindow.open && !filewindow.closed) {
       filewindow.focus
-      filewindow.document.writeln("<head><title>WEPP weather file wepp-1073<\/title><\/head>")
+      filewindow.document.writeln("<head><title>WEPP weather file wepp-1098<\/title><\/head>")
       filewindow.document.writeln("<body><pre>")
       filewindow.document.writeln(" DENVER WB AP CO                          52220 ")
       filewindow.document.writeln(" LATT=  39.77 LONG=-104.88 YEARS= 45. TYPE= ")
@@ -650,9 +650,9 @@
      Project leader 
      <a HREF="https://forest.moscowfsl.wsu.edu/people/engr/welliot.html" target="o">Bill Elliot</a><BR>
      USDA Forest Service, Rocky Mountain Research Station, Moscow, ID 83843
-     <br>06:49 PM Thursday January 22, 2026 Pacific Time
+     <br>06:53 PM Thursday January 22, 2026 Pacific Time
 <br>
-     WEPP:Road run ID wepp-1073
+     WEPP:Road run ID wepp-1098
     </td>
    </tr>
   </table>

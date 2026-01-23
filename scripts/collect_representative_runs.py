@@ -198,6 +198,10 @@ def collect_case(case: dict, out_root: Path) -> dict:
 
     _ensure_dir(api_dir)
     _ensure_dir(legacy_dir)
+    if legacy_working_dir.exists():
+        for path in legacy_working_dir.iterdir():
+            if path.is_file():
+                path.unlink()
 
     summary = {
         "id": case_id,
