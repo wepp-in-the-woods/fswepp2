@@ -28,6 +28,38 @@ normalize around API-native parameters for new frontends.
 - **User identification**: API sets `user_id` cookie in middleware after the
   request completes. A first call to endpoints that require the cookie may fail.
 
+## Parity runs (legacy baselines)
+
+Legacy capture runs live under `/workdir/fswepp2/parity-runs/`. Each model has a
+`cases.yaml` file with the real legacy curl payloads (copied from browser form
+submissions) plus optional API requests for comparison. We are currently
+capturing legacy-only runs.
+
+- WEPP:Road: `/workdir/fswepp2/parity-runs/wepproad/cases.yaml`
+- Disturbed WEPP: `/workdir/fswepp2/parity-runs/disturbed/cases.yaml`
+- ERMiT: `/workdir/fswepp2/parity-runs/ermit/cases.yaml`
+
+Payloads referenced in those cases are stored in:
+
+- `/workdir/fswepp2/parity-runs/wepproad/curl-payloads.md`
+- `/workdir/fswepp2/parity-runs/disturbed/curl-payloads.md`
+- `/workdir/fswepp2/parity-runs/ermit/curl-payloads.md`
+
+Each run is saved as:
+
+```
+/workdir/fswepp2/parity-runs/<model>/<run_id>/
+```
+
+and contains:
+
+- `legacy/<curl_name>.response.body`
+- `legacy/working/wepp-<pid>.*`
+- `run.json` summary
+
+Use `python /workdir/fswepp2/scripts/collect_representative_runs.py --cases <cases.yaml> --out /workdir/fswepp2/parity-runs --skip-api`
+for legacy-only capture.
+
 ## Rock:Clime (RockClim)
 
 - **Station sources**: API uses `wepppy2` station managers and exposes stations
