@@ -10,7 +10,7 @@ import math
 
 from fastapi import APIRouter, Query, Response, Request, HTTPException, Body
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from .rockclim import ClimatePars
 from .shared_models import SoilTexture
@@ -18,6 +18,7 @@ from .wepp import parse_wepp_soil_output
 from .logger import log_run
 from .hash_utils import stable_hash
 from .wepp_runner import resolve_wepp_binary
+from .file_utils import atomic_write
 
 router = APIRouter()
 
@@ -62,6 +63,28 @@ class Road(BaseModel):
     surface: RoadSurface
     design: RoadDesign
     traffic: TrafficLevel
+
+    @field_validator("slope_pct")
+    def validate_slope_pct(cls, value):
+        if value < 0.1 or value > 40:
+            raise ValueError("road.slope_pct must be between 0.1 and 40")
+        return value
+
+    @field_validator("length_m")
+    def validate_length_m(cls, value):
+        if value is None:
+            raise ValueError("road.length_m is required")
+        if value < 1 or value > 300:
+            raise ValueError("road.length_m must be between 1 and 300")
+        return value
+
+    @field_validator("width_m")
+    def validate_width_m(cls, value):
+        if value is None:
+            raise ValueError("road.width_m is required")
+        if value < 0.3 or value > 100:
+            raise ValueError("road.width_m must be between 0.3 and 100")
+        return value
     
     @property
     def outslope(self):
@@ -96,6 +119,20 @@ class Fill(BaseModel):
     slope_pct: float
     length_m: Optional[float] = None
 
+    @field_validator("slope_pct")
+    def validate_slope_pct(cls, value):
+        if value < 0.1 or value > 150:
+            raise ValueError("fill.slope_pct must be between 0.1 and 150")
+        return value
+
+    @field_validator("length_m")
+    def validate_length_m(cls, value):
+        if value is None:
+            raise ValueError("fill.length_m is required")
+        if value < 0.3 or value > 100:
+            raise ValueError("fill.length_m must be between 0.3 and 100")
+        return value
+
     @property
     def slope(self):
         return self.slope_pct / 100.0
@@ -107,6 +144,20 @@ class Fill(BaseModel):
 class Buffer(BaseModel):
     slope_pct: float
     length_m: Optional[float] = None
+
+    @field_validator("slope_pct")
+    def validate_slope_pct(cls, value):
+        if value < 0.1 or value > 100:
+            raise ValueError("buffer.slope_pct must be between 0.1 and 100")
+        return value
+
+    @field_validator("length_m")
+    def validate_length_m(cls, value):
+        if value is None:
+            raise ValueError("buffer.length_m is required")
+        if value < 0.3 or value > 300:
+            raise ValueError("buffer.length_m must be between 0.3 and 300")
+        return value
     
     @property
     def slope(self):
@@ -122,6 +173,12 @@ class WepproadPars(BaseModel):
     road: Road
     fill: Fill
     buffer: Buffer
+
+    @field_validator("rfg_pct")
+    def validate_rfg_pct(cls, value):
+        if value < 0 or value > 100:
+            raise ValueError("rfg_pct must be between 0 and 100")
+        return value
     
     def __hash__(self):
         return hash((self.soil_texture, self.road, self.fill, self.buffer))
@@ -190,7 +247,7 @@ def create_soil_file(state: WeppRoadState):
     
     os.makedirs(os.path.dirname(new_soil_file), exist_ok=True)
     
-    with open(soil_file_template_path, 'r') as soil_file, open(new_soil_file, 'w') as new_soil:
+    with open(soil_file_template_path, 'r') as soil_file, atomic_write(new_soil_file, "w") as new_soil:
         if surface == RoadSurface.GRAVEL:
             urr_ref = 65.0
             ufr_ref = (ubr + 65.0) / 2.0
@@ -299,7 +356,7 @@ def create_slope_file(state: WeppRoadState):
     wepp_buff_length = state.wepproad_pars.buffer.length_m
     wepp_buff_slope = state.wepproad_pars.buffer.slope
     
-    with open(slope_file, "w") as slope_f:
+    with atomic_write(slope_file, "w") as slope_f:
         slope_f.write("97.3\n")  # datver
         slope_f.write(f"# Slope file for {hash_id} by WEPP:Road Interface\n")
         slope_f.write("3\n")  # no. OFE
@@ -376,7 +433,7 @@ def run_wepproad(state: WeppRoadState):
     ]
     content = "\n".join(content)
 
-    with open(run_fn, 'w') as fp:
+    with atomic_write(run_fn, "w") as fp:
         fp.write(content)
         
     try:

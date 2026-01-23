@@ -16,7 +16,7 @@ import numpy as np
 
 from fastapi import APIRouter, Query, Response, Request, HTTPException, Body
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from .rockclim import ClimatePars
 from .shared_models import SoilTexture
@@ -24,6 +24,7 @@ from .wepp import parse_wepp_soil_output
 from .logger import log_run
 from .hash_utils import stable_hash
 from .wepp_runner import resolve_wepp_binary
+from .file_utils import atomic_write
 
 router = APIRouter()
 
@@ -53,6 +54,32 @@ class DisturbedOFE(BaseModel):
     length_m: Optional[float] = None
     cover_pct: float
     rfg_pct: float
+
+    @field_validator("slope_point1_pct", "slope_point2_pct")
+    def validate_slope_pct(cls, value):
+        if value < 0 or value > 1000:
+            raise ValueError("slope_point*_pct must be between 0 and 1000")
+        return value
+
+    @field_validator("length_m")
+    def validate_length_m(cls, value):
+        if value is None:
+            raise ValueError("length_m is required")
+        if value < 0 or value > 3000:
+            raise ValueError("length_m must be between 0 and 3000")
+        return value
+
+    @field_validator("cover_pct")
+    def validate_cover_pct(cls, value):
+        if value < 0 or value > 150:
+            raise ValueError("cover_pct must be between 0 and 150")
+        return value
+
+    @field_validator("rfg_pct")
+    def validate_rfg_pct(cls, value):
+        if value < 0 or value > 75:
+            raise ValueError("rfg_pct must be between 0 and 75")
+        return value
     
     @property
     def slope_point1(self):
@@ -71,6 +98,12 @@ class DisturbedWeppPars(BaseModel):
     upper_ofe: DisturbedOFE
     lower_ofe: DisturbedOFE
     width_m: float = 90.0
+
+    @field_validator("width_m")
+    def validate_width_m(cls, value):
+        if value <= 0 or value > 10000:
+            raise ValueError("width_m must be between 0 and 10000")
+        return value
     
     def __hash__(self):
         return hash((self.soil_texture, self.upper_ofe, self.lower_ofe, self.width_m))
@@ -110,7 +143,7 @@ def create_soil_file(state: DisturbedWeppState) -> str:
     with open(soil_db_file, 'r') as file:
         soil_db = yaml.safe_load(file)
 
-    with open(new_soil_file, 'w') as sol_fh:
+    with atomic_write(new_soil_file, "w") as sol_fh:
         # Write header with soil version
         sol_fh.write(f"97.3\n"
                         "#\n"
@@ -168,7 +201,7 @@ def create_management_file(state: DisturbedWeppState):
     ofe1_pcover = state.disturbedwepp_pars.upper_ofe.cover_pct
     ofe2_pcover = state.disturbedwepp_pars.lower_ofe.cover_pct
   
-    with open(man_file, 'w') as man_fh:
+    with atomic_write(man_file, "w") as man_fh:
         # Write the header
         man_fh.write(f"""\
 98.4
@@ -388,7 +421,7 @@ def create_slope_file(state: DisturbedWeppState) -> str:
         mid_slope2 += 0.01
 
     try:
-        with open(slope_file, 'w') as slope_fh:
+        with atomic_write(slope_file, "w") as slope_fh:
             # Write header information
             slope_fh.write("97.3\n")  # datver
             slope_fh.write("#\n# Slope file generated for FSWEPP\n#\n")
@@ -468,7 +501,7 @@ def run_disturbedwepp(state: DisturbedWeppPars):
     
     content = "\n".join(content)
 
-    with open(run_fn, 'w') as fp:
+    with atomic_write(run_fn, "w") as fp:
         fp.write(content)
         
     try:

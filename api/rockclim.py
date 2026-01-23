@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field, conlist, ValidationError, field_validator
 from wepppy2.climates.cligen import CligenStationsManager, Cligen, ClimateFile
 
 from .hash_utils import stable_hash
+from .file_utils import atomic_write
 
 router = APIRouter()
 
@@ -65,6 +66,20 @@ class ClimatePars(BaseModel):
     def validate_database(cls, value):
         if value not in [None, "legacy", "2015", "au", "ghcn"]:
             raise ValueError("Invalid database")
+        return value
+
+    @field_validator('cligen_version')
+    def validate_cligen_version(cls, value):
+        if value not in ["4.3", "5.3.2"]:
+            raise ValueError("Invalid cligen_version")
+        return value
+
+    @field_validator('input_years')
+    def validate_input_years(cls, value):
+        if value is None:
+            return value
+        if value < 1 or value > 200:
+            raise ValueError("input_years must be between 1 and 200")
         return value
     
     def __hash__(self):
@@ -286,8 +301,7 @@ def load_user_data(filepath):
 
 
 def save_user_data(filepath, data):
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    with open(filepath, 'w') as file:
+    with atomic_write(filepath, "w") as file:
         json.dump(data, file, indent=4)
 
 

@@ -21,7 +21,7 @@ from fastapi import APIRouter, Query, Response, Request, HTTPException, Body
 from fastapi.responses import JSONResponse
 
 from typing import Optional
-from pydantic import BaseModel, ValidationError, field_validator
+from pydantic import BaseModel, ValidationError, field_validator, model_validator
 
 from wepppy2.climates.cligen import ClimateFile
 
@@ -31,6 +31,7 @@ from .wepp import parse_wepp_soil_output, get_annual_maxima_events_from_ebe, get
 from .logger import log_run
 from .hash_utils import stable_hash
 from .wepp_runner import resolve_wepp_binary
+from .file_utils import atomic_write
 
 router = APIRouter()
 
@@ -85,6 +86,34 @@ class ErmitPars(BaseModel):
         if value < 0.001 or value > 100:
             raise ValueError("Slope percentages must be between 0.001 and 100")
         return value
+
+    @field_validator("length_m")
+    def check_length_m(cls, value):
+        if value is None:
+            raise ValueError("length_m is required")
+        if value < 0 or value > 300:
+            raise ValueError("length_m must be between 0 and 300")
+        return value
+
+    @field_validator("user_shrub_pct", "user_grass_pct", "user_bare_pct")
+    def check_cover_pct(cls, value):
+        if value is None:
+            return value
+        if value < 0 or value > 100:
+            raise ValueError("Cover percentages must be between 0 and 100")
+        return value
+
+    @model_validator(mode="after")
+    def validate_cover_totals(self):
+        if self.vegetation_type == VegetationType.Forest:
+            return self
+
+        provided = [
+            v for v in [self.user_shrub_pct, self.user_grass_pct, self.user_bare_pct] if v is not None
+        ]
+        if provided and sum(provided) > 100:
+            raise ValueError("Sum of cover percentages must be <= 100")
+        return self
     
     @property
     def top_slope(self):
@@ -237,7 +266,7 @@ def create_soil_file(spatial_severity: str, k: int, ermit_state: ErmitState) -> 
     
     os.makedirs(os.path.dirname(soil_file), exist_ok=True)
     
-    with open(soil_file, 'w') as f:
+    with atomic_write(soil_file, "w") as f:
         f.write(contents)
         
     return soil_file
@@ -505,7 +534,7 @@ def create_slope_file(spatial_severity: str, ermit_state: ErmitState) -> str:
     
     os.makedirs(os.path.dirname(slope_file), exist_ok=True)
     
-    with open(slope_file, 'w') as f:
+    with atomic_write(slope_file, "w") as f:
         f.write(contents)
         
     return slope_file
@@ -600,7 +629,7 @@ def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int
     
     content = "\n".join(content)
 
-    with open(run_fn, 'w') as fp:
+    with atomic_write(run_fn, "w") as fp:
         fp.write(content)
         
     # wait 1 ms
@@ -708,7 +737,7 @@ def run_ermitwepp(state: ErmitState):
     
     content = "\n".join(content)
 
-    with open(run_fn, 'w') as fp:
+    with atomic_write(run_fn, "w") as fp:
         fp.write(content)
         
     try:
@@ -781,7 +810,7 @@ def run_ermitwepp(state: ErmitState):
     sed_results = sorted(sed_results, key=lambda x: x['sed_del_kg_m2'], reverse=True)
     
     sed_results_fn = _join(cwd, f'e_{hash_id}.sed.json')
-    with open(sed_results_fn, 'w') as fp:
+    with atomic_write(sed_results_fn, "w") as fp:
         json.dump(sed_results, fp, indent=2)
     
     with ThreadPoolExecutor() as executor:
