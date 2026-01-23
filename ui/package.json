@@ -1,0 +1,19 @@
+{
+  "name": "fswepp2-ui",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun run src/server.ts",
+    "start": "PORT=${PORT:-5173} bun run src/server.ts",
+    "lint": "echo \"(placeholder)\"",
+    "build:css": "bunx tailwindcss -i ./styles/theme.css -o ./public/app.css --minify"
+  },
+  "dependencies": {
+    "hono": "^4.4.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.8",
+    "typescript": "^5.8.3"
+  }
+}

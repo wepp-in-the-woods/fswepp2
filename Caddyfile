@@ -1,0 +1,36 @@
+:8091 {
+	encode zstd gzip
+
+	# Security headers (HAProxy handles TLS)
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; font-src 'self' data:;"
+	}
+
+	handle_path /fswepp2/api/* {
+		reverse_proxy api:8090
+	}
+
+	# Optional transitional alias
+	handle_path /api/* {
+		reverse_proxy api:8090
+	}
+
+	# Static assets
+	handle /public/* {
+		root * /app
+		file_server
+	}
+
+	# App pages
+	handle /fswepp* {
+		reverse_proxy ui:5173
+	}
+
+	# Root (reserved for later legacy/index backfill)
+	handle {
+		reverse_proxy ui:5173
+	}
+}

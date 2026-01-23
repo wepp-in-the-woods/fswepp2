@@ -1,0 +1,14 @@
+FROM oven/bun:1.1 AS base
+WORKDIR /app
+
+# Install deps
+COPY ui/package.json ui/tsconfig.json ui/tailwind.config.ts ./
+RUN bun install
+
+# Copy source
+COPY ui/src ./src
+COPY ui/styles ./styles
+COPY ui/public ./public
+
+EXPOSE 5173
+CMD ["bun", "run", "dev"]

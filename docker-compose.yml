@@ -1,5 +1,5 @@
 services:
-  fswepp2:
+  api:
     build: .
     ports:
       - "8090:8090"
@@ -15,25 +15,27 @@ services:
         --reload
         --reload-dir /workdir/fswepp2
 
-  frontend:
+  ui:
     build:
       context: .
-      dockerfile: Dockerfile.frontend
-      target: builder
+      dockerfile: Dockerfile.ui
     working_dir: /app
     ports:
-      - "3091:5173"
+      - "5173:5173"
     volumes:
-      - ./frontend:/app
+      - ./ui:/app
     environment:
-      - HOST=0.0.0.0
       - PORT=5173
-      - CHOKIDAR_USEPOLLING=true
-    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"
+    command: ["bun", "run", "dev"]
+    depends_on:
+      - api
 
-  frontend-prod:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend   # final nginx stage serves /dist
+  caddy:
+    image: caddy:latest
     ports:
       - "8091:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    depends_on:
+      - api
+      - ui
