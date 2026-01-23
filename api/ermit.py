@@ -30,7 +30,7 @@ from .shared_models import SoilTexture
 from .wepp import parse_wepp_soil_output, get_annual_maxima_events_from_ebe, get_selected_events_from_ebe
 from .logger import log_run
 from .hash_utils import stable_hash
-from .wepp_runner import resolve_wepp_binary
+from .wepp_runner import resolve_wepp_binary, run_wepp_binary
 from .file_utils import atomic_write
 
 router = APIRouter()
@@ -636,17 +636,7 @@ def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int
     time.sleep(0.001)
     try:
         weppversion = resolve_wepp_binary(state.wepp_version)
-        with open(run_fn, "r") as run_fp, open(stout_fn, "w") as out_fp, open(
-            sterr_fn, "w"
-        ) as err_fp:
-            subprocess.run(
-                [weppversion],
-                stdin=run_fp,
-                stdout=out_fp,
-                stderr=err_fp,
-                cwd=cwd,
-                check=True,
-            )
+        run_wepp_binary(weppversion, run_fn, stout_fn, sterr_fn, cwd, timeout_seconds=10)
     except subprocess.CalledProcessError as e:
         raise Exception(str(e))
         return {"error": str(e)}
@@ -742,17 +732,7 @@ def run_ermitwepp(state: ErmitState):
         
     try:
         weppversion = resolve_wepp_binary(state.wepp_version)
-        with open(run_fn, "r") as run_fp, open(stout_fn, "w") as out_fp, open(
-            sterr_fn, "w"
-        ) as err_fp:
-            subprocess.run(
-                [weppversion],
-                stdin=run_fp,
-                stdout=out_fp,
-                stderr=err_fp,
-                cwd=cwd,
-                check=True,
-            )
+        run_wepp_binary(weppversion, run_fn, stout_fn, sterr_fn, cwd, timeout_seconds=10)
     except subprocess.CalledProcessError as e:
         raise Exception(str(e))
         return {"error": str(e)}

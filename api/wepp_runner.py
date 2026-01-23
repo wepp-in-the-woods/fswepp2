@@ -1,4 +1,5 @@
 import os
+import subprocess
 from os.path import join as _join
 
 from fastapi import HTTPException
@@ -26,3 +27,31 @@ def resolve_wepp_binary(wepp_version: str) -> str:
         )
 
     return wepp_path
+
+
+def run_wepp_binary(
+    wepp_path: str,
+    run_fn: str,
+    stout_fn: str,
+    sterr_fn: str,
+    cwd: str,
+    timeout_seconds: int = 10,
+) -> None:
+    try:
+        with open(run_fn, "r") as run_fp, open(stout_fn, "w") as out_fp, open(
+            sterr_fn, "w"
+        ) as err_fp:
+            subprocess.run(
+                [wepp_path],
+                stdin=run_fp,
+                stdout=out_fp,
+                stderr=err_fp,
+                cwd=cwd,
+                check=True,
+                timeout=timeout_seconds,
+            )
+    except subprocess.TimeoutExpired as exc:
+        raise HTTPException(
+            status_code=504,
+            detail=f"WEPP run timed out after {timeout_seconds}s",
+        ) from exc
