@@ -10,6 +10,8 @@ from pydantic import BaseModel, Field, conlist, ValidationError, field_validator
 
 from wepppy2.climates.cligen import CligenStationsManager, Cligen, ClimateFile
 
+from .hash_utils import stable_hash
+
 router = APIRouter()
 
 _thisdir = os.path.dirname(os.path.abspath(__file__))
@@ -217,14 +219,14 @@ def get_station_par_monthlies(
 
 
 def get_climate(climate_pars: ClimatePars):
-    wd="/ramdisk/rockclim/"
+    wd="/dev/shm/rockclim/"
     
     station = get_station(climate_pars)
     
     os.makedirs(wd, exist_ok=True)
 
-    _hash = hash(climate_pars)
-    cli_fname = f"{_hash}.cli"
+    hash_id = stable_hash(climate_pars)
+    cli_fname = f"{hash_id}.cli"
     
     cligen = Cligen(station, wd, cliver=climate_pars.cligen_version)
     cligen.run_multiple_year(climate_pars.input_years, cli_fname=cli_fname)
@@ -321,7 +323,7 @@ def save_user_defined_par_mod(
     
     user_custom_db_path = _join(_thisdir, f'db/users/rockclim/{user_id}.json')
     user_data = load_user_data(user_custom_db_path)
-    par_mod_key = str(hash(climate_pars))
+    par_mod_key = stable_hash(climate_pars)
 
     # Check if the entry already exists
     if par_mod_key not in user_data:
@@ -361,7 +363,7 @@ def del_user_defined_par_mod(
     
     user_custom_db_path = _join(_thisdir, f'db/users/rockclim/{user_id}.json')
     user_data = load_user_data(user_custom_db_path)
-    par_mod_key = str(hash(climate_pars))
+    par_mod_key = stable_hash(climate_pars)
 
     if par_mod_key in user_data:
         del user_data[par_mod_key]

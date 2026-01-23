@@ -29,9 +29,8 @@ from .rockclim import ClimatePars, get_climate
 from .shared_models import SoilTexture
 from .wepp import parse_wepp_soil_output, get_annual_maxima_events_from_ebe, get_selected_events_from_ebe
 from .logger import log_run
-
-import wepppy2
-wepp_bin_dir = _join(os.path.dirname(wepppy2.__file__), 'wepp_runner/bin')
+from .hash_utils import stable_hash
+from .wepp_runner import resolve_wepp_binary
 
 router = APIRouter()
 
@@ -233,8 +232,8 @@ def create_soil_file(spatial_severity: str, k: int, ermit_state: ErmitState) -> 
             f"{soil_parameters['orgmat']}\t{soil_parameters['cec']}\t{rfg}\n"
         )
 
-    _hash = hash(ermit_pars)
-    soil_file = _join(_thisdir, '/ramdisk/ermit/', f"e_{_hash}_{spatial_severity}{k}.sol")
+    hash_id = stable_hash(ermit_pars)
+    soil_file = _join(_thisdir, '/dev/shm/ermit/', f"e_{hash_id}_{spatial_severity}{k}.sol")
     
     os.makedirs(os.path.dirname(soil_file), exist_ok=True)
     
@@ -501,8 +500,8 @@ def create_slope_file(spatial_severity: str, ermit_state: ErmitState) -> str:
 0, {middle_slope}\t0.85, {middle_slope}\t1.0, {bottom_slope}
 """
 
-    _hash = hash(ermit_pars)
-    slope_file = _join(_thisdir, '/ramdisk/ermit/', f"e_{_hash}_{spatial_severity}.slp")
+    hash_id = stable_hash(ermit_pars)
+    slope_file = _join(_thisdir, '/dev/shm/ermit/', f"e_{hash_id}_{spatial_severity}.slp")
     
     os.makedirs(os.path.dirname(slope_file), exist_ok=True)
     
@@ -544,9 +543,7 @@ def get_management_file(spatial_severity: str, ermit_state: ErmitState) -> str:
 
 
 def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int, cli_fn: str, selected_dates: list):
-    global wepp_bin_dir
-    
-    cwd = '/ramdisk/ermit'
+    cwd = '/dev/shm/ermit'
         
     slope_fn = create_slope_file(spatial_severity, state)
     _slope_fn = _split(slope_fn)[1]
@@ -562,16 +559,16 @@ def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int
     
     assert _exists(cli_fn), f"Climate file {cli_fn} does not exist"
     
-    _hash = hash(state)
-    run_fn = _join(cwd, f'e_{_hash}.{spatial_severity}{k}.run')
-    output_fn = _join(cwd, f'e_{_hash}.{spatial_severity}{k}.dat')
+    hash_id = stable_hash(state)
+    run_fn = _join(cwd, f'e_{hash_id}.{spatial_severity}{k}.run')
+    output_fn = _join(cwd, f'e_{hash_id}.{spatial_severity}{k}.dat')
     _output_fn = _split(output_fn)[1]
     
-    ebe_fn = _join(cwd, f'e_{_hash}.{spatial_severity}{k}.ebe')
+    ebe_fn = _join(cwd, f'e_{hash_id}.{spatial_severity}{k}.ebe')
     _ebe_fn = _split(ebe_fn)[1]
     
-    stout_fn = _join(cwd, f'e_{_hash}.{spatial_severity}{k}.stout')
-    sterr_fn = _join(cwd, f'e_{_hash}.{spatial_severity}{k}.sterr')
+    stout_fn = _join(cwd, f'e_{hash_id}.{spatial_severity}{k}.stout')
+    sterr_fn = _join(cwd, f'e_{hash_id}.{spatial_severity}{k}.sterr')
     content = [
         "m",  # english or metric
         "y",  # not watershed
@@ -606,17 +603,21 @@ def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int
     with open(run_fn, 'w') as fp:
         fp.write(content)
         
-    weppversion = _join(wepp_bin_dir, state.wepp_version)
-    
-    if not _exists(weppversion):
-        return {"error": f"WEPP version {state.wepp_version} not found"}
-
-    command = f"{weppversion} <{run_fn} >{stout_fn} 2>{sterr_fn}"
-    
     # wait 1 ms
     time.sleep(0.001)
     try:
-        subprocess.run(command, shell=True, check=True, cwd=cwd)
+        weppversion = resolve_wepp_binary(state.wepp_version)
+        with open(run_fn, "r") as run_fp, open(stout_fn, "w") as out_fp, open(
+            sterr_fn, "w"
+        ) as err_fp:
+            subprocess.run(
+                [weppversion],
+                stdin=run_fp,
+                stdout=out_fp,
+                stderr=err_fp,
+                cwd=cwd,
+                check=True,
+            )
     except subprocess.CalledProcessError as e:
         raise Exception(str(e))
         return {"error": str(e)}
@@ -643,9 +644,7 @@ def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int
 
 
 def run_ermitwepp(state: ErmitState):
-    global wepp_bin_dir
-    
-    cwd = '/ramdisk/ermit'
+    cwd = '/dev/shm/ermit'
     
     if state.ermit_pars.burn_severity == BurnSeverity.Unburned:
         spatial_severity = 'uuu'
@@ -668,16 +667,16 @@ def run_ermitwepp(state: ErmitState):
     
     cli_fn = get_climate(state.climate)
     
-    _hash = hash(state)
-    run_fn = _join(cwd, f'e_{_hash}.100.run')
-    output_fn = _join(cwd, f'e_{_hash}.100.dat')
+    hash_id = stable_hash(state)
+    run_fn = _join(cwd, f'e_{hash_id}.100.run')
+    output_fn = _join(cwd, f'e_{hash_id}.100.dat')
     _output_fn = _split(output_fn)[1]
     
-    ebe_fn = _join(cwd, f'e_{_hash}.100.ebe')
+    ebe_fn = _join(cwd, f'e_{hash_id}.100.ebe')
     _ebe_fn = _split(ebe_fn)[1]
     
-    stout_fn = _join(cwd, f'e_{_hash}.100.stout')
-    sterr_fn = _join(cwd, f'e_{_hash}.100.sterr')
+    stout_fn = _join(cwd, f'e_{hash_id}.100.stout')
+    sterr_fn = _join(cwd, f'e_{hash_id}.100.sterr')
     content = [
         "m",  # english or metric
         "y",  # not watershed
@@ -712,14 +711,19 @@ def run_ermitwepp(state: ErmitState):
     with open(run_fn, 'w') as fp:
         fp.write(content)
         
-    weppversion = _join(wepp_bin_dir, state.wepp_version)
-    
-    if not _exists(weppversion):
-        return {"error": f"WEPP version {state.wepp_version} not found"}
-
-    command = f"{weppversion} <{run_fn} >{stout_fn} 2>{sterr_fn}"
     try:
-        subprocess.run(command, shell=True, check=True, cwd=cwd)
+        weppversion = resolve_wepp_binary(state.wepp_version)
+        with open(run_fn, "r") as run_fp, open(stout_fn, "w") as out_fp, open(
+            sterr_fn, "w"
+        ) as err_fp:
+            subprocess.run(
+                [weppversion],
+                stdin=run_fp,
+                stdout=out_fp,
+                stderr=err_fp,
+                cwd=cwd,
+                check=True,
+            )
     except subprocess.CalledProcessError as e:
         raise Exception(str(e))
         return {"error": str(e)}
@@ -776,7 +780,7 @@ def run_ermitwepp(state: ErmitState):
     # sort sed_results by sed_del_kg_m2 descending
     sed_results = sorted(sed_results, key=lambda x: x['sed_del_kg_m2'], reverse=True)
     
-    sed_results_fn = _join(cwd, f'e_{_hash}.sed.json')
+    sed_results_fn = _join(cwd, f'e_{hash_id}.sed.json')
     with open(sed_results_fn, 'w') as fp:
         json.dump(sed_results, fp, indent=2)
     

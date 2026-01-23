@@ -7,7 +7,7 @@ services:
       - .:/workdir/fswepp2
     working_dir: /workdir/fswepp2 
     tmpfs:
-      - /ramdisk:size=1g
+      - /dev/shm:size=1g
     command: >
       uvicorn main:app
         --host 0.0.0.0

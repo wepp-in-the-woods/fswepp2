@@ -22,6 +22,8 @@ from .rockclim import ClimatePars
 from .shared_models import SoilTexture
 from .wepp import parse_wepp_soil_output
 from .logger import log_run
+from .hash_utils import stable_hash
+from .wepp_runner import resolve_wepp_binary
 
 router = APIRouter()
 
@@ -96,8 +98,8 @@ soil_db_file = _join(_thisdir, "db/disturbed/soildb2014.yaml")
 def create_soil_file(state: DisturbedWeppState) -> str:
     global soil_db_file
     
-    _hash = hash(state.disturbedwepp_pars)
-    new_soil_file = f"/ramdisk/disturbed/wd_{_hash}.sol"
+    hash_id = stable_hash(state.disturbedwepp_pars)
+    new_soil_file = f"/dev/shm/disturbed/wd_{hash_id}.sol"
     
     if _exists(new_soil_file):
         return new_soil_file
@@ -151,8 +153,8 @@ def create_soil_file(state: DisturbedWeppState) -> str:
 def create_management_file(state: DisturbedWeppState):
     global management_data_dir
     
-    _hash = hash(state)
-    man_file = f'/ramdisk/disturbed/wd_{_hash}.man'
+    hash_id = stable_hash(state)
+    man_file = f'/dev/shm/disturbed/wd_{hash_id}.man'
     
     if _exists(man_file):
         return man_file
@@ -361,8 +363,8 @@ W. Elliot 02/99
             
 
 def create_slope_file(state: DisturbedWeppState) -> str:
-    _hash = hash(state.disturbedwepp_pars)
-    slope_file = f"/ramdisk/disturbed/wd_{_hash}.slp"
+    hash_id = stable_hash(state.disturbedwepp_pars)
+    slope_file = f"/dev/shm/disturbed/wd_{hash_id}.slp"
     
     if _exists(slope_file):
         return slope_file
@@ -416,7 +418,7 @@ def run_disturbedwepp(state: DisturbedWeppPars):
     import subprocess
     from .rockclim import get_climate
     
-    cwd = '/ramdisk/disturbed'
+    cwd = '/dev/shm/disturbed'
     
     slope_fn = create_slope_file(state)
     _slope_fn = _split(slope_fn)[1]
@@ -429,13 +431,13 @@ def run_disturbedwepp(state: DisturbedWeppPars):
     
     cli_fn = get_climate(state.climate)
     
-    _hash = hash(state)
-    run_fn = _join(cwd, f'wd_{_hash}.run')
-    output_fn = _join(cwd, f'wd_{_hash}.dat')
+    hash_id = stable_hash(state)
+    run_fn = _join(cwd, f'wd_{hash_id}.run')
+    output_fn = _join(cwd, f'wd_{hash_id}.dat')
     _output_fn = _split(output_fn)[1]
     
-    stout_fn = _join(cwd, f'wd_{_hash}.stout')
-    sterr_fn = _join(cwd, f'wd_{_hash}.sterr')
+    stout_fn = _join(cwd, f'wd_{hash_id}.stout')
+    sterr_fn = _join(cwd, f'wd_{hash_id}.sterr')
     content = [
         "m",  # english or metric
         "y",  # not watershed
@@ -469,14 +471,19 @@ def run_disturbedwepp(state: DisturbedWeppPars):
     with open(run_fn, 'w') as fp:
         fp.write(content)
         
-    weppversion = f'/usr/lib/python3/dist-packages/wepppy2/wepp_runner/bin/{state.wepp_version}'
-    
-    if not _exists(weppversion):
-        return {"error": f"WEPP version {state.wepp_version} not found"}
-
-    command = f"{weppversion} <{run_fn} >{stout_fn} 2>{sterr_fn}"
     try:
-        subprocess.run(command, shell=True, check=True, cwd=cwd)
+        weppversion = resolve_wepp_binary(state.wepp_version)
+        with open(run_fn, "r") as run_fp, open(stout_fn, "w") as out_fp, open(
+            sterr_fn, "w"
+        ) as err_fp:
+            subprocess.run(
+                [weppversion],
+                stdin=run_fp,
+                stdout=out_fp,
+                stderr=err_fp,
+                cwd=cwd,
+                check=True,
+            )
     except subprocess.CalledProcessError as e:
         raise Exception(str(e))
         return {"error": str(e)}

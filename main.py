@@ -10,6 +10,7 @@ from api.logger import router as logger_router
 
 import traceback
 import uuid
+import os
 
 app = FastAPI()
 
@@ -54,14 +55,21 @@ async def health_check():
 async def custom_exception_handler(request: Request, exc: Exception):
     # Get the full traceback as a string
     stack_trace = ''.join(traceback.format_exception(type(exc), exc, exc.__traceback__))
-    # Return the stack trace with the response
+    debug_mode = os.getenv("FSWEPP_DEBUG", "0") not in ("0", "false", "False", "")
+
+    if debug_mode:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "detail": "Internal Server Error",
+                "error": str(exc),
+                "stack_trace": stack_trace,
+            },
+        )
+
     return JSONResponse(
         status_code=500,
-        content={
-            "detail": "Internal Server Error",
-            "error": str(exc),
-            "stack_trace": stack_trace,
-        },
+        content={"detail": "Internal Server Error"},
     )
 
 

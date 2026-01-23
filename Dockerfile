@@ -12,8 +12,8 @@ RUN apt-get update \
       gdal-bin libgdal-dev python3-gdal wget dpkg git\
  && rm -rf /var/lib/apt/lists/*
 
-# create ramdisk mountpoint (use --tmpfs on docker run / compose)
-VOLUME ["/ramdisk"]
+# tmpfs is mounted at /dev/shm via docker-compose
+VOLUME ["/dev/shm"]
 
 # install Python requirements
 RUN python3 -m venv --system-site-packages /opt/venv
