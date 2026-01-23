@@ -1,0 +1,35 @@
+{
+  "api": [],
+  "finished_at": 1769133826.2548368,
+  "id": "moscow_clay_low_forest",
+  "legacy": [
+    {
+      "meta": {
+        "command": "curl 'http://localhost:8080/cgi-bin/fswepp/ermit/erm.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/ermit/ermit.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 249' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'me=&units=ft&debug=0&Climate=..%2Fclimates%2Fid106152&SoilType=clay&rfg=20&achtung=Run+WEPP&vegetation=forest&top_slope=20&avg_slope=30&toe_slope=20&length=300&severity=l&pct_shrub=&pct_grass=&pct_bare=&climate_name=&Units=m&actionw=Running+ERMiT...'",
+        "returncode": 0,
+        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100   249    0     0  100   249      0    207  0:00:01  0:00:01 --:--:--   207\r100   249    0     0  100   249      0    113  0:00:02  0:00:02 --:--:--   113\r100   249    0     0  100   249      0     77  0:00:03  0:00:03 --:--:--    77\r100   249    0     0  100   249      0     59  0:00:04  0:00:04 --:--:--    59\r100 30009  100 29760  100   249   6831     57  0:00:04  0:00:04 --:--:--  6889",
+        "stdout_bytes": 29760
+      },
+      "name": "run"
+    }
+  ],
+  "model": "ermit",
+  "started_at": 1769133811.2355323,
+  "working_files": [
+    "/workdir/fswepp2/parity-runs/ermit/moscow_clay_low_forest/legacy/working/wepp-781.in",
+    "/workdir/fswepp2/parity-runs/ermit/moscow_clay_low_forest/legacy/working/wepp-781.slp",
+    "/workdir/fswepp2/parity-runs/ermit/moscow_clay_low_forest/legacy/working/wepp-781.sol",
+    "/workdir/fswepp2/parity-runs/ermit/moscow_clay_low_forest/legacy/working/wepp-781.gnudata",
+    "/workdir/fswepp2/parity-runs/ermit/moscow_clay_low_forest/legacy/working/wepp-781.png",
+    "/workdir/fswepp2/parity-runs/ermit/moscow_clay_low_forest/legacy/working/wepp-781.gnujcl",
+    "/workdir/fswepp2/parity-runs/ermit/moscow_clay_low_forest/legacy/working/wepp-781.evo",
+    "/workdir/fswepp2/parity-runs/ermit/moscow_clay_low_forest/legacy/working/wepp-781.temp",
+    "/workdir/fswepp2/parity-runs/ermit/moscow_clay_low_forest/legacy/working/wepp-781.sterr",
+    "/workdir/fswepp2/parity-runs/ermit/moscow_clay_low_forest/legacy/working/wepp-781.event100",
+    "/workdir/fswepp2/parity-runs/ermit/moscow_clay_low_forest/legacy/working/wepp-781.stout",
+    "/workdir/fswepp2/parity-runs/ermit/moscow_clay_low_forest/legacy/working/wepp-781.cli",
+    "/workdir/fswepp2/parity-runs/ermit/moscow_clay_low_forest/legacy/working/wepp-781_.cli",
+    "/workdir/fswepp2/parity-runs/ermit/moscow_clay_low_forest/legacy/working/wepp-781.event",
+    "/workdir/fswepp2/parity-runs/ermit/moscow_clay_low_forest/legacy/working/wepp-781.out"
+  ]
+}

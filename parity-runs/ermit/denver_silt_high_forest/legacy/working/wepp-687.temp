@@ -1,0 +1,129 @@
+<center><br>
+  <table cellspacing=8 bgcolor='ivory'>
+   <tr>
+    <th colspan=5 bgcolor=#ccffff>
+     100 - YEAR MEAN ANNUAL AVERAGES
+    </th>
+   </tr>
+     <tr>
+      <td colspan=3></td>
+      <th colspan=2><font size=-1>Total in<br>100 years</font></th>
+     </tr>
+   <tr>
+    <td align=right><b>       15</b></td>
+    <td><b>in</b></td>
+    <td>annual precipitation from</td>
+    <td align=right>8811</td>
+    <td>storms</td>
+   </tr>
+   <tr>
+    <td align=right><b>      1.2</b></td>
+    <td><b>in</b>    </td>
+    <td>annual runoff from rainfall from</td>
+    <td align=right>522</td>
+    <td>events</td>
+   </tr>
+   <tr>
+    <td align=right><b>    0.035</b></td>
+    <td><b>in</b></td>
+    <td>annual runoff from snowmelt or winter rainstorm from</td>
+    <td align=right>14</td>
+    <td>events</td>
+   </tr>
+  </table>
+<p>
+       <table border=1 cellpadding=8 bgcolor='ivory'>
+        <tr>
+         <th colspan=7>
+          Rainfall Event Rankings and Characteristics from the Selected Storms
+         </th>
+        </tr>
+        <tr>
+         <th bgcolor='#ccffff'><font size=-2>Storm Rank<br>based on runoff<br>(return interval)</font></th>
+         <th bgcolor='#ccffff'><font size=-2>Storm<br>Runoff<br>(in)</font></th>
+         <th bgcolor='#ccffff'><font size=-2>Storm<br>Precipitation<br>(in)</font></th>
+         <th bgcolor='#ccffff'><font size=-2>Storm<br>Duration<br>(h)</font></th>
+         <!-- th bgcolor='#ffddff' --><!-- tp --><!-- br --><!-- (fraction) -->        <!-- 2005.10.17 -->
+         <!-- th bgcolor='#ffddff' --><!-- ip --><!-- br --><!-- (ratio) -->
+         <th bgcolor='#ccffff'><font size=-2>10-min<br>Peak Rainfall Intensity<br>(in h<sup>-1</sup>)</font></th>
+         <th bgcolor='#ccffff'><font size=-2>30-min<br>Peak Rainfall Intensity<br>(in h<sup>-1</sup>)</font></th>
+         <th bgcolor='#ccffff'><font size=-2>Storm Date</font></th>
+        </tr>
+        <tr>
+         <th bgcolor='#ccffff'><font size=-2>1</font></th>
+         <td align=right><font size=-2>     2.53</font></td>
+         <td align=right><font size=-2>     3.11</font></td>
+         <td align=right><font size=-2>3.91</font></td>
+         <!-- td align=right --><!-- 0.07 --><!-- /td -->	<!-- 2005.10.17 -->
+         <!-- td align=right --><!-- 7.042 --><!-- /td -->
+         <td align=right><font size=-2>     4.85</font></td>
+         <td align=right><font size=-2>     3.70</font></td>
+         <td align=right><font size=-2>April&nbsp;8<br>year 29</font></td>
+        </tr>
+            <tr>
+             <th bgcolor='#ccffff'><font size=-2><a onMouseOver="window.status='7.5% probability';return true" onMouseOut="window.status=''; return true">5</a><br>(20-year)</font></th>
+             <td align=right><font size=-2><b>     1.67</b></font></td>
+             <td align=right><font size=-2><b>     2.99</b></font></td>
+             <td align=right><font size=-2><b>7.27</b></font></td>
+             <!-- td align=right --><!-- b --><!-- 0.08 --><!-- /b --><!-- /td -->        <!-- 2005.10.17 -->
+             <!-- td align=right --><!-- b --><!-- 11.963 --><!-- /b --><!-- /td -->
+             <td align=right><font size=-2><b>     4.30</b></font></td>
+             <td align=right><font size=-2><b>     3.35</b></font></td>
+
+             <td align=right><font size=-2><b>June&nbsp;26<br>year 64</b></font></td>
+
+            </tr>
+            <tr>
+             <th bgcolor='#ccffff'><font size=-2><a onMouseOver="window.status='7.5% probability';return true" onMouseOut="window.status=''; return true">10</a><br>(10-year)</font></th>
+             <td align=right><font size=-2><b>     1.27</b></font></td>
+             <td align=right><font size=-2><b>     2.18</b></font></td>
+             <td align=right><font size=-2><b>3.81</b></font></td>
+             <!-- td align=right --><!-- b --><!-- 0.03 --><!-- /b --><!-- /td -->        <!-- 2005.10.17 -->
+             <!-- td align=right --><!-- b --><!-- 12.103 --><!-- /b --><!-- /td -->
+             <td align=right><font size=-2><b>     5.38</b></font></td>
+             <td align=right><font size=-2><b>     3.47</b></font></td>
+
+             <td align=right><font size=-2><b>March&nbsp;12<br>year 46</b></font></td>
+
+            </tr>
+            <tr>
+             <th bgcolor='#ccffff'><font size=-2><a onMouseOver="window.status='20% probability';return true" onMouseOut="window.status=''; return true">20</a><br>(5-year)</font></th>
+             <td align=right><font size=-2><b>     0.86</b></font></td>
+             <td align=right><font size=-2><b>     1.88</b></font></td>
+             <td align=right><font size=-2><b>7.28</b></font></td>
+             <!-- td align=right --><!-- b --><!-- 0.01 --><!-- /b --><!-- /td -->        <!-- 2005.10.17 -->
+             <!-- td align=right --><!-- b --><!-- 25.949 --><!-- /b --><!-- /td -->
+             <td align=right><font size=-2><b>     5.06</b></font></td>
+             <td align=right><font size=-2><b>     3.13</b></font></td>
+
+             <td align=right><font size=-2><b>May&nbsp;9<br>year 8</b></font></td>
+
+            </tr>
+            <tr>
+             <th bgcolor='#ccffff'><font size=-2><a onMouseOver="window.status='27.5% probability';return true" onMouseOut="window.status=''; return true">50</a><br>(2-year)</font></th>
+             <td align=right><font size=-2><b>     0.46</b></font></td>
+             <td align=right><font size=-2><b>     1.25</b></font></td>
+             <td align=right><font size=-2><b>4.78</b></font></td>
+             <!-- td align=right --><!-- b --><!-- 0.18 --><!-- /b --><!-- /td -->        <!-- 2005.10.17 -->
+             <!-- td align=right --><!-- b --><!-- 12.964 --><!-- /b --><!-- /td -->
+             <td align=right><font size=-2><b>     2.73</b></font></td>
+             <td align=right><font size=-2><b>     1.86</b></font></td>
+
+             <td align=right><font size=-2><b>May&nbsp;20<br>year 80</b></font></td>
+
+            </tr>
+            <tr>
+             <th bgcolor='#ccffff'><font size=-2><a onMouseOver="window.status='37.5% probability';return true" onMouseOut="window.status=''; return true">75</a><br>(1<sup>1</sup>/<sub>3</sub>-year)</font></th>
+             <td align=right><font size=-2><b>     0.27</b></font></td>
+             <td align=right><font size=-2><b>     0.98</b></font></td>
+             <td align=right><font size=-2><b>1.48</b></font></td>
+             <!-- td align=right --><!-- b --><!-- 0.11 --><!-- /b --><!-- /td -->        <!-- 2005.10.17 -->
+             <!-- td align=right --><!-- b --><!-- 6.93 --><!-- /b --><!-- /td -->
+             <td align=right><font size=-2><b>     3.17</b></font></td>
+             <td align=right><font size=-2><b>     1.77</b></font></td>
+
+             <td align=right><font size=-2><b>August&nbsp;27<br>year 42</b></font></td>
+
+            </tr>
+
+     </table>

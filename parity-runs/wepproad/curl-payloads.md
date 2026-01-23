@@ -1,0 +1,119 @@
+## default
+```
+curl 'http://localhost:8081/cgi-bin/fswepp/wr/wr.pl' \
+-X 'POST' \
+-H 'Content-Type: application/x-www-form-urlencoded' \
+-H 'Pragma: no-cache' \
+-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+-H 'Sec-Fetch-Site: same-origin' \
+-H 'Accept-Language: en-US,en;q=0.9' \
+-H 'Cache-Control: no-cache' \
+-H 'Sec-Fetch-Mode: navigate' \
+-H 'Accept-Encoding: gzip, deflate' \
+-H 'Origin: http://localhost:8081' \
+-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \
+-H 'Referer: http://localhost:8081/cgi-bin/fswepp/wr/wepproad.pl' \
+-H 'Upgrade-Insecure-Requests: 1' \
+-H 'Content-Length: 209' \
+-H 'Connection: keep-alive' \
+-H 'Sec-Fetch-Dest: document' \
+-H 'Cookie: FSWEPPuser=1edb' \
+-H 'Priority: u=0, i' \
+--data 'Climate=..%2Fclimates%2Fal010831&SoilType=clay&Rock=20&SlopeType=inveg&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=130&surface=native&traffic=high&years=30&ActionW=Running...&weppversion=2010&climate_name=&units=ft'
+```
+
+## run 2
+```
+curl 'http://localhost:8081/cgi-bin/fswepp/wr/wr.pl' \
+-X 'POST' \
+-H 'Content-Type: application/x-www-form-urlencoded' \
+-H 'Pragma: no-cache' \
+-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+-H 'Sec-Fetch-Site: same-origin' \
+-H 'Accept-Language: en-US,en;q=0.9' \
+-H 'Cache-Control: no-cache' \
+-H 'Sec-Fetch-Mode: navigate' \
+-H 'Accept-Encoding: gzip, deflate' \
+-H 'Origin: http://localhost:8081' \
+-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \
+-H 'Referer: http://localhost:8081/cgi-bin/fswepp/wr/wepproad.pl' \
+-H 'Upgrade-Insecure-Requests: 1' \
+-H 'Content-Length: 211' \
+-H 'Connection: keep-alive' \
+-H 'Sec-Fetch-Dest: document' \
+-H 'Cookie: FSWEPPuser=1edb' \
+-H 'Priority: u=0, i' \
+--data 'Climate=..%2Fclimates%2Fco052220&SoilType=silt&Rock=20&SlopeType=outrut&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=130&surface=graveled&traffic=low&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'
+```
+
+## run 3
+```
+curl 'http://localhost:8081/cgi-bin/fswepp/wr/wr.pl' \
+-X 'POST' \
+-H 'Content-Type: application/x-www-form-urlencoded' \
+-H 'Pragma: no-cache' \
+-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+-H 'Sec-Fetch-Site: same-origin' \
+-H 'Accept-Language: en-US,en;q=0.9' \
+-H 'Cache-Control: no-cache' \
+-H 'Sec-Fetch-Mode: navigate' \
+-H 'Accept-Encoding: gzip, deflate' \
+-H 'Origin: http://localhost:8081' \
+-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \
+-H 'Referer: http://localhost:8081/cgi-bin/fswepp/wr/wepproad.pl' \
+-H 'Upgrade-Insecure-Requests: 1' \
+-H 'Content-Length: 208' \
+-H 'Connection: keep-alive' \
+-H 'Sec-Fetch-Dest: document' \
+-H 'Cookie: FSWEPPuser=1edb' \
+-H 'Priority: u=0, i' \
+--data 'Climate=..%2Fclimates%2Faz023010&SoilType=loam&Rock=20&SlopeType=inbare&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=130&surface=paved&traffic=low&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'
+```
+
+## run 4
+```
+curl 'http://localhost:8081/cgi-bin/fswepp/wr/wr.pl' \
+-X 'POST' \
+-H 'Content-Type: application/x-www-form-urlencoded' \
+-H 'Pragma: no-cache' \
+-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+-H 'Sec-Fetch-Site: same-origin' \
+-H 'Accept-Language: en-US,en;q=0.9' \
+-H 'Cache-Control: no-cache' \
+-H 'Sec-Fetch-Mode: navigate' \
+-H 'Accept-Encoding: gzip, deflate' \
+-H 'Origin: http://localhost:8081' \
+-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \
+-H 'Referer: http://localhost:8081/cgi-bin/fswepp/wr/wepproad.pl' \
+-H 'Upgrade-Insecure-Requests: 1' \
+-H 'Content-Length: 212' \
+-H 'Connection: keep-alive' \
+-H 'Sec-Fetch-Dest: document' \
+-H 'Cookie: FSWEPPuser=1edb' \
+-H 'Priority: u=0, i' \
+--data 'Climate=..%2Fclimates%2Fwv461570&SoilType=loam&Rock=20&SlopeType=outunrut&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=130&surface=native&traffic=none&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'
+```
+
+## run 5
+```
+curl 'http://localhost:8081/cgi-bin/fswepp/wr/wr.pl' \
+-X 'POST' \
+-H 'Content-Type: application/x-www-form-urlencoded' \
+-H 'Pragma: no-cache' \
+-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+-H 'Sec-Fetch-Site: same-origin' \
+-H 'Accept-Language: en-US,en;q=0.9' \
+-H 'Cache-Control: no-cache' \
+-H 'Sec-Fetch-Mode: navigate' \
+-H 'Accept-Encoding: gzip, deflate' \
+-H 'Origin: http://localhost:8081' \
+-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \
+-H 'Referer: http://localhost:8081/cgi-bin/fswepp/wr/wepproad.pl' \
+-H 'Upgrade-Insecure-Requests: 1' \
+-H 'Content-Length: 209' \
+-H 'Connection: keep-alive' \
+-H 'Sec-Fetch-Dest: document' \
+-H 'Cookie: FSWEPPuser=1edb' \
+-H 'Priority: u=0, i' \
+--data 'Climate=..%2Fclimates%2Fco052220&SoilType=sand&Rock=20&SlopeType=outrut&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=39&surface=native&traffic=high&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'
+```

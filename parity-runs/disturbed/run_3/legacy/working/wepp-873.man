@@ -1,0 +1,287 @@
+98.4
+#
+#	Created for Disturbed WEPP by wd.pl (v. 2026.01.21)
+#	Numbers by: Bill Elliot (USFS) et alia
+#
+
+2	# number of OFEs
+10	# (total) years in simulation
+
+#################
+# Plant Section #
+#################
+
+2	# looper; number of Plant scenarios Sod.plt Sod.plt
+
+Sod_G_plt
+Sod Grass Community
+With no Senescence or decomposition
+W. Elliot 05/10
+1  #landuse
+WeppWillSet
+14.00000 3.00000 0.00000 2.00000 5.00000 5.00000 0.00000 1.00000 1.00000 0.00500
+0.50000 1.00000 0.65000 0.99000 17.00000 0.00000 0.42000 0.50000
+2  # mfo - <non fragile>
+0.00000 0.00000 20.00000 0.10000 0.10000 0.35000 0.33000 0.20000 90 40.00000
+-40.00000 6.00000 0.00000
+
+Sod_G_plt
+Sod Grass Community
+With no Senescence or decomposition
+W. Elliot 05/10
+1  #landuse
+WeppWillSet
+14.00000 3.00000 0.00000 2.00000 5.00000 5.00000 0.00000 1.00000 1.00000 0.00500
+0.50000 1.00000 0.65000 0.99000 17.00000 0.00000 0.42000 0.50000
+2  # mfo - <non fragile>
+0.00000 0.00000 20.00000 0.10000 0.10000 0.35000 0.33000 0.20000 90 40.00000
+-40.00000 6.00000 0.00000
+
+#####################
+# Operation Section #
+#####################
+
+2	# looper; number of Operation scenarios Sod.op Sod.op
+
+Sod_op
+Sod Grass Operation
+W. Elliot 05/10
+(null)
+1  #landuse
+0.0000 0.0000 0
+4 # pcode - other 
+0.0000 0.0000 0.0000 0.0000 0.0200 1.0000 0.0010 
+
+Sod_op
+Sod Grass Operation
+W. Elliot 05/10
+(null)
+1  #landuse
+0.0000 0.0000 0
+4 # pcode - other 
+0.0000 0.0000 0.0000 0.0000 0.0200 1.0000 0.0010 
+
+##############################
+# Initial Conditions Section #
+##############################
+
+2	# looper; number of Initial Conditions scenarios Sod.ini Sod.ini
+
+Sod_ini
+Initial conditions for a Sod Grass community (Blue grass buffalo grass, etc.)
+For no growth, no decomp, no senescence
+W. Elliot  05/10
+1  #landuse
+1.10000 0.40000 330 1000 0.00000 0.40
+1 # iresd  <Tah_7670>
+2 # mang perennial
+400.00000 0.02000 0.40 0.02000 0.00000
+1  # rtyp - temporary
+0.00000 0.00000 0.00000 0.00000 0.00000
+0.10000 0.10000
+
+Sod_ini
+Initial conditions for a Sod Grass community (Blue grass buffalo grass, etc.)
+For no growth, no decomp, no senescence
+W. Elliot  05/10
+1  #landuse
+1.10000 0.40000 330 1000 0.00000 0.40
+1 # iresd  <Tah_7670>
+2 # mang perennial
+400.00000 0.02000 0.40 0.02000 0.00000
+1  # rtyp - temporary
+0.00000 0.00000 0.00000 0.00000 0.00000
+0.10000 0.10000
+
+###########################
+# Surface Effects Section #
+###########################
+
+2	# Number of Surface Effects Scenarios
+
+#
+#   Surface Effects Scenario 1 of 2
+#
+Year 1
+From WEPP database
+USFS RMRS Moscow
+
+1	# landuse  - cropland
+1	# ntill - number of operations
+  2	# mdate  --- 1 / 2
+  1	# op --- Tah_****
+      0.010	# depth
+      2	# type
+
+#
+#   Surface Effects Scenario 2 of 2
+#
+Year 2
+From WEPP database
+USFS RMRS Moscow
+
+1	# landuse  - cropland
+1	# ntill - number of operations
+  2	# mdate  --- 1 / 2
+  2	# op --- Tah_****
+      0.010	# depth
+      2	# type
+
+######################
+# Contouring Section #
+######################
+
+0	# looper; number of Contouring scenarios
+
+####################
+# Drainage Section #
+####################
+
+0	# looper; number of Drainage scenarios
+
+##################
+# Yearly Section #
+##################
+
+2	# looper; number of Yearly Scenarios
+
+#
+# Yearly scenario 1 of 2
+#
+Year 1
+
+
+
+1	# landuse <cropland>
+1	# plant growth scenario
+1	# surface effect scenario
+0	# contour scenario
+0	# drainage scenario
+2	# management <perennial>
+   250	# senescence date
+   0	# perennial plant date --- 0 /0
+   0	# perennial stop growth date --- 0/0
+   0.0000	# row width
+   3	# neither cut or grazed
+
+#
+# Yearly scenario 2 of 2
+#
+Year 2
+
+
+
+1	# landuse <cropland>
+2	# plant growth scenario
+2	# surface effect scenario
+0	# contour scenario
+0	# drainage scenario
+2	# management <perennial>
+   250	# senescence date
+   0	# perennial plant date --- 0 /0
+   0	# perennial stop growth date --- 0/0
+   0.0000	# row width
+   3	# neither cut or grazed
+
+######################
+# Management Section #
+######################
+Disturbed WEPP Model
+Two OFEs for forest conditions
+W. Elliot 02/99
+
+2	# `nofe' - <number of Overland Flow Elements>
+	1	# `Initial Conditions indx' - <Sod>
+	2	# `Initial Conditions indx' - <Sod>
+10	# `nrots' - <rotation repeats..>
+1	# `nyears' - <years in rotation>
+
+#
+#       Rotation 1 : year 1 to 1
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 1>
+		1	# `YEAR indx' - <Sod>
+
+	1	# `nycrop' - <plants/yr; Year of Rotation :  1 - OFE : 2>
+		2	# `YEAR indx' - <Sod>
+
+#
+#       Rotation 2 : year 2 to 2
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  2 - OFE : 1>
+		1	# `YEAR indx' - <Sod>
+
+	1	# `nycrop' - <plants/yr; Year of Rotation :  2 - OFE : 2>
+		2	# `YEAR indx' - <Sod>
+
+#
+#       Rotation 3 : year 3 to 3
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  3 - OFE : 1>
+		1	# `YEAR indx' - <Sod>
+
+	1	# `nycrop' - <plants/yr; Year of Rotation :  3 - OFE : 2>
+		2	# `YEAR indx' - <Sod>
+
+#
+#       Rotation 4 : year 4 to 4
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  4 - OFE : 1>
+		1	# `YEAR indx' - <Sod>
+
+	1	# `nycrop' - <plants/yr; Year of Rotation :  4 - OFE : 2>
+		2	# `YEAR indx' - <Sod>
+
+#
+#       Rotation 5 : year 5 to 5
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  5 - OFE : 1>
+		1	# `YEAR indx' - <Sod>
+
+	1	# `nycrop' - <plants/yr; Year of Rotation :  5 - OFE : 2>
+		2	# `YEAR indx' - <Sod>
+
+#
+#       Rotation 6 : year 6 to 6
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  6 - OFE : 1>
+		1	# `YEAR indx' - <Sod>
+
+	1	# `nycrop' - <plants/yr; Year of Rotation :  6 - OFE : 2>
+		2	# `YEAR indx' - <Sod>
+
+#
+#       Rotation 7 : year 7 to 7
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  7 - OFE : 1>
+		1	# `YEAR indx' - <Sod>
+
+	1	# `nycrop' - <plants/yr; Year of Rotation :  7 - OFE : 2>
+		2	# `YEAR indx' - <Sod>
+
+#
+#       Rotation 8 : year 8 to 8
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  8 - OFE : 1>
+		1	# `YEAR indx' - <Sod>
+
+	1	# `nycrop' - <plants/yr; Year of Rotation :  8 - OFE : 2>
+		2	# `YEAR indx' - <Sod>
+
+#
+#       Rotation 9 : year 9 to 9
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  9 - OFE : 1>
+		1	# `YEAR indx' - <Sod>
+
+	1	# `nycrop' - <plants/yr; Year of Rotation :  9 - OFE : 2>
+		2	# `YEAR indx' - <Sod>
+
+#
+#       Rotation 10 : year 10 to 10
+#
+	1	# `nycrop' - <plants/yr; Year of Rotation :  10 - OFE : 1>
+		1	# `YEAR indx' - <Sod>
+
+	1	# `nycrop' - <plants/yr; Year of Rotation :  10 - OFE : 2>
+		2	# `YEAR indx' - <Sod>

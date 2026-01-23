@@ -1,0 +1,695 @@
+<HTML>
+ <HEAD>
+  <TITLE>WEPP:Road Results</TITLE>  
+   <script>
+
+  function showslopefile() {
+    var properties="menubar,scrollbars,resizable"
+    filewindow = window.open("","file",properties)
+    filewindow.document.open()
+    if (filewindow && filewindow.open && !filewindow.closed) {
+      filewindow.focus
+      filewindow.document.writeln("<head><title>WEPP slope file wepp-1078<\/title><\/head>")
+      filewindow.document.writeln("<body><font face='courier'><pre>")
+      filewindow.document.writeln("97.3")
+      filewindow.document.writeln("# Slope file for inbare by WEPP:Road Interface")
+      filewindow.document.writeln("3")
+      filewindow.document.writeln("100 3.96")
+      filewindow.document.writeln("2  60.96")
+      filewindow.document.writeln("0.00, 0.04  1.00, 0.04")
+      filewindow.document.writeln("3  4.57")
+      filewindow.document.writeln("0.00, 0.04  0.05, 0.50  1.00, 0.50")
+      filewindow.document.writeln("3  39.62")
+      filewindow.document.writeln("0.00, 0.50  0.05, 0.25  1.00, 0.25")
+      filewindow.document.writeln("<\/pre><\/font><\/body><\/html>")
+      filewindow.document.close()
+    }
+    return false
+  }
+
+  function showsoilfile() {
+    var properties="menubar,scrollbars,resizable"
+    filewindow = window.open("","file",properties)
+    filewindow.document.open()
+    if (filewindow && filewindow.open && !filewindow.closed) {
+      filewindow.focus
+      filewindow.document.writeln(" <head><title>WEPP soil file wepp-1078<\/title><\/head>")
+      filewindow.document.writeln(" <body><font face='courier'><pre>")
+//    filewindow.document.writeln("../working/wepp-1078.sol")
+      filewindow.document.writeln("98.4")
+      filewindow.document.writeln("#")
+      filewindow.document.writeln("#       File:    3ploam1.sol")
+      filewindow.document.writeln("#       Created: 02 August 2000; 08 Oct 2003")
+      filewindow.document.writeln("#       Author:  H. Rhee; Darrell Anderson")
+      filewindow.document.writeln("#       Contact: Bill Elliot, Soil and Water Engineering")
+      filewindow.document.writeln("#                U.S. Forest Service Rocky Mountain Research Station")
+      filewindow.document.writeln("#                https://forest.moscowfsl.wsu.edu/fswepp")
+      filewindow.document.writeln("#")
+      filewindow.document.writeln("# Paved surface for insloped, bare ditch condition (w/ paved surface Ki & Ks and native surface Kr & tau_c)")
+      filewindow.document.writeln("Plume for road (08/02/00)")
+      filewindow.document.writeln("3       0")
+      filewindow.document.writeln("'Road'  'loam'	1	0.6	0.5	1.25	7.5e-05	2.	0.08")
+      filewindow.document.writeln("200     45      20      0.01    16      95")
+      filewindow.document.writeln("'Fill'  'loam'          1       0.18    0.45   2.3e+006    0.0003    2.      22")
+      filewindow.document.writeln("400     40      20      3       17      42.5")
+      filewindow.document.writeln("'Forest' 'loam'         1       0.05    0.40   1.2e+005    0.0002    2.      26")
+      filewindow.document.writeln("400     40      20      6       18      20")
+      filewindow.document.writeln("<\/pre><\/font><\/body><\/html>")
+      filewindow.document.close()
+    }
+    return false
+  }
+
+  function showresponsefile() {
+    var properties="menubar,scrollbars,resizable"
+    filewindow = window.open("","file",properties)
+    filewindow.document.open()
+    if (filewindow && filewindow.open && !filewindow.closed) {
+      filewindow.focus
+      filewindow.document.writeln("<head><title>WEPP response file wepp-1078<\/title><\/head>")
+      filewindow.document.writeln("<body><pre>")
+      filewindow.document.writeln("97.3")
+      filewindow.document.writeln("y")
+      filewindow.document.writeln("1")
+      filewindow.document.writeln("1")
+      filewindow.document.writeln("n")
+      filewindow.document.writeln("1")
+      filewindow.document.writeln("n")
+      filewindow.document.writeln("../working/wepp-1078.out")
+      filewindow.document.writeln("n")
+      filewindow.document.writeln("n")
+      filewindow.document.writeln("n")
+      filewindow.document.writeln("n")
+      filewindow.document.writeln("n")
+      filewindow.document.writeln("n")
+      filewindow.document.writeln("n")
+      filewindow.document.writeln("n")
+      filewindow.document.writeln("n")
+      filewindow.document.writeln("n")
+      filewindow.document.writeln("data/3inslope.man")
+      filewindow.document.writeln("../working/wepp-1078.slp")
+      filewindow.document.writeln("../working/wepp-1078.cli")
+      filewindow.document.writeln("../working/wepp-1078.sol")
+      filewindow.document.writeln("0")
+      filewindow.document.writeln("50")
+      filewindow.document.writeln("0")
+      filewindow.document.writeln("<\/pre><\/body><\/html>")
+      filewindow.document.close()
+    }
+    return false
+  }
+
+  function showextendedoutput() {
+    var properties="menubar,scrollbars,resizable"
+    filewindow = window.open("","file",properties)
+    filewindow.document.open()
+    if (filewindow && filewindow.open && !filewindow.closed) {
+      $z=0
+    }
+    else {
+      return false
+    }
+    filewindow.focus
+    filewindow.document.writeln("<head><title>WEPP output file wepp-1078<\/title><\/head>")
+    filewindow.document.writeln("<body><font face='courier'><pre>")
+      filewindow.document.writeln(" Annual; abbreviated (Metric Units)                                     ")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("          USDA WATER EROSION PREDICTION PROJECT")
+      filewindow.document.writeln("          -------------------------------------")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("          HILLSLOPE PROFILE AND WATERSHED MODEL")
+      filewindow.document.writeln("                     VERSION  2010.100")
+      filewindow.document.writeln("           January 28,      2010")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("               TO REPORT PROBLEMS OR TO BE PUT ON THE MAILING")
+      filewindow.document.writeln("               LIST FOR FUTURE WEPP MODEL RELEASES, PLEASE CONTACT:")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("                    WEPP TECHNICAL SUPPORT")
+      filewindow.document.writeln("                    USDA-AGRICULTURAL RESEARCH SERVICE")
+      filewindow.document.writeln("                    NATIONAL SOIL EROSION RESEARCH LABORATORY")
+      filewindow.document.writeln("                    275 SOUTH RUSSELL STREET")
+      filewindow.document.writeln("                    WEST LAFAYETTE, IN 47907-2077  USA")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("                    PHONE: (765) 494-8673")
+      filewindow.document.writeln("                      FAX: (765) 494-5948")
+      filewindow.document.writeln("                    email:  wepp@ecn.purdue.edu")
+      filewindow.document.writeln("                      URL:  http://topsoil.nserl.purdue.edu")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("     HILLSLOPE INPUT DATA FILES - VERSION  2010.100")
+      filewindow.document.writeln("      January 28,      2010")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("    MANAGEMENT: data/3inslope.man                                 ")
+      filewindow.document.writeln(" MAN. PRACTICE: Road Section to collect water and then release through      ")
+      filewindow.document.writeln("                ditch and culvert to a fill and forest for deposition       ")
+      filewindow.document.writeln("                W. Elliot & H. Rhee 1/99  USDA Forest Service               ")
+      filewindow.document.writeln("         SLOPE: ../working/wepp-1078.slp                          ")
+      filewindow.document.writeln("       CLIMATE: ../working/wepp-1078.cli                          ")
+      filewindow.document.writeln("       Station:  FLAGSTAFF WB AP AZ                             CLIGEN VERSION  4.31")
+      filewindow.document.writeln("          SOIL: ../working/wepp-1078.sol                          ")
+      filewindow.document.writeln("      PLANE  1 Road                loam                ")
+      filewindow.document.writeln("      PLANE  2 Fill                loam                ")
+      filewindow.document.writeln("      PLANE  3 Forest              loam                ")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("     ANNUAL AVERAGE SUMMARIES")
+      filewindow.document.writeln("     ------------------------")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("I.   RAINFALL AND RUNOFF SUMMARY")
+      filewindow.document.writeln("     -------- --- ------ -------")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("      total summary:  years    1 -   50")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("      4131 storms produced                        29167.30 mm of precipitation")
+      filewindow.document.writeln("      1000 rain storm runoff events produced        593.17 mm of runoff")
+      filewindow.document.writeln("      1168 snow melts and/or")
+      filewindow.document.writeln("             events during winter produced          586.51 mm of runoff")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("      annual averages")
+      filewindow.document.writeln("      ---------------")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("        Number of years                                   50")
+      filewindow.document.writeln("        Mean annual precipitation                     583.35    mm")
+      filewindow.document.writeln("        Mean annual runoff from rainfall               11.86    mm")
+      filewindow.document.writeln("        Mean annual runoff from snow melt")
+      filewindow.document.writeln("          and/or rain storm during winter              11.73    mm")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("II.  ON SITE EFFECTS  ON SITE EFFECTS  ON SITE EFFECTS")
+      filewindow.document.writeln("     ---------------  ---------------  ---------------")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("  A.  AREA OF NET SOIL LOSS")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("      ** Soil Loss (Avg. of Net Detachment Areas) =    0.268 kg/m2 **")
+      filewindow.document.writeln("      ** Maximum Soil Loss  =    1.657 kg/m2 at   61.23 meters **")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("      Area of    Soil Loss   Soil Loss   MAX   MAX Loss   MIN   MIN Loss")
+      filewindow.document.writeln("      Net Loss      MEAN      STDEV      Loss    Point    Loss   Point")
+      filewindow.document.writeln("        (m)       (kg/m2)     (kg/m2)  (kg/m2)    (m)    (kg/m2)  (m)")
+      filewindow.document.writeln("------------------------------------------------------------------------")
+      filewindow.document.writeln("   0.00-  65.53    0.309     0.672      1.657   61.23     0.000     0.61")
+      filewindow.document.writeln("  65.93-  66.32    0.132     0.000      0.132   66.32     0.132    66.32")
+      filewindow.document.writeln("  84.15-  84.55    0.002     0.000      0.002   84.55     0.002    84.55")
+      filewindow.document.writeln("  88.51-  89.30    0.029     0.000      0.030   88.91     0.029    89.30")
+      filewindow.document.writeln("  89.70-  90.89    0.027     0.003      0.029   90.09     0.024    90.89")
+      filewindow.document.writeln("  92.47-  94.06    0.028     0.000      0.028   92.87     0.028    94.06")
+      filewindow.document.writeln("  94.85-  98.41    0.028     0.000      0.028   95.25     0.027    98.41")
+      filewindow.document.writeln("  99.21- 102.77    0.025     0.004      0.027   99.60     0.016   102.77")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("      Single Point     Single Point")
+      filewindow.document.writeln("       Soil Area          Loss")
+      filewindow.document.writeln("         (m)             (kg/m2/)")
+      filewindow.document.writeln("      ------------------------------")
+      filewindow.document.writeln("        66.32             0.132")
+      filewindow.document.writeln("        84.55             0.002")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("  B.  AREA OF SOIL DEPOSITION")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("      ** Soil Deposition (Avg. of Net Deposition Areas) =    -0.473 kg/m2 **")
+      filewindow.document.writeln("      ** Maximum Soil Deposition  =    -1.529 kg/m2 at   70.68 meters **")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("      Area of    Soil Dep   Soil Dep     MAX    MAX Dep   MIN   MIN Dep")
+      filewindow.document.writeln("      Net Dep       MEAN     STDEV       Dep     Point    Dep    Point")
+      filewindow.document.writeln("        (m)       (kg/m2)    (kg/m2)   (kg/m2)    (m)    (kg/m2)  (m)")
+      filewindow.document.writeln("------------------------------------------------------------------------")
+      filewindow.document.writeln("  65.53-  65.93   -0.032     0.000     -0.032   65.93    -0.032    65.93")
+      filewindow.document.writeln("  66.32-  84.15   -0.673     0.391     -1.529   70.68    -0.008    84.15")
+      filewindow.document.writeln("  84.55-  88.51   -0.134     0.068     -0.208   88.11    -0.024    87.32")
+      filewindow.document.writeln("  89.30-  89.70   -0.067     0.000     -0.067   89.70    -0.067    89.70")
+      filewindow.document.writeln("  90.89-  92.47   -0.037     0.040     -0.077   92.08    -0.002    92.47")
+      filewindow.document.writeln("  94.06-  94.85   -0.078     0.061     -0.121   94.85    -0.035    94.45")
+      filewindow.document.writeln("  98.41-  99.21   -0.040     0.001     -0.041   98.81    -0.040    99.21")
+      filewindow.document.writeln(" 102.77- 105.15   -0.250     0.208     -0.549  105.15    -0.010   103.17")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("      Single Point     Single Point")
+      filewindow.document.writeln("       Soil Area          Dep")
+      filewindow.document.writeln("         (m)             (kg/m2/)")
+      filewindow.document.writeln("      ------------------------------")
+      filewindow.document.writeln("        65.93            -0.032")
+      filewindow.document.writeln("        89.70            -0.067")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("  C.  SOIL LOSS/DEPOSITION ALONG SLOPE PROFILE")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("          Profile distances are from top to bottom of hillslope")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("")
+      filewindow.document.writeln(" distance soil  flow    distance   soil  flow    distance   soil  flow")
+      filewindow.document.writeln("    (m)   loss  elem       (m)     loss  elem       (m)     loss  elem")
+      filewindow.document.writeln("         (kg/m2)                  (kg/m2)                  (kg/m2)")
+      filewindow.document.writeln("------------------------------------------------------------------------")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("   0.61     0.000  1       61.01     0.016  2       65.93    -0.032  3")
+      filewindow.document.writeln("   1.22     0.000  1       61.05     0.182  2       66.32     0.132  3")
+      filewindow.document.writeln("   1.83     0.000  1       61.10     0.513  2       66.72    -0.147  3")
+      filewindow.document.writeln("   2.44     0.000  1       61.14     0.936  2       67.11    -0.225  3")
+      filewindow.document.writeln("   3.05     0.000  1       61.19     1.412  2       67.51    -0.674  3")
+      filewindow.document.writeln("   3.66     0.001  1       61.23     1.657  2       67.91    -0.883  3")
+      filewindow.document.writeln("   4.27     0.002  1       61.28     1.650  2       68.30    -0.615  3")
+      filewindow.document.writeln("   4.88     0.003  1       61.33     1.609  2       68.70    -0.619  3")
+      filewindow.document.writeln("   5.49     0.005  1       61.37     1.636  2       69.10    -0.771  3")
+      filewindow.document.writeln("   6.10     0.007  1       61.42     1.613  2       69.49    -1.017  3")
+      filewindow.document.writeln("   6.71     0.010  1       61.46     1.622  2       69.89    -1.097  3")
+      filewindow.document.writeln("   7.32     0.013  1       61.51     1.602  2       70.28    -1.061  3")
+      filewindow.document.writeln("   7.92     0.017  1       61.55     1.539  2       70.68    -1.529  3")
+      filewindow.document.writeln("   8.53     0.020  1       61.60     1.565  2       71.08    -1.489  3")
+      filewindow.document.writeln("   9.14     0.024  1       61.65     1.599  2       71.47    -1.383  3")
+      filewindow.document.writeln("   9.75     0.028  1       61.69     1.548  2       71.87    -1.079  3")
+      filewindow.document.writeln("  10.36     0.032  1       61.74     1.581  2       72.27    -1.023  3")
+      filewindow.document.writeln("  10.97     0.037  1       61.78     1.418  2       72.66    -1.302  3")
+      filewindow.document.writeln("  11.58     0.041  1       61.83     1.471  2       73.06    -1.143  3")
+      filewindow.document.writeln("  12.19     0.046  1       61.87     1.472  2       73.45    -1.267  3")
+      filewindow.document.writeln("  12.80     0.050  1       61.92     1.450  2       73.85    -0.924  3")
+      filewindow.document.writeln("  13.41     0.055  1       61.97     1.443  2       74.25    -0.620  3")
+      filewindow.document.writeln("  14.02     0.060  1       62.01     1.550  2       74.64    -0.789  3")
+      filewindow.document.writeln("  14.63     0.065  1       62.06     1.452  2       75.04    -0.833  3")
+      filewindow.document.writeln("  15.24     0.070  1       62.10     1.308  2       75.44    -0.411  3")
+      filewindow.document.writeln("  15.85     0.075  1       62.15     1.227  2       75.83    -0.478  3")
+      filewindow.document.writeln("  16.46     0.080  1       62.19     1.258  2       76.23    -0.424  3")
+      filewindow.document.writeln("  17.07     0.085  1       62.24     1.520  2       76.62    -0.697  3")
+      filewindow.document.writeln("  17.68     0.090  1       62.29     1.315  2       77.02    -0.547  3")
+      filewindow.document.writeln("  18.29     0.095  1       62.33     1.042  2       77.42    -0.580  3")
+      filewindow.document.writeln("  18.90     0.100  1       62.38     1.113  2       77.81    -0.690  3")
+      filewindow.document.writeln("  19.51     0.106  1       62.42     1.421  2       78.21    -0.854  3")
+      filewindow.document.writeln("  20.12     0.111  1       62.47     1.390  2       78.60    -0.483  3")
+      filewindow.document.writeln("  20.73     0.117  1       62.51     1.402  2       79.00    -0.265  3")
+      filewindow.document.writeln("  21.34     0.122  1       62.56     1.014  2       79.40    -0.647  3")
+      filewindow.document.writeln("  21.95     0.128  1       62.61     1.423  2       79.79    -0.575  3")
+      filewindow.document.writeln("  22.56     0.134  1       62.65     1.419  2       80.19    -0.341  3")
+      filewindow.document.writeln("  23.16     0.140  1       62.70     1.276  2       80.59    -0.431  3")
+      filewindow.document.writeln("  23.77     0.146  1       62.74     1.435  2       80.98    -0.516  3")
+      filewindow.document.writeln("  24.38     0.152  1       62.79     1.305  2       81.38    -0.062  3")
+      filewindow.document.writeln("  24.99     0.158  1       62.83     1.122  2       81.77    -0.079  3")
+      filewindow.document.writeln("  25.60     0.164  1       62.88     1.440  2       82.17    -0.082  3")
+      filewindow.document.writeln("  26.21     0.170  1       62.93     1.293  2       82.57    -0.330  3")
+      filewindow.document.writeln("  26.82     0.177  1       62.97     1.082  2       82.96    -0.603  3")
+      filewindow.document.writeln("  27.43     0.183  1       63.02     1.202  2       83.36    -0.409  3")
+      filewindow.document.writeln("  28.04     0.190  1       63.06     1.144  2       83.76    -0.287  3")
+      filewindow.document.writeln("  28.65     0.196  1       63.11     1.143  2       84.15    -0.008  3")
+      filewindow.document.writeln("  29.26     0.202  1       63.15     1.247  2       84.55     0.002  3")
+      filewindow.document.writeln("  29.87     0.209  1       63.20     1.050  2       84.94    -0.158  3")
+      filewindow.document.writeln("  30.48     0.216  1       63.25     0.998  2       85.34    -0.141  3")
+      filewindow.document.writeln("  31.09     0.222  1       63.29     1.175  2       85.74    -0.189  3")
+      filewindow.document.writeln("  31.70     0.229  1       63.34     1.163  2       86.13    -0.180  3")
+      filewindow.document.writeln("  32.31     0.236  1       63.38     0.956  2       86.53    -0.181  3")
+      filewindow.document.writeln("  32.92     0.242  1       63.43     0.947  2       86.92    -0.065  3")
+      filewindow.document.writeln("  33.53     0.249  1       63.47     1.295  2       87.32    -0.024  3")
+      filewindow.document.writeln("  34.14     0.256  1       63.52     0.892  2       87.72    -0.163  3")
+      filewindow.document.writeln("  34.75     0.263  1       63.56     1.257  2       88.11    -0.208  3")
+      filewindow.document.writeln("  35.36     0.270  1       63.61     1.169  2       88.51    -0.034  3")
+      filewindow.document.writeln("  35.97     0.277  1       63.66     0.924  2       88.91     0.030  3")
+      filewindow.document.writeln("  36.58     0.284  1       63.70     0.891  2       89.30     0.029  3")
+      filewindow.document.writeln("  37.19     0.291  1       63.75     1.303  2       89.70    -0.067  3")
+      filewindow.document.writeln("  37.80     0.298  1       63.79     0.992  2       90.09     0.029  3")
+      filewindow.document.writeln("  38.40     0.305  1       63.84     0.934  2       90.49     0.029  3")
+      filewindow.document.writeln("  39.01     0.312  1       63.88     0.810  2       90.89     0.024  3")
+      filewindow.document.writeln("  39.62     0.320  1       63.93     0.840  2       91.28    -0.067  3")
+      filewindow.document.writeln("  40.23     0.327  1       63.98     1.202  2       91.68    -0.003  3")
+      filewindow.document.writeln("  40.84     0.335  1       64.02     1.322  2       92.08    -0.077  3")
+      filewindow.document.writeln("  41.45     0.342  1       64.07     1.317  2       92.47    -0.002  3")
+      filewindow.document.writeln("  42.06     0.350  1       64.11     1.309  2       92.87     0.028  3")
+      filewindow.document.writeln("  42.67     0.358  1       64.16     1.232  2       93.26     0.028  3")
+      filewindow.document.writeln("  43.28     0.366  1       64.20     1.169  2       93.66     0.028  3")
+      filewindow.document.writeln("  43.89     0.374  1       64.25     1.078  2       94.06     0.028  3")
+      filewindow.document.writeln("  44.50     0.382  1       64.30     1.167  2       94.45    -0.035  3")
+      filewindow.document.writeln("  45.11     0.390  1       64.34     0.754  2       94.85    -0.121  3")
+      filewindow.document.writeln("  45.72     0.398  1       64.39     1.289  2       95.25     0.028  3")
+      filewindow.document.writeln("  46.33     0.406  1       64.43     1.160  2       95.64     0.028  3")
+      filewindow.document.writeln("  46.94     0.414  1       64.48     0.977  2       96.04     0.028  3")
+      filewindow.document.writeln("  47.55     0.422  1       64.52     0.794  2       96.43     0.028  3")
+      filewindow.document.writeln("  48.16     0.430  1       64.57     0.926  2       96.83     0.028  3")
+      filewindow.document.writeln("  48.77     0.438  1       64.62     0.795  2       97.23     0.027  3")
+      filewindow.document.writeln("  49.38     0.446  1       64.66     0.956  2       97.62     0.027  3")
+      filewindow.document.writeln("  49.99     0.454  1       64.71     1.242  2       98.02     0.027  3")
+      filewindow.document.writeln("  50.60     0.462  1       64.75     0.872  2       98.41     0.027  3")
+      filewindow.document.writeln("  51.21     0.470  1       64.80     1.014  2       98.81    -0.041  3")
+      filewindow.document.writeln("  51.82     0.478  1       64.84     1.163  2       99.21    -0.040  3")
+      filewindow.document.writeln("  52.43     0.486  1       64.89     1.185  2       99.60     0.027  3")
+      filewindow.document.writeln("  53.04     0.494  1       64.94     1.167  2      100.00     0.027  3")
+      filewindow.document.writeln("  53.64     0.502  1       64.98     1.134  2      100.40     0.027  3")
+      filewindow.document.writeln("  54.25     0.510  1       65.03     0.998  2      100.79     0.027  3")
+      filewindow.document.writeln("  54.86     0.518  1       65.07     1.235  2      101.19     0.027  3")
+      filewindow.document.writeln("  55.47     0.526  1       65.12     1.224  2      101.58     0.027  3")
+      filewindow.document.writeln("  56.08     0.534  1       65.16     1.142  2      101.98     0.026  3")
+      filewindow.document.writeln("  56.69     0.542  1       65.21     1.184  2      102.38     0.023  3")
+      filewindow.document.writeln("  57.30     0.550  1       65.26     1.020  2      102.77     0.016  3")
+      filewindow.document.writeln("  57.91     0.558  1       65.30     1.218  2      103.17    -0.010  3")
+      filewindow.document.writeln("  58.52     0.566  1       65.35     1.155  2      103.57    -0.078  3")
+      filewindow.document.writeln("  59.13     0.574  1       65.39     1.203  2      103.96    -0.159  3")
+      filewindow.document.writeln("  59.74     0.583  1       65.44     1.077  2      104.36    -0.278  3")
+      filewindow.document.writeln("  60.35     0.591  1       65.48     1.142  2      104.75    -0.426  3")
+      filewindow.document.writeln("  60.96     0.599  1       65.53     0.197  2      105.15    -0.549  3")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("note:  (+) soil loss - detachment     (-) soil loss - deposition")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("III. OFF SITE EFFECTS  OFF SITE EFFECTS  OFF SITE EFFECTS")
+      filewindow.document.writeln("     ----------------  ----------------  ----------------")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("     A.  AVERAGE ANNUAL SEDIMENT LEAVING PROFILE")
+      filewindow.document.writeln("             7.291   kg/m of width")
+      filewindow.document.writeln("            28.873     kg (based on profile width of      3.960      m)")
+      filewindow.document.writeln("             0.693   t/ha (assuming contributions from     0.042     ha)")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("     B.  SEDIMENT CHARACTERISTICS AND ENRICHMENT")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("     Sediment particle information leaving profile")
+      filewindow.document.writeln("-------------------------------------------------------------------------------")
+      filewindow.document.writeln("                                 Particle Composition         Detached Fraction")
+      filewindow.document.writeln("Class  Diameter  Specific  ---------------------------------  Sediment  In Flow")
+      filewindow.document.writeln("         (mm)    Gravity   % Sand   % Silt   % Clay   % O.M.  Fraction  Exiting")
+      filewindow.document.writeln("-------------------------------------------------------------------------------")
+      filewindow.document.writeln("  1     0.002      2.60      0.0      0.0    100.0     30.0     0.052    0.055")
+      filewindow.document.writeln("  2     0.010      2.65      0.0    100.0      0.0      0.0     0.099    0.096")
+      filewindow.document.writeln("  3     0.030      1.80      0.0     66.7     33.3     10.0     0.301    0.283")
+      filewindow.document.writeln("  4     0.400      1.60     64.5     24.1     11.4      3.4     0.417    0.430")
+      filewindow.document.writeln("  5     0.200      2.65    100.0      0.0      0.0      0.0     0.131    0.136")
+      filewindow.document.writeln("-------------------------------------------------------------------------------")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("")
+      filewindow.document.writeln("     Average annual SSA enrichment ratio leaving profile =   0.99")
+      filewindow.document.writeln("<\/pre><\/font><\/body><\/html>")
+    filewindow.document.close()
+    return false
+  }
+
+  function showcligenparfile() {
+    var properties="menubar,scrollbars,resizable"
+    filewindow = window.open("","file",properties)
+    filewindow.document.open()
+    if (filewindow && filewindow.open && !filewindow.closed) {
+      filewindow.focus
+      filewindow.document.writeln("<head><title>WEPP weather file wepp-1078<\/title><\/head>")
+      filewindow.document.writeln("<body><pre>")
+      filewindow.document.writeln(" FLAGSTAFF WB AP AZ                       23010 0")
+      filewindow.document.writeln(" LATT=  35.13 LONG=-111.67 YEARS= 43. TYPE= 3")
+      filewindow.document.writeln(" ELEVATION = 6990. TP5 = 2.00 TP6= 3.50")
+      filewindow.document.writeln(" MEAN P    .27   .29   .28   .24   .17   .19   .23   .25   .28   .32   .35   .33")
+      filewindow.document.writeln(" S DEV P   .31   .39   .32   .27   .19   .32   .32   .37   .44   .42   .47   .46")
+      filewindow.document.writeln(" SKEW  P  2.05  2.81  2.87  1.93  1.95  4.31  3.19  3.37  2.99  2.18  2.60  3.03")
+      filewindow.document.writeln(" P(W/W)    .58   .52   .55   .52   .44   .46   .56   .52   .48   .47   .48   .54")
+      filewindow.document.writeln(" P(W/D)    .13   .15   .17   .11   .09   .06   .27   .28   .14   .10   .11   .12")
+      filewindow.document.writeln(" TMAX AV 42.22 45.19 49.10 58.23 67.20 77.95 81.68 79.05 73.89 63.87 51.01 43.72")
+      filewindow.document.writeln(" TMIN AV 16.23 18.11 21.43 26.91 33.43 41.18 50.37 48.80 41.07 31.06 22.06 16.88")
+      filewindow.document.writeln(" SD TMAX  9.03  9.55 10.01  9.78  8.76  7.32  5.12  5.25  6.69  9.48 10.18 10.01")
+      filewindow.document.writeln(" SD TMIN  8.52  8.13  7.31  6.48  6.31  6.94  4.83  4.96  6.09  6.68  7.62  8.30")
+      filewindow.document.writeln(" SOL.RAD  291.  399.  516.  628.  714.  729.  648.  603.  556.  439.  334.  271.")
+      filewindow.document.writeln(" SD SOL   16.2  11.1  15.5  20.7  21.1  28.1  49.6 100.0  34.2   8.7   7.6  13.5")
+      filewindow.document.writeln(" MX .5 P   .20   .41   .22   .26   .21   .22  1.10   .70   .40   .21   .25   .14")
+      filewindow.document.writeln(" DEW PT  14.00 16.00 17.00 20.00 22.00 25.00 43.00 43.00 35.00 25.00 20.00 15.00")
+      filewindow.document.writeln("Time Pk   .693  .798  .847  .901  .911  .917  .930  .932  .938  .961  .980 1.000")
+      filewindow.document.writeln("% N       6.22  5.25  4.64  4.32  3.90  3.93  3.96  5.14  5.78  6.50  6.88  8.07")
+      filewindow.document.writeln("MEAN      2.92  3.16  3.31  3.06  3.21  3.10  3.06  2.73  2.74  2.69  2.97  2.88")
+      filewindow.document.writeln("STD DEV   1.41  1.59  1.80  1.62  1.61  1.44  1.33   .94  1.20  1.21  1.71  1.41")
+      filewindow.document.writeln("SKEW      2.28  1.86  1.61  1.77  1.45  1.25  1.53  1.44  1.93  2.63  2.77  2.30")
+      filewindow.document.writeln("% NNE     8.02  6.87  4.93  4.46  3.62  3.47  3.20  3.95  5.45  7.09  7.84  8.96")
+      filewindow.document.writeln("MEAN      3.90  3.73  3.63  3.55  3.24  2.98  3.06  2.79  3.10  3.07  3.92  3.49")
+      filewindow.document.writeln("STD DEV   2.20  2.05  1.97  1.85  1.70  1.38  1.42  1.04  1.63  1.60  2.59  1.83")
+      filewindow.document.writeln("SKEW      1.47  1.25  1.27  1.17  1.43  1.62  1.59  1.53  1.97  1.86  1.64  1.60")
+      filewindow.document.writeln("% NE     15.00 14.01  9.60  7.88  6.63  4.58  5.69  6.23  9.71 13.23 15.00 16.30")
+      filewindow.document.writeln("MEAN      4.75  4.84  4.76  4.44  4.26  3.67  3.49  3.38  3.76  4.28  4.90  4.80")
+      filewindow.document.writeln("STD DEV   2.21  2.43  2.32  2.04  1.98  1.83  1.50  1.29  1.78  1.99  2.39  2.39")
+      filewindow.document.writeln("SKEW       .65   .82   .72   .71   .68  1.27   .91   .79  1.08   .83   .81   .85")
+      filewindow.document.writeln("% ENE     5.83  5.08  4.33  3.11  2.75  2.37  2.20  2.49  4.62  5.91  6.10  6.42")
+      filewindow.document.writeln("MEAN      4.55  4.54  4.36  4.21  3.94  3.80  3.31  3.16  3.99  4.26  4.13  4.50")
+      filewindow.document.writeln("STD DEV   2.06  2.06  1.89  1.76  1.74  1.75  1.30  1.17  1.68  1.85  1.73  2.08")
+      filewindow.document.writeln("SKEW       .79   .92   .63   .63   .85   .89   .83   .88   .83   .85   .73   .96")
+      filewindow.document.writeln("% E       3.09  3.03  2.70  2.39  2.24  1.95  3.00  2.51  3.01  4.04  3.35  3.13")
+      filewindow.document.writeln("MEAN      3.89  3.63  3.82  3.68  3.66  3.47  3.49  3.34  3.41  3.76  3.67  3.84")
+      filewindow.document.writeln("STD DEV   1.64  1.51  1.73  1.39  1.44  1.36  1.34  1.47  1.26  1.50  1.57  1.61")
+      filewindow.document.writeln("SKEW       .65   .86   .86   .45   .62   .66   .69  1.38   .79   .87   .96   .92")
+      filewindow.document.writeln("% ESE     1.09  1.20   .93  1.14  1.23  1.01  1.38  1.14  1.50  1.28  1.07   .80")
+      filewindow.document.writeln("MEAN      2.93  3.08  3.16  3.36  3.38  3.52  2.87  3.12  3.41  3.13  2.78  3.06")
+      filewindow.document.writeln("STD DEV   1.16  1.20  1.37  1.32  1.48  1.65   .98  1.09  1.32  1.14   .99  1.48")
+      filewindow.document.writeln("SKEW      1.11   .76  1.11   .49  1.21  1.08  1.21   .79   .60   .49  1.20  1.44")
+      filewindow.document.writeln("% SE       .89  1.50  1.49  1.80  2.34  2.03  2.91  3.20  2.84  2.12  1.57  1.14")
+      filewindow.document.writeln("MEAN      2.96  3.53  3.42  3.77  4.32  4.31  3.47  3.56  3.74  3.55  3.48  3.28")
+      filewindow.document.writeln("STD DEV   1.22  1.45  1.41  1.75  1.97  1.89  1.44  1.33  1.54  1.56  1.70  1.21")
+      filewindow.document.writeln("SKEW      1.63   .52   .69   .98   .88   .43  1.01   .57   .71  1.10  1.40   .55")
+      filewindow.document.writeln("% SSE     1.27  1.82  1.81  1.93  2.84  2.80  2.38  2.10  2.11  2.23  1.70  1.00")
+      filewindow.document.writeln("MEAN      3.12  3.73  4.75  4.59  4.77  4.99  4.15  3.67  4.02  3.94  3.36  3.36")
+      filewindow.document.writeln("STD DEV   1.52  1.67  2.49  2.37  2.25  2.19  1.85  1.52  1.97  1.99  1.68  1.70")
+      filewindow.document.writeln("SKEW      1.53   .45   .73   .64   .41   .25   .65   .44   .85   .78  1.00  1.39")
+      filewindow.document.writeln("% S       6.01  6.96  8.02  9.25 11.24 11.70  9.45  9.44  8.23  7.36  7.25  6.09")
+      filewindow.document.writeln("MEAN      4.56  4.45  4.95  5.12  5.14  5.10  4.04  3.94  4.46  4.57  4.49  4.18")
+      filewindow.document.writeln("STD DEV   1.96  1.87  2.13  2.12  2.20  2.21  1.72  1.71  1.96  1.97  1.85  1.89")
+      filewindow.document.writeln("SKEW       .77   .59   .44   .29   .51   .41   .78   .84   .61   .49   .51   .96")
+      filewindow.document.writeln("% SSW    10.54 11.38 14.22 17.77 18.26 19.58 12.14 10.54 11.70 10.87 11.23  9.55")
+      filewindow.document.writeln("MEAN      5.14  5.11  5.66  6.01  5.90  5.78  4.39  4.29  5.23  5.07  4.99  5.02")
+      filewindow.document.writeln("STD DEV   2.05  2.03  2.29  2.36  2.40  2.26  1.85  1.84  2.27  2.04  2.10  1.97")
+      filewindow.document.writeln("SKEW       .43   .53   .50   .15   .35   .26   .65   .69   .66   .42   .56   .50")
+      filewindow.document.writeln("% SW     14.72 13.49 18.24 17.79 16.80 18.21 15.44 13.74 11.32  9.82  9.97  9.69")
+      filewindow.document.writeln("MEAN      5.14  5.10  5.49  5.41  5.38  5.40  4.30  4.25  4.75  4.86  4.76  4.92")
+      filewindow.document.writeln("STD DEV   2.16  2.25  2.21  2.32  2.26  2.24  1.78  1.79  1.93  2.04  2.16  2.08")
+      filewindow.document.writeln("SKEW       .56   .77   .32   .55   .34   .33   .70   .82   .56   .54   .89   .84")
+      filewindow.document.writeln("% WSW     3.12  3.55  4.33  4.69  3.91  4.05  4.26  3.89  2.83  2.25  3.48  2.59")
+      filewindow.document.writeln("MEAN      4.11  4.25  4.86  4.82  4.54  4.47  3.97  3.62  4.16  4.24  3.82  3.98")
+      filewindow.document.writeln("STD DEV   1.76  1.76  2.17  2.04  1.92  1.96  1.67  1.49  1.72  1.91  1.67  1.67")
+      filewindow.document.writeln("SKEW       .85   .90   .56   .63   .54   .55   .94  1.08   .52   .81  1.10   .84")
+      filewindow.document.writeln("% W       2.81  3.38  3.62  3.43  3.01  2.63  4.45  3.89  2.66  2.14  2.59  2.92")
+      filewindow.document.writeln("MEAN      4.24  4.37  4.66  4.44  3.99  4.02  3.63  3.54  3.81  4.04  3.97  4.19")
+      filewindow.document.writeln("STD DEV   1.65  1.74  1.84  1.93  1.67  1.72  1.30  1.23  1.40  1.61  1.49  1.70")
+      filewindow.document.writeln("SKEW       .61   .51   .48   .84   .87   .75   .73   .64   .64   .55   .25   .78")
+      filewindow.document.writeln("% WNW     1.92  2.04  2.55  2.25  1.59  1.53  2.80  2.17  1.68   .97  1.65  1.97")
+      filewindow.document.writeln("MEAN      4.34  4.90  4.71  4.61  4.09  3.50  3.62  3.64  3.77  4.10  4.34  4.48")
+      filewindow.document.writeln("STD DEV   1.68  2.33  1.95  1.71  1.78  1.34  1.36  1.43  1.55  1.57  1.73  1.78")
+      filewindow.document.writeln("SKEW       .65   .40   .42   .56   .67   .97   .62   .88   .84   .46   .47   .25")
+      filewindow.document.writeln("% NW      2.26  2.75  2.93  2.90  2.47  1.98  4.25  3.89  2.19  1.72  2.47  2.54")
+      filewindow.document.writeln("MEAN      3.88  4.53  4.14  4.44  3.81  3.40  3.63  3.29  3.38  3.40  3.92  3.56")
+      filewindow.document.writeln("STD DEV   1.61  2.12  1.90  1.92  1.59  1.35  1.31  1.20  1.50  1.41  1.89  1.69")
+      filewindow.document.writeln("SKEW       .61   .82   .90   .68   .84   .92  1.04   .87  1.43  1.34  1.02  1.08")
+      filewindow.document.writeln("% NNW     2.10  1.65  1.92  1.96  2.24  2.57  2.08  1.99  2.20  1.56  1.96  2.37")
+      filewindow.document.writeln("MEAN      3.37  3.11  3.98  4.19  4.09  4.30  3.02  3.13  3.24  2.63  3.35  2.88")
+      filewindow.document.writeln("STD DEV   1.80  1.52  2.04  2.06  2.01  2.14  1.13  1.40  1.50  1.14  1.73  1.44")
+      filewindow.document.writeln("SKEW      1.18  1.31   .59   .83   .69   .71  1.02  1.32   .96  1.84   .98  1.63")
+      filewindow.document.writeln("CALM     15.14 16.17 13.71 12.94 14.92 15.72 20.48 23.78 22.12 20.83 15.88 16.45")
+      filewindow.document.writeln(" ")
+      filewindow.document.writeln("INTERPOLATED DATA (station & weighting factor)")
+      filewindow.document.writeln(" ")
+      filewindow.document.writeln("---Wind Stations---")
+      filewindow.document.writeln("FLAGSTAFF     AZ    1.000  WINSLOW       AZ     .000  PRESCOTT      AZ     .000")
+      filewindow.document.writeln("---Solar Radiation and Max .5 P Stations---")
+      filewindow.document.writeln(" FLAGSTAFF, ARIZONA 1.000   MILFORD, UTAH       .000   WALNUT GULCH, ARIZ  .000 ")
+      filewindow.document.writeln("---Dewpoint Stations---")
+      filewindow.document.writeln("AZ FLAGSTAFF        1.000  AZ WINSLOW           .000  AZ PRESCOTT          .000 ")
+      filewindow.document.writeln("---Time Peak Stations---")
+      filewindow.document.writeln("SEDONA RS AZ         .618  ASH FORK 2 AZ        .256  KEAMS CANYON AZ      .125 ")
+      filewindow.document.writeln("   <\/pre>\n  <\/body>\n<\/html>")
+      filewindow.document.close()
+    }
+    return false
+  }
+
+   </script>
+ </head>
+ <BODY>
+  <font face="Arial, Geneva, Helvetica">
+   <blockquote>
+    <CENTER>
+     <font face="Arial, Geneva, Helvetica">
+      <table width="90%">
+       <tr>
+        <td>
+         <a href="/cgi-bin/fswepp/wr/wepproad.pl">
+          <img src="/fswepp/images/road4.gif"
+          align=left border=1
+          width=50 height=50
+          alt="Return to WEPP:Road input screen" 
+          onMouseOver="window.status='Return to WEPP:Road input screen'; return true"
+          onMouseOut="window.status=' '; return true">
+         </a>
+        </td>
+        <td align=center>
+         <hr>
+         <h2>WEPP:Road Results</h2>
+         <hr>
+        </td>
+        <td>
+         <a href="/fswepp/docs/wroadimg.html#wrout" target="_docs">
+          <img src="/fswepp/images/ipage.gif"
+          align="right" alt="Read the documentation" border=0
+          onMouseOver="window.status='Read the documentation'; return true"
+          onMouseOut="window.status=' '; return true">
+         </a>
+        </td>
+       </tr>
+     </table>
+    </center>
+
+   <center>
+    <table border=1>
+     <tr>
+      <th colspan=8 bgcolor=#85D2D2><font face='Arial, Geneva, Helvetica'>INPUTS</font></th>
+     </tr>
+     <tr>
+      <td><font face='Arial, Geneva, Helvetica'><b>Climate</font></td>
+      <td colspan=3>
+       <font face='Arial, Geneva, Helvetica'>  FLAGSTAFF WB AP AZ                    <br>
+        <font size=1>
+
+        </font>
+       </font>
+      </td>
+     </tr>
+     <tr>
+      <td><font face='Arial, Geneva, Helvetica'><b>Soil texture</b></font></td>
+      <td colspan=3><font face='Arial, Geneva, Helvetica'>loam with 20% rock fragments<br>
+                    <font size=1>(road: %; fill: %; buffer: 20% rock)</font></font></td>
+     </tr>
+     <tr>
+      <td><font face='Arial, Geneva, Helvetica'><b>Road design</b></font></td>
+      <td colspan=3><font face='Arial, Geneva, Helvetica'>Insloped, bare ditch</font></td>
+     </tr>
+     <tr>
+      <td><font face='Arial, Geneva, Helvetica'><b>Surface, traffic</b></font></td>
+      <td colspan=3><font face='Arial, Geneva, Helvetica'>paved surface, low traffic</font></td>
+     </tr>
+     <tr>
+      <td></td>
+      <th><font face='Arial, Geneva, Helvetica'>Gradient<br> (%)</font></th>
+      <th><font face='Arial, Geneva, Helvetica'>Length<br> (ft)</font></th>
+      <th><font face='Arial, Geneva, Helvetica'>Width<br> (ft)</font></th>
+     </tr>
+     <tr>
+      <th align=left> <font face='Arial, Geneva, Helvetica'>Road</font></th>
+      <td align=right><font face='Arial, Geneva, Helvetica'>4</font></td>
+      <td align=right><font face='Arial, Geneva, Helvetica'>200</font></td>
+      <td align=right><font face='Arial, Geneva, Helvetica'>13</font></td>
+     </tr>
+     <tr>
+      <th align=left> <font face='Arial, Geneva, Helvetica'>Fill</font></th>
+      <td align=right><font face='Arial, Geneva, Helvetica'>50</font></td>
+      <td align=right><font face='Arial, Geneva, Helvetica'>15</font></td>
+      <td align=right></td>
+     </tr>
+     <tr>
+      <th align=left> <font face='Arial, Geneva, Helvetica'>Buffer</font></th>
+      <td align=right><font face='Arial, Geneva, Helvetica'>25</font></td>
+      <td align=right><font face='Arial, Geneva, Helvetica'>130</font></td>
+      <td align=right></td>
+     </tr>
+    </table>
+    <br><br>
+
+    <table cellspacing=8 bgcolor='#ccffff'>
+     <tr>
+      <th colspan=5 bgcolor=#85D2D2><font face='Arial, Geneva, Helvetica'>50 - YEAR MEAN ANNUAL AVERAGES</font></th>
+     </tr>
+     <tr>
+       <td colspan=3></td>
+       <th colspan=2><font size=-1 face='Arial, Geneva, Helvetica'>Total in<br>50 years</font></th>
+     </tr>
+     <tr>
+      <td align=right><font face='Arial, Geneva, Helvetica'>22.97</font></td>
+      <td><font face='Arial, Geneva, Helvetica'>in
+      <td><font face='Arial, Geneva, Helvetica'>precipitation from</font></td>
+      <td align=right><font face='Arial, Geneva, Helvetica'>4131</font></td>
+      <td><font face='Arial, Geneva, Helvetica'>storms</font></td>
+     </tr>
+     <tr>
+      <td align=right><font face='Arial, Geneva, Helvetica'>0.47</font></td>
+      <td><font face='Arial, Geneva, Helvetica'>in</font></td>
+      <td><font face='Arial, Geneva, Helvetica'>runoff from rainfall from</font></td>
+      <td align=right><font face='Arial, Geneva, Helvetica'>1000</font></td>
+      <td><font face='Arial, Geneva, Helvetica'>events</font></td>
+     </tr>
+     <tr>
+      <td align=right><font face='Arial, Geneva, Helvetica'>0.46</font></td>
+      <td><font face='Arial, Geneva, Helvetica'>in</font></td>
+      <td><font face='Arial, Geneva, Helvetica'>runoff from snowmelt or winter rainstorm from </font></td>
+      <td align=right><font face='Arial, Geneva, Helvetica'>1168</font></td>
+      <td><font face='Arial, Geneva, Helvetica'> events</font></td>
+     </tr>
+     <tr>
+      <td align=right><font face='Arial, Geneva, Helvetica'>176.78</font></td>
+      <td><font face='Arial, Geneva, Helvetica'>lb</font></td>
+      <td><font face='Arial, Geneva, Helvetica'>road prism erosion</font></td>
+     </tr>
+     <tr>
+      <td align=right><font face='Arial, Geneva, Helvetica'>63.65</font></td>
+      <td><font face='Arial, Geneva, Helvetica'>lb</font></td>
+      <td><font face='Arial, Geneva, Helvetica'>sediment leaving buffer</font></td>
+     </tr>
+    </table>
+    <hr width=50%>
+
+     <font face="Arial, Geneva, Helvetica">
+      <form name="wrlog" method="post" action="/cgi-bin/fswepp/wr/logstuffwr.pl">
+       <input type="hidden" name="units" value="ft">
+       <input type="hidden" name="years" value="50">
+       <input type="hidden" name="climate" value="  FLAGSTAFF WB AP AZ                    ">
+       <input type="hidden" name="soil" value="loam">
+       <input type="hidden" name="design" value="insloped bare">
+       <input type="hidden" name="rock" value="20">
+       <input type="hidden" name="surface" value="paved">
+       <input type="hidden" name="traffic" value="low">
+       <input type="hidden" name="road_grad" value="4">
+       <input type="hidden" name="road_length" value="200">
+       <input type="hidden" name="road_width" value="13">
+       <input type="hidden" name="fill_grad" value="50">
+       <input type="hidden" name="fill_length" value="15">
+       <input type="hidden" name="buff_grad" value="25">
+       <input type="hidden" name="buff_length" value="130">
+       <input type="hidden" name="precip" value="22.97">
+       <input type="hidden" name="rro" value="0.47">
+       <input type="hidden" name="sro" value="0.46">
+       <input type="hidden" name="syr" value="176.78">
+       <input type="hidden" name="syp" value="63.65">
+       Run description: <input type=text name="rundescription">
+       <input type="submit" name="button" value="Add to log">
+      </form>
+      <br><br>
+      <a href="/cgi-bin/fswepp/wr/wepproad.pl">
+        <input type="button" value="Return to Input Screen">
+      </a>
+      <br>
+     </center>
+  <br><center><font size=-1>WEPP files: 
+    [ <a href="javascript:void(showslopefile())">slope</a>
+    | <a href="javascript:void(showsoilfile())">soil</a>
+    | <a href="showmanfile.pl?f=data/3inslope.man" target="_manfile">vegetation</a>
+    | <a href="javascript:void(showcligenparfile())">weather</a>
+    | <a href="javascript:void(showresponsefile())">response</a>
+    || <a href="javascript:void(showextendedoutput())">results</a> ]
+     </font>
+    </center>
+
+   <hr>
+   <table width=90%>
+    <tr>
+     <td><font face="Arial, Geneva, Helvetica" size=-2>
+     WEPP:Road results version 
+<!--a href="/fswepp/history/wrrver.html"-->
+<a href="https://github.com/wepp-in-the-woods/fswepp-docker/commits/main/var/www/cgi-bin/fswepp/wr/wr.pl">2026.01.21</a> based on WEPP wepp2010<br>
+     by 
+     <a HREF="https://forest.moscowfsl.wsu.edu/people/engr/dehall.html" target="o">Hall</A> and
+     Anderson;
+     Project leader 
+     <a HREF="https://forest.moscowfsl.wsu.edu/people/engr/welliot.html" target="o">Bill Elliot</a><BR>
+     USDA Forest Service, Rocky Mountain Research Station, Moscow, ID 83843
+     <br>06:49 PM Thursday January 22, 2026 Pacific Time
+<br>
+     WEPP:Road run ID wepp-1078
+    </td>
+   </tr>
+  </table>
+ </BODY>
+</HTML>
+<h1>Software error:</h1>
+<pre>Unable to write run log.
+</pre>
+<p>
+For help, please send mail to the webmaster (<a href="mailto:rogerlew@uidaho.edu">rogerlew@uidaho.edu</a>), giving this error message 
+and the time and date of the error.
+
+</p>

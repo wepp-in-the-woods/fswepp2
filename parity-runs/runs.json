@@ -1,0 +1,147 @@
+[
+  {
+    "api": [],
+    "finished_at": 1769136574.3412995,
+    "id": "default",
+    "legacy": [
+      {
+        "meta": {
+          "command": "curl 'http://localhost:8080/cgi-bin/fswepp/wr/wr.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/wr/wepproad.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 209' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'Climate=..%2Fclimates%2Fal010831&SoilType=clay&Rock=20&SlopeType=inveg&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=130&surface=native&traffic=high&years=30&ActionW=Running...&weppversion=2010&climate_name=&units=ft'",
+          "returncode": 0,
+          "run_ids": [
+            "wepp-1068"
+          ],
+          "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100 10500  100 10291  100   209  10705    217 --:--:-- --:--:-- --:--:-- 10914\r100 10500  100 10291  100   209  10704    217 --:--:-- --:--:-- --:--:-- 10914",
+          "stdout_bytes": 10291
+        },
+        "name": "run"
+      }
+    ],
+    "model": "wepproad",
+    "started_at": 1769136571.926978,
+    "working_files": [
+      "/workdir/fswepp2/parity-runs/wepproad/default/legacy/working/wepp-1068.cli",
+      "/workdir/fswepp2/parity-runs/wepproad/default/legacy/working/wepp-1068.in",
+      "/workdir/fswepp2/parity-runs/wepproad/default/legacy/working/wepp-1068.out",
+      "/workdir/fswepp2/parity-runs/wepproad/default/legacy/working/wepp-1068.par",
+      "/workdir/fswepp2/parity-runs/wepproad/default/legacy/working/wepp-1068.slp",
+      "/workdir/fswepp2/parity-runs/wepproad/default/legacy/working/wepp-1068.sol"
+    ]
+  },
+  {
+    "api": [],
+    "finished_at": 1769136577.0007927,
+    "id": "run_2",
+    "legacy": [
+      {
+        "meta": {
+          "command": "curl 'http://localhost:8080/cgi-bin/fswepp/wr/wr.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/wr/wepproad.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 211' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'Climate=..%2Fclimates%2Fco052220&SoilType=silt&Rock=20&SlopeType=outrut&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=130&surface=graveled&traffic=low&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'",
+          "returncode": 0,
+          "run_ids": [
+            "wepp-1073"
+          ],
+          "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100  9674  100  9463  100   211   8643    192  0:00:01  0:00:01 --:--:--  8842\r100  9674  100  9463  100   211   8642    192  0:00:01  0:00:01 --:--:--  8842",
+          "stdout_bytes": 9463
+        },
+        "name": "run"
+      }
+    ],
+    "model": "wepproad",
+    "started_at": 1769136574.374502,
+    "working_files": [
+      "/workdir/fswepp2/parity-runs/wepproad/run_2/legacy/working/wepp-1073.cli",
+      "/workdir/fswepp2/parity-runs/wepproad/run_2/legacy/working/wepp-1073.in",
+      "/workdir/fswepp2/parity-runs/wepproad/run_2/legacy/working/wepp-1073.out",
+      "/workdir/fswepp2/parity-runs/wepproad/run_2/legacy/working/wepp-1073.par",
+      "/workdir/fswepp2/parity-runs/wepproad/run_2/legacy/working/wepp-1073.slp",
+      "/workdir/fswepp2/parity-runs/wepproad/run_2/legacy/working/wepp-1073.sol"
+    ]
+  },
+  {
+    "api": [],
+    "finished_at": 1769136580.006576,
+    "id": "run_3",
+    "legacy": [
+      {
+        "meta": {
+          "command": "curl 'http://localhost:8080/cgi-bin/fswepp/wr/wr.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/wr/wepproad.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 208' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'Climate=..%2Fclimates%2Faz023010&SoilType=loam&Rock=20&SlopeType=inbare&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=130&surface=paved&traffic=low&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'",
+          "returncode": 0,
+          "run_ids": [
+            "wepp-1078"
+          ],
+          "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100   208    0     0  100   208      0    173  0:00:01  0:00:01 --:--:--   173\r100 10587  100 10379  100   208   7301    146  0:00:01  0:00:01 --:--:--  7450",
+          "stdout_bytes": 10379
+        },
+        "name": "run"
+      }
+    ],
+    "model": "wepproad",
+    "started_at": 1769136577.0262578,
+    "working_files": [
+      "/workdir/fswepp2/parity-runs/wepproad/run_3/legacy/working/wepp-1078.cli",
+      "/workdir/fswepp2/parity-runs/wepproad/run_3/legacy/working/wepp-1078.in",
+      "/workdir/fswepp2/parity-runs/wepproad/run_3/legacy/working/wepp-1078.out",
+      "/workdir/fswepp2/parity-runs/wepproad/run_3/legacy/working/wepp-1078.par",
+      "/workdir/fswepp2/parity-runs/wepproad/run_3/legacy/working/wepp-1078.slp",
+      "/workdir/fswepp2/parity-runs/wepproad/run_3/legacy/working/wepp-1078.sol"
+    ]
+  },
+  {
+    "api": [],
+    "finished_at": 1769136582.7685184,
+    "id": "run_4",
+    "legacy": [
+      {
+        "meta": {
+          "command": "curl 'http://localhost:8080/cgi-bin/fswepp/wr/wr.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/wr/wepproad.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 212' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'Climate=..%2Fclimates%2Fwv461570&SoilType=loam&Rock=20&SlopeType=outunrut&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=130&surface=native&traffic=none&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'",
+          "returncode": 0,
+          "run_ids": [
+            "wepp-1083"
+          ],
+          "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100   212    0     0  100   212      0    176  0:00:01  0:00:01 --:--:--   176\r100 10364  100 10152  100   212   7919    165  0:00:01  0:00:01 --:--:--  8090",
+          "stdout_bytes": 10152
+        },
+        "name": "run"
+      }
+    ],
+    "model": "wepproad",
+    "started_at": 1769136580.006928,
+    "working_files": [
+      "/workdir/fswepp2/parity-runs/wepproad/run_4/legacy/working/wepp-1083.cli",
+      "/workdir/fswepp2/parity-runs/wepproad/run_4/legacy/working/wepp-1083.in",
+      "/workdir/fswepp2/parity-runs/wepproad/run_4/legacy/working/wepp-1083.out",
+      "/workdir/fswepp2/parity-runs/wepproad/run_4/legacy/working/wepp-1083.par",
+      "/workdir/fswepp2/parity-runs/wepproad/run_4/legacy/working/wepp-1083.slp",
+      "/workdir/fswepp2/parity-runs/wepproad/run_4/legacy/working/wepp-1083.sol"
+    ]
+  },
+  {
+    "api": [],
+    "finished_at": 1769136585.299171,
+    "id": "run_5",
+    "legacy": [
+      {
+        "meta": {
+          "command": "curl 'http://localhost:8080/cgi-bin/fswepp/wr/wr.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/wr/wepproad.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 209' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'Climate=..%2Fclimates%2Fco052220&SoilType=sand&Rock=20&SlopeType=outrut&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=39&surface=native&traffic=high&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'",
+          "returncode": 0,
+          "run_ids": [
+            "wepp-1088"
+          ],
+          "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100 10041  100  9832  100   209   9056    192  0:00:01  0:00:01 --:--:--  9254\r100 10041  100  9832  100   209   9055    192  0:00:01  0:00:01 --:--:--  9254",
+          "stdout_bytes": 9832
+        },
+        "name": "run"
+      }
+    ],
+    "model": "wepproad",
+    "started_at": 1769136582.8005702,
+    "working_files": [
+      "/workdir/fswepp2/parity-runs/wepproad/run_5/legacy/working/wepp-1088.cli",
+      "/workdir/fswepp2/parity-runs/wepproad/run_5/legacy/working/wepp-1088.in",
+      "/workdir/fswepp2/parity-runs/wepproad/run_5/legacy/working/wepp-1088.out",
+      "/workdir/fswepp2/parity-runs/wepproad/run_5/legacy/working/wepp-1088.par",
+      "/workdir/fswepp2/parity-runs/wepproad/run_5/legacy/working/wepp-1088.slp",
+      "/workdir/fswepp2/parity-runs/wepproad/run_5/legacy/working/wepp-1088.sol"
+    ]
+  }
+]

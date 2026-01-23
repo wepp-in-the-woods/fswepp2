@@ -1,0 +1,49 @@
+# FSWEPP2 Parity Runs
+
+This directory stores repeatable, scripted parity runs that compare:
+- FastAPI outputs (JSON/text endpoints)
+- Legacy CGI HTML responses
+- Legacy WEPP/CLIGEN working files in `/workdir/fswepp-docker/var/www/cgi-bin/fswepp/working`
+
+Each run is stored under:
+
+```
+/workdir/fswepp2/parity-runs/<model>/<run_enum>/
+```
+
+## Workflow
+
+1) Fill in `cases.yaml` with:
+   - API request payload(s)
+   - Legacy curl command(s)
+2) Run the collection script:
+
+```
+python /workdir/fswepp2/scripts/collect_representative_runs.py \
+  --cases /workdir/fswepp2/parity-runs/cases.yaml \
+  --out /workdir/fswepp2/parity-runs
+```
+
+## Output layout (per run)
+
+```
+<model>/<run_enum>/
+  api/
+    <request_name>.request.json
+    <request_name>.response.body
+    <request_name>.response.meta.json
+  legacy/
+    <curl_name>.response.body
+    working/
+      wepp-<pid>.*
+  run.json
+```
+
+`run.json` contains a summary of what was executed and captured.
+
+## Notes
+
+- The script copies legacy working files by mtime and optional glob filter.
+- The legacy CGI stack must be running and volume-mounted.
+- Provide curl commands exactly as used in the browser form submission.
+- If legacy responses are gzip-compressed, the script will auto-decompress.

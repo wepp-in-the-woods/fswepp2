@@ -1,0 +1,29 @@
+{
+  "api": [],
+  "finished_at": 1769136580.006576,
+  "id": "run_3",
+  "legacy": [
+    {
+      "meta": {
+        "command": "curl 'http://localhost:8080/cgi-bin/fswepp/wr/wr.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/wr/wepproad.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 208' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'Climate=..%2Fclimates%2Faz023010&SoilType=loam&Rock=20&SlopeType=inbare&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=130&surface=paved&traffic=low&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'",
+        "returncode": 0,
+        "run_ids": [
+          "wepp-1078"
+        ],
+        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100   208    0     0  100   208      0    173  0:00:01  0:00:01 --:--:--   173\r100 10587  100 10379  100   208   7301    146  0:00:01  0:00:01 --:--:--  7450",
+        "stdout_bytes": 10379
+      },
+      "name": "run"
+    }
+  ],
+  "model": "wepproad",
+  "started_at": 1769136577.0262578,
+  "working_files": [
+    "/workdir/fswepp2/parity-runs/wepproad/run_3/legacy/working/wepp-1078.cli",
+    "/workdir/fswepp2/parity-runs/wepproad/run_3/legacy/working/wepp-1078.in",
+    "/workdir/fswepp2/parity-runs/wepproad/run_3/legacy/working/wepp-1078.out",
+    "/workdir/fswepp2/parity-runs/wepproad/run_3/legacy/working/wepp-1078.par",
+    "/workdir/fswepp2/parity-runs/wepproad/run_3/legacy/working/wepp-1078.slp",
+    "/workdir/fswepp2/parity-runs/wepproad/run_3/legacy/working/wepp-1078.sol"
+  ]
+}
