@@ -79,7 +79,7 @@ cp_m942 = new MakeArray; cp_m942.length = a_len
 cp_m943 = new MakeArray; cp_m943.length = a_len
 cp_m944 = new MakeArray; cp_m944.length = a_len
 
-   js_unique = 'wepp-664'
+   js_unique = 'wepp-1256'
    js_climate_name = 'FLAGSTAFF WB AP AZ'
    js_soil_texture = 'loam'
    js_rfg = 20
@@ -1642,7 +1642,7 @@ function showpt() {
   <p>
    <a href="javascript:showtable('cp','untreated','Untreated')"
              onMouseOver="window.status='Display untreated sediment yield--probability of exceedance table (new window)'; return true"
-             onMouseOut="window.status=''; return true"><img src="/cgi-bin/fswepp/ermit/servepng.pl?graph=wepp-664"></a>
+             onMouseOut="window.status=''; return true"><img src="/cgi-bin/fswepp/ermit/servepng.pl?graph=wepp-1256"></a>
 <br>
    <form name="doit">
 
@@ -1773,7 +1773,7 @@ var defprob = 0.2;	// 2012.06.27
 
    WEPP                      VERSION  2010.100
 <br>
-   ERMiT run ID wepp-664<br>
+   ERMiT run ID wepp-1256<br>
  Observed annual precip 554.1 mm; July, August, September precip 186.7 mm (33.69 percent): MONSOONAL climate<br>
 
   </font>

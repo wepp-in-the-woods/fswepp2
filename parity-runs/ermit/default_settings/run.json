@@ -1,35 +1,38 @@
 {
   "api": [],
-  "finished_at": 1769133761.771703,
+  "finished_at": 1769136890.3444414,
   "id": "default_settings",
   "legacy": [
     {
       "meta": {
         "command": "curl 'http://localhost:8080/cgi-bin/fswepp/ermit/erm.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/ermit/ermit.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 248' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'me=&units=ft&debug=0&Climate=..%2Fclimates%2Fal010831&SoilType=clay&rfg=20&achtung=Run+WEPP&vegetation=forest&top_slope=0&avg_slope=50&toe_slope=30&length=300&severity=l&pct_shrub=&pct_grass=&pct_bare=&climate_name=&Units=m&actionw=Running+ERMiT...'",
         "returncode": 0,
-        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100   248    0     0  100   248      0    206  0:00:01  0:00:01 --:--:--   206\r100   248    0     0  100   248      0    112  0:00:02  0:00:02 --:--:--   112\r100   248    0     0  100   248      0     77  0:00:03  0:00:03 --:--:--    77\r100   248    0     0  100   248      0     58  0:00:04  0:00:04 --:--:--    58\r100   248    0     0  100   248      0     47  0:00:05  0:00:05 --:--:--    47\r100 31691  100 31443  100   248   5388     42  0:00:05  0:00:05 --:--:--  6785",
-        "stdout_bytes": 31443
+        "run_ids": [
+          "wepp-1118"
+        ],
+        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100   248    0     0  100   248      0    206  0:00:01  0:00:01 --:--:--   206\r100   248    0     0  100   248      0    112  0:00:02  0:00:02 --:--:--   112\r100   248    0     0  100   248      0     77  0:00:03  0:00:03 --:--:--    77\r100   248    0     0  100   248      0     58  0:00:04  0:00:04 --:--:--    58\r100   248    0     0  100   248      0     47  0:00:05  0:00:05 --:--:--    47\r100 31693  100 31445  100   248   5217     41  0:00:06  0:00:06 --:--:--  6515\r100 31693  100 31445  100   248   5217     41  0:00:06  0:00:06 --:--:--  8220",
+        "stdout_bytes": 31445
       },
       "name": "run"
     }
   ],
   "model": "ermit",
-  "started_at": 1769133744.8842707,
+  "started_at": 1769136882.8792698,
   "working_files": [
-    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-525.in",
-    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-525.evo",
-    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-525.sol",
-    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-525.sterr",
-    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-525.event100",
-    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-525.slp",
-    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-525.out",
-    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-525.gnujcl",
-    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-525.gnudata",
-    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-525_.cli",
-    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-525.cli",
-    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-525.png",
-    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-525.stout",
-    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-525.event",
-    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-525.temp"
+    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-1118.cli",
+    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-1118.event",
+    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-1118.slp",
+    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-1118.in",
+    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-1118.temp",
+    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-1118.png",
+    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-1118.evo",
+    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-1118.gnujcl",
+    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-1118_.cli",
+    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-1118.gnudata",
+    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-1118.stout",
+    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-1118.sterr",
+    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-1118.out",
+    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-1118.sol",
+    "/workdir/fswepp2/parity-runs/ermit/default_settings/legacy/working/wepp-1118.event100"
   ]
 }

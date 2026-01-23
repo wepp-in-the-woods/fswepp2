@@ -1,28 +1,31 @@
 {
   "api": [],
-  "finished_at": 1769134194.93175,
+  "finished_at": 1769136929.910082,
   "id": "run_4",
   "legacy": [
     {
       "meta": {
         "command": "curl 'http://localhost:8080/cgi-bin/fswepp/wd/wd.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/wd/weppdist.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 336' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'units=ft&description=&climyears=10&Climate=..%2Fclimates%2Fca045983&achtung=Run+WEPP&SoilType=loam&UpSlopeType=Sod&ofe1_top_slope=50&ofe1_length=150&ofe1_pcover=40&ofe1_rock=20&ofe1_mid_slope=50&LowSlopeType=YoungForest&ofe2_top_slope=20&ofe2_length=35&ofe2_pcover=3&ofe2_rock=20&ofe2_bot_slope=50&climate_name=&Units=m&actionw=Run+WEPP'",
         "returncode": 0,
-        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100 85861    0 85525  100   336   169k    680 --:--:-- --:--:-- --:--:--  170k",
-        "stdout_bytes": 85525
+        "run_ids": [
+          "wepp-1428"
+        ],
+        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100 85862    0 85526  100   336   174k    700 --:--:-- --:--:-- --:--:--  175k",
+        "stdout_bytes": 85526
       },
       "name": "run"
     }
   ],
   "model": "disturbed",
-  "started_at": 1769134183.7774048,
+  "started_at": 1769136928.0203202,
   "working_files": [
-    "/workdir/fswepp2/parity-runs/disturbed/run_4/legacy/working/wepp-878.slp",
-    "/workdir/fswepp2/parity-runs/disturbed/run_4/legacy/working/wepp-878.man",
-    "/workdir/fswepp2/parity-runs/disturbed/run_4/legacy/working/wepp-878.out",
-    "/workdir/fswepp2/parity-runs/disturbed/run_4/legacy/working/wepp-878.stout",
-    "/workdir/fswepp2/parity-runs/disturbed/run_4/legacy/working/wepp-878.sol",
-    "/workdir/fswepp2/parity-runs/disturbed/run_4/legacy/working/wepp-878.sterr",
-    "/workdir/fswepp2/parity-runs/disturbed/run_4/legacy/working/wepp-878.in",
-    "/workdir/fswepp2/parity-runs/disturbed/run_4/legacy/working/wepp-878.cli"
+    "/workdir/fswepp2/parity-runs/disturbed/run_4/legacy/working/wepp-1428.sol",
+    "/workdir/fswepp2/parity-runs/disturbed/run_4/legacy/working/wepp-1428.cli",
+    "/workdir/fswepp2/parity-runs/disturbed/run_4/legacy/working/wepp-1428.stout",
+    "/workdir/fswepp2/parity-runs/disturbed/run_4/legacy/working/wepp-1428.slp",
+    "/workdir/fswepp2/parity-runs/disturbed/run_4/legacy/working/wepp-1428.sterr",
+    "/workdir/fswepp2/parity-runs/disturbed/run_4/legacy/working/wepp-1428.out",
+    "/workdir/fswepp2/parity-runs/disturbed/run_4/legacy/working/wepp-1428.man",
+    "/workdir/fswepp2/parity-runs/disturbed/run_4/legacy/working/wepp-1428.in"
   ]
 }

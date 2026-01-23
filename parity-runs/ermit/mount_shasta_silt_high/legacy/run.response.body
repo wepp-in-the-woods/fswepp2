@@ -79,7 +79,7 @@ cp_m942 = new MakeArray; cp_m942.length = a_len
 cp_m943 = new MakeArray; cp_m943.length = a_len
 cp_m944 = new MakeArray; cp_m944.length = a_len
 
-   js_unique = 'wepp-574'
+   js_unique = 'wepp-1167'
    js_climate_name = 'MOUNT SHASTA CA'
    js_soil_texture = 'silt loam'
    js_rfg = 20
@@ -3160,7 +3160,7 @@ function showpt() {
   <p>
    <a href="javascript:showtable('cp','untreated','Untreated')"
              onMouseOver="window.status='Display untreated sediment yield--probability of exceedance table (new window)'; return true"
-             onMouseOut="window.status=''; return true"><img src="/cgi-bin/fswepp/ermit/servepng.pl?graph=wepp-574"></a>
+             onMouseOut="window.status=''; return true"><img src="/cgi-bin/fswepp/ermit/servepng.pl?graph=wepp-1167"></a>
 <br>
    <form name="doit">
 
@@ -3398,7 +3398,7 @@ var defprob = 0.2;	// 2012.06.27
 
    WEPP                      VERSION  2010.100
 <br>
-   ERMiT run ID wepp-574<br>
+   ERMiT run ID wepp-1167<br>
  Observed annual precip 905.7 mm; July, August, September precip 41.7 mm (4.60 percent): NON-MONSOONAL climate<br>
 
   </font>

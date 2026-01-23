@@ -1,0 +1,1237 @@
+ Annual; detailed (Metric Units)                                        
+
+
+          USDA WATER EROSION PREDICTION PROJECT
+          -------------------------------------
+
+          HILLSLOPE PROFILE AND WATERSHED MODEL
+                     VERSION  2010.100
+           January 28,      2010
+
+
+               TO REPORT PROBLEMS OR TO BE PUT ON THE MAILING
+               LIST FOR FUTURE WEPP MODEL RELEASES, PLEASE CONTACT:
+
+                    WEPP TECHNICAL SUPPORT
+                    USDA-AGRICULTURAL RESEARCH SERVICE
+                    NATIONAL SOIL EROSION RESEARCH LABORATORY
+                    275 SOUTH RUSSELL STREET
+                    WEST LAFAYETTE, IN 47907-2077  USA
+
+                    PHONE: (765) 494-8673
+                      FAX: (765) 494-5948
+                    email:  wepp@ecn.purdue.edu
+                      URL:  http://topsoil.nserl.purdue.edu
+
+
+     HILLSLOPE INPUT DATA FILES - VERSION  2010.100
+      January 28,      2010
+
+
+    MANAGEMENT: data/1ofe.man                                     
+ MAN. PRACTICE: description 1                                               
+                description 2                                               
+                description 3                                               
+         SLOPE: ../working/wepp-1275.slp                          
+       CLIMATE: ../working/wepp-1275_.cli                         
+       Station:  DENVER WB AP CO                                CLIGEN VERSION  4.31
+          SOIL: ../working/wepp-1275.sol                          
+      PLANE  1 ERMiT_l4            silt loam           
+
+
+     HILLSLOPE 1 YEARLY SUMMARY FOR    1
+     ----------------------------------
+
+
+I.   RAINFALL AND RUNOFF SUMMARY
+     -------- --- ------ -------
+
+      year:      1
+
+         Rainfall         Storm Runoff        Melt Runoff
+      events   amount   events   amount     events  amount
+                (mm)              (mm)               (mm)
+
+        79     307.70       3       2.56       0       0.00
+
+
+II.  ON SITE EFFECTS  ON SITE EFFECTS  ON SITE EFFECTS
+     ---------------  ---------------  ---------------
+
+
+  A.  AREA OF NET SOIL LOSS
+
+      ** Soil Loss (Avg. of Net Detachment Areas) =    0.270 kg/m2 **
+      ** Maximum Soil Loss  =    0.513 kg/m2 at   91.44 meters **
+
+
+      Area of    Soil Loss   Soil Loss   MAX   MAX Loss   MIN   MIN Loss
+      Net Loss      MEAN      STDEV      Loss    Point    Loss   Point
+        (m)       (kg/m2)     (kg/m2)  (kg/m2)    (m)    (kg/m2)  (m)
+------------------------------------------------------------------------
+   0.00-  91.44    0.270     0.158      0.513   91.44     0.017     2.74
+
+
+
+  C.  SOIL LOSS/DEPOSITION ALONG SLOPE PROFILE
+
+          Profile distances are from top to bottom of hillslope
+
+
+ distance soil  flow    distance   soil  flow    distance   soil  flow
+    (m)   loss  elem       (m)     loss  elem       (m)     loss  elem
+         (kg/m2)                  (kg/m2)                  (kg/m2)
+------------------------------------------------------------------------
+
+   0.91     0.017  1       32.00     0.198  1       63.09     0.378  1
+   1.83     0.017  1       32.92     0.204  1       64.01     0.383  1
+   2.74     0.017  1       33.83     0.210  1       64.92     0.387  1
+   3.66     0.017  1       34.75     0.216  1       65.84     0.392  1
+   4.57     0.017  1       35.66     0.222  1       66.75     0.397  1
+   5.49     0.017  1       36.58     0.227  1       67.67     0.401  1
+   6.40     0.017  1       37.49     0.233  1       68.58     0.406  1
+   7.32     0.017  1       38.40     0.239  1       69.49     0.410  1
+   8.23     0.017  1       39.32     0.245  1       70.41     0.415  1
+   9.14     0.017  1       40.23     0.250  1       71.32     0.419  1
+  10.06     0.022  1       41.15     0.256  1       72.24     0.424  1
+  10.97     0.031  1       42.06     0.261  1       73.15     0.428  1
+  11.89     0.040  1       42.98     0.267  1       74.07     0.433  1
+  12.80     0.049  1       43.89     0.272  1       74.98     0.437  1
+  13.72     0.057  1       44.81     0.278  1       75.90     0.442  1
+  14.63     0.065  1       45.72     0.283  1       76.81     0.446  1
+  15.54     0.073  1       46.63     0.288  1       77.72     0.450  1
+  16.46     0.081  1       47.55     0.294  1       78.64     0.455  1
+  17.37     0.089  1       48.46     0.299  1       79.55     0.459  1
+  18.29     0.097  1       49.38     0.304  1       80.47     0.463  1
+  19.20     0.104  1       50.29     0.309  1       81.38     0.467  1
+  20.12     0.111  1       51.21     0.314  1       82.30     0.472  1
+  21.03     0.119  1       52.12     0.320  1       83.21     0.476  1
+  21.95     0.126  1       53.04     0.325  1       84.12     0.480  1
+  22.86     0.133  1       53.95     0.330  1       85.04     0.484  1
+  23.77     0.140  1       54.86     0.335  1       85.95     0.488  1
+  24.69     0.146  1       55.78     0.340  1       86.87     0.493  1
+  25.60     0.153  1       56.69     0.345  1       87.78     0.497  1
+  26.52     0.160  1       57.61     0.349  1       88.70     0.501  1
+  27.43     0.166  1       58.52     0.354  1       89.61     0.505  1
+  28.35     0.173  1       59.44     0.359  1       90.53     0.509  1
+  29.26     0.179  1       60.35     0.364  1       91.44     0.513  1
+  30.18     0.185  1       61.26     0.369  1
+  31.09     0.191  1       62.18     0.373  1
+
+note:  (+) soil loss - detachment     (-) soil loss - deposition
+
+
+
+III. OFF SITE EFFECTS  OFF SITE EFFECTS  OFF SITE EFFECTS
+     ----------------  ----------------  ----------------
+
+     A.  SEDIMENT LEAVING PROFILE for year    1    24.688 kg/m
+
+
+
+     B.  SEDIMENT CHARACTERISTICS AND ENRICHMENT
+
+     Sediment particle information leaving profile
+-------------------------------------------------------------------------------
+                                 Particle Composition         Detached Fraction
+Class  Diameter  Specific  ---------------------------------  Sediment  In Flow
+         (mm)    Gravity   % Sand   % Silt   % Clay   % O.M.  Fraction  Exiting
+-------------------------------------------------------------------------------
+  1     0.002      2.60      0.0      0.0    100.0     33.3     0.039    0.039
+  2     0.010      2.65      0.0    100.0      0.0      0.0     0.330    0.333
+  3     0.030      1.80      0.0     80.0     20.0      6.7     0.270    0.273
+  4     0.300      1.60     55.6     21.6     22.8      7.6     0.250    0.246
+  5     0.200      2.65    100.0      0.0      0.0      0.0     0.111    0.109
+-------------------------------------------------------------------------------
+
+
+     Weighted SSA enrichment ratio leaving profile for year    1 =   1.00
+
+
+     HILLSLOPE 1 YEARLY SUMMARY FOR    2
+     ----------------------------------
+
+
+I.   RAINFALL AND RUNOFF SUMMARY
+     -------- --- ------ -------
+
+      year:      2
+
+         Rainfall         Storm Runoff        Melt Runoff
+      events   amount   events   amount     events  amount
+                (mm)              (mm)               (mm)
+
+       102     542.30       5      32.28       0       0.00
+
+
+II.  ON SITE EFFECTS  ON SITE EFFECTS  ON SITE EFFECTS
+     ---------------  ---------------  ---------------
+
+
+  A.  AREA OF NET SOIL LOSS
+
+      ** Soil Loss (Avg. of Net Detachment Areas) =    2.792 kg/m2 **
+      ** Maximum Soil Loss  =    4.520 kg/m2 at   91.44 meters **
+
+
+      Area of    Soil Loss   Soil Loss   MAX   MAX Loss   MIN   MIN Loss
+      Net Loss      MEAN      STDEV      Loss    Point    Loss   Point
+        (m)       (kg/m2)     (kg/m2)  (kg/m2)    (m)    (kg/m2)  (m)
+------------------------------------------------------------------------
+   0.00-  91.44    2.792     1.154      4.520   91.44     0.424     0.91
+
+
+
+  C.  SOIL LOSS/DEPOSITION ALONG SLOPE PROFILE
+
+          Profile distances are from top to bottom of hillslope
+
+
+ distance soil  flow    distance   soil  flow    distance   soil  flow
+    (m)   loss  elem       (m)     loss  elem       (m)     loss  elem
+         (kg/m2)                  (kg/m2)                  (kg/m2)
+------------------------------------------------------------------------
+
+   0.91     0.424  1       32.00     2.323  1       63.09     3.573  1
+   1.83     0.431  1       32.92     2.365  1       64.01     3.605  1
+   2.74     0.503  1       33.83     2.406  1       64.92     3.638  1
+   3.66     0.600  1       34.75     2.447  1       65.84     3.670  1
+   4.57     0.689  1       35.66     2.488  1       66.75     3.703  1
+   5.49     0.771  1       36.58     2.528  1       67.67     3.735  1
+   6.40     0.848  1       37.49     2.568  1       68.58     3.767  1
+   7.32     0.921  1       38.40     2.608  1       69.49     3.799  1
+   8.23     0.990  1       39.32     2.647  1       70.41     3.830  1
+   9.14     1.057  1       40.23     2.686  1       71.32     3.862  1
+  10.06     1.122  1       41.15     2.724  1       72.24     3.893  1
+  10.97     1.185  1       42.06     2.762  1       73.15     3.924  1
+  11.89     1.245  1       42.98     2.800  1       74.07     3.955  1
+  12.80     1.304  1       43.89     2.838  1       74.98     3.986  1
+  13.72     1.362  1       44.81     2.875  1       75.90     4.017  1
+  14.63     1.418  1       45.72     2.912  1       76.81     4.047  1
+  15.54     1.473  1       46.63     2.949  1       77.72     4.078  1
+  16.46     1.527  1       47.55     2.986  1       78.64     4.108  1
+  17.37     1.580  1       48.46     3.022  1       79.55     4.138  1
+  18.29     1.632  1       49.38     3.058  1       80.47     4.168  1
+  19.20     1.682  1       50.29     3.094  1       81.38     4.198  1
+  20.12     1.732  1       51.21     3.130  1       82.30     4.228  1
+  21.03     1.782  1       52.12     3.165  1       83.21     4.258  1
+  21.95     1.830  1       53.04     3.200  1       84.12     4.288  1
+  22.86     1.878  1       53.95     3.235  1       85.04     4.317  1
+  23.77     1.925  1       54.86     3.270  1       85.95     4.346  1
+  24.69     1.971  1       55.78     3.304  1       86.87     4.376  1
+  25.60     2.017  1       56.69     3.338  1       87.78     4.405  1
+  26.52     2.062  1       57.61     3.372  1       88.70     4.434  1
+  27.43     2.107  1       58.52     3.406  1       89.61     4.463  1
+  28.35     2.151  1       59.44     3.440  1       90.53     4.491  1
+  29.26     2.195  1       60.35     3.473  1       91.44     4.520  1
+  30.18     2.238  1       61.26     3.507  1
+  31.09     2.281  1       62.18     3.540  1
+
+note:  (+) soil loss - detachment     (-) soil loss - deposition
+
+
+
+III. OFF SITE EFFECTS  OFF SITE EFFECTS  OFF SITE EFFECTS
+     ----------------  ----------------  ----------------
+
+     A.  SEDIMENT LEAVING PROFILE for year    2   255.318 kg/m
+
+
+
+     B.  SEDIMENT CHARACTERISTICS AND ENRICHMENT
+
+     Sediment particle information leaving profile
+-------------------------------------------------------------------------------
+                                 Particle Composition         Detached Fraction
+Class  Diameter  Specific  ---------------------------------  Sediment  In Flow
+         (mm)    Gravity   % Sand   % Silt   % Clay   % O.M.  Fraction  Exiting
+-------------------------------------------------------------------------------
+  1     0.002      2.60      0.0      0.0    100.0     33.3     0.039    0.039
+  2     0.010      2.65      0.0    100.0      0.0      0.0     0.330    0.332
+  3     0.030      1.80      0.0     80.0     20.0      6.7     0.270    0.272
+  4     0.300      1.60     55.6     21.6     22.8      7.6     0.250    0.247
+  5     0.200      2.65    100.0      0.0      0.0      0.0     0.111    0.109
+-------------------------------------------------------------------------------
+
+
+     Weighted SSA enrichment ratio leaving profile for year    2 =   1.00
+
+
+     HILLSLOPE 1 YEARLY SUMMARY FOR   35
+     ----------------------------------
+
+
+I.   RAINFALL AND RUNOFF SUMMARY
+     -------- --- ------ -------
+
+      year:     35
+
+         Rainfall         Storm Runoff        Melt Runoff
+      events   amount   events   amount     events  amount
+                (mm)              (mm)               (mm)
+
+       101     400.40       0       0.00       0       0.00
+
+
+II.  ON SITE EFFECTS  ON SITE EFFECTS  ON SITE EFFECTS
+     ---------------  ---------------  ---------------
+
+
+
+
+  C.  SOIL LOSS/DEPOSITION ALONG SLOPE PROFILE
+
+          Profile distances are from top to bottom of hillslope
+
+
+ distance soil  flow    distance   soil  flow    distance   soil  flow
+    (m)   loss  elem       (m)     loss  elem       (m)     loss  elem
+         (kg/m2)                  (kg/m2)                  (kg/m2)
+------------------------------------------------------------------------
+
+   0.91     0.000  1       32.00     0.000  1       63.09     0.000  1
+   1.83     0.000  1       32.92     0.000  1       64.01     0.000  1
+   2.74     0.000  1       33.83     0.000  1       64.92     0.000  1
+   3.66     0.000  1       34.75     0.000  1       65.84     0.000  1
+   4.57     0.000  1       35.66     0.000  1       66.75     0.000  1
+   5.49     0.000  1       36.58     0.000  1       67.67     0.000  1
+   6.40     0.000  1       37.49     0.000  1       68.58     0.000  1
+   7.32     0.000  1       38.40     0.000  1       69.49     0.000  1
+   8.23     0.000  1       39.32     0.000  1       70.41     0.000  1
+   9.14     0.000  1       40.23     0.000  1       71.32     0.000  1
+  10.06     0.000  1       41.15     0.000  1       72.24     0.000  1
+  10.97     0.000  1       42.06     0.000  1       73.15     0.000  1
+  11.89     0.000  1       42.98     0.000  1       74.07     0.000  1
+  12.80     0.000  1       43.89     0.000  1       74.98     0.000  1
+  13.72     0.000  1       44.81     0.000  1       75.90     0.000  1
+  14.63     0.000  1       45.72     0.000  1       76.81     0.000  1
+  15.54     0.000  1       46.63     0.000  1       77.72     0.000  1
+  16.46     0.000  1       47.55     0.000  1       78.64     0.000  1
+  17.37     0.000  1       48.46     0.000  1       79.55     0.000  1
+  18.29     0.000  1       49.38     0.000  1       80.47     0.000  1
+  19.20     0.000  1       50.29     0.000  1       81.38     0.000  1
+  20.12     0.000  1       51.21     0.000  1       82.30     0.000  1
+  21.03     0.000  1       52.12     0.000  1       83.21     0.000  1
+  21.95     0.000  1       53.04     0.000  1       84.12     0.000  1
+  22.86     0.000  1       53.95     0.000  1       85.04     0.000  1
+  23.77     0.000  1       54.86     0.000  1       85.95     0.000  1
+  24.69     0.000  1       55.78     0.000  1       86.87     0.000  1
+  25.60     0.000  1       56.69     0.000  1       87.78     0.000  1
+  26.52     0.000  1       57.61     0.000  1       88.70     0.000  1
+  27.43     0.000  1       58.52     0.000  1       89.61     0.000  1
+  28.35     0.000  1       59.44     0.000  1       90.53     0.000  1
+  29.26     0.000  1       60.35     0.000  1       91.44     0.000  1
+  30.18     0.000  1       61.26     0.000  1
+  31.09     0.000  1       62.18     0.000  1
+
+note:  (+) soil loss - detachment     (-) soil loss - deposition
+
+
+
+III. OFF SITE EFFECTS  OFF SITE EFFECTS  OFF SITE EFFECTS
+     ----------------  ----------------  ----------------
+
+     A.  SEDIMENT LEAVING PROFILE for year   35     0.000 kg/m
+
+
+
+     B.  SEDIMENT CHARACTERISTICS AND ENRICHMENT
+
+     Sediment particle information leaving profile
+-------------------------------------------------------------------------------
+                                 Particle Composition         Detached Fraction
+Class  Diameter  Specific  ---------------------------------  Sediment  In Flow
+         (mm)    Gravity   % Sand   % Silt   % Clay   % O.M.  Fraction  Exiting
+-------------------------------------------------------------------------------
+  1     0.002      2.60      0.0      0.0    100.0     33.3     0.039    0.000
+  2     0.010      2.65      0.0    100.0      0.0      0.0     0.330    0.000
+  3     0.030      1.80      0.0     80.0     20.0      6.7     0.270    0.000
+  4     0.300      1.60     55.6     21.6     22.8      7.6     0.250    0.000
+  5     0.200      2.65    100.0      0.0      0.0      0.0     0.111    0.000
+-------------------------------------------------------------------------------
+
+
+     Weighted SSA enrichment ratio leaving profile for year   35 =   0.00
+
+
+     HILLSLOPE 1 YEARLY SUMMARY FOR   36
+     ----------------------------------
+
+
+I.   RAINFALL AND RUNOFF SUMMARY
+     -------- --- ------ -------
+
+      year:     36
+
+         Rainfall         Storm Runoff        Melt Runoff
+      events   amount   events   amount     events  amount
+                (mm)              (mm)               (mm)
+
+        90     356.30       2       1.16       0       0.00
+
+
+II.  ON SITE EFFECTS  ON SITE EFFECTS  ON SITE EFFECTS
+     ---------------  ---------------  ---------------
+
+
+  A.  AREA OF NET SOIL LOSS
+
+      ** Soil Loss (Avg. of Net Detachment Areas) =    0.135 kg/m2 **
+      ** Maximum Soil Loss  =    0.278 kg/m2 at   91.44 meters **
+
+
+      Area of    Soil Loss   Soil Loss   MAX   MAX Loss   MIN   MIN Loss
+      Net Loss      MEAN      STDEV      Loss    Point    Loss   Point
+        (m)       (kg/m2)     (kg/m2)  (kg/m2)    (m)    (kg/m2)  (m)
+------------------------------------------------------------------------
+   0.00-  91.44    0.135     0.089      0.278   91.44     0.015     7.32
+
+
+
+  C.  SOIL LOSS/DEPOSITION ALONG SLOPE PROFILE
+
+          Profile distances are from top to bottom of hillslope
+
+
+ distance soil  flow    distance   soil  flow    distance   soil  flow
+    (m)   loss  elem       (m)     loss  elem       (m)     loss  elem
+         (kg/m2)                  (kg/m2)                  (kg/m2)
+------------------------------------------------------------------------
+
+   0.91     0.015  1       32.00     0.085  1       63.09     0.196  1
+   1.83     0.015  1       32.92     0.089  1       64.01     0.199  1
+   2.74     0.015  1       33.83     0.092  1       64.92     0.202  1
+   3.66     0.015  1       34.75     0.096  1       65.84     0.205  1
+   4.57     0.015  1       35.66     0.100  1       66.75     0.207  1
+   5.49     0.015  1       36.58     0.103  1       67.67     0.210  1
+   6.40     0.015  1       37.49     0.107  1       68.58     0.213  1
+   7.32     0.015  1       38.40     0.110  1       69.49     0.216  1
+   8.23     0.015  1       39.32     0.114  1       70.41     0.219  1
+   9.14     0.015  1       40.23     0.117  1       71.32     0.221  1
+  10.06     0.015  1       41.15     0.121  1       72.24     0.224  1
+  10.97     0.015  1       42.06     0.124  1       73.15     0.227  1
+  11.89     0.015  1       42.98     0.128  1       74.07     0.229  1
+  12.80     0.015  1       43.89     0.131  1       74.98     0.232  1
+  13.72     0.015  1       44.81     0.134  1       75.90     0.235  1
+  14.63     0.015  1       45.72     0.138  1       76.81     0.237  1
+  15.54     0.015  1       46.63     0.141  1       77.72     0.240  1
+  16.46     0.015  1       47.55     0.144  1       78.64     0.243  1
+  17.37     0.018  1       48.46     0.147  1       79.55     0.245  1
+  18.29     0.022  1       49.38     0.151  1       80.47     0.248  1
+  19.20     0.027  1       50.29     0.154  1       81.38     0.251  1
+  20.12     0.031  1       51.21     0.157  1       82.30     0.253  1
+  21.03     0.036  1       52.12     0.160  1       83.21     0.256  1
+  21.95     0.040  1       53.04     0.163  1       84.12     0.258  1
+  22.86     0.045  1       53.95     0.166  1       85.04     0.261  1
+  23.77     0.049  1       54.86     0.169  1       85.95     0.263  1
+  24.69     0.053  1       55.78     0.172  1       86.87     0.266  1
+  25.60     0.057  1       56.69     0.175  1       87.78     0.268  1
+  26.52     0.061  1       57.61     0.178  1       88.70     0.271  1
+  27.43     0.065  1       58.52     0.181  1       89.61     0.273  1
+  28.35     0.069  1       59.44     0.184  1       90.53     0.276  1
+  29.26     0.073  1       60.35     0.187  1       91.44     0.278  1
+  30.18     0.077  1       61.26     0.190  1
+  31.09     0.081  1       62.18     0.193  1
+
+note:  (+) soil loss - detachment     (-) soil loss - deposition
+
+
+
+III. OFF SITE EFFECTS  OFF SITE EFFECTS  OFF SITE EFFECTS
+     ----------------  ----------------  ----------------
+
+     A.  SEDIMENT LEAVING PROFILE for year   36    12.344 kg/m
+
+
+
+     B.  SEDIMENT CHARACTERISTICS AND ENRICHMENT
+
+     Sediment particle information leaving profile
+-------------------------------------------------------------------------------
+                                 Particle Composition         Detached Fraction
+Class  Diameter  Specific  ---------------------------------  Sediment  In Flow
+         (mm)    Gravity   % Sand   % Silt   % Clay   % O.M.  Fraction  Exiting
+-------------------------------------------------------------------------------
+  1     0.002      2.60      0.0      0.0    100.0     33.3     0.039    0.039
+  2     0.010      2.65      0.0    100.0      0.0      0.0     0.330    0.330
+  3     0.030      1.80      0.0     80.0     20.0      6.7     0.270    0.270
+  4     0.300      1.60     55.6     21.6     22.8      7.6     0.250    0.250
+  5     0.200      2.65    100.0      0.0      0.0      0.0     0.111    0.111
+-------------------------------------------------------------------------------
+
+
+     Weighted SSA enrichment ratio leaving profile for year   36 =   1.00
+
+
+     HILLSLOPE 1 YEARLY SUMMARY FOR   39
+     ----------------------------------
+
+
+I.   RAINFALL AND RUNOFF SUMMARY
+     -------- --- ------ -------
+
+      year:     39
+
+         Rainfall         Storm Runoff        Melt Runoff
+      events   amount   events   amount     events  amount
+                (mm)              (mm)               (mm)
+
+        90     392.90       3      16.46       0       0.00
+
+
+II.  ON SITE EFFECTS  ON SITE EFFECTS  ON SITE EFFECTS
+     ---------------  ---------------  ---------------
+
+
+  A.  AREA OF NET SOIL LOSS
+
+      ** Soil Loss (Avg. of Net Detachment Areas) =    1.626 kg/m2 **
+      ** Maximum Soil Loss  =    2.784 kg/m2 at   91.44 meters **
+
+
+      Area of    Soil Loss   Soil Loss   MAX   MAX Loss   MIN   MIN Loss
+      Net Loss      MEAN      STDEV      Loss    Point    Loss   Point
+        (m)       (kg/m2)     (kg/m2)  (kg/m2)    (m)    (kg/m2)  (m)
+------------------------------------------------------------------------
+   0.00-  91.44    1.626     0.772      2.784   91.44     0.133     0.91
+
+
+
+  C.  SOIL LOSS/DEPOSITION ALONG SLOPE PROFILE
+
+          Profile distances are from top to bottom of hillslope
+
+
+ distance soil  flow    distance   soil  flow    distance   soil  flow
+    (m)   loss  elem       (m)     loss  elem       (m)     loss  elem
+         (kg/m2)                  (kg/m2)                  (kg/m2)
+------------------------------------------------------------------------
+
+   0.91     0.133  1       32.00     1.309  1       63.09     2.150  1
+   1.83     0.133  1       32.92     1.337  1       64.01     2.172  1
+   2.74     0.133  1       33.83     1.365  1       64.92     2.193  1
+   3.66     0.151  1       34.75     1.393  1       65.84     2.215  1
+   4.57     0.203  1       35.66     1.420  1       66.75     2.237  1
+   5.49     0.258  1       36.58     1.447  1       67.67     2.258  1
+   6.40     0.310  1       37.49     1.474  1       68.58     2.280  1
+   7.32     0.360  1       38.40     1.501  1       69.49     2.301  1
+   8.23     0.407  1       39.32     1.527  1       70.41     2.322  1
+   9.14     0.453  1       40.23     1.553  1       71.32     2.343  1
+  10.06     0.496  1       41.15     1.579  1       72.24     2.364  1
+  10.97     0.539  1       42.06     1.605  1       73.15     2.385  1
+  11.89     0.580  1       42.98     1.630  1       74.07     2.406  1
+  12.80     0.620  1       43.89     1.656  1       74.98     2.427  1
+  13.72     0.659  1       44.81     1.681  1       75.90     2.447  1
+  14.63     0.697  1       45.72     1.706  1       76.81     2.468  1
+  15.54     0.734  1       46.63     1.731  1       77.72     2.488  1
+  16.46     0.771  1       47.55     1.755  1       78.64     2.509  1
+  17.37     0.807  1       48.46     1.780  1       79.55     2.529  1
+  18.29     0.842  1       49.38     1.804  1       80.47     2.549  1
+  19.20     0.876  1       50.29     1.828  1       81.38     2.569  1
+  20.12     0.910  1       51.21     1.852  1       82.30     2.589  1
+  21.03     0.943  1       52.12     1.876  1       83.21     2.609  1
+  21.95     0.976  1       53.04     1.899  1       84.12     2.629  1
+  22.86     1.008  1       53.95     1.923  1       85.04     2.648  1
+  23.77     1.040  1       54.86     1.946  1       85.95     2.668  1
+  24.69     1.071  1       55.78     1.969  1       86.87     2.687  1
+  25.60     1.102  1       56.69     1.992  1       87.78     2.707  1
+  26.52     1.133  1       57.61     2.015  1       88.70     2.726  1
+  27.43     1.163  1       58.52     2.038  1       89.61     2.746  1
+  28.35     1.193  1       59.44     2.060  1       90.53     2.765  1
+  29.26     1.222  1       60.35     2.083  1       91.44     2.784  1
+  30.18     1.251  1       61.26     2.105  1
+  31.09     1.280  1       62.18     2.128  1
+
+note:  (+) soil loss - detachment     (-) soil loss - deposition
+
+
+
+III. OFF SITE EFFECTS  OFF SITE EFFECTS  OFF SITE EFFECTS
+     ----------------  ----------------  ----------------
+
+     A.  SEDIMENT LEAVING PROFILE for year   39   148.671 kg/m
+
+
+
+     B.  SEDIMENT CHARACTERISTICS AND ENRICHMENT
+
+     Sediment particle information leaving profile
+-------------------------------------------------------------------------------
+                                 Particle Composition         Detached Fraction
+Class  Diameter  Specific  ---------------------------------  Sediment  In Flow
+         (mm)    Gravity   % Sand   % Silt   % Clay   % O.M.  Fraction  Exiting
+-------------------------------------------------------------------------------
+  1     0.002      2.60      0.0      0.0    100.0     33.3     0.039    0.039
+  2     0.010      2.65      0.0    100.0      0.0      0.0     0.330    0.330
+  3     0.030      1.80      0.0     80.0     20.0      6.7     0.270    0.270
+  4     0.300      1.60     55.6     21.6     22.8      7.6     0.250    0.250
+  5     0.200      2.65    100.0      0.0      0.0      0.0     0.111    0.111
+-------------------------------------------------------------------------------
+
+
+     Weighted SSA enrichment ratio leaving profile for year   39 =   1.00
+
+
+     HILLSLOPE 1 YEARLY SUMMARY FOR   40
+     ----------------------------------
+
+
+I.   RAINFALL AND RUNOFF SUMMARY
+     -------- --- ------ -------
+
+      year:     40
+
+         Rainfall         Storm Runoff        Melt Runoff
+      events   amount   events   amount     events  amount
+                (mm)              (mm)               (mm)
+
+        91     478.90       2      26.32       0       0.00
+
+
+II.  ON SITE EFFECTS  ON SITE EFFECTS  ON SITE EFFECTS
+     ---------------  ---------------  ---------------
+
+
+  A.  AREA OF NET SOIL LOSS
+
+      ** Soil Loss (Avg. of Net Detachment Areas) =    2.146 kg/m2 **
+      ** Maximum Soil Loss  =    3.476 kg/m2 at   91.44 meters **
+
+
+      Area of    Soil Loss   Soil Loss   MAX   MAX Loss   MIN   MIN Loss
+      Net Loss      MEAN      STDEV      Loss    Point    Loss   Point
+        (m)       (kg/m2)     (kg/m2)  (kg/m2)    (m)    (kg/m2)  (m)
+------------------------------------------------------------------------
+   0.00-  91.44    2.146     0.880      3.476   91.44     0.380     0.91
+
+
+
+  C.  SOIL LOSS/DEPOSITION ALONG SLOPE PROFILE
+
+          Profile distances are from top to bottom of hillslope
+
+
+ distance soil  flow    distance   soil  flow    distance   soil  flow
+    (m)   loss  elem       (m)     loss  elem       (m)     loss  elem
+         (kg/m2)                  (kg/m2)                  (kg/m2)
+------------------------------------------------------------------------
+
+   0.91     0.380  1       32.00     1.774  1       63.09     2.743  1
+   1.83     0.414  1       32.92     1.806  1       64.01     2.768  1
+   2.74     0.483  1       33.83     1.838  1       64.92     2.793  1
+   3.66     0.544  1       34.75     1.870  1       65.84     2.818  1
+   4.57     0.598  1       35.66     1.902  1       66.75     2.843  1
+   5.49     0.649  1       36.58     1.933  1       67.67     2.868  1
+   6.40     0.696  1       37.49     1.964  1       68.58     2.893  1
+   7.32     0.742  1       38.40     1.995  1       69.49     2.917  1
+   8.23     0.785  1       39.32     2.025  1       70.41     2.942  1
+   9.14     0.826  1       40.23     2.055  1       71.32     2.966  1
+  10.06     0.866  1       41.15     2.085  1       72.24     2.991  1
+  10.97     0.905  1       42.06     2.115  1       73.15     3.015  1
+  11.89     0.942  1       42.98     2.144  1       74.07     3.039  1
+  12.80     0.983  1       43.89     2.173  1       74.98     3.063  1
+  13.72     1.028  1       44.81     2.202  1       75.90     3.086  1
+  14.63     1.072  1       45.72     2.231  1       76.81     3.110  1
+  15.54     1.114  1       46.63     2.260  1       77.72     3.134  1
+  16.46     1.156  1       47.55     2.288  1       78.64     3.157  1
+  17.37     1.197  1       48.46     2.316  1       79.55     3.181  1
+  18.29     1.237  1       49.38     2.344  1       80.47     3.204  1
+  19.20     1.277  1       50.29     2.372  1       81.38     3.227  1
+  20.12     1.316  1       51.21     2.399  1       82.30     3.250  1
+  21.03     1.354  1       52.12     2.427  1       83.21     3.273  1
+  21.95     1.391  1       53.04     2.454  1       84.12     3.296  1
+  22.86     1.428  1       53.95     2.481  1       85.04     3.319  1
+  23.77     1.465  1       54.86     2.508  1       85.95     3.341  1
+  24.69     1.501  1       55.78     2.534  1       86.87     3.364  1
+  25.60     1.537  1       56.69     2.561  1       87.78     3.386  1
+  26.52     1.572  1       57.61     2.587  1       88.70     3.409  1
+  27.43     1.606  1       58.52     2.614  1       89.61     3.431  1
+  28.35     1.641  1       59.44     2.640  1       90.53     3.454  1
+  29.26     1.674  1       60.35     2.666  1       91.44     3.476  1
+  30.18     1.708  1       61.26     2.691  1
+  31.09     1.741  1       62.18     2.717  1
+
+note:  (+) soil loss - detachment     (-) soil loss - deposition
+
+
+
+III. OFF SITE EFFECTS  OFF SITE EFFECTS  OFF SITE EFFECTS
+     ----------------  ----------------  ----------------
+
+     A.  SEDIMENT LEAVING PROFILE for year   40   196.188 kg/m
+
+
+
+     B.  SEDIMENT CHARACTERISTICS AND ENRICHMENT
+
+     Sediment particle information leaving profile
+-------------------------------------------------------------------------------
+                                 Particle Composition         Detached Fraction
+Class  Diameter  Specific  ---------------------------------  Sediment  In Flow
+         (mm)    Gravity   % Sand   % Silt   % Clay   % O.M.  Fraction  Exiting
+-------------------------------------------------------------------------------
+  1     0.002      2.60      0.0      0.0    100.0     33.3     0.039    0.039
+  2     0.010      2.65      0.0    100.0      0.0      0.0     0.330    0.330
+  3     0.030      1.80      0.0     80.0     20.0      6.7     0.270    0.270
+  4     0.300      1.60     55.6     21.6     22.8      7.6     0.250    0.250
+  5     0.200      2.65    100.0      0.0      0.0      0.0     0.111    0.111
+-------------------------------------------------------------------------------
+
+
+     Weighted SSA enrichment ratio leaving profile for year   40 =   1.00
+
+
+     HILLSLOPE 1 YEARLY SUMMARY FOR   57
+     ----------------------------------
+
+
+I.   RAINFALL AND RUNOFF SUMMARY
+     -------- --- ------ -------
+
+      year:     57
+
+         Rainfall         Storm Runoff        Melt Runoff
+      events   amount   events   amount     events  amount
+                (mm)              (mm)               (mm)
+
+        91     363.80       2       0.46       0       0.00
+
+
+II.  ON SITE EFFECTS  ON SITE EFFECTS  ON SITE EFFECTS
+     ---------------  ---------------  ---------------
+
+
+  A.  AREA OF NET SOIL LOSS
+
+      ** Soil Loss (Avg. of Net Detachment Areas) =    0.041 kg/m2 **
+      ** Maximum Soil Loss  =    0.105 kg/m2 at   91.44 meters **
+
+
+      Area of    Soil Loss   Soil Loss   MAX   MAX Loss   MIN   MIN Loss
+      Net Loss      MEAN      STDEV      Loss    Point    Loss   Point
+        (m)       (kg/m2)     (kg/m2)  (kg/m2)    (m)    (kg/m2)  (m)
+------------------------------------------------------------------------
+   0.00-  91.44    0.041     0.035      0.105   91.44     0.004    12.80
+
+
+
+  C.  SOIL LOSS/DEPOSITION ALONG SLOPE PROFILE
+
+          Profile distances are from top to bottom of hillslope
+
+
+ distance soil  flow    distance   soil  flow    distance   soil  flow
+    (m)   loss  elem       (m)     loss  elem       (m)     loss  elem
+         (kg/m2)                  (kg/m2)                  (kg/m2)
+------------------------------------------------------------------------
+
+   0.91     0.004  1       32.00     0.010  1       63.09     0.065  1
+   1.83     0.004  1       32.92     0.012  1       64.01     0.066  1
+   2.74     0.004  1       33.83     0.014  1       64.92     0.067  1
+   3.66     0.004  1       34.75     0.016  1       65.84     0.069  1
+   4.57     0.004  1       35.66     0.017  1       66.75     0.070  1
+   5.49     0.004  1       36.58     0.019  1       67.67     0.072  1
+   6.40     0.004  1       37.49     0.021  1       68.58     0.073  1
+   7.32     0.004  1       38.40     0.023  1       69.49     0.074  1
+   8.23     0.004  1       39.32     0.024  1       70.41     0.076  1
+   9.14     0.004  1       40.23     0.026  1       71.32     0.077  1
+  10.06     0.004  1       41.15     0.028  1       72.24     0.078  1
+  10.97     0.004  1       42.06     0.029  1       73.15     0.080  1
+  11.89     0.004  1       42.98     0.031  1       74.07     0.081  1
+  12.80     0.004  1       43.89     0.033  1       74.98     0.082  1
+  13.72     0.004  1       44.81     0.034  1       75.90     0.084  1
+  14.63     0.004  1       45.72     0.036  1       76.81     0.085  1
+  15.54     0.004  1       46.63     0.038  1       77.72     0.086  1
+  16.46     0.004  1       47.55     0.039  1       78.64     0.087  1
+  17.37     0.004  1       48.46     0.041  1       79.55     0.089  1
+  18.29     0.004  1       49.38     0.042  1       80.47     0.090  1
+  19.20     0.004  1       50.29     0.044  1       81.38     0.091  1
+  20.12     0.004  1       51.21     0.045  1       82.30     0.092  1
+  21.03     0.004  1       52.12     0.047  1       83.21     0.094  1
+  21.95     0.004  1       53.04     0.049  1       84.12     0.095  1
+  22.86     0.004  1       53.95     0.050  1       85.04     0.096  1
+  23.77     0.004  1       54.86     0.052  1       85.95     0.097  1
+  24.69     0.004  1       55.78     0.053  1       86.87     0.099  1
+  25.60     0.004  1       56.69     0.055  1       87.78     0.100  1
+  26.52     0.004  1       57.61     0.056  1       88.70     0.101  1
+  27.43     0.004  1       58.52     0.057  1       89.61     0.102  1
+  28.35     0.005  1       59.44     0.059  1       90.53     0.103  1
+  29.26     0.006  1       60.35     0.060  1       91.44     0.105  1
+  30.18     0.007  1       61.26     0.062  1
+  31.09     0.008  1       62.18     0.063  1
+
+note:  (+) soil loss - detachment     (-) soil loss - deposition
+
+
+
+III. OFF SITE EFFECTS  OFF SITE EFFECTS  OFF SITE EFFECTS
+     ----------------  ----------------  ----------------
+
+     A.  SEDIMENT LEAVING PROFILE for year   57     3.793 kg/m
+
+
+
+     B.  SEDIMENT CHARACTERISTICS AND ENRICHMENT
+
+     Sediment particle information leaving profile
+-------------------------------------------------------------------------------
+                                 Particle Composition         Detached Fraction
+Class  Diameter  Specific  ---------------------------------  Sediment  In Flow
+         (mm)    Gravity   % Sand   % Silt   % Clay   % O.M.  Fraction  Exiting
+-------------------------------------------------------------------------------
+  1     0.002      2.60      0.0      0.0    100.0     33.3     0.039    0.039
+  2     0.010      2.65      0.0    100.0      0.0      0.0     0.330    0.330
+  3     0.030      1.80      0.0     80.0     20.0      6.7     0.270    0.270
+  4     0.300      1.60     55.6     21.6     22.8      7.6     0.250    0.250
+  5     0.200      2.65    100.0      0.0      0.0      0.0     0.111    0.111
+-------------------------------------------------------------------------------
+
+
+     Weighted SSA enrichment ratio leaving profile for year   57 =   1.00
+
+
+     HILLSLOPE 1 YEARLY SUMMARY FOR   58
+     ----------------------------------
+
+
+I.   RAINFALL AND RUNOFF SUMMARY
+     -------- --- ------ -------
+
+      year:     58
+
+         Rainfall         Storm Runoff        Melt Runoff
+      events   amount   events   amount     events  amount
+                (mm)              (mm)               (mm)
+
+        83     729.50       4      90.52       0       0.00
+
+
+II.  ON SITE EFFECTS  ON SITE EFFECTS  ON SITE EFFECTS
+     ---------------  ---------------  ---------------
+
+
+  A.  AREA OF NET SOIL LOSS
+
+      ** Soil Loss (Avg. of Net Detachment Areas) =    7.589 kg/m2 **
+      ** Maximum Soil Loss  =   12.473 kg/m2 at   91.44 meters **
+
+
+      Area of    Soil Loss   Soil Loss   MAX   MAX Loss   MIN   MIN Loss
+      Net Loss      MEAN      STDEV      Loss    Point    Loss   Point
+        (m)       (kg/m2)     (kg/m2)  (kg/m2)    (m)    (kg/m2)  (m)
+------------------------------------------------------------------------
+   0.00-  91.44    7.589     3.262     12.473   91.44     0.879     0.91
+
+
+
+  C.  SOIL LOSS/DEPOSITION ALONG SLOPE PROFILE
+
+          Profile distances are from top to bottom of hillslope
+
+
+ distance soil  flow    distance   soil  flow    distance   soil  flow
+    (m)   loss  elem       (m)     loss  elem       (m)     loss  elem
+         (kg/m2)                  (kg/m2)                  (kg/m2)
+------------------------------------------------------------------------
+
+   0.91     0.879  1       32.00     6.263  1       63.09     9.795  1
+   1.83     0.923  1       32.92     6.381  1       64.01     9.888  1
+   2.74     1.128  1       33.83     6.498  1       64.92     9.980  1
+   3.66     1.395  1       34.75     6.614  1       65.84    10.072  1
+   4.57     1.644  1       35.66     6.729  1       66.75    10.163  1
+   5.49     1.876  1       36.58     6.843  1       67.67    10.253  1
+   6.40     2.094  1       37.49     6.956  1       68.58    10.344  1
+   7.32     2.300  1       38.40     7.067  1       69.49    10.433  1
+   8.23     2.497  1       39.32     7.178  1       70.41    10.523  1
+   9.14     2.686  1       40.23     7.288  1       71.32    10.612  1
+  10.06     2.869  1       41.15     7.397  1       72.24    10.700  1
+  10.97     3.046  1       42.06     7.505  1       73.15    10.788  1
+  11.89     3.217  1       42.98     7.612  1       74.07    10.876  1
+  12.80     3.384  1       43.89     7.718  1       74.98    10.963  1
+  13.72     3.547  1       44.81     7.824  1       75.90    11.050  1
+  14.63     3.706  1       45.72     7.929  1       76.81    11.137  1
+  15.54     3.861  1       46.63     8.033  1       77.72    11.223  1
+  16.46     4.013  1       47.55     8.136  1       78.64    11.309  1
+  17.37     4.163  1       48.46     8.239  1       79.55    11.394  1
+  18.29     4.309  1       49.38     8.341  1       80.47    11.479  1
+  19.20     4.453  1       50.29     8.442  1       81.38    11.564  1
+  20.12     4.594  1       51.21     8.543  1       82.30    11.648  1
+  21.03     4.733  1       52.12     8.642  1       83.21    11.732  1
+  21.95     4.870  1       53.04     8.742  1       84.12    11.816  1
+  22.86     5.005  1       53.95     8.840  1       85.04    11.899  1
+  23.77     5.138  1       54.86     8.938  1       85.95    11.982  1
+  24.69     5.269  1       55.78     9.036  1       86.87    12.064  1
+  25.60     5.399  1       56.69     9.133  1       87.78    12.147  1
+  26.52     5.527  1       57.61     9.229  1       88.70    12.229  1
+  27.43     5.653  1       58.52     9.325  1       89.61    12.310  1
+  28.35     5.778  1       59.44     9.420  1       90.53    12.392  1
+  29.26     5.901  1       60.35     9.514  1       91.44    12.473  1
+  30.18     6.023  1       61.26     9.608  1
+  31.09     6.144  1       62.18     9.702  1
+
+note:  (+) soil loss - detachment     (-) soil loss - deposition
+
+
+
+III. OFF SITE EFFECTS  OFF SITE EFFECTS  OFF SITE EFFECTS
+     ----------------  ----------------  ----------------
+
+     A.  SEDIMENT LEAVING PROFILE for year   58   693.962 kg/m
+
+
+
+     B.  SEDIMENT CHARACTERISTICS AND ENRICHMENT
+
+     Sediment particle information leaving profile
+-------------------------------------------------------------------------------
+                                 Particle Composition         Detached Fraction
+Class  Diameter  Specific  ---------------------------------  Sediment  In Flow
+         (mm)    Gravity   % Sand   % Silt   % Clay   % O.M.  Fraction  Exiting
+-------------------------------------------------------------------------------
+  1     0.002      2.60      0.0      0.0    100.0     33.3     0.039    0.039
+  2     0.010      2.65      0.0    100.0      0.0      0.0     0.330    0.330
+  3     0.030      1.80      0.0     80.0     20.0      6.7     0.270    0.270
+  4     0.300      1.60     55.6     21.6     22.8      7.6     0.250    0.250
+  5     0.200      2.65    100.0      0.0      0.0      0.0     0.111    0.111
+-------------------------------------------------------------------------------
+
+
+     Weighted SSA enrichment ratio leaving profile for year   58 =   1.00
+
+
+     HILLSLOPE 1 YEARLY SUMMARY FOR   73
+     ----------------------------------
+
+
+I.   RAINFALL AND RUNOFF SUMMARY
+     -------- --- ------ -------
+
+      year:     73
+
+         Rainfall         Storm Runoff        Melt Runoff
+      events   amount   events   amount     events  amount
+                (mm)              (mm)               (mm)
+
+        72     433.70       3      28.09       0       0.00
+
+
+II.  ON SITE EFFECTS  ON SITE EFFECTS  ON SITE EFFECTS
+     ---------------  ---------------  ---------------
+
+
+  A.  AREA OF NET SOIL LOSS
+
+      ** Soil Loss (Avg. of Net Detachment Areas) =    2.433 kg/m2 **
+      ** Maximum Soil Loss  =    3.988 kg/m2 at   91.44 meters **
+
+
+      Area of    Soil Loss   Soil Loss   MAX   MAX Loss   MIN   MIN Loss
+      Net Loss      MEAN      STDEV      Loss    Point    Loss   Point
+        (m)       (kg/m2)     (kg/m2)  (kg/m2)    (m)    (kg/m2)  (m)
+------------------------------------------------------------------------
+   0.00-  91.44    2.433     1.034      3.988   91.44     0.333     0.91
+
+
+
+  C.  SOIL LOSS/DEPOSITION ALONG SLOPE PROFILE
+
+          Profile distances are from top to bottom of hillslope
+
+
+ distance soil  flow    distance   soil  flow    distance   soil  flow
+    (m)   loss  elem       (m)     loss  elem       (m)     loss  elem
+         (kg/m2)                  (kg/m2)                  (kg/m2)
+------------------------------------------------------------------------
+
+   0.91     0.333  1       32.00     2.005  1       63.09     3.133  1
+   1.83     0.347  1       32.92     2.042  1       64.01     3.162  1
+   2.74     0.412  1       33.83     2.078  1       64.92     3.192  1
+   3.66     0.478  1       34.75     2.115  1       65.84     3.221  1
+   4.57     0.555  1       35.66     2.152  1       66.75     3.250  1
+   5.49     0.628  1       36.58     2.188  1       67.67     3.279  1
+   6.40     0.696  1       37.49     2.224  1       68.58     3.308  1
+   7.32     0.761  1       38.40     2.260  1       69.49     3.337  1
+   8.23     0.823  1       39.32     2.296  1       70.41     3.365  1
+   9.14     0.882  1       40.23     2.331  1       71.32     3.394  1
+  10.06     0.940  1       41.15     2.366  1       72.24     3.422  1
+  10.97     0.995  1       42.06     2.400  1       73.15     3.450  1
+  11.89     1.049  1       42.98     2.434  1       74.07     3.478  1
+  12.80     1.101  1       43.89     2.469  1       74.98     3.506  1
+  13.72     1.152  1       44.81     2.502  1       75.90     3.534  1
+  14.63     1.202  1       45.72     2.536  1       76.81     3.562  1
+  15.54     1.251  1       46.63     2.569  1       77.72     3.589  1
+  16.46     1.299  1       47.55     2.602  1       78.64     3.617  1
+  17.37     1.346  1       48.46     2.635  1       79.55     3.644  1
+  18.29     1.391  1       49.38     2.668  1       80.47     3.671  1
+  19.20     1.437  1       50.29     2.700  1       81.38     3.698  1
+  20.12     1.481  1       51.21     2.732  1       82.30     3.725  1
+  21.03     1.525  1       52.12     2.764  1       83.21     3.752  1
+  21.95     1.568  1       53.04     2.796  1       84.12     3.778  1
+  22.86     1.610  1       53.95     2.827  1       85.04     3.805  1
+  23.77     1.652  1       54.86     2.859  1       85.95     3.832  1
+  24.69     1.693  1       55.78     2.890  1       86.87     3.858  1
+  25.60     1.733  1       56.69     2.921  1       87.78     3.884  1
+  26.52     1.774  1       57.61     2.952  1       88.70     3.910  1
+  27.43     1.813  1       58.52     2.982  1       89.61     3.936  1
+  28.35     1.852  1       59.44     3.013  1       90.53     3.962  1
+  29.26     1.891  1       60.35     3.043  1       91.44     3.988  1
+  30.18     1.929  1       61.26     3.073  1
+  31.09     1.967  1       62.18     3.103  1
+
+note:  (+) soil loss - detachment     (-) soil loss - deposition
+
+
+
+III. OFF SITE EFFECTS  OFF SITE EFFECTS  OFF SITE EFFECTS
+     ----------------  ----------------  ----------------
+
+     A.  SEDIMENT LEAVING PROFILE for year   73   222.506 kg/m
+
+
+
+     B.  SEDIMENT CHARACTERISTICS AND ENRICHMENT
+
+     Sediment particle information leaving profile
+-------------------------------------------------------------------------------
+                                 Particle Composition         Detached Fraction
+Class  Diameter  Specific  ---------------------------------  Sediment  In Flow
+         (mm)    Gravity   % Sand   % Silt   % Clay   % O.M.  Fraction  Exiting
+-------------------------------------------------------------------------------
+  1     0.002      2.60      0.0      0.0    100.0     33.3     0.039    0.039
+  2     0.010      2.65      0.0    100.0      0.0      0.0     0.330    0.330
+  3     0.030      1.80      0.0     80.0     20.0      6.7     0.270    0.270
+  4     0.300      1.60     55.6     21.6     22.8      7.6     0.250    0.250
+  5     0.200      2.65    100.0      0.0      0.0      0.0     0.111    0.111
+-------------------------------------------------------------------------------
+
+
+     Weighted SSA enrichment ratio leaving profile for year   73 =   1.00
+
+
+     HILLSLOPE 1 YEARLY SUMMARY FOR   74
+     ----------------------------------
+
+
+I.   RAINFALL AND RUNOFF SUMMARY
+     -------- --- ------ -------
+
+      year:     74
+
+         Rainfall         Storm Runoff        Melt Runoff
+      events   amount   events   amount     events  amount
+                (mm)              (mm)               (mm)
+
+        84     413.70       3       9.02       0       0.00
+
+
+II.  ON SITE EFFECTS  ON SITE EFFECTS  ON SITE EFFECTS
+     ---------------  ---------------  ---------------
+
+
+  A.  AREA OF NET SOIL LOSS
+
+      ** Soil Loss (Avg. of Net Detachment Areas) =    0.899 kg/m2 **
+      ** Maximum Soil Loss  =    1.594 kg/m2 at   91.44 meters **
+
+
+      Area of    Soil Loss   Soil Loss   MAX   MAX Loss   MIN   MIN Loss
+      Net Loss      MEAN      STDEV      Loss    Point    Loss   Point
+        (m)       (kg/m2)     (kg/m2)  (kg/m2)    (m)    (kg/m2)  (m)
+------------------------------------------------------------------------
+   0.00-  91.44    0.899     0.442      1.594   91.44     0.078     1.83
+
+
+
+  C.  SOIL LOSS/DEPOSITION ALONG SLOPE PROFILE
+
+          Profile distances are from top to bottom of hillslope
+
+
+ distance soil  flow    distance   soil  flow    distance   soil  flow
+    (m)   loss  elem       (m)     loss  elem       (m)     loss  elem
+         (kg/m2)                  (kg/m2)                  (kg/m2)
+------------------------------------------------------------------------
+
+   0.91     0.078  1       32.00     0.712  1       63.09     1.187  1
+   1.83     0.078  1       32.92     0.728  1       64.01     1.199  1
+   2.74     0.078  1       33.83     0.744  1       64.92     1.212  1
+   3.66     0.086  1       34.75     0.759  1       65.84     1.224  1
+   4.57     0.106  1       35.66     0.775  1       66.75     1.236  1
+   5.49     0.124  1       36.58     0.790  1       67.67     1.248  1
+   6.40     0.146  1       37.49     0.805  1       68.58     1.261  1
+   7.32     0.174  1       38.40     0.820  1       69.49     1.275  1
+   8.23     0.201  1       39.32     0.835  1       70.41     1.289  1
+   9.14     0.227  1       40.23     0.850  1       71.32     1.303  1
+  10.06     0.252  1       41.15     0.865  1       72.24     1.317  1
+  10.97     0.276  1       42.06     0.879  1       73.15     1.331  1
+  11.89     0.299  1       42.98     0.894  1       74.07     1.344  1
+  12.80     0.322  1       43.89     0.908  1       74.98     1.358  1
+  13.72     0.344  1       44.81     0.922  1       75.90     1.372  1
+  14.63     0.365  1       45.72     0.936  1       76.81     1.385  1
+  15.54     0.387  1       46.63     0.950  1       77.72     1.399  1
+  16.46     0.407  1       47.55     0.964  1       78.64     1.412  1
+  17.37     0.427  1       48.46     0.978  1       79.55     1.425  1
+  18.29     0.447  1       49.38     0.992  1       80.47     1.439  1
+  19.20     0.467  1       50.29     1.005  1       81.38     1.452  1
+  20.12     0.486  1       51.21     1.019  1       82.30     1.465  1
+  21.03     0.505  1       52.12     1.032  1       83.21     1.478  1
+  21.95     0.523  1       53.04     1.046  1       84.12     1.491  1
+  22.86     0.542  1       53.95     1.059  1       85.04     1.504  1
+  23.77     0.560  1       54.86     1.072  1       85.95     1.517  1
+  24.69     0.577  1       55.78     1.085  1       86.87     1.530  1
+  25.60     0.595  1       56.69     1.098  1       87.78     1.543  1
+  26.52     0.612  1       57.61     1.111  1       88.70     1.556  1
+  27.43     0.629  1       58.52     1.124  1       89.61     1.568  1
+  28.35     0.646  1       59.44     1.137  1       90.53     1.581  1
+  29.26     0.663  1       60.35     1.149  1       91.44     1.594  1
+  30.18     0.679  1       61.26     1.162  1
+  31.09     0.696  1       62.18     1.175  1
+
+note:  (+) soil loss - detachment     (-) soil loss - deposition
+
+
+
+III. OFF SITE EFFECTS  OFF SITE EFFECTS  OFF SITE EFFECTS
+     ----------------  ----------------  ----------------
+
+     A.  SEDIMENT LEAVING PROFILE for year   74    82.187 kg/m
+
+
+
+     B.  SEDIMENT CHARACTERISTICS AND ENRICHMENT
+
+     Sediment particle information leaving profile
+-------------------------------------------------------------------------------
+                                 Particle Composition         Detached Fraction
+Class  Diameter  Specific  ---------------------------------  Sediment  In Flow
+         (mm)    Gravity   % Sand   % Silt   % Clay   % O.M.  Fraction  Exiting
+-------------------------------------------------------------------------------
+  1     0.002      2.60      0.0      0.0    100.0     33.3     0.039    0.039
+  2     0.010      2.65      0.0    100.0      0.0      0.0     0.330    0.330
+  3     0.030      1.80      0.0     80.0     20.0      6.7     0.270    0.270
+  4     0.300      1.60     55.6     21.6     22.8      7.6     0.250    0.250
+  5     0.200      2.65    100.0      0.0      0.0      0.0     0.111    0.111
+-------------------------------------------------------------------------------
+
+
+     Weighted SSA enrichment ratio leaving profile for year   74 =   1.00
+
+
+     ANNUAL AVERAGE SUMMARIES
+     ------------------------
+
+
+I.   RAINFALL AND RUNOFF SUMMARY
+     -------- --- ------ -------
+
+      total summary:  years    1 -   10
+
+       883 storms produced                         4419.20 mm of precipitation
+        27 rain storm runoff events produced        206.87 mm of runoff
+         0 snow melts and/or
+             events during winter produced            0.00 mm of runoff
+
+      annual averages
+      ---------------
+
+        Number of years                                   10
+        Mean annual precipitation                     441.92    mm
+        Mean annual runoff from rainfall               20.69    mm
+        Mean annual runoff from snow melt
+          and/or rain storm during winter               0.00    mm
+
+
+
+II.  ON SITE EFFECTS  ON SITE EFFECTS  ON SITE EFFECTS
+     ---------------  ---------------  ---------------
+
+
+  A.  AREA OF NET SOIL LOSS
+
+      ** Soil Loss (Avg. of Net Detachment Areas) =    1.793 kg/m2 **
+      ** Maximum Soil Loss  =    2.973 kg/m2 at   91.44 meters **
+
+
+      Area of    Soil Loss   Soil Loss   MAX   MAX Loss   MIN   MIN Loss
+      Net Loss      MEAN      STDEV      Loss    Point    Loss   Point
+        (m)       (kg/m2)     (kg/m2)  (kg/m2)    (m)    (kg/m2)  (m)
+------------------------------------------------------------------------
+   0.00-  91.44    1.793     0.782      2.973   91.44     0.226     0.91
+
+
+
+  C.  SOIL LOSS/DEPOSITION ALONG SLOPE PROFILE
+
+          Profile distances are from top to bottom of hillslope
+
+
+ distance soil  flow    distance   soil  flow    distance   soil  flow
+    (m)   loss  elem       (m)     loss  elem       (m)     loss  elem
+         (kg/m2)                  (kg/m2)                  (kg/m2)
+------------------------------------------------------------------------
+
+   0.91     0.226  1       32.00     1.468  1       63.09     2.322  1
+   1.83     0.236  1       32.92     1.496  1       64.01     2.344  1
+   2.74     0.277  1       33.83     1.525  1       64.92     2.366  1
+   3.66     0.329  1       34.75     1.553  1       65.84     2.389  1
+   4.57     0.383  1       35.66     1.580  1       66.75     2.411  1
+   5.49     0.434  1       36.58     1.608  1       67.67     2.433  1
+   6.40     0.483  1       37.49     1.635  1       68.58     2.454  1
+   7.32     0.529  1       38.40     1.662  1       69.49     2.476  1
+   8.23     0.574  1       39.32     1.689  1       70.41     2.498  1
+   9.14     0.617  1       40.23     1.716  1       71.32     2.520  1
+  10.06     0.659  1       41.15     1.742  1       72.24     2.541  1
+  10.97     0.699  1       42.06     1.768  1       73.15     2.563  1
+  11.89     0.739  1       42.98     1.794  1       74.07     2.584  1
+  12.80     0.778  1       43.89     1.820  1       74.98     2.605  1
+  13.72     0.817  1       44.81     1.845  1       75.90     2.627  1
+  14.63     0.854  1       45.72     1.871  1       76.81     2.648  1
+  15.54     0.891  1       46.63     1.896  1       77.72     2.669  1
+  16.46     0.927  1       47.55     1.921  1       78.64     2.690  1
+  17.37     0.963  1       48.46     1.946  1       79.55     2.710  1
+  18.29     0.998  1       49.38     1.970  1       80.47     2.731  1
+  19.20     1.033  1       50.29     1.995  1       81.38     2.752  1
+  20.12     1.067  1       51.21     2.019  1       82.30     2.772  1
+  21.03     1.100  1       52.12     2.043  1       83.21     2.793  1
+  21.95     1.133  1       53.04     2.067  1       84.12     2.813  1
+  22.86     1.165  1       53.95     2.091  1       85.04     2.833  1
+  23.77     1.197  1       54.86     2.115  1       85.95     2.853  1
+  24.69     1.229  1       55.78     2.138  1       86.87     2.874  1
+  25.60     1.260  1       56.69     2.162  1       87.78     2.894  1
+  26.52     1.290  1       57.61     2.185  1       88.70     2.914  1
+  27.43     1.321  1       58.52     2.208  1       89.61     2.933  1
+  28.35     1.351  1       59.44     2.231  1       90.53     2.953  1
+  29.26     1.381  1       60.35     2.254  1       91.44     2.973  1
+  30.18     1.410  1       61.26     2.277  1
+  31.09     1.439  1       62.18     2.299  1
+
+note:  (+) soil loss - detachment     (-) soil loss - deposition
+
+
+
+III. OFF SITE EFFECTS  OFF SITE EFFECTS  OFF SITE EFFECTS
+     ----------------  ----------------  ----------------
+
+     A.  AVERAGE ANNUAL SEDIMENT LEAVING PROFILE
+           163.966   kg/m of width
+           819.828     kg (based on profile width of      5.000      m)
+            17.932   t/ha (assuming contributions from     0.046     ha)
+
+
+     B.  SEDIMENT CHARACTERISTICS AND ENRICHMENT
+
+     Sediment particle information leaving profile
+-------------------------------------------------------------------------------
+                                 Particle Composition         Detached Fraction
+Class  Diameter  Specific  ---------------------------------  Sediment  In Flow
+         (mm)    Gravity   % Sand   % Silt   % Clay   % O.M.  Fraction  Exiting
+-------------------------------------------------------------------------------
+  1     0.002      2.60      0.0      0.0    100.0     33.3     0.039    0.039
+  2     0.010      2.65      0.0    100.0      0.0      0.0     0.330    0.330
+  3     0.030      1.80      0.0     80.0     20.0      6.7     0.270    0.270
+  4     0.300      1.60     55.6     21.6     22.8      7.6     0.250    0.249
+  5     0.200      2.65    100.0      0.0      0.0      0.0     0.111    0.111
+-------------------------------------------------------------------------------
+
+
+     Average annual SSA enrichment ratio leaving profile =   1.00

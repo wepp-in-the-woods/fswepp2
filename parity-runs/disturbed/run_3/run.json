@@ -1,28 +1,31 @@
 {
   "api": [],
-  "finished_at": 1769134183.7769241,
+  "finished_at": 1769136928.0197318,
   "id": "run_3",
   "legacy": [
     {
       "meta": {
         "command": "curl 'http://localhost:8080/cgi-bin/fswepp/wd/wd.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/wd/weppdist.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 328' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'units=ft&description=&climyears=10&Climate=..%2Fclimates%2Faz023010&achtung=Run+WEPP&SoilType=silt&UpSlopeType=Sod&ofe1_top_slope=30&ofe1_length=50&ofe1_pcover=40&ofe1_rock=20&ofe1_mid_slope=30&LowSlopeType=Sod&ofe2_top_slope=30&ofe2_length=50&ofe2_pcover=40&ofe2_rock=20&ofe2_bot_slope=30&climate_name=&Units=m&actionw=Run+WEPP'",
         "returncode": 0,
-        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100   328    0     0  100   328      0   1635 --:--:-- --:--:-- --:--:--  1631\r100 80092    0 79764  100   328   153k    645 --:--:-- --:--:-- --:--:--  153k",
-        "stdout_bytes": 79764
+        "run_ids": [
+          "wepp-1423"
+        ],
+        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100 80093    0 79765  100   328   153k    645 --:--:-- --:--:-- --:--:--  153k",
+        "stdout_bytes": 79765
       },
       "name": "run"
     }
   ],
   "model": "disturbed",
-  "started_at": 1769134172.5892832,
+  "started_at": 1769136926.072602,
   "working_files": [
-    "/workdir/fswepp2/parity-runs/disturbed/run_3/legacy/working/wepp-873.sterr",
-    "/workdir/fswepp2/parity-runs/disturbed/run_3/legacy/working/wepp-873.stout",
-    "/workdir/fswepp2/parity-runs/disturbed/run_3/legacy/working/wepp-873.in",
-    "/workdir/fswepp2/parity-runs/disturbed/run_3/legacy/working/wepp-873.out",
-    "/workdir/fswepp2/parity-runs/disturbed/run_3/legacy/working/wepp-873.man",
-    "/workdir/fswepp2/parity-runs/disturbed/run_3/legacy/working/wepp-873.slp",
-    "/workdir/fswepp2/parity-runs/disturbed/run_3/legacy/working/wepp-873.cli",
-    "/workdir/fswepp2/parity-runs/disturbed/run_3/legacy/working/wepp-873.sol"
+    "/workdir/fswepp2/parity-runs/disturbed/run_3/legacy/working/wepp-1423.slp",
+    "/workdir/fswepp2/parity-runs/disturbed/run_3/legacy/working/wepp-1423.sol",
+    "/workdir/fswepp2/parity-runs/disturbed/run_3/legacy/working/wepp-1423.man",
+    "/workdir/fswepp2/parity-runs/disturbed/run_3/legacy/working/wepp-1423.in",
+    "/workdir/fswepp2/parity-runs/disturbed/run_3/legacy/working/wepp-1423.stout",
+    "/workdir/fswepp2/parity-runs/disturbed/run_3/legacy/working/wepp-1423.sterr",
+    "/workdir/fswepp2/parity-runs/disturbed/run_3/legacy/working/wepp-1423.out",
+    "/workdir/fswepp2/parity-runs/disturbed/run_3/legacy/working/wepp-1423.cli"
   ]
 }

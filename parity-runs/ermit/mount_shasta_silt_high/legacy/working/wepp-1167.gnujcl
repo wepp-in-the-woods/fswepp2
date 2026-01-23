@@ -1,0 +1,17 @@
+set terminal pngcairo size 800,600 enhanced font 'sans,10' fontscale 1.1
+set output '../working/wepp-1167.png'
+set title 'Sediment Delivery Exceedance Probability for untreated MOUNT SHASTA CA'
+set xlabel 'Sediment Delivery (ton / ac)'
+set ylabel 'Probability (%)'
+set noautoscale y
+set yrange [0:100]
+set key top
+set grid ytics
+set grid xtics
+set timestamp "%m-%d-%Y -- silt loam; 20%% rock; 0%%, 50%%, 30%% slope; 300 ft; high soil burn severity [wepp-1167]"
+plot [] [1:] \
+     '../working/wepp-1167.gnudata' using 1:2 t '1st year' with lines linewidth 3,\
+     ''         using 1:3 t '2nd year' with lines linewidth 3,\
+     ''         using 1:4 t '3rd year' with lines linewidth 3,\
+     ''         using 1:5 t '4th year' with lines linewidth 3,\
+     ''         using 1:6 t '5th year' with lines linewidth 3
