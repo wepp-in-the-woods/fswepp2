@@ -24,6 +24,15 @@ python /workdir/fswepp2/scripts/collect_representative_runs.py \
   --out /workdir/fswepp2/parity-runs
 ```
 
+Legacy-only (skip API calls):
+
+```
+python /workdir/fswepp2/scripts/collect_representative_runs.py \
+  --cases /workdir/fswepp2/parity-runs/cases.yaml \
+  --out /workdir/fswepp2/parity-runs \
+  --skip-api
+```
+
 ## Output layout (per run)
 
 ```

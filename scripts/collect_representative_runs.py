@@ -190,7 +190,7 @@ def _copy_working_files(
     return copied
 
 
-def collect_case(case: dict, out_root: Path) -> dict:
+def collect_case(case: dict, out_root: Path, skip_api: bool) -> dict:
     case_id = case["id"]
     model = case.get("model", "unknown")
 
@@ -219,7 +219,7 @@ def collect_case(case: dict, out_root: Path) -> dict:
     api_spec = case.get("api") or {}
     base_url = api_spec.get("base_url")
     requests_spec = api_spec.get("requests") or []
-    if base_url and requests_spec:
+    if not skip_api and base_url and requests_spec:
         for req in requests_spec:
             meta = _http_request(base_url, req, api_dir)
             summary["api"].append({"name": req["name"], "meta": meta})
@@ -274,6 +274,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--cases", required=True, help="Path to cases.yaml")
     parser.add_argument("--out", required=True, help="Output root directory")
+    parser.add_argument("--skip-api", action="store_true", help="Skip API requests (legacy only)")
     args = parser.parse_args()
 
     with open(args.cases, "r", encoding="utf-8") as fh:
@@ -284,7 +285,7 @@ def main() -> None:
 
     results = []
     for case in cases:
-        results.append(collect_case(case, out_root))
+        results.append(collect_case(case, out_root, args.skip_api))
 
     _write_json(out_root / "runs.json", results)
 
