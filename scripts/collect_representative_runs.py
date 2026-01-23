@@ -20,12 +20,14 @@ def _write_json(path: Path, data) -> None:
     _ensure_dir(path.parent)
     with path.open("w", encoding="utf-8") as fh:
         json.dump(data, fh, indent=2, sort_keys=True)
+    os.chmod(path, 0o644)
 
 
 def _write_text(path: Path, data: str) -> None:
     _ensure_dir(path.parent)
     with path.open("w", encoding="utf-8") as fh:
         fh.write(data)
+    os.chmod(path, 0o644)
 
 def _extract_run_ids(text: str) -> list:
     # WEPP:Road HTML explicitly includes "WEPP:Road run ID wepp-<pid>"
@@ -182,6 +184,7 @@ def _copy_working_files(
         if path.is_file():
             target = dest_dir / path.name
             shutil.copy2(path, target)
+            os.chmod(target, 0o644)
             copied.append(str(target))
 
     return copied
