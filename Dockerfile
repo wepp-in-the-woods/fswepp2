@@ -8,18 +8,26 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       apt-transport-https ca-certificates curl software-properties-common \
-      python3-full python3-venv python3-pip python3-numpy \
+      python3-full python3-venv python3-numpy \
       gdal-bin libgdal-dev python3-gdal wget dpkg git\
+      proj-bin libproj-dev \
  && rm -rf /var/lib/apt/lists/*
 
 # tmpfs is mounted at /dev/shm via docker-compose
 VOLUME ["/dev/shm"]
 
+# install uv
+ENV PATH="/root/.local/bin:$PATH"
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
 # install Python requirements
-RUN python3 -m venv --system-site-packages /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+RUN uv venv --system-site-packages /opt/venv
+ENV VIRTUAL_ENV="/opt/venv"
+ENV PATH="/root/.local/bin:/opt/venv/bin:$PATH"
+ENV UV_PYTHON="/opt/venv/bin/python"
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN uv pip install --python /opt/venv/bin/python --no-cache-dir -r requirements.txt \
+ && /opt/venv/bin/python -c "import pyproj"
 
 # clone your packages
 RUN mkdir -p /usr/lib/python3/dist-packages/all_your_base \

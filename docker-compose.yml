@@ -33,7 +33,7 @@ services:
   caddy:
     image: caddy:latest
     ports:
-      - "8091:80"
+      - "8091:8091"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
     depends_on:

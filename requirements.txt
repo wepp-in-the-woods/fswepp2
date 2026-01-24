@@ -10,3 +10,4 @@ requests
 Flask
 werkzeug
 pyyaml
+pyproj
