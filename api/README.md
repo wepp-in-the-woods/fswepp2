@@ -29,7 +29,7 @@ The container mounts a tmpfs at `/dev/shm` (see `docker-compose.yml`). All gener
 
 - `api/`: FastAPI routers and shared models
 - `api/db/`: model data files (soils, managements, YAML databases)
-- `api/db/users/rockclim/`: per-user JSON storage for user-defined climate parameter mods
+- User-defined climate modifications are stored client-side in cookies (UI only)
 - `api/logs/`: binary run logs (one per model/year)
 - `/dev/shm/`: temp work area for generated WEPP/CLIGEN files
 
@@ -88,7 +88,8 @@ Notes:
 - `database` defaults to `legacy`
 - `cligen_version` defaults to `5.3.2`
 - `location` is required for `use_prism` and for `GET/closest_stations`
-- `user_defined_par_mod` is optional and only used when saving/modifying user-specific station parameters
+- `user_defined_par_mod` is optional and only used for client-side climate customization
+- `user_defined_par_mod` values are SI units (mm for precipitation per wet day, °C for temperatures)
 
 ## Health
 
@@ -165,7 +166,13 @@ Request body:
 }
 ```
 
-Response: JSON monthlies (includes `cumulative_nwds`).
+Response: JSON monthlies in SI units:
+- `ppts`: monthly precipitation per wet day (mm)
+- `tmaxs`: monthly max temperature (°C)
+- `tmins`: monthly min temperature (°C)
+- `nwds`: number of wet days (days)
+- `cumulative_ppts`: annual total precipitation (mm) summed across months
+- `cumulative_nwds`: total wet days across months
 
 ### POST /rockclim/GET/climate
 
@@ -184,31 +191,13 @@ Request body:
 ```
 
 Response: JSON monthlies computed from the generated climate file.
+Units:
+- `ppts`: monthly precipitation (mm)
+- `tmaxs`: monthly max temperature (°C)
+- `tmins`: monthly min temperature (°C)
+- `nwds`: number of wet days (days)
 
-### POST/PUT /rockclim/PUT/user_defined_par
-
-Request body:
-```
-{
-  "par_id": "WA459074",
-  "user_defined_par_mod": {
-    "description": "my custom par",
-    "ppts": [0.34, 0.36, 0.48, 0.54, 0.53, 0.4, 0.45, 0.26, 0.28, 0.43, 0.34, 0.33],
-    "tmaxs": [36.31, 40.42, 47.86, 55.38, 64.82, 70.74, 82.29, 83.43, 73.74, 58.84, 43.67, 35.31],
-    "tmins": [24.55, 25.54, 29.29, 33.7, 39.99, 44.99, 48.65, 47.92, 41.87, 35.02, 29.38, 24.04]
-  }
-}
-```
-
-Requires a `user_id` cookie (set automatically by the middleware). Stores the payload under `api/db/users/rockclim/<user_id>.json` keyed by a hash of the request.
-
-### POST /rockclim/DEL/user_defined_par
-
-Same payload as `PUT/user_defined_par`. Removes the entry for that hash from the user JSON file.
-
-### GET /rockclim/GET/user_defined_pars
-
-Returns the full JSON object stored for the requesting `user_id`.
+User-defined climate storage is client-side only via cookies.
 
 ## WEPP:Road endpoints
 

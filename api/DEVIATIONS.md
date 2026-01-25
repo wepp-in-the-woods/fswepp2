@@ -24,9 +24,8 @@ normalize around API-native parameters for new frontends.
   Legacy CGI typically returns generic HTML errors (with optional debug behavior).
 - **Hash-based caching**: API names cached files using a deterministic SHA-256
   hash of request models. Hashes are stable across interpreter restarts.
-  The same is true for `user_defined_par_mod` keys.
-- **User identification**: API sets `user_id` cookie in middleware after the
-  request completes. A first call to endpoints that require the cookie may fail.
+- **User identification**: API sets a `user_id` cookie in middleware after the
+  request completes. The cookie is currently unused by RockClim endpoints.
 
 ## Parity runs (legacy baselines)
 
@@ -65,9 +64,9 @@ for legacy-only capture.
 - **Station sources**: API uses `wepppy2` station managers and exposes stations
   by bbox, state, or proximity. Legacy CGI relies on local `.par` files and
   provides a file-browser style interface.
-- **User-defined parameters**: API stores user-defined parameter modifications
-  as JSON under `api/db/users/rockclim/<user_id>.json`. Legacy CGI stores personal
-  climates as `.par` files in `../working`.
+- **User-defined parameters**: FSWEPP2 UI stores user-defined climate parameter
+  modifications client-side in cookies. Legacy CGI stores personal climates as
+  `.par` files in `../working`.
 - **Response format**: API returns JSON metadata and raw `.par`/`.cli` content.
   Legacy CGI returns HTML pages and file downloads.
 
@@ -86,7 +85,7 @@ directly in the new frontend.
 | `cligen_version` | fixed 4.3 | n/a | API default 5.3.2; legacy fixed 4.3. |
 | `location` | UI map / lat-long | n/a | API requires explicit coordinates for prism or nearest station queries. |
 | `use_prism` | UI toggle | n/a | API boolean; legacy uses separate flow for PRISM-adjusted climates. |
-| `user_defined_par_mod.*` | custom `.par` file edits | n/a | API stores JSON per user; legacy stores `.par` files. |
+| `user_defined_par_mod.*` | custom `.par` file edits | n/a | UI stores JSON in cookies; legacy stores `.par` files. |
 
 ## WEPP:Road
 

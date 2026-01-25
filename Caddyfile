@@ -42,10 +42,11 @@
 		rate_limit {
 			zone fswepp2_api {
 				key {remote_host}
-				events 60
+				events 300
 				window 1m
 			}
 		}
+		rewrite * /api{path}
 		reverse_proxy api:8090
 	}
 
@@ -65,10 +66,11 @@
 		rate_limit {
 			zone fswepp2_api_alias {
 				key {remote_host}
-				events 60
+				events 300
 				window 1m
 			}
 		}
+		rewrite * /api{path}
 		reverse_proxy api:8090
 	}
 

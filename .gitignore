@@ -23,6 +23,7 @@ frontend/fswepp2-frontend/.pnp.js
 
 # testing
 frontend/fswepp2-frontend/coverage
+ui/test-results/
 
 # production
 frontend/fswepp2-frontend/build

@@ -39,7 +39,7 @@ export function createModal({ id, title, content, actions = [] }) {
 
   const dialog = document.createElement("div");
   dialog.className =
-    "relative w-full max-w-2xl rounded-lg bg-card text-card-foreground shadow-lg p-6";
+    "relative w-full max-w-6xl mx-4 rounded-lg bg-card text-card-foreground shadow-lg p-6";
 
   const header = document.createElement("div");
   header.className = "mb-4";
@@ -52,6 +52,7 @@ export function createModal({ id, title, content, actions = [] }) {
   header.appendChild(heading);
 
   const body = document.createElement("div");
+  body.className = "max-h-[70vh] overflow-y-auto pr-2";
   if (typeof content === "string") {
     body.innerHTML = content;
   } else if (content instanceof HTMLElement) {

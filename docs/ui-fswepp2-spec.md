@@ -43,7 +43,7 @@ Climate preferences and user-defined climate modifications are stored in browser
 This section summarizes critical design decisions confirmed during specification development. See Appendix D for detailed rationale.
 
 ### User Experience
-- ✅ **RockClim Map**: Inline expansion within panel with "Set Location"/"Hide Map" toggle
+- ✅ **RockClim Map**: Inline expansion within panel with "Set Location using Map"/"Hide Map" toggle
 - ✅ **Location Input**: Two separate longitude/latitude fields (editable for precision)
 - ✅ **Units Toggle**: Immediate switch in top-right header (Metric ↔ English, default: Metric)
 - ✅ **Form Validation**: Hybrid blur-then-change with inline error messages
@@ -106,7 +106,6 @@ State is managed entirely client-side using cookies and JavaScript objects:
 
 **Cookie Storage:**
 - `fswepp_climate`: JSON-serialized ClimatePars object (site-wide, 365-day expiry)
-- `fswepp_user_climates`: Array of user-defined climate modifications (site-wide, 365-day expiry)
 - `fswepp_units`: Unit preferences (global SI/English preference + category-specific overrides, 365-day expiry)
 
 **LocalStorage:**
@@ -132,19 +131,18 @@ Implements the climate selection interface as specified by the user. This contro
 **Sub-components:**
 - `DatabaseSelect`: Dropdown for selecting database (legacy, 2015, au, ghcn)
 - `CligenVersionSelect`: Dropdown for CLIGEN version (4.3, 5.3.2)
-- `LocationButton`: Toggle button labeled "Set Location" / "Hide Map"
+- `LocationButton`: Toggle button labeled "Set Location using Map" / "Hide Map"
 - `LocationFields`: Two separate numeric inputs for longitude and latitude
 - `MapView`: deck.gl map for location selection (expands inline within panel)
 - `StationSelect`: Dynamically populated dropdown of closest stations
 - `CustomizeClimateButton`: Opens modal for manual climate adjustment
 - `CustomizeClimateModal`: Modal with monthly precip, tmin, tmax adjustments
-- `SavedClimatesDropdown`: Dropdown showing user's saved custom climates
 
 **Interactions:**
 - On page load, reads climate state from `fswepp_climate` cookie
 - Database and CLIGEN version selects update immediately and save to cookie
 - **Location button** toggles map visibility inline within RockClim panel:
-  - Default state: Button labeled "Set Location", map hidden
+  - Default state: Button labeled "Set Location using Map", map hidden
   - Click: Panel expands to show map, button changes to "Hide Map"
   - Map visible: "Hide Map" button clearly visible for easy dismissal
 - **Map interaction**: User clicks point on map to set location
@@ -156,13 +154,15 @@ Implements the climate selection interface as specified by the user. This contro
   - Updates map center to show entered location
 - Station select updates par_id in state and saves to cookie
 - Customize button opens modal with current par file monthly data pre-populated
-- Modal "Save" adds to `fswepp_user_climates` cookie array
-- Saved climates dropdown loads from cookie and applies selected climate
+- Modal "Apply" updates the current climate customization
+- **State summary**: The collapsible subtitle (beneath "Rock Climate Control") shows
+  `Climate: <station>` plus location `(lat, lon)`. Prefixes:
+  - `PRISM modified` when `use_prism` is true and no custom climate is active.
+  - `Customized <description>` when `user_defined_par_mod` is set.
 
 **Cookie Persistence:**
 - Every state change writes updated ClimatePars to `fswepp_climate` cookie
 - Climate state automatically available when navigating to any tool page
-- User-defined climates stored in `fswepp_user_climates` cookie as array
 
 **Climate State (Cookie-Persisted):**
 ```javascript
@@ -182,15 +182,7 @@ Implements the climate selection interface as specified by the user. This contro
   } | null
 }
 
-// Cookie: fswepp_user_climates (array of saved climates)
-[
-  {
-    name: string,  // user-provided name
-    par_id: string,
-    user_defined_par_mod: { ... }
-  },
-  ...
-]
+// User-defined climates are stored in fswepp_climate.user_defined_par_mod only.
 ```
 
 #### 2. FormField
@@ -321,7 +313,7 @@ The Rock Climate Control appears at the top of every tool page as a collapsible 
 **Left Column:**
 - Database selection dropdown
 - CLIGEN version selection dropdown
-- Set Location / Hide Map button
+- Set Location using Map / Hide Map button
 - Longitude input field (numeric, editable)
 - Latitude input field (numeric, editable)
 
@@ -338,7 +330,7 @@ The Rock Climate Control appears at the top of every tool page as a collapsible 
 
 ### Location Selection Flow
 
-1. User clicks "Set Location" button
+1. User clicks "Set Location using Map" button
 2. RockClim panel expands to show deck.gl map inline
 3. Button label changes to "Hide Map"
 4. User clicks on map to set location, OR manually enters coordinates
@@ -355,7 +347,7 @@ The Rock Climate Control appears at the top of every tool page as a collapsible 
    - First station auto-selected by default
 8. User clicks "Hide Map" to collapse map view
    - Panel contracts back to controls-only view
-   - Button label changes back to "Set Location"
+   - Button label changes back to "Set Location using Map"
    - Location coordinates remain in input fields
 
 ### Station Selection
@@ -380,7 +372,7 @@ Selection updates `par_id` in climate state and optionally triggers preview of m
 
 **Body - Three Tables (Side by Side or Stacked):**
 
-1. **Monthly Precipitation (mm)**
+1. **Monthly Precipitation (per wet day, mm)**
    - 12 rows (Jan-Dec)
    - Editable number inputs
    - Original value displayed alongside
@@ -397,26 +389,26 @@ Selection updates `par_id` in climate state and optionally triggers preview of m
 
 **Footer:**
 - "Reset to Original" button (restores PAR file defaults)
-- "Save as Named Climate" button (prompts for name, saves to `fswepp_user_climates` cookie)
 - "Apply" button (applies to current session, updates `fswepp_climate` cookie)
 - "Cancel" button
+- "Delete Climate" button (only shown when a custom climate is active)
 
 **Behavior:**
 - On open, fetch `/api/rockclim/GET/station_par_monthlies` to populate with current values
 - Input changes update preview calculations in real-time
 - "Apply" updates `user_defined_par_mod` in climate state and saves to `fswepp_climate` cookie
-- "Save as Named Climate" prompts for name, then adds to `fswepp_user_climates` cookie array
-- Named climates appear in saved climates dropdown for quick reapplication
 - Applied customizations persist in cookie and are available across all tool pages
+- "Delete Climate" clears `user_defined_par_mod` and reverts to base station values
 
 ### PRISM Spatialization
 
 **UI Element:** Checkbox "Use PRISM adjustment for this location"
 
 **Behavior:**
-- Only enabled when location is set
+- Only enabled when location is set and no custom climate is active
 - When checked, sets `use_prism: true` in climate state
-- API automatically applies PRISM-based spatial adjustments to PAR file
+- When unchecked, resets to the base station PAR monthlies
+- Custom climates disable this checkbox until deleted
 
 ### Visual Design Notes
 
@@ -906,10 +898,9 @@ User inputs persist across sessions using client-side storage:
 - Updated on any climate parameter change
 
 **User-Defined Climates:**
-- Stored in `fswepp_user_climates` cookie as JSON array
-- Accessible from dropdown in RockClimControl
-- Can be deleted/renamed within modal
-- 365-day expiry
+- Stored in `fswepp_climate.user_defined_par_mod` only
+- Applies to the current climate selection
+- 365-day expiry with the climate cookie
 
 **Tool-Specific Parameters:**
 - Stored in localStorage per tool
@@ -1597,18 +1588,14 @@ Climate state and user preferences are stored in site-wide cookies for persisten
 
 **Cookie Storage Strategy:**
 
-Two primary cookies manage application state:
+Primary cookie manages application state:
 - `fswepp_climate`: JSON-serialized ClimatePars object with 365-day expiry
-- `fswepp_user_climates`: JSON array of saved custom climates with 365-day expiry
 
 **Cookie Operations Required:**
 
 1. **Read Climate Cookie**: Retrieve and parse climate state, falling back to defaults if missing or invalid
 2. **Write Climate Cookie**: Serialize and store updated climate state with 365-day expiry
-3. **Read User Climates Cookie**: Retrieve array of saved custom climates
-4. **Add Named Climate**: Append new custom climate to array with metadata (name, par_id, modifications, timestamp)
-5. **Delete Named Climate**: Remove specific climate from saved array by name
-6. **Generic Cookie Helpers**: Set/get cookie values with proper encoding and expiry handling
+3. **Generic Cookie Helpers**: Set/get cookie values with proper encoding and expiry handling
 
 **Climate State Update Flow:**
 
@@ -1625,7 +1612,7 @@ Two primary cookies manage application state:
 - Path scope: Set path=/ for site-wide access
 - SameSite policy: Use SameSite=Lax for security
 - Error handling: Gracefully handle malformed JSON or corrupted cookies
-- User control: Provide clear UI to view and delete saved climates
+- User control: Provide clear UI to apply and clear custom climate settings
 - No server-side persistence: Cookies cleared = state reset to defaults
 
 ---
@@ -2643,12 +2630,12 @@ This section documents key design decisions made during specification developmen
 
 **Rationale**:
 - Keeps user in context (no modal overlay obscuring page)
-- Clear affordance with "Set Location" / "Hide Map" toggle button
+- Clear affordance with "Set Location using Map" / "Hide Map" toggle button
 - Map state is temporary and task-focused (select location, then hide)
 - Simpler implementation than modal or side panel
 
 **Implementation**:
-- Button label toggles: "Set Location" → "Hide Map"
+- Button label toggles: "Set Location using Map" → "Hide Map"
 - Panel expands to show deck.gl map inline below controls
 - Map height: 300-400px responsive
 - Click map or manually enter coordinates
@@ -2758,7 +2745,7 @@ This section documents key design decisions made during specification developmen
 
 **Implementation**:
 - Climate state: `fswepp_climate` cookie
-- User climates: `fswepp_user_climates` cookie array
+- User climate customization: `fswepp_climate.user_defined_par_mod`
 - Unit preferences: `fswepp_units` cookie
 - All 365-day expiry, site-wide scope
 

@@ -1,17 +1,14 @@
 import os
-import json
 from os.path import join as _join
 import enum
 import math
 
-from fastapi import APIRouter, Query, Response, Request, HTTPException, Body
+from fastapi import APIRouter, Query, Response, HTTPException, Body
 from typing import Optional
 from pydantic import BaseModel, Field, conlist, ValidationError, field_validator
 
 from wepppy2.climates.cligen import CligenStationsManager, Cligen, ClimateFile
-
 from .hash_utils import stable_hash
-from .file_utils import atomic_write
 
 router = APIRouter()
 
@@ -183,7 +180,14 @@ def get_closest_stations(
 
 def get_station(climate_pars: ClimatePars):
     stationManager = CligenStationsManager(climate_pars.database)
+    if not climate_pars.par_id:
+        raise HTTPException(status_code=422, detail="par_id is required")
     stationMeta = stationManager.get_station_fromid(climate_pars.par_id)
+    if stationMeta is None:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Station not found for par_id {climate_pars.par_id}",
+        )
     station = stationMeta.get_station()
     
     if climate_pars.use_prism:
@@ -195,10 +199,13 @@ def get_station(climate_pars: ClimatePars):
             climate_pars.location.latitude)
         
     if climate_pars.user_defined_par_mod is not None:
-        station = station.mod(
-            climate_pars.user_defined_par_mod.ppts,
-            climate_pars.user_defined_par_mod.tmaxs,
-            climate_pars.user_defined_par_mod.tmins)
+        mod = climate_pars.user_defined_par_mod
+        # user_defined_par_mod arrives in SI units (mm, °C). Convert to English
+        # units expected by the station modifier (inches, °F).
+        ppts_in = [v / 25.4 for v in mod.ppts]
+        tmax_f = [(v * 9.0 / 5.0) + 32.0 for v in mod.tmaxs]
+        tmin_f = [(v * 9.0 / 5.0) + 32.0 for v in mod.tmins]
+        station = station.mod(ppts_in, tmax_f, tmin_f)
         
     return station
     
@@ -230,7 +237,21 @@ def get_station_par_monthlies(
     )
 ):
     station = get_station(climate_pars)
-    monthlies = station.get_monthlies()
+    # Convert station monthlies to SI units (mm, °C) before returning.
+    ppt_in = list(station.ppts)
+    tmax_f = list(station.tmaxs)
+    tmin_f = list(station.tmins)
+    ppts_mm = [v * 25.4 for v in ppt_in]
+    tmax_c = [(v - 32.0) * (5.0 / 9.0) for v in tmax_f]
+    tmin_c = [(v - 32.0) * (5.0 / 9.0) for v in tmin_f]
+    # Avoid NumPy generator deprecation by computing directly.
+    monthlies = {
+        "ppts": ppts_mm,
+        "nwds": list(station.nwds),
+        "tmaxs": tmax_c,
+        "tmins": tmin_c,
+        "cumulative_ppts": sum(v * d for v, d in zip(ppts_mm, station.nwds)),
+    }
     monthlies['cumulative_nwds'] = sum(monthlies['nwds'])
     return monthlies
 
@@ -292,116 +313,13 @@ def get_climate_monthlies_route(
 ):
     cli_fn = get_climate(climate_pars)
     climate = ClimateFile(cli_fn)
-    return climate.calc_monthlies()
+    monthlies = climate.calc_monthlies()
+    # Convert English units (in, F) to SI (mm, C).
+    ppts_mm = [v * 25.4 for v in monthlies.get("ppts", [])]
+    tmax_c = [(v - 32.0) * (5.0 / 9.0) for v in monthlies.get("tmaxs", [])]
+    tmin_c = [(v - 32.0) * (5.0 / 9.0) for v in monthlies.get("tmins", [])]
+    monthlies["ppts"] = ppts_mm
+    monthlies["tmaxs"] = tmax_c
+    monthlies["tmins"] = tmin_c
+    return monthlies
     
-
-def load_user_data(filepath):
-    if os.path.exists(filepath):
-        with open(filepath, 'r') as file:
-            return json.load(file)
-    return {}
-
-
-def save_user_data(filepath, data):
-    with atomic_write(filepath, "w") as file:
-        json.dump(data, file, indent=4)
-
-
-@router.post("/rockclim/PUT/user_defined_par")
-@router.put("/rockclim/PUT/user_defined_par")
-def save_user_defined_par_mod(
-    request: Request,
-    climate_pars: ClimatePars = Body(
-        ...,
-        example={
-            'par_id': 'WA459074',
-            'user_defined_par_mod': {
-                'description': 'my custom par',
-                'ppts': [0.34, 0.36, 0.48, 0.54, 0.53, 0.4, 0.45, 0.26, 0.28, 0.43, 0.34, 0.33],
-                'tmaxs': [36.31, 40.42, 47.86, 55.38, 64.82, 70.74, 82.29, 83.43, 73.74, 58.84, 43.67, 35.31],
-                'tmins': [24.55, 25.54, 29.29, 33.7, 39.99, 44.99, 48.65, 47.92, 41.87, 35.02, 29.38, 24.04]
-            }
-        }
-    )
-):
-    user_id = request.cookies.get("user_id")
-    
-    if not user_id:
-        raise HTTPException(status_code=400, detail="User ID not found in cookies")
-    
-    if climate_pars.user_defined_par_mod is None:
-        raise HTTPException(status_code=422, detail="User-defined parameters are required")
-    
-    try:
-        get_station(climate_pars)
-    except:
-        raise HTTPException(status_code=422, detail="ClimatePars is not valid")
-    
-    user_custom_db_path = _join(_thisdir, f'db/users/rockclim/{user_id}.json')
-    user_data = load_user_data(user_custom_db_path)
-    par_mod_key = stable_hash(climate_pars)
-
-    # Check if the entry already exists
-    if par_mod_key not in user_data:
-        user_data[par_mod_key] = climate_pars.dict()
-        save_user_data(user_custom_db_path, user_data)
-        return {
-            "message": f"New entry added with key: {par_mod_key}",
-            "par_mod_key": par_mod_key
-        }
-    else:
-        return {"message": f"Entry already exists with key: {par_mod_key}"}
-
-
-@router.post("/rockclim/DEL/user_defined_par")
-def del_user_defined_par_mod(
-    request: Request,
-    climate_pars: ClimatePars = Body(
-        ...,
-        example={
-            'par_id': 'WA459074',
-            'user_defined_par_mod': {
-                'description': 'my custom par',
-                'ppts': [0.34, 0.36, 0.48, 0.54, 0.53, 0.4, 0.45, 0.26, 0.28, 0.43, 0.34, 0.33],
-                'tmaxs': [36.31, 40.42, 47.86, 55.38, 64.82, 70.74, 82.29, 83.43, 73.74, 58.84, 43.67, 35.31],
-                'tmins': [24.55, 25.54, 29.29, 33.7, 39.99, 44.99, 48.65, 47.92, 41.87, 35.02, 29.38, 24.04]
-            }
-        }
-    )
-):
-    user_id = request.cookies.get("user_id")
-    
-    if not user_id:
-        raise HTTPException(status_code=400, detail="User ID not found in cookies")
-    
-    if climate_pars.user_defined_par_mod is None:
-        raise HTTPException(status_code=400, detail="User-defined parameters are required")
-    
-    user_custom_db_path = _join(_thisdir, f'db/users/rockclim/{user_id}.json')
-    user_data = load_user_data(user_custom_db_path)
-    par_mod_key = stable_hash(climate_pars)
-
-    if par_mod_key in user_data:
-        del user_data[par_mod_key]
-        save_user_data(user_custom_db_path, user_data)
-        return {"message": f"New entry deleted with key: {par_mod_key}"}
-    else:
-        return {"message": f"Entry not found: {par_mod_key}"}
-
-@router.get("/rockclim/GET/user_defined_pars")
-def list_user_defined_pars(request: Request):
-    user_id = request.cookies.get("user_id")
-    
-    if not user_id:
-        raise HTTPException(status_code=400, detail="User ID not found in cookies")
-    
-    user_custom_db_path = _join(_thisdir, f'db/users/rockclim/{user_id}.json')
-    
-    # Load existing data
-    user_data = load_user_data(user_custom_db_path)
-    
-    if not user_data:
-        return user_data
-    
-    # Return the list of user-defined parameters
-    return user_data

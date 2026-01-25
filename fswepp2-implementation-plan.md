@@ -41,15 +41,15 @@
 - [x] CSS build workflow for dev/CI (generated `ui/public/app.css`)
 
 ## Phase 3a — RockClim Control
-- [ ] RockClimControl layout + cookie hydration
-- [ ] Database/Cligen selects + persistence
-- [ ] Location fields (lon/lat) with validation + debounce
-- [ ] Map integration (deck.gl, self-hosted)
-- [ ] Station fetch (`/api/rockclim/GET/closest_stations`)
-- [ ] Stations GeoJSON fetch with bbox from view
-- [ ] Station select + PRISM toggle
-- [ ] Climate customization modal + cookie storage
-- [ ] Saved climates dropdown + delete/rename
+- [x] RockClimControl layout + cookie hydration
+- [x] Database/Cligen selects + persistence
+- [x] Location fields (lon/lat) with validation + debounce
+- [x] Map integration (deck.gl, self-hosted)
+- [x] Station fetch (`/api/rockclim/GET/closest_stations`)
+- [x] Stations GeoJSON fetch with bbox from view
+- [x] Station select + PRISM toggle
+- [x] Climate customization modal + cookie storage
+- [x] Saved climates dropdown + delete/rename
 
 ## Phase 4 — Charting + Visualizations
 - [ ] Chart core (canvas setup, resize, scales)

@@ -1,4 +1,11 @@
-export function createCollapsibleSection({ id, title, description, content, persistKey }) {
+export function createCollapsibleSection({
+  id,
+  title,
+  description,
+  content,
+  persistKey,
+  defaultOpen = true,
+} = {}) {
   const wrapper = document.createElement("section");
   wrapper.className = "border border-border rounded-lg";
   if (id) wrapper.id = id;
@@ -35,7 +42,7 @@ export function createCollapsibleSection({ id, title, description, content, pers
     body.innerHTML = content;
   }
 
-  let open = true;
+  let open = defaultOpen;
   if (persistKey && typeof localStorage !== "undefined") {
     const stored = localStorage.getItem(persistKey);
     if (stored !== null) {
@@ -57,5 +64,18 @@ export function createCollapsibleSection({ id, title, description, content, pers
   sync();
   wrapper.appendChild(header);
   wrapper.appendChild(body);
+  wrapper.setDescription = (next) => {
+    if (!description) return;
+    const descEl = text.querySelector("p");
+    if (!descEl) return;
+    descEl.textContent = next || "";
+  };
+  wrapper.setOpen = (next) => {
+    open = Boolean(next);
+    sync();
+  };
+  wrapper.isOpen = () => open;
+  wrapper.body = body;
+  wrapper.header = header;
   return wrapper;
 }

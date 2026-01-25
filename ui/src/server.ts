@@ -38,6 +38,7 @@ app.get("/health", (c) => c.json({ status: "ok" }));
 
 const cssLink = '<link rel="stylesheet" href="/public/app.css" />';
 const jsLinks = `
+  <script src="/public/js/vendor/deck.gl.min.js"></script>
   <script src="/public/js/unitizer/unitizer_client.js"></script>
   <script type="module" src="/public/js/app.js"></script>
 `;
@@ -52,7 +53,6 @@ const renderLayout = (title: string, body: string) => `
         </div>
         <div class="flex items-center gap-4">
           <nav class="layout-nav" aria-label="Primary">
-            <a href="/fswepp2/rockclim">Rock:Clim</a>
             <a href="/fswepp2/wepproad">WEPP:Road</a>
             <a href="/fswepp2/disturbed">Disturbed WEPP</a>
             <a href="/fswepp2/ermit">ERMiT</a>
@@ -61,9 +61,6 @@ const renderLayout = (title: string, body: string) => `
             <a href="/fswepp2/ui-component-gallery">UI Gallery</a>
           </nav>
           <div class="flex items-center gap-2 text-sm" data-unit-toggle>
-            <button type="button" class="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground" data-climate-badge>
-              Climate: Not set
-            </button>
             <button type="button" class="text-muted-foreground px-1 py-1" data-unit-label="metric">Metric</button>
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" class="sr-only peer" id="unit_toggle_input" />
@@ -100,7 +97,6 @@ app.get("/fswepp2", (c) =>
     renderLayout(
       "FSWEPP2 Tools",
       `<ul class="list-disc pl-6">
-        <li><a href="/fswepp2/rockclim">Rock:Clim</a></li>
         <li><a href="/fswepp2/wepproad">WEPP:Road</a></li>
         <li><a href="/fswepp2/disturbed">Disturbed WEPP</a></li>
         <li><a href="/fswepp2/ermit">ERMiT</a></li>
@@ -109,24 +105,34 @@ app.get("/fswepp2", (c) =>
   )
 );
 
-app.get("/fswepp2/rockclim", (c) =>
-  c.html(
-    renderLayout("Rock:Clim", "<p>Shell page for Rock Climate Control.</p>")
-  )
-);
-
 app.get("/fswepp2/wepproad", (c) =>
-  c.html(renderLayout("WEPP Road", "<p>Shell page for WEPP Road tool.</p>"))
+  c.html(
+    renderLayout(
+      "WEPP Road",
+      `<section id="rockclim-control-root" class="mb-6"></section>
+      <p>Shell page for WEPP Road tool.</p>`
+    )
+  )
 );
 
 app.get("/fswepp2/disturbed", (c) =>
   c.html(
-    renderLayout("Disturbed WEPP", "<p>Shell page for Disturbed WEPP tool.</p>")
+    renderLayout(
+      "Disturbed WEPP",
+      `<section id="rockclim-control-root" class="mb-6"></section>
+      <p>Shell page for Disturbed WEPP tool.</p>`
+    )
   )
 );
 
 app.get("/fswepp2/ermit", (c) =>
-  c.html(renderLayout("ERMiT", "<p>Shell page for ERMiT tool.</p>"))
+  c.html(
+    renderLayout(
+      "ERMiT",
+      `<section id="rockclim-control-root" class="mb-6"></section>
+      <p>Shell page for ERMiT tool.</p>`
+    )
+  )
 );
 
 app.get("/fswepp2/docs", (c) =>

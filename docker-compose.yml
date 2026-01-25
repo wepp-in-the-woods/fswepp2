@@ -55,6 +55,9 @@ services:
       dockerfile: Dockerfile.caddy
     ports:
       - "8091:8091"
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
     depends_on:

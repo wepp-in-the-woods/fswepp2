@@ -1,6 +1,13 @@
 FROM oven/bun:1.1 AS base
 WORKDIR /app
 
+# Install Node.js for Playwright CLI usage
+RUN apt-get update \
+  && apt-get install -y curl ca-certificates gnupg \
+  && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+  && apt-get install -y nodejs \
+  && rm -rf /var/lib/apt/lists/*
+
 # Install deps
 COPY ui/package.json ui/tsconfig.json ui/tailwind.config.ts ./
 RUN bun install

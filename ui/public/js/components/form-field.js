@@ -15,7 +15,7 @@ export function createFormField({
   wrapper.className = "space-y-2";
 
   const labelRow = document.createElement("label");
-  labelRow.className = "text-sm font-medium leading-none";
+  labelRow.className = "text-sm font-medium leading-none mb-2";
   labelRow.htmlFor = id;
   labelRow.textContent = label || "";
   if (required) {
@@ -26,7 +26,7 @@ export function createFormField({
   }
 
   const inputRow = document.createElement("div");
-  inputRow.className = "flex items-center gap-2";
+  inputRow.className = "flex items-center gap-2 mt-2";
 
   const input = document.createElement("input");
   input.id = id;
@@ -104,4 +104,51 @@ export function createFormField({
   }
 
   return { wrapper, input, setError, setValid };
+}
+
+export function createSelectField({
+  id,
+  label,
+  help = "",
+  options = [],
+} = {}) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "space-y-2";
+
+  const labelRow = document.createElement("label");
+  labelRow.className = "text-sm font-medium leading-none mb-2";
+  labelRow.htmlFor = id;
+  labelRow.textContent = label || "";
+
+  const select = document.createElement("select");
+  select.id = id;
+  select.className =
+    "flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm focus-visible:ring-ring/50 focus-visible:ring-[3px]";
+
+  const inputRow = document.createElement("div");
+  inputRow.className = "mt-2";
+  inputRow.appendChild(select);
+
+  const setOptions = (items) => {
+    select.innerHTML = "";
+    items.forEach((option) => {
+      const opt = document.createElement("option");
+      opt.value = option.value;
+      opt.textContent = option.label;
+      select.appendChild(opt);
+    });
+  };
+  setOptions(options);
+
+  wrapper.appendChild(labelRow);
+  wrapper.appendChild(inputRow);
+
+  if (help) {
+    const helpEl = document.createElement("p");
+    helpEl.className = "text-sm text-muted-foreground";
+    helpEl.textContent = help;
+    wrapper.appendChild(helpEl);
+  }
+
+  return { wrapper, select, setOptions };
 }

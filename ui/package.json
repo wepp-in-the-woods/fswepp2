@@ -9,6 +9,8 @@
     "dev:all": "bun run dev:css & bun run dev",
     "start": "PORT=${PORT:-5173} bun run src/server.ts",
     "lint": "echo \"(placeholder)\"",
+    "test": "bun test --preload ./tests/setup.ts tests",
+    "test:e2e": "node ./node_modules/@playwright/test/cli.js test --config ./playwright.config.cjs",
     "build:css": "bunx @tailwindcss/cli -i ./styles/theme.css -o ./public/app.css --minify",
     "build": "bun run build:css"
   },
@@ -16,7 +18,10 @@
     "hono": "^4.4.7"
   },
   "devDependencies": {
+    "@happy-dom/global-registrator": "^15.10.2",
+    "@playwright/test": "^1.58.0",
     "@tailwindcss/cli": "^4.1.8",
+    "happy-dom": "^15.10.2",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.8.3"
   }

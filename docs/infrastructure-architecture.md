@@ -18,9 +18,9 @@
 
 ## Target Architecture
 - **FastAPI service (api)**: existing `/api` routes and WEPP/CLIGEN execution; runs under Uvicorn; temp artifacts in `/dev/shm/<model>/`.
-- **Hono UI service (ui)**: Bun runtime; server-rendered routes for Rock:Clime, WEPP:Road, Disturbed WEPP, and ERMiT. Fetches data from the API over the internal network; handles form validation and error shaping; serves static assets (CSS/JS) from `public/`.
+- **Hono UI service (ui)**: Bun runtime; server-rendered routes for WEPP:Road, Disturbed WEPP, and ERMiT with a shared RockClim control embedded on each tool page. Fetches data from the API over the internal network; handles form validation and error shaping; serves static assets (CSS/JS) from `public/`.
 - **Edge/proxy (Caddy)**: runs behind HAProxy TLS termination on `fswepp2.bearhive.duckdns.org`; HAProxy → Caddy is HTTP-only. Caddy proxies `/fswepp2/api` → FastAPI and `/fswepp2/*` → Hono UI (app pages live under `/fswepp2/...`); proxies `/public/*` → Hono UI for static assets; injects security headers (HSTS, CSP, X-Content-Type-Options, Referrer-Policy) and enforces CORS to the frontend origin. Optional transitional `/api` alias may be left briefly.
-- **State & storage**: No persistent DB in the UI. API keeps existing on-disk user JSON for Rock:Clime user mods under `api/db/users/rockclim/`. Temp artifacts remain on tmpfs.
+- **State & storage**: No persistent DB in the UI. User-defined climate modifications are stored client-side in cookies. Temp artifacts remain on tmpfs.
 - **Observability**: Structured JSON logs from both services; request IDs propagated via `X-Request-ID`. Health endpoints: `/health` (api) and `/health` (ui) returning minimal JSON.
 
 ### Request flow (text map)
@@ -52,7 +52,7 @@
 
 ## Delivery Plan (functional-first)
 - **Phase 0 (branch cut, 1–2 days):** Create `hono-bun` branch; scaffold `ui/` (Hono app, Tailwind via Bun, health check); extract and port design tokens/assets from `frontend/`; add `Caddyfile`; drop nginx config and remove `frontend/` from compose.
-- **Phase 1 (3–5 days):** Implement server-rendered forms + result pages for Rock:Clime and WEPP:Road (priority usage); handle file downloads and JSON renders; add API error normalization; ensure vanilla JS enhancements only.
+- **Phase 1 (3–5 days):** Implement server-rendered forms + result pages for WEPP:Road (priority usage) and embed RockClim control across tool pages; handle file downloads and JSON renders; add API error normalization; ensure vanilla JS enhancements only.
 - **Phase 2 (3–4 days):** Add Disturbed WEPP and ERMiT flows; introduce minimal client-side enhancements (input masking, loading states) with vanilla JS modules.
 - **Phase 3 (2–3 days):** Hardening—CSP, CORS, rate limits at edge; structured logging; basic uptime checks; align with `docs/security-policies.md` test list (bandit, pip-audit, etc.).
 - **Phase 4 (2 days):** Cutover prep—announce new base URL, keep legacy frontend behind `/legacy` during transition, collect telemetry, schedule removal.

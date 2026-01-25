@@ -1,9 +1,11 @@
 import { readJsonCookie, writeJsonCookie } from "./utils/cookies.js";
 import { getConfigFromUrl } from "./utils/url.js";
+import { mountRockClimControl } from "./components/rockclim-control.js";
 
 window.FSWEPP = window.FSWEPP || {};
 window.FSWEPP.cookies = { readJsonCookie, writeJsonCookie };
 window.FSWEPP.url = { getConfigFromUrl };
+window.FSWEPP.apiBase = "/fswepp2/api";
 
 const UNIT_COOKIE = "fswepp_units";
 
@@ -94,8 +96,18 @@ function initUnitizer() {
   });
 }
 
+function initRockClim() {
+  const root = document.getElementById("rockclim-control-root");
+  if (!root) return;
+  mountRockClimControl(root);
+}
+
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initUnitizer);
+  document.addEventListener("DOMContentLoaded", () => {
+    initUnitizer();
+    initRockClim();
+  });
 } else {
   initUnitizer();
+  initRockClim();
 }
