@@ -317,9 +317,24 @@ export function mountRockClimControl(root) {
   const overlayControls = document.createElement("div");
   overlayControls.className = "flex flex-wrap items-center gap-3 text-sm";
   overlayControls.style.display = "none";
-  const overlayLabel = document.createElement("span");
-  overlayLabel.className = "font-medium text-foreground";
-  overlayLabel.textContent = "PRISM Annual precip opacity";
+  const overlaySummary = document.createElement("div");
+  overlaySummary.className = "flex items-center gap-2";
+  const overlaySummaryLabel = document.createElement("span");
+  overlaySummaryLabel.className = "font-medium text-foreground";
+  overlaySummaryLabel.textContent = "PRISM Annual Precip";
+  const overlaySummaryValue = document.createElement("span");
+  overlaySummaryValue.className = "min-w-[64px] text-right tabular-nums text-foreground";
+  overlaySummaryValue.textContent = "--";
+  const overlaySummaryUnit = document.createElement("span");
+  overlaySummaryUnit.className = "text-muted-foreground";
+  overlaySummaryUnit.textContent = "mm";
+  overlaySummary.appendChild(overlaySummaryLabel);
+  overlaySummary.appendChild(overlaySummaryValue);
+  overlaySummary.appendChild(overlaySummaryUnit);
+
+  const overlayOpacityLabel = document.createElement("span");
+  overlayOpacityLabel.className = "font-medium text-foreground";
+  overlayOpacityLabel.textContent = "Map Opacity";
   const overlayRange = document.createElement("input");
   overlayRange.type = "range";
   overlayRange.min = "0";
@@ -330,7 +345,8 @@ export function mountRockClimControl(root) {
   const overlayValue = document.createElement("span");
   overlayValue.className = "tabular-nums text-muted-foreground";
   overlayValue.textContent = `${Math.round(PRISM_OVERLAY_OPACITY_DEFAULT * 100)}%`;
-  overlayControls.appendChild(overlayLabel);
+  overlayControls.appendChild(overlaySummary);
+  overlayControls.appendChild(overlayOpacityLabel);
   overlayControls.appendChild(overlayRange);
   overlayControls.appendChild(overlayValue);
   const overlayLegend = document.createElement("div");
@@ -1122,6 +1138,47 @@ export function mountRockClimControl(root) {
     );
   }
 
+  function updatePrecipSummary() {
+    if (!climateState.location || !prismOverlay.raster || !prismOverlay.bounds) {
+      overlaySummaryValue.textContent = "--";
+      overlaySummaryUnit.textContent = getLegendUnitKey() === "in" ? "in" : "mm";
+      return;
+    }
+    const [minX, minY, maxX, maxY] = prismOverlay.bounds;
+    const { longitude, latitude } = climateState.location;
+    const width = prismOverlay.width;
+    const height = prismOverlay.height;
+    if (!width || !height) {
+      overlaySummaryValue.textContent = "--";
+      return;
+    }
+    const xRatio = (longitude - minX) / (maxX - minX);
+    const yRatio = (maxY - latitude) / (maxY - minY);
+    const col = Math.round(xRatio * (width - 1));
+    const row = Math.round(yRatio * (height - 1));
+    if (col < 0 || row < 0 || col >= width || row >= height) {
+      overlaySummaryValue.textContent = "--";
+      overlaySummaryUnit.textContent = getLegendUnitKey() === "in" ? "in" : "mm";
+      return;
+    }
+    const idx = row * width + col;
+    const valueMm = prismOverlay.raster[idx];
+    if (!Number.isFinite(valueMm) || valueMm <= -9990) {
+      overlaySummaryValue.textContent = "--";
+      overlaySummaryUnit.textContent = getLegendUnitKey() === "in" ? "in" : "mm";
+      return;
+    }
+    const unitKey = getLegendUnitKey();
+    if (unitKey === "in") {
+      const inches = valueMm * 0.0393701;
+      overlaySummaryValue.textContent = inches.toFixed(2);
+      overlaySummaryUnit.textContent = "in";
+    } else {
+      overlaySummaryValue.textContent = `${Math.round(valueMm)}`;
+      overlaySummaryUnit.textContent = "mm";
+    }
+  }
+
   function syncPrismOverlayControls() {
     const enabled = Boolean(climateState.use_prism);
     overlayControls.style.display = enabled ? "flex" : "none";
@@ -1130,6 +1187,7 @@ export function mountRockClimControl(root) {
       return;
     }
     updateOverlayLegend();
+    updatePrecipSummary();
     overlayLegend.style.display = prismOverlay.canvas ? "block" : "none";
   }
 
@@ -1183,6 +1241,9 @@ export function mountRockClimControl(root) {
       const bounds = image.getBoundingBox();
       prismOverlay.canvas = canvas;
       prismOverlay.bounds = bounds;
+      prismOverlay.raster = raster;
+      prismOverlay.width = targetWidth;
+      prismOverlay.height = targetHeight;
       prismOverlay.status = "ready";
       prismOverlay.error = null;
       syncPrismOverlayControls();
@@ -1202,6 +1263,7 @@ export function mountRockClimControl(root) {
     if (prismOverlay.canvas) {
       syncPrismOverlayControls();
       updateMapLayers();
+      updatePrecipSummary();
       return;
     }
     void loadPrismOverlay();
@@ -1372,6 +1434,7 @@ export function mountRockClimControl(root) {
     persistState();
     debouncedClosestStations();
     updateMapLayers();
+    updatePrecipSummary();
   }
 
   function setLocationFromInputs() {
@@ -1388,6 +1451,7 @@ export function mountRockClimControl(root) {
       updateMapLayers();
     }
     debouncedClosestStations();
+    updatePrecipSummary();
   }
 
   function syncMapOpenState() {
@@ -1955,6 +2019,7 @@ export function mountRockClimControl(root) {
   document.addEventListener("unitizer:preferences-changed", () => {
     if (!climateState.use_prism) return;
     updateOverlayLegend();
+    updatePrecipSummary();
   });
 
   customizeButton.addEventListener("click", openCustomizeModal);
