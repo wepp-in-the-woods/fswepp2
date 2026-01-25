@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun run src/server.ts",
-    "dev:css": "bunx @tailwindcss/cli -i ./styles/theme.css -o ./public/app.css --watch",
+    "dev:css": "bunx @tailwindcss/cli -i ./styles/theme.css -o ./public/app.css && bunx @tailwindcss/cli -i ./styles/theme.css -o ./public/app.css --watch",
     "dev:all": "bun run dev:css & bun run dev",
     "start": "PORT=${PORT:-5173} bun run src/server.ts",
     "lint": "echo \"(placeholder)\"",
