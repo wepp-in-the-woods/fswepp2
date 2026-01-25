@@ -36,10 +36,10 @@ import pandas as pd
 
 from collections import namedtuple
 
-from all_your_base import isfloat, clamp, IS_WINDOWS
+from api.all_your_base import isfloat, clamp, IS_WINDOWS
 
-from all_your_base.geo.webclients import elevationquery
-from all_your_base.geo import haversine, RasterDatasetInterpolator
+from api.all_your_base.geo.webclients import elevationquery
+from api.all_your_base.geo import haversine, RasterDatasetInterpolator
 
 from .metquery_client import (
     get_prism_monthly_tmin,

@@ -11,7 +11,7 @@ from posixpath import join as urljoin
 
 import numpy as np
 
-from all_your_base import c_to_f
+from api.all_your_base import c_to_f
 
 
 _metquery_url = "https://wepp.cloud/webservices/metquery/"

@@ -29,11 +29,6 @@ COPY requirements.txt ./
 RUN uv pip install --python /opt/venv/bin/python --no-cache-dir -r requirements.txt \
  && /opt/venv/bin/python -c "import pyproj"
 
-# clone your packages
-RUN mkdir -p /usr/lib/python3/dist-packages/all_your_base \
- && git clone https://github.com/rogerlew/all_your_base \
-      /opt/venv/lib/python3.12/site-packages/all_your_base
-
 # install fortran runtime for cligen43
 RUN wget -q http://archive.ubuntu.com/ubuntu/pool/universe/g/gcc-6/gcc-6-base_6.4.0-17ubuntu1_amd64.deb \
  && wget -q http://archive.ubuntu.com/ubuntu/pool/universe/g/gcc-6/libgfortran3_6.4.0-17ubuntu1_amd64.deb \

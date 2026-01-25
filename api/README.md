@@ -37,10 +37,10 @@ The container mounts a tmpfs at `/dev/shm` (see `docker-compose.yml`). All gener
 
 - FastAPI + Uvicorn
 - Bundled CLIGEN/WEPP assets under `api/cligen` and `api/wepp`
-- all_your_base (stats utilities for return-period calculations)
+- all_your_base (bundled under `api/all_your_base` for return-period calculations)
 - numpy, pandas, pyyaml
 
-The Dockerfile clones `all_your_base` into the venv. The API calls WEPP binaries under `api/wepp/bin` and CLIGEN binaries under `api/cligen/bin`, with station metadata under `api/cligen/db`.
+The API calls WEPP binaries under `api/wepp/bin` and CLIGEN binaries under `api/cligen/bin`, with station metadata under `api/cligen/db`.
 
 ## Conventions
 

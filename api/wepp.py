@@ -1,4 +1,4 @@
-from all_your_base.stats import weibull_series
+from api.all_your_base.stats import weibull_series
 from typing import Optional
 
 import pandas as pd
