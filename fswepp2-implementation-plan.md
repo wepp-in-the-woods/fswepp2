@@ -64,6 +64,16 @@
 - [x] Bundle all_your_base inside API; remove container clone
 - [x] Short-name CLIGEN 4.3/5.3 input/output files to avoid truncation
 
+## Phase 3d — PRISM Cache + Overlay
+- [x] Load PRISM ppt/tmin/tmax normals into in-memory cache on API startup
+- [x] Quantize PRISM normals to int16 with nodata handling and fixed rounding rules
+- [x] Replace metquery PRISM calls in CLIGEN path with cache-backed lookups
+- [x] Generate and serve COG for PRISM annual precipitation with Range support
+- [x] Add PRISM annual precip overlay to RockClim map when `use_prism` enabled
+- [x] Add overlay opacity control + floating categorical legend
+- [x] Unit-aware legend + live point readout (mm/in) synced to unit toggle
+- [x] Add UI test coverage for PRISM overlay unit switching
+
 ## Phase 4 — Charting + Visualizations
 - [ ] Chart core (canvas setup, resize, scales)
 - [ ] Renderers (line, bar, scatter, area, text)
