@@ -122,4 +122,38 @@
   .unitizer.invisible {
     @apply hidden;
   }
+
+  .gl-legend-section {
+    margin-bottom: 0.75rem;
+  }
+  .gl-legend-section:last-child {
+    margin-bottom: 0;
+  }
+  .gl-legend-section__title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-muted-foreground);
+    margin: 0 0 0.35rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .gl-legend-categorical {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .gl-legend-categorical__item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--color-foreground);
+  }
+  .gl-legend-categorical__swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    border: 1px solid var(--color-border);
+  }
 }

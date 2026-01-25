@@ -40,6 +40,28 @@ const PRISM_OVERLAY_OPACITY_DEFAULT = 0.4;
 const PRISM_OVERLAY_MAX_WIDTH = 2048;
 const PRISM_PPT_COG_URL =
   "/prism_data/prism_ppt_us_30s_2020_avg_30y/prism_ppt_us_30s_2020_avg_30y_cog.tif";
+const PRISM_PPT_LEGEND_ITEMS = [
+  { color: "#FFFFFF", label: "< 0" },
+  { color: "#660000", label: "0 - 4" },
+  { color: "#B33000", label: "4 - 8" },
+  { color: "#E65C00", label: "8 - 12" },
+  { color: "#FF9900", label: "12 - 16" },
+  { color: "#FFCC00", label: "16 - 20" },
+  { color: "#FFFF00", label: "20 - 24" },
+  { color: "#CCFF00", label: "24 - 28" },
+  { color: "#80FF00", label: "28 - 32" },
+  { color: "#00FF00", label: "32 - 36" },
+  { color: "#00FF80", label: "36 - 40" },
+  { color: "#00FFFF", label: "40 - 50" },
+  { color: "#33CCFF", label: "50 - 60" },
+  { color: "#3366FF", label: "60 - 70" },
+  { color: "#0000FF", label: "70 - 80" },
+  { color: "#7F00FF", label: "80 - 100" },
+  { color: "#FF00FF", label: "100 - 120" },
+  { color: "#FF66FF", label: "120 - 140" },
+  { color: "#FFB3FF", label: "140 - 160" },
+  { color: "#FFE6FF", label: "> 160" },
+];
 const PRISM_PPT_COLOR_STOPS = [
   { min: -Infinity, max: 0, color: [255, 255, 255] },
   { min: 0, max: 4, color: [102, 0, 0] },
@@ -71,6 +93,24 @@ function colorForPrecipInches(value) {
     }
   }
   return [...PRISM_PPT_COLOR_STOPS[0].color, 255];
+}
+
+function renderCategoricalLegend(items) {
+  const container = document.createElement("div");
+  container.className = "gl-legend-categorical";
+  for (const item of items) {
+    const row = document.createElement("div");
+    row.className = "gl-legend-categorical__item";
+    const swatch = document.createElement("span");
+    swatch.className = "gl-legend-categorical__swatch";
+    swatch.style.backgroundColor = item.color;
+    const label = document.createElement("span");
+    label.textContent = item.label;
+    row.appendChild(swatch);
+    row.appendChild(label);
+    container.appendChild(row);
+  }
+  return container;
 }
 
 function createDebounce(fn, delayMs) {
@@ -235,7 +275,7 @@ export function mountRockClimControl(root) {
   overlayControls.style.display = "none";
   const overlayLabel = document.createElement("span");
   overlayLabel.className = "font-medium text-foreground";
-  overlayLabel.textContent = "Annual precip overlay opacity";
+  overlayLabel.textContent = "PRISM Annual precip opacity";
   const overlayRange = document.createElement("input");
   overlayRange.type = "range";
   overlayRange.min = "0";
@@ -249,10 +289,22 @@ export function mountRockClimControl(root) {
   overlayControls.appendChild(overlayLabel);
   overlayControls.appendChild(overlayRange);
   overlayControls.appendChild(overlayValue);
+  const overlayLegend = document.createElement("div");
+  overlayLegend.className = "rounded-md border border-border bg-background/90 px-3 py-2";
+  overlayLegend.style.display = "none";
+  const overlayLegendSection = document.createElement("div");
+  overlayLegendSection.className = "gl-legend-section";
+  const overlayLegendTitle = document.createElement("h5");
+  overlayLegendTitle.className = "gl-legend-section__title";
+  overlayLegendTitle.textContent = "PRISM Annual Precip (in.)";
+  overlayLegendSection.appendChild(overlayLegendTitle);
+  overlayLegendSection.appendChild(renderCategoricalLegend(PRISM_PPT_LEGEND_ITEMS));
+  overlayLegend.appendChild(overlayLegendSection);
   const mapContent = document.createElement("div");
   mapContent.className = "space-y-3";
   mapContent.appendChild(mapShell);
   mapContent.appendChild(overlayControls);
+  mapContent.appendChild(overlayLegend);
   const mapSection = createCollapsibleSection({
     id: "rockclim-map-section",
     title: "Map Location",
@@ -1018,6 +1070,11 @@ export function mountRockClimControl(root) {
   function syncPrismOverlayControls() {
     const enabled = Boolean(climateState.use_prism);
     overlayControls.style.display = enabled ? "flex" : "none";
+    if (!enabled) {
+      overlayLegend.style.display = "none";
+      return;
+    }
+    overlayLegend.style.display = prismOverlay.canvas ? "block" : "none";
   }
 
   async function loadPrismOverlay() {
@@ -1072,6 +1129,7 @@ export function mountRockClimControl(root) {
       prismOverlay.bounds = bounds;
       prismOverlay.status = "ready";
       prismOverlay.error = null;
+      syncPrismOverlayControls();
       updateMapLayers();
     })().catch((error) => {
       prismOverlay.status = "error";
