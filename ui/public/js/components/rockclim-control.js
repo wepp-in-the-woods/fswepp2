@@ -1655,7 +1655,7 @@ export function mountRockClimControl(root) {
           <td class="px-3 py-2"></td>
           <td class="px-3 py-2"></td>
         `;
-        const adjustCell = adjustRow.children[1];
+        const adjustCell = adjustRow.children[2];
         const adjustWrap = document.createElement("div");
         adjustWrap.className = "flex items-center justify-end gap-2";
         const adjustLabel = document.createElement("span");
