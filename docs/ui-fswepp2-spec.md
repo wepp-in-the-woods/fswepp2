@@ -1642,7 +1642,7 @@ The Hono/Bun UI foundation already exists at `/workdir/fswepp2/ui` with Tailwind
 
 The React frontend uses a custom theme based on:
 - **Color System**: OKLCH color space for perceptually uniform colors
-- **Typography**: Inter font family from Google Fonts
+- **Typography**: Inter font family, self-hosted (no external font CDN)
 - **Component Library**: shadcn/ui built on Radix UI primitives
 - **Utility Framework**: Tailwind CSS v4.1
 
@@ -1665,7 +1665,7 @@ This file imports Tailwind CSS and defines the same CSS custom properties as the
 - `--color-chart-1` through `--color-chart-5` (for visualizations)
 
 **Typography Variables**:
-- `--font-sans`: Inter font stack
+- `--font-sans`: Inter font stack (served from `/ui/public/fonts/` via `@font-face`)
 - `--font-code`: Monospace font stack
 
 **Utility Classes**:
@@ -1676,12 +1676,18 @@ This file imports Tailwind CSS and defines the same CSS custom properties as the
 
 Compile Tailwind CSS from source:
 
-**Command**: `bun run build:css`
+**Command**: `bun run build:css` (or `bun run build`)
 
 **Input**: `/ui/styles/theme.css`
-**Output**: `/ui/public/app.css` (minified)
+**Output**: `/ui/public/app.css` (minified, generated)
 
 This generates a standalone CSS file with all Tailwind utilities and custom theme variables.
+
+**Dev workflow**:
+- `bun run dev:css` (one-time build, then watch)
+- `bun run dev:all` (CSS watch + server)
+
+**Note**: `/ui/public/app.css` is generated and not tracked in git.
 
 #### 3. Using Tailwind Classes in Vanilla JavaScript
 

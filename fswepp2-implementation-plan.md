@@ -31,7 +31,16 @@
 - [x] Unit toggle in header wired to Unitizer preferences
 - [x] Component gallery endpoint with theme lab and contrast metrics report
 
-## Phase 3 — RockClim Control
+## Phase 3 — Hardening
+- [x] Self-host Inter fonts and remove external font dependencies
+- [x] CSP/CORS alignment at edge and API (allowlist + preflight)
+- [x] Rate limits at edge for API routes (429 on exceed)
+- [x] Structured JSON logging for UI and API with request IDs
+- [x] Uptime checks (/health) and docker-compose healthchecks
+- [x] Security scans wired (pip-audit + bandit) with wrapper script
+- [x] CSS build workflow for dev/CI (generated `ui/public/app.css`)
+
+## Phase 3a — RockClim Control
 - [ ] RockClimControl layout + cookie hydration
 - [ ] Database/Cligen selects + persistence
 - [ ] Location fields (lon/lat) with validation + debounce
