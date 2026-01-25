@@ -39,6 +39,7 @@ app.get("/health", (c) => c.json({ status: "ok" }));
 const cssLink = '<link rel="stylesheet" href="/public/app.css" />';
 const jsLinks = `
   <script src="/public/js/vendor/deck.gl.min.js"></script>
+  <script src="/public/js/vendor/geotiff.js"></script>
   <script src="/public/js/unitizer/unitizer_client.js"></script>
   <script type="module" src="/public/js/app.js"></script>
 `;

@@ -74,6 +74,19 @@
 		reverse_proxy api:8090
 	}
 
+	# PRISM COG assets (range requests)
+	handle_path /prism_data/* {
+		header @cors_origin Access-Control-Allow-Origin "{http.request.header.Origin}"
+		header @cors_origin Access-Control-Allow-Credentials "true"
+		header @cors_origin Access-Control-Allow-Methods "GET,HEAD,OPTIONS"
+		header @cors_origin Access-Control-Allow-Headers "Content-Type,Authorization,X-Request-Id,Range"
+		header @cors_origin Access-Control-Expose-Headers "Content-Range,Accept-Ranges,Content-Length"
+		header @cors_origin Vary "Origin"
+		respond @cors_preflight 204
+		root * /srv/prism_data
+		file_server
+	}
+
 	# Static assets (served by UI container)
 	handle /public/* {
 		reverse_proxy ui:5173

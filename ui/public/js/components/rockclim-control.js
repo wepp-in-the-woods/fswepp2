@@ -36,6 +36,42 @@ const MONTH_NAMES = [
   "Nov",
   "Dec",
 ];
+const PRISM_OVERLAY_OPACITY_DEFAULT = 0.4;
+const PRISM_OVERLAY_MAX_WIDTH = 2048;
+const PRISM_PPT_COG_URL =
+  "/prism_data/prism_ppt_us_30s_2020_avg_30y/prism_ppt_us_30s_2020_avg_30y_cog.tif";
+const PRISM_PPT_COLOR_STOPS = [
+  { min: -Infinity, max: 0, color: [255, 255, 255] },
+  { min: 0, max: 4, color: [102, 0, 0] },
+  { min: 4, max: 8, color: [179, 48, 0] },
+  { min: 8, max: 12, color: [230, 92, 0] },
+  { min: 12, max: 16, color: [255, 153, 0] },
+  { min: 16, max: 20, color: [255, 204, 0] },
+  { min: 20, max: 24, color: [255, 255, 0] },
+  { min: 24, max: 28, color: [204, 255, 0] },
+  { min: 28, max: 32, color: [128, 255, 0] },
+  { min: 32, max: 36, color: [0, 255, 0] },
+  { min: 36, max: 40, color: [0, 255, 128] },
+  { min: 40, max: 50, color: [0, 255, 255] },
+  { min: 50, max: 60, color: [51, 204, 255] },
+  { min: 60, max: 70, color: [51, 102, 255] },
+  { min: 70, max: 80, color: [0, 0, 255] },
+  { min: 80, max: 100, color: [127, 0, 255] },
+  { min: 100, max: 120, color: [255, 0, 255] },
+  { min: 120, max: 140, color: [255, 102, 255] },
+  { min: 140, max: 160, color: [255, 179, 255] },
+  { min: 160, max: Infinity, color: [255, 230, 255] },
+];
+
+function colorForPrecipInches(value) {
+  if (!Number.isFinite(value)) return [0, 0, 0, 0];
+  for (const stop of PRISM_PPT_COLOR_STOPS) {
+    if (value >= stop.min && value < stop.max) {
+      return [...stop.color, 255];
+    }
+  }
+  return [...PRISM_PPT_COLOR_STOPS[0].color, 255];
+}
 
 function createDebounce(fn, delayMs) {
   let timer = null;
@@ -119,6 +155,14 @@ export function mountRockClimControl(root) {
   let climateFileLoading = false;
   let climateFileError = null;
   let climateFileRequestId = 0;
+  let prismOverlayOpacity = PRISM_OVERLAY_OPACITY_DEFAULT;
+  const prismOverlay = {
+    status: "idle",
+    canvas: null,
+    bounds: null,
+    promise: null,
+    error: null,
+  };
 
 
   const databaseField = createSelectField({
@@ -186,11 +230,34 @@ export function mountRockClimControl(root) {
   mapContainer.id = "rockclim-map";
   mapContainer.className = "absolute inset-0";
   mapShell.appendChild(mapContainer);
+  const overlayControls = document.createElement("div");
+  overlayControls.className = "flex flex-wrap items-center gap-3 text-sm";
+  overlayControls.style.display = "none";
+  const overlayLabel = document.createElement("span");
+  overlayLabel.className = "font-medium text-foreground";
+  overlayLabel.textContent = "Annual precip overlay opacity";
+  const overlayRange = document.createElement("input");
+  overlayRange.type = "range";
+  overlayRange.min = "0";
+  overlayRange.max = "1";
+  overlayRange.step = "0.05";
+  overlayRange.value = PRISM_OVERLAY_OPACITY_DEFAULT.toString();
+  overlayRange.className = "flex-1 min-w-[140px]";
+  const overlayValue = document.createElement("span");
+  overlayValue.className = "tabular-nums text-muted-foreground";
+  overlayValue.textContent = `${Math.round(PRISM_OVERLAY_OPACITY_DEFAULT * 100)}%`;
+  overlayControls.appendChild(overlayLabel);
+  overlayControls.appendChild(overlayRange);
+  overlayControls.appendChild(overlayValue);
+  const mapContent = document.createElement("div");
+  mapContent.className = "space-y-3";
+  mapContent.appendChild(mapShell);
+  mapContent.appendChild(overlayControls);
   const mapSection = createCollapsibleSection({
     id: "rockclim-map-section",
     title: "Map Location",
     description: "Pick a location to set latitude/longitude and view stations.",
-    content: mapShell,
+    content: mapContent,
     persistKey: "fswepp2_rockclim_map_open",
     defaultOpen: false,
   });
@@ -409,6 +476,7 @@ export function mountRockClimControl(root) {
       stationField.select.value = climateState.par_id;
     }
     prismField.input.checked = Boolean(climateState.use_prism);
+    syncPrismOverlayControls();
     resetStationParState();
     resetClimateFileState();
     persistState({ skipPrefetch: true });
@@ -421,6 +489,7 @@ export function mountRockClimControl(root) {
       mapInstance.setProps({ viewState: mapViewState });
       updateMapLayers();
     }
+    maybeLoadPrismOverlay();
   }
 
   async function handleClimateImport(file, { setStatus } = {}) {
@@ -946,6 +1015,79 @@ export function mountRockClimControl(root) {
 
   const debouncedStationsGeo = createDebounce(fetchStationsGeojson, 400);
 
+  function syncPrismOverlayControls() {
+    const enabled = Boolean(climateState.use_prism);
+    overlayControls.style.display = enabled ? "flex" : "none";
+  }
+
+  async function loadPrismOverlay() {
+    if (prismOverlay.canvas || prismOverlay.promise) return prismOverlay.promise;
+    if (!window.GeoTIFF || !window.GeoTIFF.fromUrl) {
+      console.warn("[rockclim] GeoTIFF library not available.");
+      return null;
+    }
+
+    prismOverlay.status = "loading";
+    prismOverlay.promise = (async () => {
+      const tiff = await window.GeoTIFF.fromUrl(PRISM_PPT_COG_URL);
+      const image = await tiff.getImage();
+      const width = image.getWidth();
+      const height = image.getHeight();
+      const targetWidth = Math.min(PRISM_OVERLAY_MAX_WIDTH, width);
+      const targetHeight = Math.max(
+        1,
+        Math.round((height / width) * targetWidth)
+      );
+      const raster = await image.readRasters({
+        width: targetWidth,
+        height: targetHeight,
+        interleave: true,
+      });
+      const canvas = document.createElement("canvas");
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        throw new Error("Canvas 2D context unavailable.");
+      }
+      const imageData = ctx.createImageData(targetWidth, targetHeight);
+      const rgba = imageData.data;
+      for (let i = 0; i < raster.length; i += 1) {
+        const value = raster[i];
+        const offset = i * 4;
+        if (!Number.isFinite(value) || value <= -9990) {
+          rgba[offset + 3] = 0;
+          continue;
+        }
+        const inches = value / 25.4;
+        const [r, g, b, a] = colorForPrecipInches(inches);
+        rgba[offset] = r;
+        rgba[offset + 1] = g;
+        rgba[offset + 2] = b;
+        rgba[offset + 3] = a;
+      }
+      ctx.putImageData(imageData, 0, 0);
+      const bounds = image.getBoundingBox();
+      prismOverlay.canvas = canvas;
+      prismOverlay.bounds = bounds;
+      prismOverlay.status = "ready";
+      prismOverlay.error = null;
+      updateMapLayers();
+    })().catch((error) => {
+      prismOverlay.status = "error";
+      prismOverlay.error = error;
+      console.error("[rockclim] Failed to load PRISM overlay", error);
+    });
+
+    return prismOverlay.promise;
+  }
+
+  function maybeLoadPrismOverlay() {
+    if (!climateState.use_prism || !mapSection.isOpen()) return;
+    if (!mapInstance) return;
+    void loadPrismOverlay();
+  }
+
   function updateMapLayers() {
     if (!mapInstance || !window.deck) return;
     const layers = [];
@@ -992,6 +1134,23 @@ export function mountRockClimControl(root) {
               image: props.data,
             });
           },
+        })
+      );
+    }
+
+    if (
+      climateState.use_prism &&
+      prismOverlay.canvas &&
+      prismOverlay.bounds &&
+      window.deck.BitmapLayer
+    ) {
+      layers.push(
+        new window.deck.BitmapLayer({
+          id: "prism-annual-ppt",
+          bounds: prismOverlay.bounds,
+          image: prismOverlay.canvas,
+          opacity: prismOverlayOpacity,
+          pickable: false,
         })
       );
     }
@@ -1122,6 +1281,7 @@ export function mountRockClimControl(root) {
       });
       updateMapLayers();
     }
+    maybeLoadPrismOverlay();
   }
 
 
@@ -1612,6 +1772,7 @@ export function mountRockClimControl(root) {
   }
   prismField.input.checked = Boolean(climateState.use_prism);
   prismField.input.disabled = !climateState.location;
+  syncPrismOverlayControls();
   updateClimateBadge();
   persistState();
   updateStationParUi();
@@ -1658,6 +1819,18 @@ export function mountRockClimControl(root) {
   prismField.input.addEventListener("change", () => {
     climateState.use_prism = prismField.input.checked;
     persistState();
+    syncPrismOverlayControls();
+    if (climateState.use_prism) {
+      maybeLoadPrismOverlay();
+    } else {
+      updateMapLayers();
+    }
+  });
+
+  overlayRange.addEventListener("input", () => {
+    prismOverlayOpacity = Number(overlayRange.value);
+    overlayValue.textContent = `${Math.round(prismOverlayOpacity * 100)}%`;
+    updateMapLayers();
   });
 
   customizeButton.addEventListener("click", openCustomizeModal);
@@ -1699,4 +1872,5 @@ export function mountRockClimControl(root) {
   if (mapSection.isOpen()) {
     syncMapOpenState();
   }
+  maybeLoadPrismOverlay();
 }
