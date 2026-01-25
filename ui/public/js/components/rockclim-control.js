@@ -3,6 +3,7 @@ import { createFormField, createSelectField } from "./form-field.js";
 import { createButton } from "./button.js";
 import { createModal, openModal, closeModal } from "./modal.js";
 import { createPreformattedBlock } from "./preformatted.js";
+import { createDropAndUpload } from "./drop-and-upload.js";
 import { apiPost } from "../utils/api-client.js";
 import { isLatitude, isLongitude } from "../utils/validators.js";
 import {
@@ -169,6 +170,14 @@ export function mountRockClimControl(root) {
   const customizeButton = createButton("Customize Climate", "default");
   const deleteClimateButton = createButton("Delete Climate", "destructive");
 
+  const climateUpload = createDropAndUpload({
+    id: "rockclim-climate-upload",
+    buttonText: "Drop or Upload RockClim Climate (.json)",
+    helper: "",
+    height: 50,
+    accept: ".json,application/json",
+    onFile: handleClimateImport,
+  });
 
   const mapShell = document.createElement("div");
   mapShell.className =
@@ -274,6 +283,7 @@ export function mountRockClimControl(root) {
   customizeRow.appendChild(customizeButton);
   customizeRow.appendChild(deleteClimateButton);
   rightCol.appendChild(customizeRow);
+  rightCol.appendChild(climateUpload.wrapper);
 
   const controlGrid = document.createElement("div");
   controlGrid.className = "grid gap-6 lg:grid-cols-2";
@@ -352,6 +362,145 @@ export function mountRockClimControl(root) {
     if (climateState.use_prism) parts.push("prism-modified");
     const prefix = parts.length ? `${parts.join("-")}-` : "";
     return `${prefix}${baseId || "station"}.cli`;
+  }
+
+  function resetStationParState() {
+    stationParKey = null;
+    stationParBlobKey = null;
+    stationParText = "";
+    stationParError = null;
+    stationParLoading = false;
+    clearStationParDownload();
+    updateStationParUi();
+  }
+
+  function resetClimateFileState() {
+    climateFileKey = null;
+    climateFileBlobKey = null;
+    climateFileText = "";
+    climateFileError = null;
+    climateFileLoading = false;
+    clearClimateFileDownload();
+    updateClimateFileUi();
+  }
+
+  function applyImportedClimateState(payload) {
+    climateState = writeClimateState(payload);
+    databaseField.select.value = climateState.database;
+    cligenField.select.value = climateState.cligen_version;
+    if (climateState.location) {
+      setLocationFields(climateState.location.longitude, climateState.location.latitude);
+    } else {
+      lonField.input.value = "";
+      latField.input.value = "";
+    }
+    stationField.setOptions([
+      {
+        value: "",
+        label: climateState.par_id
+          ? climateState.par_id
+          : climateState.location
+            ? "Imported location (no station list)"
+            : "Set location to load stations",
+      },
+    ]);
+    if (climateState.par_id) {
+      ensureStationOption(climateState.par_id, climateState.par_id);
+      stationField.select.value = climateState.par_id;
+    }
+    prismField.input.checked = Boolean(climateState.use_prism);
+    resetStationParState();
+    resetClimateFileState();
+    persistState({ skipPrefetch: true });
+    if (mapInstance && climateState.location) {
+      mapViewState = {
+        ...mapViewState,
+        longitude: climateState.location.longitude,
+        latitude: climateState.location.latitude,
+      };
+      mapInstance.setProps({ viewState: mapViewState });
+      updateMapLayers();
+    }
+  }
+
+  async function handleClimateImport(file, { setStatus } = {}) {
+    if (!file) return;
+    if (Number.isFinite(file.size) && file.size > 3072) {
+      setStatus?.("File too large. Max size is 3KB.", true);
+      return;
+    }
+    setStatus?.("Importing...");
+    try {
+      const text = await file.text();
+      let payload = JSON.parse(text);
+      if (payload && typeof payload === "object" && payload.climate) {
+        payload = payload.climate;
+      }
+      if (!payload || typeof payload !== "object") {
+        setStatus?.("Invalid climate JSON.", true);
+        return;
+      }
+      if (!isValidClimateImport(payload)) {
+        setStatus?.("Climate JSON failed validation.", true);
+        return;
+      }
+      applyImportedClimateState(payload);
+      setStatus?.(`Imported ${file.name || "climate.json"}`);
+    } catch (error) {
+      console.error("[rockclim] Failed to import climate JSON", error);
+      setStatus?.("Unable to import climate file.", true);
+    }
+  }
+
+  function isValidClimateImport(payload) {
+    const allowedDatabases = new Set(["legacy", "2015", "au", "ghcn"]);
+    const allowedCligen = new Set(["4.3", "5.3.2"]);
+
+    if (
+      payload.database &&
+      (!allowedDatabases.has(payload.database) || typeof payload.database !== "string")
+    ) {
+      return false;
+    }
+    if (
+      payload.cligen_version &&
+      (!allowedCligen.has(payload.cligen_version) ||
+        typeof payload.cligen_version !== "string")
+    ) {
+      return false;
+    }
+    if (payload.location) {
+      const lon = Number(payload.location.longitude);
+      const lat = Number(payload.location.latitude);
+      if (!isLongitude(lon) || !isLatitude(lat)) return false;
+    }
+    if (payload.par_id && typeof payload.par_id !== "string") return false;
+    if (payload.input_years != null) {
+      const years = Number(payload.input_years);
+      if (!Number.isFinite(years) || years < 1 || years > 200) return false;
+    }
+    if (payload.use_prism != null && typeof payload.use_prism !== "boolean") {
+      return false;
+    }
+    if (payload.user_defined_par_mod != null) {
+      const mod = payload.user_defined_par_mod;
+      if (!mod || typeof mod !== "object") return false;
+      if (mod.description != null && typeof mod.description !== "string") {
+        return false;
+      }
+      const isNumberArray = (arr) =>
+        Array.isArray(arr) &&
+        arr.length === 12 &&
+        arr.every((value) => Number.isFinite(Number(value)));
+      if (
+        !isNumberArray(mod.ppts) ||
+        !isNumberArray(mod.tmaxs) ||
+        !isNumberArray(mod.tmins)
+      ) {
+        return false;
+      }
+    }
+    return true;
   }
 
   function setStationParDownloadEnabled(enabled) {
@@ -668,7 +817,8 @@ export function mountRockClimControl(root) {
   const debouncedStationParPrefetch = createDebounce(prefetchStationPar, 450);
   const debouncedClimateFilePrefetch = createDebounce(prefetchClimateFile, 450);
 
-  function persistState() {
+  function persistState(options = {}) {
+    const { skipPrefetch = false } = options;
     if (!climateState.location) {
       climateState.use_prism = false;
       prismField.input.checked = false;
@@ -695,8 +845,10 @@ export function mountRockClimControl(root) {
       ? `Climate: ${prefix}${stationName}`
       : "Climate: Not set";
     if (locationSummary) summary += ` (${locationSummary})`;
-    debouncedStationParPrefetch();
-    debouncedClimateFilePrefetch();
+    if (!skipPrefetch) {
+      debouncedStationParPrefetch();
+      debouncedClimateFilePrefetch();
+    }
   }
 
   function setLocationFields(lon, lat) {
@@ -740,7 +892,10 @@ export function mountRockClimControl(root) {
         persistState();
         return;
       }
-      if (!stations.find((s) => s.id === climateState.par_id)) {
+      const hasCurrent = stations.find((s) => s.id === climateState.par_id);
+      if (!hasCurrent && climateState.par_id) {
+        ensureStationOption(climateState.par_id, climateState.par_id);
+      } else if (!hasCurrent) {
         climateState.par_id = stations[0].id;
         climateState.user_defined_par_mod = null;
       }
@@ -1215,6 +1370,36 @@ export function mountRockClimControl(root) {
       },
     });
 
+    const exportButton = createButton("Export to JSON", "outline", {
+      onClick: () => {
+        const payload = collectInputs();
+        if (!payload) return;
+        const description = descField.input.value.trim() || "Custom Climate";
+        const exportPayload = {
+          database: climateState.database,
+          cligen_version: climateState.cligen_version,
+          location: climateState.location,
+          par_id: climateState.par_id,
+          input_years: climateState.input_years,
+          use_prism: climateState.use_prism,
+          user_defined_par_mod: {
+            description,
+            ...payload,
+          },
+        };
+        const json = JSON.stringify(exportPayload, null, 2);
+        const filenameBase = sanitizeFilename(description || climateState.par_id);
+        const filename = `rockclim-${filenameBase || "climate"}.json`;
+        const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(url);
+      },
+    });
+
     const applyButton = createButton("Apply", "default", {
       onClick: () => {
         const payload = collectInputs();
@@ -1232,11 +1417,24 @@ export function mountRockClimControl(root) {
       onClick: () => closeModal("rockclim-customize-modal"),
     });
 
+    const footer = document.createElement("div");
+    footer.className = "flex w-full items-center justify-between gap-2";
+    const footerLeft = document.createElement("div");
+    footerLeft.className = "flex items-center gap-2";
+    footerLeft.appendChild(exportButton);
+    const footerRight = document.createElement("div");
+    footerRight.className = "flex items-center gap-2";
+    footerRight.appendChild(resetButton);
+    footerRight.appendChild(applyButton);
+    footerRight.appendChild(cancelButton);
+    footer.appendChild(footerLeft);
+    footer.appendChild(footerRight);
+
     const modalEl = createModal({
       id: "rockclim-customize-modal",
       title: "Customize Climate Parameters",
       content: body,
-      actions: [resetButton, applyButton, cancelButton],
+      actions: [footer],
     });
     document.body.appendChild(modalEl);
     if (window.UnitizerClient && window.UnitizerClient.ready) {

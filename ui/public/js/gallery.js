@@ -8,6 +8,7 @@ import { createRunButton } from "./components/run-button.js";
 import { createStatCard } from "./components/stat-card.js";
 import { createAlert } from "./components/alert.js";
 import { createPreformattedBlock } from "./components/preformatted.js";
+import { createDropAndUpload } from "./components/drop-and-upload.js";
 
 function mountGallery() {
   const root = document.getElementById("component-gallery-root");
@@ -208,6 +209,18 @@ function mountGallery() {
   preBlock.pre.setAttribute("data-contrast-id", "preformatted-block");
   preSection.appendChild(preBlock.pre);
 
+  const dropSection = section(
+    "Drop & Upload",
+    "Drag-and-drop upload surface with optional status messaging."
+  );
+  const dropUpload = createDropAndUpload({
+    id: "gallery-drop-upload",
+    buttonText: "Drop or Upload .json",
+    helper: "Accepts JSON files.",
+  });
+  dropUpload.dropZone.setAttribute("data-contrast-id", "drop-upload-zone");
+  dropSection.appendChild(dropUpload.wrapper);
+
   const tabsSection = section("Tabs", "Keyboard navigable tabbed interface.");
   const tabs = createTabPanel({
     tabs: [
@@ -395,6 +408,21 @@ function mountGallery() {
       })()
     )
   );
+  themeGrid.appendChild(
+    themeCard(
+      "drop-upload",
+      "Drop upload",
+      "Drop zone border and label contrast check.",
+      (() => {
+        const drop = createDropAndUpload({
+          id: "theme-drop-upload",
+          buttonText: "Drop or Upload .json",
+        });
+        drop.dropZone.setAttribute("data-contrast-id", "theme-drop-upload");
+        return drop.wrapper;
+      })()
+    )
+  );
   themeLab.appendChild(themeGrid);
 
   const metricsSection = section(
@@ -421,6 +449,7 @@ function mountGallery() {
   root.appendChild(modalSection);
   root.appendChild(collapsibleSection);
   root.appendChild(preSection);
+  root.appendChild(dropSection);
   root.appendChild(tabsSection);
   root.appendChild(tableSection);
   root.appendChild(themeLab);

@@ -131,3 +131,82 @@ test("delete climate button only visible when customized", () => {
   );
   expect(deleteButton?.style.display).toBe("");
 });
+
+function getClimateCookie() {
+  const match = document.cookie.match(/(?:^|; )fswepp_climate=([^;]+)/);
+  if (!match) return null;
+  try {
+    return JSON.parse(decodeURIComponent(match[1]));
+  } catch {
+    return null;
+  }
+}
+
+test("import climate JSON validates payload", async () => {
+  const root = document.getElementById("rockclim-control-root");
+  mountRockClimControl(root);
+  const dropZone = document.getElementById("rockclim-climate-upload");
+  const wrapper = dropZone?.parentElement;
+  const input = wrapper?.querySelector('input[type="file"]');
+  const status = wrapper?.querySelector("p.text-xs");
+  if (!input) throw new Error("Missing climate upload input");
+
+  const badPayload = {
+    database: "legacy",
+    cligen_version: "5.3.2",
+    par_id: "TEST123",
+    user_defined_par_mod: {
+      description: "Bad data",
+      ppts: Array(11).fill(1),
+      tmaxs: Array(12).fill(2),
+      tmins: Array(12).fill(0),
+    },
+  };
+  const badFile = new File([JSON.stringify(badPayload)], "bad.json", {
+    type: "application/json",
+  });
+  Object.defineProperty(input, "files", { value: [badFile] });
+  input.dispatchEvent(new Event("change"));
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  expect(status?.textContent || "").toContain("failed validation");
+});
+
+test("import climate JSON updates cookie and inputs", async () => {
+  const root = document.getElementById("rockclim-control-root");
+  mountRockClimControl(root);
+  const dropZone = document.getElementById("rockclim-climate-upload");
+  const wrapper = dropZone?.parentElement;
+  const input = wrapper?.querySelector('input[type="file"]');
+  const status = wrapper?.querySelector("p.text-xs");
+  if (!input) throw new Error("Missing climate upload input");
+
+  const payload = {
+    database: "legacy",
+    cligen_version: "5.3.2",
+    location: { longitude: -113.41235, latitude: 48.286 },
+    par_id: "TEST123",
+    input_years: 100,
+    use_prism: false,
+    user_defined_par_mod: {
+      description: "Imported Climate",
+      ppts: Array(12).fill(1.25),
+      tmaxs: Array(12).fill(20),
+      tmins: Array(12).fill(5),
+    },
+  };
+  const file = new File([JSON.stringify(payload)], "climate.json", {
+    type: "application/json",
+  });
+  Object.defineProperty(input, "files", { value: [file] });
+  input.dispatchEvent(new Event("change"));
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  expect(status?.textContent || "").toContain("Imported");
+  const cookie = getClimateCookie();
+  expect(cookie?.par_id).toBe("TEST123");
+  expect(cookie?.user_defined_par_mod?.description).toBe("Imported Climate");
+
+  const stationSelect = document.getElementById("rockclim_station");
+  expect(stationSelect?.value).toBe("TEST123");
+});

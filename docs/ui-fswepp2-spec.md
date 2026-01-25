@@ -43,7 +43,7 @@ Climate preferences and user-defined climate modifications are stored in browser
 This section summarizes critical design decisions confirmed during specification development. See Appendix D for detailed rationale.
 
 ### User Experience
-- ✅ **RockClim Map**: Inline expansion within panel with "Set Location using Map"/"Hide Map" toggle
+- ✅ **RockClim Map**: Inline expansion within panel via a "Map Location" collapsible (no separate Hide Map button)
 - ✅ **Location Input**: Two separate longitude/latitude fields (editable for precision)
 - ✅ **Units Toggle**: Immediate switch in top-right header (Metric ↔ English, default: Metric)
 - ✅ **Form Validation**: Hybrid blur-then-change with inline error messages
@@ -131,24 +131,38 @@ Implements the climate selection interface as specified by the user. This contro
 **Sub-components:**
 - `DatabaseSelect`: Dropdown for selecting database (legacy, 2015, au, ghcn)
 - `CligenVersionSelect`: Dropdown for CLIGEN version (4.3, 5.3.2)
-- `LocationButton`: Toggle button labeled "Set Location using Map" / "Hide Map"
 - `LocationFields`: Two separate numeric inputs for longitude and latitude
+- `MapLocationSection`: Collapsible section containing the deck.gl map
 - `MapView`: deck.gl map for location selection (expands inline within panel)
 - `StationSelect`: Dynamically populated dropdown of closest stations
 - `CustomizeClimateButton`: Opens modal for manual climate adjustment
 - `CustomizeClimateModal`: Modal with monthly precip, tmin, tmax adjustments
+- `StationParFileSection`: Collapsible section that fetches and displays the station PAR file
+- `ClimateFileSection`: Collapsible section that fetches and displays the climate `.cli` file
+- `PreformattedBlock`: Shared component for consistent `<pre>` formatting
+- `DropAndUpload`: Drag-and-drop upload for importing ClimatePars JSON
 
 **Interactions:**
 - On page load, reads climate state from `fswepp_climate` cookie
 - Database and CLIGEN version selects update immediately and save to cookie
-- **Location button** toggles map visibility inline within RockClim panel:
-  - Default state: Button labeled "Set Location using Map", map hidden
-  - Click: Panel expands to show map, button changes to "Hide Map"
-  - Map visible: "Hide Map" button clearly visible for easy dismissal
+- **Map Location collapsible** toggles map visibility inline within RockClim panel:
+  - Default state: Collapsed, map hidden
+  - Click: Section expands to show map inline
+  - Collapse: Section header toggles back to hidden map
 - **Map interaction**: User clicks point on map to set location
   - Click updates longitude/latitude input fields
   - Triggers API call to `/api/rockclim/GET/closest_stations` with clicked coordinates
   - Station dropdown populates with 10 closest stations
+- **Station Par File**: When expanded, prefetches `/api/rockclim/GET/station_par`
+  - Displays content in `PreformattedBlock`
+  - Provides download link with descriptive filename (`id108137.par`, `prism-modified-id108137.par`, `customized-prism-modified-id108137.par`)
+- **Climate File**: When expanded, prefetches `/api/rockclim/GET/climate`
+  - Displays content in `PreformattedBlock`
+  - Provides download link with descriptive filename mirroring the station par naming
+- **Import Climate JSON**: Drop/upload box accepts a formatted ClimatePars JSON file
+  - Hydrates climate state and updates controls client-side only
+  - Validates schema (arrays length 12, numeric values, known enums)
+  - Preserves custom climate descriptions and monthlies
 - **Location fields**: User can manually enter exact longitude/latitude values
   - On change, triggers same closest stations API call
   - Updates map center to show entered location
@@ -228,7 +242,26 @@ Expandable/collapsible content container.
 - Optional icon/badge in header
 - Click-anywhere-to-toggle header
 
-#### 5. TabPanel
+#### 5. PreformattedBlock
+
+Standardized `<pre>` wrapper for showing large text files (station PAR, climate CLI).
+
+**Features:**
+- Consistent typography and padding
+- Horizontal scrolling with preserved whitespace
+- Optional max-height with scroll
+- Neutral background for readability
+
+#### 6. DropAndUpload
+
+Reusable drag-and-drop upload surface for small file imports.
+
+**Features:**
+- Dotted border with muted label text
+- Click-to-upload and drag/drop support
+- Optional status messaging for success/error
+
+#### 7. TabPanel
 
 Multi-tab content container.
 
@@ -238,7 +271,7 @@ Multi-tab content container.
 - Lazy rendering of inactive tabs
 - Keyboard navigation
 
-#### 6. DataTable
+#### 8. DataTable
 
 Sortable, filterable data table with client-side pagination.
 
@@ -257,7 +290,7 @@ Sortable, filterable data table with client-side pagination.
   - Total row count display
   - Pagination controls at top and bottom of table
 
-#### 7. StatCard
+#### 9. StatCard
 
 Display widget for summary statistics.
 
@@ -313,27 +346,30 @@ The Rock Climate Control appears at the top of every tool page as a collapsible 
 **Left Column:**
 - Database selection dropdown
 - CLIGEN version selection dropdown
-- Set Location using Map / Hide Map button
 - Longitude input field (numeric, editable)
 - Latitude input field (numeric, editable)
 
 **Right Column:**
 - Station selection dropdown (populated after location set)
 - Customize Climate button
+- Drop/upload ClimatePars (.json) box
+
+**Below Columns:**
+- Map Location collapsible (deck.gl map inline)
+- Station Par File collapsible (prefetched, preformatted, downloadable)
+- Climate File collapsible (prefetched, preformatted, downloadable)
 
 **Map View** (when visible):
-- Expands inline within the RockClim panel
+- Expands inline within the RockClim panel inside the Map Location collapsible
 - Appears below the control rows
 - Full width of panel
 - Height: 300-400px (or responsive)
-- "Hide Map" button clearly visible at top-right of map container
 
 ### Location Selection Flow
 
-1. User clicks "Set Location using Map" button
-2. RockClim panel expands to show deck.gl map inline
-3. Button label changes to "Hide Map"
-4. User clicks on map to set location, OR manually enters coordinates
+1. User expands the "Map Location" collapsible
+2. RockClim panel shows deck.gl map inline
+3. User clicks on map to set location, OR manually enters coordinates
 5. **Map Click**:
    - Clicked coordinates populate longitude and latitude input fields
    - Map marker placed at clicked location
@@ -345,9 +381,8 @@ The Rock Climate Control appears at the top of every tool page as a collapsible 
    - API call to `/api/rockclim/GET/closest_stations` with location
    - Station dropdown populates with 10 closest stations (showing station name, distance, elevation)
    - First station auto-selected by default
-8. User clicks "Hide Map" to collapse map view
+8. User collapses "Map Location"
    - Panel contracts back to controls-only view
-   - Button label changes back to "Set Location using Map"
    - Location coordinates remain in input fields
 
 ### Station Selection
@@ -388,17 +423,17 @@ Selection updates `par_id` in climate state and optionally triggers preview of m
    - Original value displayed alongside
 
 **Footer:**
+- "Export to JSON" button (downloads current ClimatePars with custom monthlies)
 - "Reset to Original" button (restores PAR file defaults)
 - "Apply" button (applies to current session, updates `fswepp_climate` cookie)
 - "Cancel" button
-- "Delete Climate" button (only shown when a custom climate is active)
 
 **Behavior:**
 - On open, fetch `/api/rockclim/GET/station_par_monthlies` to populate with current values
 - Input changes update preview calculations in real-time
 - "Apply" updates `user_defined_par_mod` in climate state and saves to `fswepp_climate` cookie
 - Applied customizations persist in cookie and are available across all tool pages
-- "Delete Climate" clears `user_defined_par_mod` and reverts to base station values
+- "Delete Climate" clears `user_defined_par_mod` and reverts to base station values (outside the modal)
 
 ### PRISM Spatialization
 
@@ -2630,12 +2665,12 @@ This section documents key design decisions made during specification developmen
 
 **Rationale**:
 - Keeps user in context (no modal overlay obscuring page)
-- Clear affordance with "Set Location using Map" / "Hide Map" toggle button
-- Map state is temporary and task-focused (select location, then hide)
+- Clear affordance with a dedicated "Map Location" collapsible header
+- Map state is temporary and task-focused (select location, then collapse)
 - Simpler implementation than modal or side panel
 
 **Implementation**:
-- Button label toggles: "Set Location using Map" → "Hide Map"
+- "Map Location" collapsible toggles map visibility
 - Panel expands to show deck.gl map inline below controls
 - Map height: 300-400px responsive
 - Click map or manually enter coordinates
@@ -2644,7 +2679,7 @@ This section documents key design decisions made during specification developmen
 **User Benefits**:
 - Can manually type exact coordinates for precision
 - Visual confirmation of location on map
-- Easy to dismiss map when done
+- Easy to collapse map when done
 - Location stays visible in input fields when map hidden
 
 ### 2. Units Toggle Behavior

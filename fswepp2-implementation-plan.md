@@ -51,6 +51,19 @@
 - [x] Climate customization modal + cookie storage
 - [x] Saved climates dropdown + delete/rename
 
+## Phase 3c — RockClim Assets + Collapsibles
+- [x] Replace map toggle button with Map Location collapsible
+- [x] Add Station Par File collapsible with prefetch + download
+- [x] Add Climate File collapsible with prefetch + download
+- [x] Add PreformattedBlock component + gallery + theme metrics
+- [x] Add DropAndUpload component + gallery + theme metrics
+- [x] Add ClimatePars JSON export/import (client-side)
+- [x] Add RockClim UI tests for JSON import validation
+- [x] Bundle CLIGEN binaries + station DB inside API
+- [x] Bundle WEPP binary inside API
+- [x] Bundle all_your_base inside API; remove container clone
+- [x] Short-name CLIGEN 4.3/5.3 input/output files to avoid truncation
+
 ## Phase 4 — Charting + Visualizations
 - [ ] Chart core (canvas setup, resize, scales)
 - [ ] Renderers (line, bar, scatter, area, text)
