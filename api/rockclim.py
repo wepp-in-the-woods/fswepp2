@@ -103,8 +103,10 @@ class ClimatePars(BaseModel):
 def available_state_codes(
     climate_pars: ClimatePars = Body(
         ...,
-        example={
-            "database": "ghcn"
+        examples={
+            "default": {
+                "value": {"database": "ghcn"}
+            }
         }
     )
 ):
@@ -121,7 +123,7 @@ class StationsGeoJSONRequest(BaseModel):
     )
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "database": "2015",
                 "bbox": [-120, 48, -115, 42]
@@ -132,11 +134,14 @@ class StationsGeoJSONRequest(BaseModel):
 def stations_geojson(
     payload: StationsGeoJSONRequest = Body(
         ...,
-        example=
-    {
-      "database": "2015",
-      "bbox": [-120, 48, -115, 42]
-    }
+        examples={
+            "default": {
+                "value": {
+                    "database": "2015",
+                    "bbox": [-120, 48, -115, 42],
+                }
+            }
+        }
     )
 ):
     stationManager = CligenStationsManager(payload.database, payload.bbox)
@@ -147,8 +152,10 @@ def stations_geojson(
 def stations_in_state(
     climate_pars: ClimatePars = Body(
         ...,
-        example={
-            'state_code': 'WA'
+        examples={
+            "default": {
+                "value": {"state_code": "WA"}
+            }
         }
     )
 ):
@@ -166,10 +173,11 @@ def stations_in_state(
 def get_closest_stations(
     climate_pars: ClimatePars = Body(
         ...,
-        example={
-            'location': {
-                'longitude': -116,
-                'latitude': 47
+        examples={
+            "default": {
+                "value": {
+                    "location": {"longitude": -116, "latitude": 47}
+                }
             }
         }
     )
@@ -222,8 +230,10 @@ def get_station(climate_pars: ClimatePars):
 def get_station_par(
     climate_pars: ClimatePars = Body(
         ...,
-        example={
-            'par_id': 'WA459074'
+        examples={
+            "default": {
+                "value": {"par_id": "WA459074"}
+            }
         }
     )
 ):
@@ -235,13 +245,14 @@ def get_station_par(
 def get_station_par_monthlies(
     climate_pars: ClimatePars = Body(
         ...,
-        example={
-            'par_id': 'WA459074',
-            'location': {
-                'longitude': -117.0,
-                'latitude': 47.0
-            },
-            'use_prism': True
+        examples={
+            "default": {
+                "value": {
+                    "par_id": "WA459074",
+                    "location": {"longitude": -117.0, "latitude": 47.0},
+                    "use_prism": True,
+                }
+            }
         }
     )
 ):
@@ -303,9 +314,10 @@ def get_climate(climate_pars: ClimatePars):
 def get_climate_route(
     climate_pars: ClimatePars = Body(
         ...,
-        example={
-            'par_id': 'WA459074',
-            'input_years': 10
+        examples={
+            "default": {
+                "value": {"par_id": "WA459074", "input_years": 10}
+            }
         }
     )
 ):
@@ -332,9 +344,10 @@ def get_climate_route(
 def get_climate_monthlies_route(
     climate_pars: ClimatePars = Body(
         ...,
-        example={
-            'par_id': 'WA459074',
-            'input_years': 10
+        examples={
+            "default": {
+                "value": {"par_id": "WA459074", "input_years": 10}
+            }
         }
     )
 ):

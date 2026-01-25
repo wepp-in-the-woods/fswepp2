@@ -558,8 +558,7 @@ example_pars = {
 @router.post("/disturbed/GET/soil")
 def disturbed_get_soil(state: DisturbedWeppState = Body(
         ...,
-
-        example=example_pars
+        examples={"default": {"value": example_pars}}
     )
 ):
     try:
@@ -575,7 +574,7 @@ def disturbed_get_soil(state: DisturbedWeppState = Body(
 @router.post("/disturbed/GET/management")
 def disturbed_get_management(state: DisturbedWeppState = Body(
         ...,
-        example=example_pars
+        examples={"default": {"value": example_pars}}
     )
 ):
     try:
@@ -591,7 +590,7 @@ def disturbed_get_management(state: DisturbedWeppState = Body(
 @router.post("/disturbed/GET/slope")
 def disturbed_get_slope(state: DisturbedWeppState = Body(
         ...,
-        example=example_pars
+        examples={"default": {"value": example_pars}}
     )
 ):
     try:
@@ -609,7 +608,7 @@ def disturbed_run_wepp(
     request: Request, 
     state: DisturbedWeppState = Body(
         ...,
-        example=example_pars
+        examples={"default": {"value": example_pars}}
     )
 ):
     output_fn = run_disturbedwepp(state)
@@ -621,7 +620,7 @@ def disturbed_run_wepp(
 @router.post("/disturbedwepp/GET/wepp_output")
 def disturbed_get_wepp_output(state: DisturbedWeppState = Body(
         ...,
-        example=example_pars
+        examples={"default": {"value": example_pars}}
     )
 ):
     output_fn = run_disturbedwepp(state)

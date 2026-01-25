@@ -840,7 +840,7 @@ example_pars = {
 @router.post("/ermit/GET/slope/{spatial_severity}")
 def ermit_get_slope(spatial_severity: str, state: ErmitState = Body(
         ...,
-        example=example_pars
+        examples={"default": {"value": example_pars}}
     )
 ):
     try:
@@ -856,7 +856,7 @@ def ermit_get_slope(spatial_severity: str, state: ErmitState = Body(
 @router.post("/ermit/GET/soil/{spatial_severity}/{k}")
 def ermit_get_soil(spatial_severity: str, k:int, state: ErmitState = Body(
         ...,
-        example=example_pars
+        examples={"default": {"value": example_pars}}
     )
 ):
     try:
@@ -872,7 +872,7 @@ def ermit_get_soil(spatial_severity: str, k:int, state: ErmitState = Body(
 @router.post("/ermit/GET/management/{spatial_severity}")
 def ermit_get_management(spatial_severity: str, state: ErmitState = Body(
         ...,
-        example=example_pars
+        examples={"default": {"value": example_pars}}
     )
 ):
     try:
@@ -890,7 +890,7 @@ def get_ermit_pre_fire_covers(
     request: Request,
     state: ErmitState = Body(
         ...,
-        example=example_pars
+        examples={"default": {"value": example_pars}}
     )
 ) -> Any:
     return {
@@ -904,7 +904,7 @@ def ermit_run_wepp(
     request: Request, 
     state: ErmitState = Body(
         ...,
-        example=example_pars
+        examples={"default": {"value": example_pars}}
     )
 ):
     results = run_ermitwepp(state)

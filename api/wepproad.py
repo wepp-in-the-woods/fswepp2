@@ -490,7 +490,7 @@ example_pars = {
 @router.post("/wepproad/GET/soil")
 def wepproad_get_soil(state: WeppRoadState = Body(
         ...,
-        example=example_pars
+        examples={"default": {"value": example_pars}}
     )
 ):
     try:
@@ -506,7 +506,7 @@ def wepproad_get_soil(state: WeppRoadState = Body(
 @router.post("/wepproad/GET/management")
 def wepproad_get_management(state: WeppRoadState = Body(
         ...,
-        example=example_pars
+        examples={"default": {"value": example_pars}}
     )
 ):
     try:
@@ -522,7 +522,7 @@ def wepproad_get_management(state: WeppRoadState = Body(
 @router.post("/wepproad/GET/slope")
 def wepproad_get_slope(state: WeppRoadState = Body(
         ...,
-        example=example_pars
+        examples={"default": {"value": example_pars}}
     )
 ):
     try:
@@ -540,7 +540,7 @@ def wepproad_run_wepp_road(
     request: Request, 
     state: WeppRoadState = Body(
         ...,
-        example=example_pars
+        examples={"default": {"value": example_pars}}
     )
 ):
     output_fn = run_wepproad(state)
@@ -551,7 +551,7 @@ def wepproad_run_wepp_road(
 @router.post("/wepproad/GET/wepp_output")
 def wepproad_get_wepp_output(state: WeppRoadState = Body(
         ...,
-        example=example_pars
+        examples={"default": {"value": example_pars}}
     )
 ):
     output_fn = run_wepproad(state)
