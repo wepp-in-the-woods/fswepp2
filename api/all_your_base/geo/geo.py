@@ -29,7 +29,11 @@ import rasterio.warp
 from rasterio.warp import reproject, Resampling, calculate_default_transform
 
 
-gdal.UseExceptions()
+try:
+    gdal.UseExceptions()
+except Exception as exc:
+    import warnings
+    warnings.warn(f"GDAL UseExceptions unavailable: {exc}")
 
 
 wgs84_proj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'

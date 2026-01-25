@@ -52,7 +52,7 @@ export function createModal({ id, title, content, actions = [] }) {
   header.appendChild(heading);
 
   const body = document.createElement("div");
-  body.className = "max-h-[70vh] overflow-y-auto pr-2";
+  body.className = "max-h-[70vh] overflow-y-auto overflow-x-visible pr-2 pl-2";
   if (typeof content === "string") {
     body.innerHTML = content;
   } else if (content instanceof HTMLElement) {

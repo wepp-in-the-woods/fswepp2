@@ -1178,10 +1178,9 @@ export function mountRockClimControl(root) {
     header.appendChild(descField.wrapper);
 
     const unitToggle = document.createElement("div");
-    unitToggle.className = "flex items-center justify-between gap-3 pt-2";
+    unitToggle.className = "flex items-center pt-2 justify-end";
     unitToggle.innerHTML = `
-      <p class="text-sm text-muted-foreground">Units</p>
-      <div class="flex items-center gap-2 text-sm" data-unit-toggle-modal>
+      <div class="ml-auto flex items-center gap-2 text-sm" data-unit-toggle-modal>
         <button type="button" class="text-muted-foreground px-1 py-1" data-unit-label="metric">Metric</button>
         <label class="relative inline-flex items-center cursor-pointer">
           <input type="checkbox" class="sr-only peer" id="unit_toggle_modal_input" />
@@ -1206,13 +1205,50 @@ export function mountRockClimControl(root) {
         }
       : original;
 
+    let modalEl = null;
+
+    function readCanonicalValue(input) {
+      const stored = input.dataset.unitizerCanonicalValue;
+      if (stored && stored !== "") {
+        const parsed = Number(stored);
+        if (Number.isFinite(parsed)) return parsed;
+      }
+      const raw = Number(input.value);
+      return Number.isFinite(raw) ? raw : null;
+    }
+
+    function getActiveUnit(category, fallback) {
+      if (unitizerClient) {
+        const prefs = unitizerClient.getPreferencePayload();
+        if (prefs && prefs[category]) {
+          return prefs[category];
+        }
+      }
+      return fallback;
+    }
+
+    function updateInputs(inputs, values) {
+      inputs.forEach((input, i) => {
+        const value = Number(values[i]);
+        if (!Number.isFinite(value)) return;
+        input.value = value.toFixed(2);
+        input.dataset.unitizerCanonicalValue = value.toFixed(2);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+      if (unitizerClient && modalEl) {
+        unitizerClient.updateNumericFields(modalEl);
+      }
+    }
+
     function createMonthTable(
       title,
       unit,
       values,
       currentValues = values,
       unitizerCategory = null,
-      unitizerUnit = null
+      unitizerUnit = null,
+      adjustKind = null,
+      adjustCategory = null
     ) {
       const table = document.createElement("table");
       table.className =
@@ -1229,9 +1265,9 @@ export function mountRockClimControl(root) {
         ? `<span data-unitizer-label data-unitizer-category="${unitizerCategory}" data-unitizer-unit="${unitizerUnit || unit}">${unit}</span>`
         : unit;
       thead.innerHTML = `<tr class="bg-muted text-left">
-        <th class="px-3 py-2">Month</th>
-        <th class="px-3 py-2">Original (${unitLabel})</th>
-        <th class="px-3 py-2">Custom (${unitLabel})</th>
+        <th class="px-3 py-2 align-middle h-12 whitespace-nowrap">Month</th>
+        <th class="px-3 py-2 align-middle h-12 whitespace-nowrap">Original (${unitLabel})</th>
+        <th class="px-3 py-2 align-middle h-12 whitespace-nowrap">Custom (${unitLabel})</th>
       </tr>`;
       table.appendChild(thead);
       const tbody = document.createElement("tbody");
@@ -1266,6 +1302,77 @@ export function mountRockClimControl(root) {
         tbody.appendChild(row);
       });
       table.appendChild(tbody);
+
+      if (adjustKind) {
+        const tfoot = document.createElement("tfoot");
+        const adjustRow = document.createElement("tr");
+        adjustRow.className = "border-t border-border bg-muted/40";
+        adjustRow.innerHTML = `
+          <td class="px-3 py-2 text-xs text-muted-foreground">Adjust all</td>
+          <td class="px-3 py-2"></td>
+          <td class="px-3 py-2"></td>
+        `;
+        const adjustCell = adjustRow.children[2];
+        const adjustWrap = document.createElement("div");
+        adjustWrap.className = "flex items-center gap-2";
+        const adjustLabel = document.createElement("span");
+        adjustLabel.className = "text-sm font-semibold";
+        adjustLabel.textContent = "+/-";
+        const adjustInput = document.createElement("input");
+        adjustInput.type = "number";
+        adjustInput.step = adjustKind === "percent" ? "1" : "0.1";
+        adjustInput.placeholder = "0";
+        adjustInput.className =
+          "w-full rounded-md border border-input bg-background px-2 py-1 text-sm";
+        const adjustUnit = document.createElement("span");
+        adjustUnit.className = "text-xs text-muted-foreground";
+        if (adjustKind === "percent") {
+          adjustUnit.textContent = "%";
+        } else {
+          adjustUnit.textContent = unit;
+          if (unitizerCategory && unitizerUnit) {
+            adjustUnit.setAttribute("data-unitizer-label", "");
+            adjustUnit.setAttribute("data-unitizer-category", unitizerCategory);
+            adjustUnit.setAttribute("data-unitizer-unit", unitizerUnit);
+          }
+        }
+        const applyAdjustment = () => {
+          const raw = Number(adjustInput.value);
+          if (!Number.isFinite(raw)) return;
+          const baseValues = inputs.map((input) => readCanonicalValue(input));
+          if (baseValues.some((v) => !Number.isFinite(v))) return;
+          if (adjustKind === "percent") {
+            const factor = 1 + raw / 100;
+            updateInputs(inputs, baseValues.map((v) => v * factor));
+            return;
+          }
+          let delta = raw;
+          const activeUnit = getActiveUnit(
+            adjustCategory || unitizerCategory,
+            unitizerUnit || unit
+          );
+          if (adjustCategory === "temperature" && activeUnit === "degf") {
+            delta = raw * (5 / 9);
+          }
+          if (adjustCategory === "xs-distance" && activeUnit === "in") {
+            delta = raw * 25.4;
+          }
+          updateInputs(inputs, baseValues.map((v) => v + delta));
+        };
+        adjustInput.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            applyAdjustment();
+          }
+        });
+        adjustInput.addEventListener("blur", applyAdjustment);
+        adjustWrap.appendChild(adjustLabel);
+        adjustWrap.appendChild(adjustInput);
+        adjustWrap.appendChild(adjustUnit);
+        adjustCell.appendChild(adjustWrap);
+        tfoot.appendChild(adjustRow);
+        table.appendChild(tfoot);
+      }
       return { table, inputs };
     }
 
@@ -1275,7 +1382,9 @@ export function mountRockClimControl(root) {
       original.ppts,
       current.ppts,
       "xs-distance",
-      "mm"
+      "mm",
+      "percent",
+      "xs-distance"
     );
     const tmaxTable = createMonthTable(
       "Monthly Max Temperature (°C)",
@@ -1283,7 +1392,9 @@ export function mountRockClimControl(root) {
       original.tmaxs,
       current.tmaxs,
       "temperature",
-      "degc"
+      "degc",
+      "offset",
+      "temperature"
     );
     const tminTable = createMonthTable(
       "Monthly Min Temperature (°C)",
@@ -1291,7 +1402,9 @@ export function mountRockClimControl(root) {
       original.tmins,
       current.tmins,
       "temperature",
-      "degc"
+      "degc",
+      "offset",
+      "temperature"
     );
 
     const tablesWrap = document.createElement("div");
@@ -1326,16 +1439,6 @@ export function mountRockClimControl(root) {
     body.appendChild(header);
     body.appendChild(tablesWrap);
 
-    function readCanonicalValue(input) {
-      const stored = input.dataset.unitizerCanonicalValue;
-      if (stored && stored !== "") {
-        const parsed = Number(stored);
-        if (Number.isFinite(parsed)) return parsed;
-      }
-      const raw = Number(input.value);
-      return Number.isFinite(raw) ? raw : null;
-    }
-
     function collectInputs() {
       const ppts = pptTable.inputs.map((input) => readCanonicalValue(input));
       const tmaxs = tmaxTable.inputs.map((input) => readCanonicalValue(input));
@@ -1347,19 +1450,8 @@ export function mountRockClimControl(root) {
     }
 
     function resetInputs(inputs, originals) {
-      inputs.forEach((input, i) => {
-        const value = Number(originals[i] ?? 0);
-        input.value = value.toFixed(2);
-        const canonicalUnit = input.getAttribute("data-unitizer-unit");
-        if (canonicalUnit) {
-          input.dataset.unitizerActiveUnit = canonicalUnit;
-        }
-        input.dataset.unitizerCanonicalValue = "";
-        input.dispatchEvent(new Event("input", { bubbles: true }));
-      });
-      if (unitizerClient) {
-        unitizerClient.updateNumericFields(modalEl);
-      }
+      const values = originals.map((value) => Number(value ?? 0));
+      updateInputs(inputs, values);
     }
 
     const resetButton = createButton("Reset to Original", "outline", {
@@ -1430,7 +1522,7 @@ export function mountRockClimControl(root) {
     footer.appendChild(footerLeft);
     footer.appendChild(footerRight);
 
-    const modalEl = createModal({
+    modalEl = createModal({
       id: "rockclim-customize-modal",
       title: "Customize Climate Parameters",
       content: body,

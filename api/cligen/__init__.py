@@ -36,15 +36,18 @@ import pandas as pd
 
 from collections import namedtuple
 
-from api.all_your_base import isfloat, clamp, IS_WINDOWS
+from api.all_your_base import isfloat, clamp, IS_WINDOWS, c_to_f
 
 from api.all_your_base.geo.webclients import elevationquery
 from api.all_your_base.geo import haversine, RasterDatasetInterpolator
 
-from .metquery_client import (
+from api.prism_cache import (
     get_prism_monthly_tmin,
     get_prism_monthly_tmax,
     get_prism_monthly_ppt,
+)
+
+from .metquery_client import (
     get_eobs_monthly_tmin,
     get_eobs_monthly_tmax,
     get_eobs_monthly_ppt,
@@ -58,8 +61,6 @@ from .metquery_client import (
     get_daymet_prcp_mean,
     get_daymet_srld_mean,
     get_prism_monthly_tdmean,
-    c_to_f
-
 )
 
 
@@ -1027,13 +1028,14 @@ class Station:
     def prism_mod(self, lng, lat):
         # Function definitions for concurrent execution
         def get_prism_ppt():
-            return get_prism_monthly_ppt(lng, lat, units='inch') / self.nwds
+            prism_ppt_mm = get_prism_monthly_ppt(lng, lat)
+            return (prism_ppt_mm / 25.4) / self.nwds
         
         def get_prism_tmax():
-            return get_prism_monthly_tmax(lng, lat, units='f')
+            return c_to_f(get_prism_monthly_tmax(lng, lat))
         
         def get_prism_tmin():
-            return get_prism_monthly_tmin(lng, lat, units='f')
+            return c_to_f(get_prism_monthly_tmin(lng, lat))
         
         # Use ThreadPoolExecutor for concurrent execution
         with ThreadPoolExecutor() as executor:
@@ -1342,7 +1344,7 @@ class CligenStationsManager:
         elev_ranks = [(i, err) for i, err in enumerate(stations_elevs)]
         elev_ranks = sorted(elev_ranks, key=lambda x: x[1])
 
-        ppts = get_prism_monthly_ppt(*location, units='inch')
+        ppts = get_prism_monthly_ppt(*location) / 25.4
 
         ppt_ranks = np.array([math.sqrt(np.sum((s.get_station().monthly_ppts - ppts)**2.0))
                               for s in stations])
@@ -1688,9 +1690,9 @@ def par_mod(par: int, years: int, lng: float, lat: float, wd: str, monthly_datas
         logger.log('  prism_mod:fetching climates...')
 
     if monthly_dataset.lower() == 'prism':
-        prism_ppts = get_prism_monthly_ppt(lng, lat, units='inch')
-        prism_tmaxs = get_prism_monthly_tmax(lng, lat, units='f')
-        prism_tmins = get_prism_monthly_tmin(lng, lat, units='f')
+        prism_ppts = get_prism_monthly_ppt(lng, lat) / 25.4
+        prism_tmaxs = c_to_f(get_prism_monthly_tmax(lng, lat))
+        prism_tmins = c_to_f(get_prism_monthly_tmin(lng, lat))
         #        p_stds = get_daymet_prcp_std(lng, lat, units='inch')
         #        p_skew = get_daymet_prcp_skew(lng, lat, units='inch')
     elif monthly_dataset.lower() == 'eobs':

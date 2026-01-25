@@ -7,12 +7,14 @@ from api.disturbed import router as disturbed_router
 from api.ermit import router as ermit_router
 from api.rockclim import router as rockclim_router
 from api.logger import router as logger_router
+from api import prism_cache
 
 import traceback
 import uuid
 import os
 import json
 import time
+import logging
 
 app = FastAPI()
 
@@ -32,6 +34,12 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers
 )
+
+
+@app.on_event("startup")
+async def load_prism_cache() -> None:
+    logging.getLogger(__name__).info("Loading PRISM cache on startup.")
+    prism_cache.load()
 
 def _client_ip(request: Request) -> str:
     forwarded = request.headers.get("x-forwarded-for")
