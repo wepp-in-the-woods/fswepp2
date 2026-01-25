@@ -1,4 +1,19 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/public/fonts/Inter-roman.var.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/public/fonts/Inter-italic.var.woff2") format("woff2");
+}
+@config "../tailwind.config.ts";
 @import "tailwindcss";
 @import "tailwindcss/preflight.css" layer(base);
 
@@ -47,9 +62,17 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    font-size: 16px;
+  }
+  *:focus-visible {
+    @apply outline outline-2 outline-ring;
+    outline-offset: 2px;
+  }
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
+    font-size: 1rem;
   }
   h1 {
     @apply text-2xl font-semibold;
@@ -64,12 +87,39 @@
 
 @layer components {
   .page-container {
-    @apply mt-12 flex min-w-[360px] flex-col gap-2 py-4 sm:gap-4 md:gap-6 md:py-6;
+    @apply mt-6 flex min-w-[360px] flex-col gap-2 py-4 sm:gap-4 md:gap-6 md:py-6;
+  }
+  .layout-shell {
+    @apply min-h-screen bg-background;
+  }
+  .layout-header {
+    @apply sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur;
+  }
+  .layout-header__inner {
+    @apply mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3;
+  }
+  .layout-nav {
+    @apply flex flex-wrap items-center gap-3 text-sm;
+  }
+  .layout-main {
+    @apply mx-auto w-full max-w-6xl px-4;
   }
   .dialog-container {
     @apply flex flex-col justify-start h-screen max-h-screen w-screen max-w-screen rounded-none px-3 sm:max-h-5/6 sm:max-w-5/6 sm:rounded-lg sm:p-6 xl:max-h-3/4 xl:max-w-2/3;
   }
   .reference {
     @apply ml-[0.3in] indent-[-0.3in] text-base;
+  }
+  .unitizer-wrapper {
+    @apply inline-flex items-baseline gap-1;
+  }
+  .unitizer {
+    @apply inline-flex items-baseline gap-1;
+  }
+  .wc-unitizer {
+    @apply inline-flex items-baseline gap-1;
+  }
+  .unitizer.invisible {
+    @apply hidden;
   }
 }

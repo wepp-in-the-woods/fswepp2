@@ -67,6 +67,8 @@ Run from `/workdir/fswepp2`:
   - `bandit -r api`
 - Container image scanning (if building images):
   - `trivy image <image>`
+- Convenience wrapper:
+  - `./scripts/security-checks.sh` (runs pip-audit + bandit, optional trivy when an image name is supplied)
 
 ### Automated security suites (legacy reference)
 
@@ -112,4 +114,3 @@ For any new or changed endpoints:
 - [ ] Dependency audit and static analysis clean
 - [ ] Unit tests pass
 - [ ] Manual verification complete
-

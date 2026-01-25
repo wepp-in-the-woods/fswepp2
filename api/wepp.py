@@ -86,7 +86,8 @@ def parse_wepp_soil_output(
                         syp = float(syp)
                         break
                     
-                assert str(year) not in annuals, f"Year {year} already in dictionary"
+                if str(year) in annuals:
+                    raise ValueError(f"Year {year} already in dictionary")
                 
                 annuals[str(year)] = {
                     'year': year,

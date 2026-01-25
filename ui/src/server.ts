@@ -1,7 +1,34 @@
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
+import { requestId } from "hono/request-id";
 
 const app = new Hono();
+
+app.use("*", requestId());
+app.use("*", async (c, next) => {
+  const start = performance.now();
+  await next();
+  const durationMs = Math.round((performance.now() - start) * 100) / 100;
+  const requestIdValue = c.get("requestId");
+  const forwardedFor = c.req.header("x-forwarded-for");
+  const clientIp =
+    (forwardedFor ? forwardedFor.split(",")[0].trim() : null) ||
+    c.req.header("x-real-ip") ||
+    "unknown";
+  const payload = {
+    ts: Date.now() / 1000,
+    level: "info",
+    msg: "request",
+    request_id: requestIdValue,
+    method: c.req.method,
+    path: c.req.path,
+    status: c.res.status,
+    duration_ms: durationMs,
+    client_ip: clientIp,
+    user_agent: c.req.header("user-agent"),
+  };
+  console.log(JSON.stringify(payload));
+});
 
 // Static assets (compiled Tailwind, favicon, etc.)
 app.use("/public/*", serveStatic({ root: "./" }));
@@ -9,8 +36,7 @@ app.use("/public/*", serveStatic({ root: "./" }));
 // Health check
 app.get("/health", (c) => c.json({ status: "ok" }));
 
-const cssLink =
-  '<link rel="stylesheet" href="/public/app.css" /><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>';
+const cssLink = '<link rel="stylesheet" href="/public/app.css" />';
 const jsLinks = `
   <script src="/public/js/unitizer/unitizer_client.js"></script>
   <script type="module" src="/public/js/app.js"></script>

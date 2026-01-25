@@ -11,7 +11,8 @@ import shutil
 import yaml
 import enum
 import math
-import subprocess
+# subprocess used with allowlisted binaries
+import subprocess  # nosec B404
 
 from copy import deepcopy
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -36,6 +37,8 @@ from .file_utils import atomic_write
 router = APIRouter()
 
 _thisdir = os.path.dirname(os.path.abspath(__file__))
+# tmpfs path required by security policy
+TMP_BASE = "/dev/shm/ermit"  # nosec B108
 
 management_data_dir = _join(_thisdir, 'db/ermit/managements')
 
@@ -262,7 +265,7 @@ def create_soil_file(spatial_severity: str, k: int, ermit_state: ErmitState) -> 
         )
 
     hash_id = stable_hash(ermit_pars)
-    soil_file = _join(_thisdir, '/dev/shm/ermit/', f"e_{hash_id}_{spatial_severity}{k}.sol")
+    soil_file = _join(TMP_BASE, f"e_{hash_id}_{spatial_severity}{k}.sol")
     
     os.makedirs(os.path.dirname(soil_file), exist_ok=True)
     
@@ -530,7 +533,7 @@ def create_slope_file(spatial_severity: str, ermit_state: ErmitState) -> str:
 """
 
     hash_id = stable_hash(ermit_pars)
-    slope_file = _join(_thisdir, '/dev/shm/ermit/', f"e_{hash_id}_{spatial_severity}.slp")
+    slope_file = _join(TMP_BASE, f"e_{hash_id}_{spatial_severity}.slp")
     
     os.makedirs(os.path.dirname(slope_file), exist_ok=True)
     
@@ -572,7 +575,7 @@ def get_management_file(spatial_severity: str, ermit_state: ErmitState) -> str:
 
 
 def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int, cli_fn: str, selected_dates: list):
-    cwd = '/dev/shm/ermit'
+    cwd = TMP_BASE
         
     slope_fn = create_slope_file(spatial_severity, state)
     _slope_fn = _split(slope_fn)[1]
@@ -586,7 +589,8 @@ def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int
     if not _exists(_join(cwd, f'{_man_fn}')):
         shutil.copyfile(man_fn, _join(cwd, f'{_man_fn}'))
     
-    assert _exists(cli_fn), f"Climate file {cli_fn} does not exist"
+    if not _exists(cli_fn):
+        raise FileNotFoundError(f"Climate file {cli_fn} does not exist")
     
     hash_id = stable_hash(state)
     run_fn = _join(cwd, f'e_{hash_id}.{spatial_severity}{k}.run')
@@ -663,7 +667,7 @@ def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int
 
 
 def run_ermitwepp(state: ErmitState):
-    cwd = '/dev/shm/ermit'
+    cwd = TMP_BASE
     
     if state.ermit_pars.burn_severity == BurnSeverity.Unburned:
         spatial_severity = 'uuu'
@@ -753,7 +757,8 @@ def run_ermitwepp(state: ErmitState):
     
     selected_ranks = [ 5, 10, 20, 50, 75 ]
     
-    assert len(runoff_year_ranks_descending) >= selected_ranks[-1], len(runoff_year_ranks_descending)
+    if len(runoff_year_ranks_descending) < selected_ranks[-1]:
+        raise ValueError(f"Insufficient runoff ranks: {len(runoff_year_ranks_descending)}")
     
     selected_years = [ runoff_year_ranks_descending[i-1] for i in selected_ranks ]
     
@@ -774,7 +779,8 @@ def run_ermitwepp(state: ErmitState):
                 selected_dates.append({'month': event['month'], 'day': event['day'], 'year': year})
                 break
         
-    assert len(selected_dates) == len(selected_years)
+    if len(selected_dates) != len(selected_years):
+        raise ValueError("Selected dates length does not match selected years")
         
     sed_results = []
     with ThreadPoolExecutor() as executor:

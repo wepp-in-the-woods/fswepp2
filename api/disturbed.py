@@ -29,6 +29,8 @@ from .file_utils import atomic_write
 router = APIRouter()
 
 _thisdir = os.path.dirname(os.path.abspath(__file__))
+# tmpfs path required by security policy
+TMP_BASE = "/dev/shm/disturbed"  # nosec B108
 
 management_data_dir = _join(_thisdir, 'db/disturbed/datatahoebasin')
 
@@ -132,7 +134,7 @@ def create_soil_file(state: DisturbedWeppState) -> str:
     global soil_db_file
     
     hash_id = stable_hash(state.disturbedwepp_pars)
-    new_soil_file = f"/dev/shm/disturbed/wd_{hash_id}.sol"
+    new_soil_file = f"{TMP_BASE}/wd_{hash_id}.sol"
     
     if _exists(new_soil_file):
         return new_soil_file
@@ -187,7 +189,7 @@ def create_management_file(state: DisturbedWeppState):
     global management_data_dir
     
     hash_id = stable_hash(state)
-    man_file = f'/dev/shm/disturbed/wd_{hash_id}.man'
+    man_file = f"{TMP_BASE}/wd_{hash_id}.man"
     
     if _exists(man_file):
         return man_file
@@ -397,7 +399,7 @@ W. Elliot 02/99
 
 def create_slope_file(state: DisturbedWeppState) -> str:
     hash_id = stable_hash(state.disturbedwepp_pars)
-    slope_file = f"/dev/shm/disturbed/wd_{hash_id}.slp"
+    slope_file = f"{TMP_BASE}/wd_{hash_id}.slp"
     
     if _exists(slope_file):
         return slope_file
@@ -448,10 +450,11 @@ def create_slope_file(state: DisturbedWeppState) -> str:
             
 def run_disturbedwepp(state: DisturbedWeppPars):
     
-    import subprocess
+    # subprocess used with allowlisted binaries
+    import subprocess  # nosec B404
     from .rockclim import get_climate
     
-    cwd = '/dev/shm/disturbed'
+    cwd = TMP_BASE
     
     slope_fn = create_slope_file(state)
     _slope_fn = _split(slope_fn)[1]

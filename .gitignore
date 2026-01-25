@@ -2,15 +2,22 @@ __pycache__
 *.pyc
 api/db/users/
 api/logs/
+.venv/
 
 *.deb
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
+node_modules/
+ui/.bun/
 frontend/fswepp2-frontend/node_modules
 frontend/node_modules
 frontend/dist
+
+# generated assets
+ui/public/app.css
+ui/public/app.css.map
 frontend/fswepp2-frontend/.pnp
 frontend/fswepp2-frontend/.pnp.js
 

@@ -1190,6 +1190,7 @@ Top navigation bar (fixed position):
   - Preference saved to `fswepp_units` cookie
   - **Advanced Options** (optional): Gear icon or secondary button next to toggle to open modal for category-specific unit overrides
 - Climate badge showing current station (clickable to expand RockClimControl)
+ - **Header Layout**: Fixed/sticky header with centered content container and right-aligned unit toggle
 
 ### Footer
 
@@ -2464,6 +2465,18 @@ tests/
     color-contrast.spec.js
     focus-management.spec.js
 ```
+
+### UI Component Gallery (Review Harness)
+
+To support design QA and accessibility reviews, a component gallery endpoint is provided:
+
+- **Route**: `/fswepp2/ui-component-gallery`
+- **Purpose**: single-page showcase of shared UI components and theme specimens
+- **Metadata hooks**:
+  - `data-contrast-suite` on the gallery root
+  - `data-contrast-id` on component specimens for contrast metrics
+  - `data-theme-select` reserved for future theme selector
+- **Contrast metrics**: UI generates a Markdown report of contrast ratios across component primitives (buttons, inputs, alerts, table headers, stat cards, etc.)
 
 ### Testing Workflow Integration
 

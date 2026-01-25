@@ -14,6 +14,15 @@ services:
         --port 8090
         --reload
         --reload-dir /workdir/fswepp2
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python - <<'PY'\nimport urllib.request, sys\ntry:\n    urllib.request.urlopen('http://localhost:8090/health', timeout=2)\nexcept Exception:\n    sys.exit(1)\nsys.exit(0)\nPY"
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
   ui:
     build:
@@ -29,9 +38,20 @@ services:
     command: ["bun", "run", "dev"]
     depends_on:
       - api
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "bun -e \"fetch('http://localhost:5173/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
   caddy:
-    image: caddy:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.caddy
     ports:
       - "8091:8091"
     volumes:
@@ -39,3 +59,8 @@ services:
     depends_on:
       - api
       - ui
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8091/health > /dev/null"]
+      interval: 10s
+      timeout: 3s
+      retries: 5

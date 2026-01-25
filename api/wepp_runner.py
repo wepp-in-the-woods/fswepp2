@@ -1,5 +1,6 @@
 import os
-import subprocess
+# subprocess used with allowlisted binaries
+import subprocess  # nosec B404
 from os.path import join as _join
 
 from fastapi import HTTPException
@@ -41,7 +42,8 @@ def run_wepp_binary(
         with open(run_fn, "r") as run_fp, open(stout_fn, "w") as out_fp, open(
             sterr_fn, "w"
         ) as err_fp:
-            subprocess.run(
+            # allowlisted binary, no shell
+            subprocess.run(  # nosec B603
                 [wepp_path],
                 stdin=run_fp,
                 stdout=out_fp,

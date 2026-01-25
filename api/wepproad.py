@@ -23,6 +23,8 @@ from .file_utils import atomic_write
 router = APIRouter()
 
 _thisdir = os.path.dirname(os.path.abspath(__file__))
+# tmpfs path required by security policy
+TMP_BASE = "/dev/shm/wepproad"  # nosec B108
 
 soil_data_dir = _join(_thisdir, 'db/wepproad/soils')
 management_data_dir = _join(_thisdir, 'db/wepproad/managements')
@@ -232,7 +234,7 @@ def create_soil_file(state: WeppRoadState):
     soil_file_template_path = get_soil_file_template(state)
     
     hash_id = stable_hash(state.wepproad_pars)
-    new_soil_file = f"/dev/shm/wepproad/wr_{hash_id}.sol"
+    new_soil_file = f"{TMP_BASE}/wr_{hash_id}.sol"
     surface = state.wepproad_pars.road.surface
     traffic = state.wepproad_pars.road.traffic
     ubr = state.wepproad_pars.rfg_pct
@@ -341,7 +343,7 @@ def create_slope_file(state: WeppRoadState):
         raise ValueError("Invalid units: must be 'm' or 'ft'")
 
     hash_id = stable_hash(state.wepproad_pars)
-    slope_file = f"/dev/shm/wepproad/wr_{hash_id}.slp"
+    slope_file = f"{TMP_BASE}/wr_{hash_id}.slp"
     
     if _exists(slope_file):
         return slope_file
@@ -379,10 +381,11 @@ def create_slope_file(state: WeppRoadState):
 
 def run_wepproad(state: WeppRoadState):
     
-    import subprocess
+    # subprocess used with allowlisted binaries
+    import subprocess  # nosec B404
     from .rockclim import get_climate
     
-    cwd = '/dev/shm/wepproad'
+    cwd = TMP_BASE
     
     slope_fn = create_slope_file(state)
     _slope_fn = _split(slope_fn)[1]
@@ -410,7 +413,7 @@ def run_wepproad(state: WeppRoadState):
         "1",  # 1 = continuous
         "1",  # 1 = hillslope
         "n",  # hillslope pass file out?
-        "1",  # 1 = abbreviated annual out
+        "2",  # 2 = detailed annual out (required for annual tables/charts)
         "n",  # initial conditions file?
         f"{_output_fn}",  # soil loss output file
         "n",  # water balance output?

@@ -1,3 +1,7 @@
+{
+	order rate_limit before reverse_proxy
+}
+
 :8091 {
 	encode zstd gzip
 
@@ -9,7 +13,39 @@
 			Content-Security-Policy "default-src 'self'; img-src 'self' data: https://tile.openstreetmap.org https://*.tile.openstreetmap.org; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://tile.openstreetmap.org https://*.tile.openstreetmap.org; font-src 'self' data:;"
 		}
 
+	@cors_origin {
+		header Origin https://fswepp2.bearhive.duckdns.org
+		header Origin https://fswepp2-dev.bearhive.duckdns.org
+		header Origin http://localhost:5173
+		header Origin http://localhost:8091
+		header Origin http://127.0.0.1:5173
+		header Origin http://127.0.0.1:8091
+	}
+
+	@cors_preflight {
+		method OPTIONS
+		header Origin https://fswepp2.bearhive.duckdns.org
+		header Origin https://fswepp2-dev.bearhive.duckdns.org
+		header Origin http://localhost:5173
+		header Origin http://localhost:8091
+		header Origin http://127.0.0.1:5173
+		header Origin http://127.0.0.1:8091
+	}
+
 	handle_path /fswepp2/api/* {
+		header @cors_origin Access-Control-Allow-Origin "{http.request.header.Origin}"
+		header @cors_origin Access-Control-Allow-Credentials "true"
+		header @cors_origin Access-Control-Allow-Methods "GET,POST,OPTIONS"
+		header @cors_origin Access-Control-Allow-Headers "Content-Type,Authorization,X-Request-Id"
+		header @cors_origin Vary "Origin"
+		respond @cors_preflight 204
+		rate_limit {
+			zone fswepp2_api {
+				key {remote_host}
+				events 60
+				window 1m
+			}
+		}
 		reverse_proxy api:8090
 	}
 
@@ -20,13 +56,25 @@
 
 	# Optional transitional alias
 	handle_path /api/* {
+		header @cors_origin Access-Control-Allow-Origin "{http.request.header.Origin}"
+		header @cors_origin Access-Control-Allow-Credentials "true"
+		header @cors_origin Access-Control-Allow-Methods "GET,POST,OPTIONS"
+		header @cors_origin Access-Control-Allow-Headers "Content-Type,Authorization,X-Request-Id"
+		header @cors_origin Vary "Origin"
+		respond @cors_preflight 204
+		rate_limit {
+			zone fswepp2_api_alias {
+				key {remote_host}
+				events 60
+				window 1m
+			}
+		}
 		reverse_proxy api:8090
 	}
 
-	# Static assets
+	# Static assets (served by UI container)
 	handle /public/* {
-		root * /app
-		file_server
+		reverse_proxy ui:5173
 	}
 
 	# App pages (FSWEPP2)

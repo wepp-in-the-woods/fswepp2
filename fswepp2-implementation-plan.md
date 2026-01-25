@@ -4,30 +4,32 @@
 > Status: Multi-phase, checkbox-tracked
 
 ## Phase 0 — Baseline Alignment
-- [ ] Confirm routing base path is `/fswepp2` and Caddy routes align with migration plan
-- [ ] Confirm API base path is `/api` for all tool endpoints
-- [ ] Decide whether any legacy UI endpoints need temporary forwarding or explicit 404s
+- [x] Confirm routing base path is `/fswepp2` and Caddy routes align with migration plan
+- [x] Confirm API base path is `/api` for all tool endpoints
+- [x] Decide whether any legacy UI endpoints need temporary forwarding or explicit 404s
 
 ## Phase 1 — Shared Foundations
-- [ ] Set up `/ui/public/js/app.js` entrypoint and module loading strategy
-- [ ] Implement cookie helpers (`fswepp_climate`, `fswepp_user_climates`, `fswepp_units`)
-- [ ] Implement localStorage helpers (tool states)
-- [ ] Implement URL config (base64url encode/decode + precedence)
-- [ ] Implement validators (range, required, coordinate)
-- [ ] Implement API client + error normalization
-- [ ] Port and adapt Unitizer client for `/public/js/unitizer_map.js`
-- [ ] Generate trimmed `unitizer_map.js` for FSWEPP-only categories
-- [ ] Build Unitizer preference modal (custom modal component)
-- [ ] Add Unitizer DOM conventions and registration helpers
+- [x] Set up `/ui/public/js/app.js` entrypoint and module loading strategy
+- [x] Implement cookie helpers (`fswepp_climate`, `fswepp_user_climates`, `fswepp_units`)
+- [x] Implement localStorage helpers (tool states)
+- [x] Implement URL config (base64url encode/decode + precedence)
+- [x] Implement validators (range, required, coordinate)
+- [x] Implement API client + error normalization
+- [x] Port and adapt Unitizer client for `/public/js/unitizer_map.js`
+- [ ] Generate trimmed `unitizer_map.js` for FSWEPP-only categories (deferred; keeping full map)
+- [ ] Build Unitizer preference modal (custom modal component) — deferred (global toggle only)
+- [x] Add Unitizer DOM conventions and registration helpers
 
 ## Phase 2 — Shared UI Components
-- [ ] Custom modal component (focus trap, ESC close, ARIA)
-- [ ] FormField component variants + validation state
-- [ ] RunButton with loading/error/success states
-- [ ] CollapsibleSection with localStorage persistence
-- [ ] TabPanel with keyboard navigation
-- [ ] DataTable with sorting + pagination + CSV export
-- [ ] StatCard component
+- [x] Custom modal component (focus trap, ESC close, ARIA)
+- [x] FormField component variants + validation state
+- [x] RunButton with loading/error/success states
+- [x] CollapsibleSection with localStorage persistence
+- [x] TabPanel with keyboard navigation
+- [x] DataTable with sorting + pagination + CSV export
+- [x] StatCard component
+- [x] Unit toggle in header wired to Unitizer preferences
+- [x] Component gallery endpoint with theme lab and contrast metrics report
 
 ## Phase 3 — RockClim Control
 - [ ] RockClimControl layout + cookie hydration

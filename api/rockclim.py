@@ -16,6 +16,8 @@ from .file_utils import atomic_write
 router = APIRouter()
 
 _thisdir = os.path.dirname(os.path.abspath(__file__))
+# tmpfs path required by security policy
+TMP_BASE = "/dev/shm/rockclim"  # nosec B108
 
 
 class Location(BaseModel):
@@ -234,7 +236,7 @@ def get_station_par_monthlies(
 
 
 def get_climate(climate_pars: ClimatePars):
-    wd="/dev/shm/rockclim/"
+    wd = TMP_BASE
     
     station = get_station(climate_pars)
     

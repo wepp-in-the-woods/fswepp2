@@ -19,12 +19,12 @@
 ## Target Architecture
 - **FastAPI service (api)**: existing `/api` routes and WEPP/CLIGEN execution; runs under Uvicorn; temp artifacts in `/dev/shm/<model>/`.
 - **Hono UI service (ui)**: Bun runtime; server-rendered routes for Rock:Clime, WEPP:Road, Disturbed WEPP, and ERMiT. Fetches data from the API over the internal network; handles form validation and error shaping; serves static assets (CSS/JS) from `public/`.
-- **Edge/proxy (Caddy)**: runs behind HAProxy TLS termination on `fswepp2.bearhive.duckdns.org`; HAProxy → Caddy is HTTP-only. Caddy proxies `/fswepp2/api` → FastAPI and `/` → Hono UI (app pages live under `/fswepp/...`); injects security headers (HSTS, CSP, X-Content-Type-Options, Referrer-Policy) and enforces CORS to the frontend origin. Optional transitional `/api` alias may be left briefly.
+- **Edge/proxy (Caddy)**: runs behind HAProxy TLS termination on `fswepp2.bearhive.duckdns.org`; HAProxy → Caddy is HTTP-only. Caddy proxies `/fswepp2/api` → FastAPI and `/fswepp2/*` → Hono UI (app pages live under `/fswepp2/...`); proxies `/public/*` → Hono UI for static assets; injects security headers (HSTS, CSP, X-Content-Type-Options, Referrer-Policy) and enforces CORS to the frontend origin. Optional transitional `/api` alias may be left briefly.
 - **State & storage**: No persistent DB in the UI. API keeps existing on-disk user JSON for Rock:Clime user mods under `api/db/users/rockclim/`. Temp artifacts remain on tmpfs.
 - **Observability**: Structured JSON logs from both services; request IDs propagated via `X-Request-ID`. Health endpoints: `/health` (api) and `/health` (ui) returning minimal JSON.
 
 ### Request flow (text map)
-1. Browser → HAProxy (TLS termination for `fswepp2.bearhive.duckdns.org`) → Caddy (`/` routes) → Hono UI (feature pages under `/fswepp/...`; root can later host landing/index from legacy backfill).
+1. Browser → HAProxy (TLS termination for `fswepp2.bearhive.duckdns.org`) → Caddy (`/fswepp2/*` routes) → Hono UI (feature pages under `/fswepp2/...`; root can later host landing/index from legacy backfill).
 2. UI renders form, POSTs back to UI → UI calls API at `/fswepp2/api/...` (internal HTTP) → API runs WEPP/CLIGEN → UI returns shaped JSON/file responses.
 3. Browser/programmatic client → HAProxy → Caddy (`/fswepp2/api/...`) → API; optional temporary alias `/api/...` during transition.
 
@@ -36,18 +36,18 @@
 - Add `Caddyfile` and `Dockerfile.ui` (Bun build → minimal runtime).
 - Local dev: `docker compose up api ui caddy` (new service replaces `frontend` and nginx).
 - Production images: multi-stage `Dockerfile.ui` and existing `Dockerfile` for the API.
-- Primary user-facing flows live under `/fswepp/...`; root `/` is reserved to backfill the legacy index and other pages as needed.
+- Primary user-facing flows live under `/fswepp2/...`; root `/` is reserved to backfill the legacy index and other pages as needed.
 
 ### Docker Compose (dev) sketch
 - `api`: existing definition (port 8090, tmpfs `/dev/shm`).
-- `ui`: build `Dockerfile.ui`, mount `ui/` for live reload, expose `5173` (or align to `8091` for prod parity). Pages live under `/fswepp/...`.
-- `caddy`: proxies `/fswepp2/api` (and optional `/api`) → `api:8090`, `/` → `ui:5173`; serves security headers and CORS; runs HTTP only (HAProxy handles external TLS).
+- `ui`: build `Dockerfile.ui`, mount `ui/` for live reload, expose `5173` (or align to `8091` for prod parity). Pages live under `/fswepp2/...`.
+- `caddy`: proxies `/fswepp2/api` (and optional `/api`) → `api:8090`, `/fswepp2/*` → `ui:5173`, `/public/*` → `ui:5173`; serves security headers and CORS; runs HTTP only (HAProxy handles external TLS).
 
 ## Styling Reuse Plan (answering “can we take the existing styling?”)
 - Yes. Reuse the Tailwind theme and CSS variables defined in `frontend/src/index.css` and `frontend/tailwind.config.js`.
 - Extract the tokens into `ui/styles/theme.css` (CSS custom properties) and mirror them in `ui/tailwind.config.ts` via `theme.extend.colors`, fonts, and utilities.
 - Preserve the light/dark palettes, typography (Inter), and component utility classes (e.g., `.page-container`, `.dialog-container`, `.reference`).
-- Bundle CSS with Tailwind CLI via Bun: `bunx tailwindcss -i ./styles/theme.css -o ./public/app.css --watch` for dev; `--minify` for prod.
+- Bundle CSS with Tailwind CLI via Bun: `bunx @tailwindcss/cli -i ./styles/theme.css -o ./public/app.css --watch` for dev; `--minify` for prod.
 - Result: consistent look across old/new tools without keeping the React component layer.
 
 ## Delivery Plan (functional-first)
