@@ -36,7 +36,7 @@ const MONTH_NAMES = [
   "Nov",
   "Dec",
 ];
-const PRISM_OVERLAY_OPACITY_DEFAULT = 0.4;
+const PRISM_OVERLAY_OPACITY_DEFAULT = 0.15;
 const PRISM_OVERLAY_MAX_WIDTH = 2048;
 const PRISM_PPT_COG_URL =
   "/prism_data/prism_ppt_us_30s_2020_avg_30y/prism_ppt_us_30s_2020_avg_30y_cog.tif";
@@ -1591,9 +1591,9 @@ export function mountRockClimControl(root) {
           <td class="px-3 py-2"></td>
           <td class="px-3 py-2"></td>
         `;
-        const adjustCell = adjustRow.children[2];
+        const adjustCell = adjustRow.children[1];
         const adjustWrap = document.createElement("div");
-        adjustWrap.className = "flex items-center gap-2";
+        adjustWrap.className = "flex items-center justify-end gap-2";
         const adjustLabel = document.createElement("span");
         adjustLabel.className = "text-sm font-semibold";
         adjustLabel.textContent = "+/-";
@@ -1602,7 +1602,7 @@ export function mountRockClimControl(root) {
         adjustInput.step = adjustKind === "percent" ? "1" : "0.1";
         adjustInput.placeholder = "0";
         adjustInput.className =
-          "w-full rounded-md border border-input bg-background px-2 py-1 text-sm";
+          "w-24 rounded-md border border-input bg-background px-2 py-1 text-sm text-right";
         const adjustUnit = document.createElement("span");
         adjustUnit.className = "text-xs text-muted-foreground";
         if (adjustKind === "percent") {
