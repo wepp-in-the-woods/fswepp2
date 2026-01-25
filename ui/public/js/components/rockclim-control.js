@@ -41,26 +41,26 @@ const PRISM_OVERLAY_MAX_WIDTH = 2048;
 const PRISM_PPT_COG_URL =
   "/prism_data/prism_ppt_us_30s_2020_avg_30y/prism_ppt_us_30s_2020_avg_30y_cog.tif";
 const PRISM_PPT_LEGEND_ITEMS = [
-  { color: "#FFFFFF", label: "< 0" },
-  { color: "#660000", label: "0 - 4" },
-  { color: "#B33000", label: "4 - 8" },
-  { color: "#E65C00", label: "8 - 12" },
-  { color: "#FF9900", label: "12 - 16" },
-  { color: "#FFCC00", label: "16 - 20" },
-  { color: "#FFFF00", label: "20 - 24" },
-  { color: "#CCFF00", label: "24 - 28" },
-  { color: "#80FF00", label: "28 - 32" },
-  { color: "#00FF00", label: "32 - 36" },
-  { color: "#00FF80", label: "36 - 40" },
-  { color: "#00FFFF", label: "40 - 50" },
-  { color: "#33CCFF", label: "50 - 60" },
-  { color: "#3366FF", label: "60 - 70" },
-  { color: "#0000FF", label: "70 - 80" },
-  { color: "#7F00FF", label: "80 - 100" },
-  { color: "#FF00FF", label: "100 - 120" },
-  { color: "#FF66FF", label: "120 - 140" },
-  { color: "#FFB3FF", label: "140 - 160" },
-  { color: "#FFE6FF", label: "> 160" },
+  { color: "#FFFFFF", label: "< 0 mm" },
+  { color: "#660000", label: "0 - 102 mm" },
+  { color: "#B33000", label: "102 - 203 mm" },
+  { color: "#E65C00", label: "203 - 305 mm" },
+  { color: "#FF9900", label: "305 - 406 mm" },
+  { color: "#FFCC00", label: "406 - 508 mm" },
+  { color: "#FFFF00", label: "508 - 610 mm" },
+  { color: "#CCFF00", label: "610 - 711 mm" },
+  { color: "#80FF00", label: "711 - 813 mm" },
+  { color: "#00FF00", label: "813 - 914 mm" },
+  { color: "#00FF80", label: "914 - 1016 mm" },
+  { color: "#00FFFF", label: "1016 - 1270 mm" },
+  { color: "#33CCFF", label: "1270 - 1524 mm" },
+  { color: "#3366FF", label: "1524 - 1778 mm" },
+  { color: "#0000FF", label: "1778 - 2032 mm" },
+  { color: "#7F00FF", label: "2032 - 2540 mm" },
+  { color: "#FF00FF", label: "2540 - 3048 mm" },
+  { color: "#FF66FF", label: "3048 - 3556 mm" },
+  { color: "#FFB3FF", label: "3556 - 4064 mm" },
+  { color: "#FFE6FF", label: "> 4064 mm" },
 ];
 const PRISM_PPT_COLOR_STOPS = [
   { min: -Infinity, max: 0, color: [255, 255, 255] },
@@ -265,7 +265,7 @@ export function mountRockClimControl(root) {
 
   const mapShell = document.createElement("div");
   mapShell.className =
-    "relative h-96 w-full overflow-hidden rounded-md border border-border";
+    "relative h-[500px] w-full overflow-hidden rounded-md border border-border";
   const mapContainer = document.createElement("div");
   mapContainer.id = "rockclim-map";
   mapContainer.className = "absolute inset-0";
@@ -290,21 +290,22 @@ export function mountRockClimControl(root) {
   overlayControls.appendChild(overlayRange);
   overlayControls.appendChild(overlayValue);
   const overlayLegend = document.createElement("div");
-  overlayLegend.className = "rounded-md border border-border bg-background/90 px-3 py-2";
+  overlayLegend.className =
+    "absolute right-3 top-3 rounded-md border border-border bg-background/90 px-3 py-2 shadow-sm";
   overlayLegend.style.display = "none";
   const overlayLegendSection = document.createElement("div");
   overlayLegendSection.className = "gl-legend-section";
   const overlayLegendTitle = document.createElement("h5");
   overlayLegendTitle.className = "gl-legend-section__title";
-  overlayLegendTitle.textContent = "PRISM Annual Precip (in.)";
+  overlayLegendTitle.textContent = "PRISM Annual Precip (mm)";
   overlayLegendSection.appendChild(overlayLegendTitle);
   overlayLegendSection.appendChild(renderCategoricalLegend(PRISM_PPT_LEGEND_ITEMS));
   overlayLegend.appendChild(overlayLegendSection);
+  mapShell.appendChild(overlayLegend);
   const mapContent = document.createElement("div");
   mapContent.className = "space-y-3";
   mapContent.appendChild(mapShell);
   mapContent.appendChild(overlayControls);
-  mapContent.appendChild(overlayLegend);
   const mapSection = createCollapsibleSection({
     id: "rockclim-map-section",
     title: "Map Location",
