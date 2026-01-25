@@ -210,3 +210,96 @@ test("import climate JSON updates cookie and inputs", async () => {
   const stationSelect = document.getElementById("rockclim_station");
   expect(stationSelect?.value).toBe("TEST123");
 });
+
+test("PRISM overlay summary reflects unit toggle", async () => {
+  const prevDeck = window.deck;
+  const prevGeoTiff = window.GeoTIFF;
+  const prevUnitizer = window.UnitizerClient;
+  let currentUnit = "mm";
+
+  window.UnitizerClient = {
+    getClientSync: () => ({
+      getPreferencePayload: () => ({ "xs-distance": currentUnit }),
+    }),
+  };
+
+  window.GeoTIFF = {
+    fromUrl: async () => ({
+      getImage: async () => ({
+        getWidth: () => 2,
+        getHeight: () => 2,
+        readRasters: async () => new Float32Array([0, 0, 0, 254]),
+        getBoundingBox: () => [-1, -1, 1, 1],
+      }),
+    }),
+  };
+
+  window.deck = {
+    DeckGL: class {
+      constructor(options) {
+        this.options = options;
+      }
+      setProps() {}
+    },
+    WebMercatorViewport: class {
+      getBounds() {
+        return [-1, -1, 1, 1];
+      }
+    },
+    TileLayer: class {
+      constructor(props) {
+        this.props = props;
+      }
+    },
+    BitmapLayer: class {
+      constructor(props) {
+        this.props = props;
+      }
+    },
+    GeoJsonLayer: class {
+      constructor(props) {
+        this.props = props;
+      }
+    },
+    ScatterplotLayer: class {
+      constructor(props) {
+        this.props = props;
+      }
+    },
+  };
+
+  setClimateCookie({
+    database: "legacy",
+    cligen_version: "5.3.2",
+    location: { longitude: 0, latitude: 0 },
+    par_id: "TEST123",
+    input_years: 100,
+    use_prism: true,
+    user_defined_par_mod: null,
+  });
+
+  const root = document.getElementById("rockclim-control-root");
+  mountRockClimControl(root);
+  const mapSection = document.getElementById("rockclim-map-section");
+  const toggle = mapSection?.querySelector("button");
+  toggle?.click();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  const summaryLabel = Array.from(root.querySelectorAll("span")).find(
+    (el) => el.textContent === "PRISM Annual Precip"
+  );
+  const summaryValue = summaryLabel?.nextElementSibling;
+  const summaryUnit = summaryValue?.nextElementSibling;
+  expect(summaryValue?.textContent).toBe("254");
+  expect(summaryUnit?.textContent).toBe("mm");
+
+  currentUnit = "in";
+  document.dispatchEvent(new Event("unitizer:preferences-changed"));
+  expect(summaryValue?.textContent).toBe("10.00");
+  expect(summaryUnit?.textContent).toBe("in");
+
+  window.deck = prevDeck;
+  window.GeoTIFF = prevGeoTiff;
+  window.UnitizerClient = prevUnitizer;
+});
