@@ -35,7 +35,7 @@ services:
       - ./ui:/app
     environment:
       - PORT=5173
-    command: ["bun", "run", "dev"]
+    command: ["bun", "run", "dev:all"]
     depends_on:
       - api
     healthcheck:

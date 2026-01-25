@@ -5,9 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "bun run src/server.ts",
+    "dev:css": "bunx @tailwindcss/cli -i ./styles/theme.css -o ./public/app.css --watch",
+    "dev:all": "bun run dev:css & bun run dev",
     "start": "PORT=${PORT:-5173} bun run src/server.ts",
     "lint": "echo \"(placeholder)\"",
-    "build:css": "bunx @tailwindcss/cli -i ./styles/theme.css -o ./public/app.css --minify"
+    "build:css": "bunx @tailwindcss/cli -i ./styles/theme.css -o ./public/app.css --minify",
+    "build": "bun run build:css"
   },
   "dependencies": {
     "hono": "^4.4.7"
