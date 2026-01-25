@@ -51,37 +51,45 @@ async def request_id_logging_middleware(request: Request, call_next):
     if not request_id or len(request_id) > 255:
         request_id = str(uuid.uuid4())
     request.state.request_id = request_id
+
+    # Skip logging for health check endpoint
+    should_log = request.url.path != "/health"
+
     try:
         response: Response = await call_next(request)
     except Exception as exc:
-        duration_ms = round((time.perf_counter() - start) * 1000, 2)
+        if should_log:
+            duration_ms = round((time.perf_counter() - start) * 1000, 2)
+            _log_json({
+                "ts": time.time(),
+                "level": "error",
+                "msg": "request_error",
+                "request_id": request_id,
+                "method": request.method,
+                "path": request.url.path,
+                "status": 500,
+                "duration_ms": duration_ms,
+                "client_ip": _client_ip(request),
+                "user_agent": request.headers.get("user-agent"),
+            })
+        raise exc
+
+    duration_ms = round((time.perf_counter() - start) * 1000, 2)
+    response.headers["X-Request-Id"] = request_id
+
+    if should_log:
         _log_json({
             "ts": time.time(),
-            "level": "error",
-            "msg": "request_error",
+            "level": "info",
+            "msg": "request",
             "request_id": request_id,
             "method": request.method,
             "path": request.url.path,
-            "status": 500,
+            "status": response.status_code,
             "duration_ms": duration_ms,
             "client_ip": _client_ip(request),
             "user_agent": request.headers.get("user-agent"),
         })
-        raise exc
-    duration_ms = round((time.perf_counter() - start) * 1000, 2)
-    response.headers["X-Request-Id"] = request_id
-    _log_json({
-        "ts": time.time(),
-        "level": "info",
-        "msg": "request",
-        "request_id": request_id,
-        "method": request.method,
-        "path": request.url.path,
-        "status": response.status_code,
-        "duration_ms": duration_ms,
-        "client_ip": _client_ip(request),
-        "user_agent": request.headers.get("user-agent"),
-    })
     return response
 
 @app.middleware("http")

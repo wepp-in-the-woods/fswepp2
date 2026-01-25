@@ -48,4 +48,4 @@ RUN wget -q http://archive.ubuntu.com/ubuntu/pool/universe/g/gcc-6/gcc-6-base_6.
 
 # expose and default command
 EXPOSE 8090
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8090", "--reload"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8090", "--reload", "--log-config", "/workdir/fswepp2/logging_config.json"]

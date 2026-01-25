@@ -14,6 +14,7 @@ services:
         --port 8090
         --reload
         --reload-dir /workdir/fswepp2
+        --log-config /workdir/fswepp2/logging_config.json
     healthcheck:
       test:
         [
