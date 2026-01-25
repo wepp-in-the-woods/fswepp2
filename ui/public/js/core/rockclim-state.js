@@ -5,6 +5,7 @@ const CLIMATE_COOKIE = "fswepp_climate";
 
 const ALLOWED_DATABASES = new Set(["legacy", "2015", "au", "ghcn"]);
 const ALLOWED_CLIGEN = new Set(["4.3", "5.3.2"]);
+const PRISM_DATABASES = new Set([null, "legacy", "ghcn"]);
 
 export function getDefaultClimateState() {
   return {
@@ -37,6 +38,9 @@ function normalizeClimateState(raw) {
   }
   next.location = normalizeLocation(next.location);
   next.use_prism = Boolean(next.use_prism);
+  if (!PRISM_DATABASES.has(next.database)) {
+    next.use_prism = false;
+  }
   if (!Number.isFinite(Number(next.input_years))) {
     next.input_years = defaults.input_years;
   }

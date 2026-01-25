@@ -64,6 +64,10 @@ from .metquery_client import (
 )
 
 
+class PrismDataError(ValueError):
+    pass
+
+
 _thisdir = os.path.dirname(__file__)
 _db = None
 _stations_dir = _join(_thisdir, '2015_par_files')
@@ -1026,10 +1030,12 @@ class Station:
         return self.ppts * self.nwds
     
     def prism_mod(self, lng, lat):
+        safe_nwds = np.maximum(self.nwds, 0.1)
+
         # Function definitions for concurrent execution
         def get_prism_ppt():
             prism_ppt_mm = get_prism_monthly_ppt(lng, lat)
-            return (prism_ppt_mm / 25.4) / self.nwds
+            return (prism_ppt_mm / 25.4) / safe_nwds
         
         def get_prism_tmax():
             return c_to_f(get_prism_monthly_tmax(lng, lat))
@@ -1047,8 +1053,22 @@ class Station:
             prism_ppts = future_ppt.result()
             tmaxs = future_tmax.result()
             tmins = future_tmin.result()
-            
-        return self.mod(prism_ppts, tmaxs, tmins)
+
+        def validate_prism_series(label, values):
+            arr = np.asarray(values, dtype=float)
+            if arr.shape != (12,):
+                raise PrismDataError(f"PRISM {label} has invalid shape {arr.shape}.")
+            if not np.all(np.isfinite(arr)):
+                raise PrismDataError("PRISM data unavailable for this location.")
+            return arr
+
+        prism_ppts = validate_prism_series("precipitation", prism_ppts)
+        tmaxs = validate_prism_series("tmax", tmaxs)
+        tmins = validate_prism_series("tmin", tmins)
+
+        safe_station = deepcopy(self)
+        safe_station.nwds = safe_nwds
+        return safe_station.mod(prism_ppts, tmaxs, tmins)
     
     def mod(self, ppts, tmaxs, tmins):
         new = deepcopy(self)

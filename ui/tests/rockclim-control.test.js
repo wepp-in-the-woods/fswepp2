@@ -132,6 +132,23 @@ test("delete climate button only visible when customized", () => {
   expect(deleteButton?.style.display).toBe("");
 });
 
+test("PRISM toggle disabled for non-US datasets", () => {
+  setClimateCookie({
+    database: "au",
+    cligen_version: "5.3.2",
+    location: { longitude: -113.41235, latitude: 48.286 },
+    par_id: "TEST123",
+    input_years: 100,
+    use_prism: true,
+    user_defined_par_mod: null,
+  });
+  const root = document.getElementById("rockclim-control-root");
+  mountRockClimControl(root);
+  const prism = document.getElementById("rockclim_prism");
+  expect(prism?.disabled).toBe(true);
+  expect(prism?.checked).toBe(false);
+});
+
 function getClimateCookie() {
   const match = document.cookie.match(/(?:^|; )fswepp_climate=([^;]+)/);
   if (!match) return null;
@@ -215,6 +232,7 @@ test("PRISM overlay summary reflects unit toggle", async () => {
   const prevDeck = window.deck;
   const prevGeoTiff = window.GeoTIFF;
   const prevUnitizer = window.UnitizerClient;
+  const prevGetContext = HTMLCanvasElement.prototype.getContext;
   let currentUnit = "mm";
 
   window.UnitizerClient = {
@@ -222,6 +240,13 @@ test("PRISM overlay summary reflects unit toggle", async () => {
       getPreferencePayload: () => ({ "xs-distance": currentUnit }),
     }),
   };
+
+  HTMLCanvasElement.prototype.getContext = () => ({
+    createImageData: (width, height) => ({
+      data: new Uint8ClampedArray(width * height * 4),
+    }),
+    putImageData: () => {},
+  });
 
   window.GeoTIFF = {
     fromUrl: async () => ({
@@ -302,4 +327,93 @@ test("PRISM overlay summary reflects unit toggle", async () => {
   window.deck = prevDeck;
   window.GeoTIFF = prevGeoTiff;
   window.UnitizerClient = prevUnitizer;
+  HTMLCanvasElement.prototype.getContext = prevGetContext;
+});
+
+test("PRISM overlay opacity slider updates label", () => {
+  setClimateCookie({
+    database: "legacy",
+    cligen_version: "5.3.2",
+    location: { longitude: -113.41235, latitude: 48.286 },
+    par_id: "TEST123",
+    input_years: 100,
+    use_prism: true,
+    user_defined_par_mod: null,
+  });
+  const root = document.getElementById("rockclim-control-root");
+  mountRockClimControl(root);
+  const range = root.querySelector('input[type="range"]');
+  const valueLabel = range?.nextElementSibling;
+  expect(range).not.toBeNull();
+  expect(valueLabel?.textContent).toBe("15%");
+  range.value = "0.5";
+  range.dispatchEvent(new Event("input", { bubbles: true }));
+  expect(valueLabel?.textContent).toBe("50%");
+});
+
+test("PRISM overlay handles GeoTIFF load failures", async () => {
+  const prevDeck = window.deck;
+  const prevGeoTiff = window.GeoTIFF;
+
+  window.GeoTIFF = {
+    fromUrl: async () => {
+      throw new Error("boom");
+    },
+  };
+  window.deck = {
+    DeckGL: class {
+      constructor() {}
+      setProps() {}
+    },
+    WebMercatorViewport: class {
+      getBounds() {
+        return [-1, -1, 1, 1];
+      }
+    },
+    TileLayer: class {
+      constructor(props) {
+        this.props = props;
+      }
+    },
+    BitmapLayer: class {
+      constructor(props) {
+        this.props = props;
+      }
+    },
+    GeoJsonLayer: class {
+      constructor(props) {
+        this.props = props;
+      }
+    },
+    ScatterplotLayer: class {
+      constructor(props) {
+        this.props = props;
+      }
+    },
+  };
+
+  setClimateCookie({
+    database: "legacy",
+    cligen_version: "5.3.2",
+    location: { longitude: 0, latitude: 0 },
+    par_id: "TEST123",
+    input_years: 100,
+    use_prism: true,
+    user_defined_par_mod: null,
+  });
+
+  const root = document.getElementById("rockclim-control-root");
+  mountRockClimControl(root);
+  const mapSection = document.getElementById("rockclim-map-section");
+  const toggle = mapSection?.querySelector("button");
+  toggle?.click();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  const legendSection = root.querySelector(".gl-legend-section");
+  const legend = legendSection?.parentElement;
+  expect(legend?.style.display).toBe("none");
+
+  window.deck = prevDeck;
+  window.GeoTIFF = prevGeoTiff;
 });

@@ -5,9 +5,9 @@ import math
 
 from fastapi import APIRouter, Query, Response, HTTPException, Body
 from typing import Optional
-from pydantic import BaseModel, Field, conlist, ValidationError, field_validator
+from pydantic import BaseModel, Field, conlist, ValidationError, field_validator, model_validator
 
-from .cligen import CligenStationsManager, ClimateFile
+from .cligen import CligenStationsManager, ClimateFile, PrismDataError
 from .cligen_utils import run_cligen, CligenError
 from .hash_utils import stable_hash
 
@@ -81,6 +81,12 @@ class ClimatePars(BaseModel):
         if value < 1 or value > 200:
             raise ValueError("input_years must be between 1 and 200")
         return value
+
+    @model_validator(mode="after")
+    def validate_prism_support(self):
+        if self.use_prism and self.database not in [None, "legacy", "ghcn"]:
+            raise ValueError("PRISM adjustments are only supported for legacy or GHCN datasets.")
+        return self
     
     def __hash__(self):
         return hash((self.database, 
@@ -194,10 +200,12 @@ def get_station(climate_pars: ClimatePars):
     if climate_pars.use_prism:
         if climate_pars.location is None:
             raise HTTPException(status_code=422, detail="Location is required")
-        
-        station = station.prism_mod(
-            climate_pars.location.longitude, 
-            climate_pars.location.latitude)
+        try:
+            station = station.prism_mod(
+                climate_pars.location.longitude, 
+                climate_pars.location.latitude)
+        except PrismDataError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
         
     if climate_pars.user_defined_par_mod is not None:
         mod = climate_pars.user_defined_par_mod

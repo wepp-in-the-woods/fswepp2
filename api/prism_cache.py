@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import logging
+import math
 import os
 import threading
 from typing import Optional, Tuple
@@ -94,9 +95,17 @@ class PrismCache:
         if self._geo_transform is None or self._width is None or self._height is None:
             return None
 
-        x_origin, x_pixel, _, y_origin, _, y_pixel = self._geo_transform
-        col = int(round((lng - x_origin) / x_pixel))
-        row = int(round((lat - y_origin) / y_pixel))
+        inv = gdal.InvGeoTransform(self._geo_transform)
+        if isinstance(inv, tuple) and len(inv) == 2 and isinstance(inv[0], (bool, int)):
+            success, inv_gt = inv
+            if not success:
+                return None
+        else:
+            inv_gt = inv
+
+        px, py = gdal.ApplyGeoTransform(inv_gt, lng, lat)
+        col = int(math.floor(px))
+        row = int(math.floor(py))
 
         if col < 0 or row < 0 or col >= self._width or row >= self._height:
             return None

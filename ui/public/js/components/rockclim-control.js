@@ -38,6 +38,7 @@ const MONTH_NAMES = [
 ];
 const PRISM_OVERLAY_OPACITY_DEFAULT = 0.15;
 const PRISM_OVERLAY_MAX_WIDTH = 2048;
+const PRISM_ALLOWED_DATABASES = new Set(["legacy", "ghcn"]);
 const PRISM_PPT_COG_URL =
   "/prism_data/prism_ppt_us_30s_2020_avg_30y/prism_ppt_us_30s_2020_avg_30y_cog.tif";
 const PRISM_PPT_LEGEND_BINS = [
@@ -205,6 +206,10 @@ function formatStationLabel(station) {
     parts.push(`${Math.round(elevation)} m`);
   }
   return parts.length > 1 ? `${parts[0]} - ${parts.slice(1).join(", ")}` : parts[0];
+}
+
+function isPrismAllowed(database) {
+  return PRISM_ALLOWED_DATABASES.has(database);
 }
 
 function formatLocationSummary(location) {
@@ -1002,12 +1007,19 @@ export function mountRockClimControl(root) {
 
   function persistState(options = {}) {
     const { skipPrefetch = false } = options;
+    const prismAllowed = isPrismAllowed(climateState.database);
     if (!climateState.location) {
       climateState.use_prism = false;
       prismField.input.checked = false;
     }
+    if (!prismAllowed) {
+      climateState.use_prism = false;
+      prismField.input.checked = false;
+    }
     prismField.input.disabled =
-      !climateState.location || Boolean(climateState.user_defined_par_mod);
+      !climateState.location ||
+      !prismAllowed ||
+      Boolean(climateState.user_defined_par_mod);
     stationField.select.disabled = !climateState.location;
     customizeButton.disabled = !climateState.par_id;
     deleteClimateButton.style.display = climateState.user_defined_par_mod
@@ -1032,6 +1044,7 @@ export function mountRockClimControl(root) {
       debouncedStationParPrefetch();
       debouncedClimateFilePrefetch();
     }
+    syncPrismOverlayControls();
   }
 
   function setLocationFields(lon, lat) {

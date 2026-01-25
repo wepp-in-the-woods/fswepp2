@@ -88,8 +88,10 @@ Notes:
 - `database` defaults to `legacy`
 - `cligen_version` defaults to `5.3.2`
 - `location` is required for `use_prism` and for `GET/closest_stations`
+- `use_prism` is supported only for `legacy` and `ghcn` datasets (PRISM is US-only)
 - `user_defined_par_mod` is optional and only used for client-side climate customization
 - `user_defined_par_mod` values are SI units (mm for precipitation per wet day, °C for temperatures)
+- PRISM monthly normals are cached in-memory on API startup; plan for several hundred MB of RAM per worker when PRISM data are enabled
 
 ## Health
 
