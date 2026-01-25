@@ -2,6 +2,7 @@ import { createCollapsibleSection } from "./collapsible.js";
 import { createFormField, createSelectField } from "./form-field.js";
 import { createButton } from "./button.js";
 import { createModal, openModal, closeModal } from "./modal.js";
+import { createPreformattedBlock } from "./preformatted.js";
 import { apiPost } from "../utils/api-client.js";
 import { isLatitude, isLongitude } from "../utils/validators.js";
 import {
@@ -101,6 +102,22 @@ export function mountRockClimControl(root) {
   let stationsGeojson = null;
   let mapInstance = null;
   let mapViewState = null;
+  let stationParKey = null;
+  let stationParBlobKey = null;
+  let stationParText = "";
+  let stationParFilename = "";
+  let stationParBlobUrl = "";
+  let stationParLoading = false;
+  let stationParError = null;
+  let stationParRequestId = 0;
+  let climateFileKey = null;
+  let climateFileBlobKey = null;
+  let climateFileText = "";
+  let climateFileFilename = "";
+  let climateFileBlobUrl = "";
+  let climateFileLoading = false;
+  let climateFileError = null;
+  let climateFileRequestId = 0;
 
 
   const databaseField = createSelectField({
@@ -169,6 +186,74 @@ export function mountRockClimControl(root) {
     defaultOpen: false,
   });
 
+  const stationParContent = document.createElement("div");
+  stationParContent.className = "space-y-3";
+  const stationParMeta = document.createElement("div");
+  stationParMeta.className = "flex flex-wrap items-center justify-between gap-2";
+  const stationParStatus = document.createElement("p");
+  stationParStatus.className = "text-sm text-muted-foreground";
+  const stationParDownload = document.createElement("a");
+  stationParDownload.className =
+    "inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-base font-medium transition-all border border-border bg-background hover:bg-accent";
+  stationParDownload.textContent = "Download .par";
+  stationParDownload.href = "#";
+  stationParDownload.setAttribute("aria-disabled", "true");
+  stationParDownload.addEventListener("click", (event) => {
+    if (stationParDownload.getAttribute("aria-disabled") === "true") {
+      event.preventDefault();
+    }
+  });
+  stationParMeta.appendChild(stationParStatus);
+  stationParMeta.appendChild(stationParDownload);
+  const stationParBlock = createPreformattedBlock({
+    id: "rockclim-station-par",
+    className: "max-h-80 overflow-y-auto",
+  });
+  stationParContent.appendChild(stationParMeta);
+  stationParContent.appendChild(stationParBlock.pre);
+  const stationParSection = createCollapsibleSection({
+    id: "rockclim-station-par-section",
+    title: "Station Par File",
+    description: "Prefetch and download the current station .par file.",
+    content: stationParContent,
+    persistKey: "fswepp2_rockclim_par_open",
+    defaultOpen: false,
+  });
+
+  const climateFileContent = document.createElement("div");
+  climateFileContent.className = "space-y-3";
+  const climateFileMeta = document.createElement("div");
+  climateFileMeta.className = "flex flex-wrap items-center justify-between gap-2";
+  const climateFileStatus = document.createElement("p");
+  climateFileStatus.className = "text-sm text-muted-foreground";
+  const climateFileDownload = document.createElement("a");
+  climateFileDownload.className =
+    "inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-base font-medium transition-all border border-border bg-background hover:bg-accent";
+  climateFileDownload.textContent = "Download .cli";
+  climateFileDownload.href = "#";
+  climateFileDownload.setAttribute("aria-disabled", "true");
+  climateFileDownload.addEventListener("click", (event) => {
+    if (climateFileDownload.getAttribute("aria-disabled") === "true") {
+      event.preventDefault();
+    }
+  });
+  climateFileMeta.appendChild(climateFileStatus);
+  climateFileMeta.appendChild(climateFileDownload);
+  const climateFileBlock = createPreformattedBlock({
+    id: "rockclim-climate-file",
+    className: "max-h-80 overflow-y-auto",
+  });
+  climateFileContent.appendChild(climateFileMeta);
+  climateFileContent.appendChild(climateFileBlock.pre);
+  const climateFileSection = createCollapsibleSection({
+    id: "rockclim-climate-file-section",
+    title: "Climate File",
+    description: "Prefetch and download the generated climate .cli file.",
+    content: climateFileContent,
+    persistKey: "fswepp2_rockclim_cli_open",
+    defaultOpen: false,
+  });
+
   const leftCol = document.createElement("div");
   leftCol.className = "space-y-4";
   leftCol.appendChild(databaseField.wrapper);
@@ -199,6 +284,8 @@ export function mountRockClimControl(root) {
   content.className = "space-y-4";
   content.appendChild(controlGrid);
   content.appendChild(mapSection);
+  content.appendChild(stationParSection);
+  content.appendChild(climateFileSection);
 
   const section = createCollapsibleSection({
     id: "rockclim-control",
@@ -233,6 +320,354 @@ export function mountRockClimControl(root) {
     if (section.setDescription) section.setDescription(summary);
   }
 
+  function sanitizeFilename(value) {
+    if (!value) return "station";
+    const cleaned = String(value)
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9._-]/gi, "");
+    if (!cleaned) return "station";
+    return cleaned;
+  }
+
+  function buildStationParFilename() {
+    let baseId = sanitizeFilename(climateState.par_id);
+    if (baseId.toLowerCase().endsWith(".par")) {
+      baseId = baseId.slice(0, -4);
+    }
+    const parts = [];
+    if (climateState.user_defined_par_mod) parts.push("customized");
+    if (climateState.use_prism) parts.push("prism-modified");
+    const prefix = parts.length ? `${parts.join("-")}-` : "";
+    return `${prefix}${baseId || "station"}.par`;
+  }
+
+  function buildClimateFileFilename() {
+    let baseId = sanitizeFilename(climateState.par_id);
+    if (baseId.toLowerCase().endsWith(".par")) {
+      baseId = baseId.slice(0, -4);
+    }
+    const parts = [];
+    if (climateState.user_defined_par_mod) parts.push("customized");
+    if (climateState.use_prism) parts.push("prism-modified");
+    const prefix = parts.length ? `${parts.join("-")}-` : "";
+    return `${prefix}${baseId || "station"}.cli`;
+  }
+
+  function setStationParDownloadEnabled(enabled) {
+    stationParDownload.setAttribute("aria-disabled", enabled ? "false" : "true");
+    stationParDownload.tabIndex = enabled ? 0 : -1;
+    stationParDownload.classList.toggle("opacity-60", !enabled);
+    stationParDownload.classList.toggle("pointer-events-none", !enabled);
+    if (!enabled) {
+      stationParDownload.removeAttribute("href");
+      stationParDownload.removeAttribute("download");
+    }
+  }
+
+  function clearStationParDownload() {
+    if (stationParBlobUrl) {
+      URL.revokeObjectURL(stationParBlobUrl);
+    }
+    stationParBlobUrl = "";
+    stationParFilename = "";
+    stationParKey = null;
+    stationParBlobKey = null;
+    setStationParDownloadEnabled(false);
+  }
+
+  function setClimateFileDownloadEnabled(enabled) {
+    climateFileDownload.setAttribute("aria-disabled", enabled ? "false" : "true");
+    climateFileDownload.tabIndex = enabled ? 0 : -1;
+    climateFileDownload.classList.toggle("opacity-60", !enabled);
+    climateFileDownload.classList.toggle("pointer-events-none", !enabled);
+    if (!enabled) {
+      climateFileDownload.removeAttribute("href");
+      climateFileDownload.removeAttribute("download");
+    }
+  }
+
+  function clearClimateFileDownload() {
+    if (climateFileBlobUrl) {
+      URL.revokeObjectURL(climateFileBlobUrl);
+    }
+    climateFileBlobUrl = "";
+    climateFileFilename = "";
+    climateFileKey = null;
+    climateFileBlobKey = null;
+    setClimateFileDownloadEnabled(false);
+  }
+
+  function ensureClimateFileDownload(filename) {
+    if (!climateFileText || !climateFileKey) {
+      clearClimateFileDownload();
+      return;
+    }
+    if (
+      climateFileBlobUrl &&
+      climateFileKey === climateFileBlobKey &&
+      climateFileDownload.getAttribute("download") === filename
+    ) {
+      setClimateFileDownloadEnabled(true);
+      return;
+    }
+    if (climateFileBlobUrl) {
+      URL.revokeObjectURL(climateFileBlobUrl);
+    }
+    const blob = new Blob([climateFileText], {
+      type: "text/plain;charset=utf-8",
+    });
+    climateFileBlobUrl = URL.createObjectURL(blob);
+    climateFileBlobKey = climateFileKey;
+    climateFileFilename = filename;
+    climateFileDownload.href = climateFileBlobUrl;
+    climateFileDownload.download = filename;
+    setClimateFileDownloadEnabled(true);
+  }
+
+  function ensureStationParDownload(filename) {
+    if (!stationParText || !stationParKey) {
+      clearStationParDownload();
+      return;
+    }
+    if (
+      stationParBlobUrl &&
+      stationParKey === stationParBlobKey &&
+      stationParDownload.getAttribute("download") === filename
+    ) {
+      setStationParDownloadEnabled(true);
+      return;
+    }
+    if (stationParBlobUrl) {
+      URL.revokeObjectURL(stationParBlobUrl);
+    }
+    const blob = new Blob([stationParText], {
+      type: "text/plain;charset=utf-8",
+    });
+    stationParBlobUrl = URL.createObjectURL(blob);
+    stationParBlobKey = stationParKey;
+    stationParFilename = filename;
+    stationParDownload.href = stationParBlobUrl;
+    stationParDownload.download = filename;
+    setStationParDownloadEnabled(true);
+  }
+
+  function updateStationParUi() {
+    if (!climateState.par_id) {
+      stationParStatus.textContent = "Select a station to load the .par file.";
+      stationParBlock.setText("");
+      clearStationParDownload();
+      return;
+    }
+    if (stationParLoading) {
+      stationParStatus.textContent = "Loading station .par file...";
+      stationParBlock.setText(stationParText || "");
+      setStationParDownloadEnabled(false);
+      return;
+    }
+    if (stationParError) {
+      stationParStatus.textContent = stationParError;
+      stationParBlock.setText("");
+      setStationParDownloadEnabled(false);
+      return;
+    }
+    if (stationParText) {
+      const filename = stationParFilename || buildStationParFilename();
+      stationParStatus.textContent = `Loaded ${filename}`;
+      stationParBlock.setText(stationParText);
+      ensureStationParDownload(filename);
+      return;
+    }
+    stationParStatus.textContent = "Station .par file is not available yet.";
+    stationParBlock.setText("");
+    setStationParDownloadEnabled(false);
+  }
+
+  function updateClimateFileUi() {
+    if (!climateState.par_id) {
+      climateFileStatus.textContent = "Select a station to load the climate file.";
+      climateFileBlock.setText("");
+      clearClimateFileDownload();
+      return;
+    }
+    if (climateFileLoading) {
+      climateFileStatus.textContent = "Loading climate file...";
+      climateFileBlock.setText(climateFileText || "");
+      setClimateFileDownloadEnabled(false);
+      return;
+    }
+    if (climateFileError) {
+      climateFileStatus.textContent = climateFileError;
+      climateFileBlock.setText("");
+      setClimateFileDownloadEnabled(false);
+      return;
+    }
+    if (climateFileText) {
+      const filename = climateFileFilename || buildClimateFileFilename();
+      climateFileStatus.textContent = `Loaded ${filename}`;
+      climateFileBlock.setText(climateFileText);
+      ensureClimateFileDownload(filename);
+      return;
+    }
+    climateFileStatus.textContent = "Climate file is not available yet.";
+    climateFileBlock.setText("");
+    setClimateFileDownloadEnabled(false);
+  }
+
+  function buildStationParKey() {
+    if (!climateState.par_id) return null;
+    const locationKey = climateState.location
+      ? `${climateState.location.longitude},${climateState.location.latitude}`
+      : "";
+    const mod = climateState.user_defined_par_mod;
+    const modKey = mod
+      ? `${mod.ppts.join(",")}|${mod.tmaxs.join(",")}|${mod.tmins.join(",")}`
+      : "";
+    const prismKey = climateState.use_prism ? "prism" : "base";
+    return [
+      climateState.database || "legacy",
+      climateState.par_id,
+      prismKey,
+      locationKey,
+      modKey,
+    ].join("|");
+  }
+
+  function buildClimateFileKey() {
+    if (!climateState.par_id) return null;
+    const locationKey = climateState.location
+      ? `${climateState.location.longitude},${climateState.location.latitude}`
+      : "";
+    const mod = climateState.user_defined_par_mod;
+    const modKey = mod
+      ? `${mod.ppts.join(",")}|${mod.tmaxs.join(",")}|${mod.tmins.join(",")}`
+      : "";
+    const prismKey = climateState.use_prism ? "prism" : "base";
+    const yearsKey = Number.isFinite(Number(climateState.input_years))
+      ? Number(climateState.input_years)
+      : "";
+    return [
+      climateState.database || "legacy",
+      climateState.par_id,
+      prismKey,
+      locationKey,
+      modKey,
+      climateState.cligen_version || "",
+      yearsKey,
+    ].join("|");
+  }
+
+  async function prefetchStationPar() {
+    const key = buildStationParKey();
+    if (!key) {
+      stationParLoading = false;
+      stationParError = null;
+      stationParText = "";
+      clearStationParDownload();
+      updateStationParUi();
+      return;
+    }
+    if (stationParKey === key && stationParText) {
+      updateStationParUi();
+      return;
+    }
+    stationParLoading = true;
+    stationParError = null;
+    stationParText = "";
+    clearStationParDownload();
+    updateStationParUi();
+    const requestId = ++stationParRequestId;
+    try {
+      const payload = {
+        par_id: climateState.par_id,
+        database: climateState.database,
+        use_prism: Boolean(climateState.use_prism),
+      };
+      if (climateState.location) payload.location = climateState.location;
+      if (climateState.user_defined_par_mod) {
+        payload.user_defined_par_mod = climateState.user_defined_par_mod;
+      }
+      const response = await apiPost(
+        "/api/rockclim/GET/station_par",
+        payload,
+        { timeoutMs: 20000 }
+      );
+      if (requestId !== stationParRequestId) return;
+      stationParKey = key;
+      stationParText = typeof response === "string" ? response : "";
+      stationParFilename = buildStationParFilename();
+      stationParLoading = false;
+      stationParError = null;
+      updateStationParUi();
+    } catch (error) {
+      if (requestId !== stationParRequestId) return;
+      stationParLoading = false;
+      stationParError = "Unable to load station .par file.";
+      stationParText = "";
+      clearStationParDownload();
+      updateStationParUi();
+      console.error("[rockclim] Failed to load station par file", error);
+    }
+  }
+
+  async function prefetchClimateFile() {
+    const key = buildClimateFileKey();
+    if (!key) {
+      climateFileLoading = false;
+      climateFileError = null;
+      climateFileText = "";
+      clearClimateFileDownload();
+      updateClimateFileUi();
+      return;
+    }
+    if (climateFileKey === key && climateFileText) {
+      updateClimateFileUi();
+      return;
+    }
+    climateFileLoading = true;
+    climateFileError = null;
+    climateFileText = "";
+    clearClimateFileDownload();
+    updateClimateFileUi();
+    const requestId = ++climateFileRequestId;
+    try {
+      const payload = {
+        par_id: climateState.par_id,
+        database: climateState.database,
+        use_prism: Boolean(climateState.use_prism),
+        cligen_version: climateState.cligen_version,
+        input_years: climateState.input_years,
+      };
+      if (climateState.location) payload.location = climateState.location;
+      if (climateState.user_defined_par_mod) {
+        payload.user_defined_par_mod = climateState.user_defined_par_mod;
+      }
+      const response = await apiPost(
+        "/api/rockclim/GET/climate",
+        payload,
+        { timeoutMs: 20000 }
+      );
+      if (requestId !== climateFileRequestId) return;
+      climateFileKey = key;
+      climateFileText = typeof response === "string" ? response : "";
+      climateFileFilename = buildClimateFileFilename();
+      climateFileLoading = false;
+      climateFileError = null;
+      updateClimateFileUi();
+    } catch (error) {
+      if (requestId !== climateFileRequestId) return;
+      climateFileLoading = false;
+      climateFileError = "Unable to load climate file.";
+      climateFileText = "";
+      clearClimateFileDownload();
+      updateClimateFileUi();
+      console.error("[rockclim] Failed to load climate file", error);
+    }
+  }
+
+  const debouncedStationParPrefetch = createDebounce(prefetchStationPar, 450);
+  const debouncedClimateFilePrefetch = createDebounce(prefetchClimateFile, 450);
+
   function persistState() {
     if (!climateState.location) {
       climateState.use_prism = false;
@@ -260,6 +695,8 @@ export function mountRockClimControl(root) {
       ? `Climate: ${prefix}${stationName}`
       : "Climate: Not set";
     if (locationSummary) summary += ` (${locationSummary})`;
+    debouncedStationParPrefetch();
+    debouncedClimateFilePrefetch();
   }
 
   function setLocationFields(lon, lat) {
@@ -887,6 +1324,8 @@ export function mountRockClimControl(root) {
   prismField.input.disabled = !climateState.location;
   updateClimateBadge();
   persistState();
+  updateStationParUi();
+  updateClimateFileUi();
 
   if (climateState.location) {
     debouncedClosestStations();

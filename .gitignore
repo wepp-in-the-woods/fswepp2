@@ -24,6 +24,7 @@ frontend/fswepp2-frontend/.pnp.js
 # testing
 frontend/fswepp2-frontend/coverage
 ui/test-results/
+tmp-cligen43/
 
 # production
 frontend/fswepp2-frontend/build

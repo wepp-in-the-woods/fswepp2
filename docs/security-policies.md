@@ -8,7 +8,7 @@ in `docs/january-2026-security-assessment.md` and applies them to the new stack.
 
 - Backend: `/workdir/fswepp2/api` (FastAPI)
 - Frontend: planned rewrite (likely simple HTML/JS forms)
-- Execution: WEPP/CLIGEN binaries via `wepppy2`
+- Execution: WEPP/CLIGEN binaries bundled under `api/wepp/bin` and `api/cligen/bin`
 
 ## Core Policies
 

@@ -36,11 +36,11 @@ The container mounts a tmpfs at `/dev/shm` (see `docker-compose.yml`). All gener
 ## Dependencies
 
 - FastAPI + Uvicorn
-- wepppy2 (cligen + wepp runner bindings)
+- Bundled CLIGEN/WEPP assets under `api/cligen` and `api/wepp`
 - all_your_base (stats utilities for return-period calculations)
 - numpy, pandas, pyyaml
 
-The Dockerfile clones `wepppy2` and `all_your_base` into the venv. The API calls WEPP binaries under `wepppy2/wepp_runner/bin` and CLIGEN binaries under `wepppy2/climates/cligen/bin`.
+The Dockerfile clones `all_your_base` into the venv. The API calls WEPP binaries under `api/wepp/bin` and CLIGEN binaries under `api/cligen/bin`, with station metadata under `api/cligen/db`.
 
 ## Conventions
 

@@ -61,7 +61,7 @@ for legacy-only capture.
 
 ## Rock:Clime (RockClim)
 
-- **Station sources**: API uses `wepppy2` station managers and exposes stations
+- **Station sources**: API uses the bundled CLIGEN station manager and exposes stations
   by bbox, state, or proximity. Legacy CGI relies on local `.par` files and
   provides a file-browser style interface.
 - **User-defined parameters**: FSWEPP2 UI stores user-defined climate parameter

@@ -7,7 +7,8 @@ from fastapi import APIRouter, Query, Response, HTTPException, Body
 from typing import Optional
 from pydantic import BaseModel, Field, conlist, ValidationError, field_validator
 
-from wepppy2.climates.cligen import CligenStationsManager, Cligen, ClimateFile
+from .cligen import CligenStationsManager, ClimateFile
+from .cligen_utils import run_cligen, CligenError
 from .hash_utils import stable_hash
 
 router = APIRouter()
@@ -265,11 +266,29 @@ def get_climate(climate_pars: ClimatePars):
 
     hash_id = stable_hash(climate_pars)
     cli_fname = f"{hash_id}.cli"
-    
-    cligen = Cligen(station, wd, cliver=climate_pars.cligen_version)
-    cligen.run_multiple_year(climate_pars.input_years, cli_fname=cli_fname)
-    
-    return _join(wd, cli_fname)
+
+    par_fn = _join(wd, cli_fname[:-4] + ".par")
+    station.write(par_fn)
+    if not os.path.exists(par_fn):
+        raise HTTPException(status_code=500, detail="Failed to write CLIGEN .par file.")
+
+    cli_path = _join(wd, cli_fname)
+    try:
+        cli_path = run_cligen(
+            par_fn,
+            cli_path,
+            climate_pars.input_years,
+            cliver=climate_pars.cligen_version,
+            randseed=12345,
+            wd=wd,
+        )
+    except CligenError as exc:
+        detail = str(exc)
+        if exc.log_tail:
+            detail = f"{detail} CLIGEN log tail:\n{exc.log_tail}"
+        raise HTTPException(status_code=500, detail=detail) from exc
+
+    return cli_path
 
 
 @router.post("/rockclim/GET/climate")

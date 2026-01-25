@@ -32,19 +32,15 @@ RUN uv pip install --python /opt/venv/bin/python --no-cache-dir -r requirements.
 # clone your packages
 RUN mkdir -p /usr/lib/python3/dist-packages/all_your_base \
  && git clone https://github.com/rogerlew/all_your_base \
-      /opt/venv/lib/python3.12/site-packages/all_your_base \
- && mkdir -p /usr/lib/python3/dist-packages/wepppy2 \
- && git clone https://github.com/wepp-in-the-woods/wepppy2/ \
-      /opt/venv/lib/python3.12/site-packages/wepppy2
-
-RUN chmod +x /opt/venv/lib/python3.12/site-packages/wepppy2/climates/cligen/bin/cligen43 \
-             /opt/venv/lib/python3.12/site-packages/wepppy2/climates/cligen/bin/cligen532
+      /opt/venv/lib/python3.12/site-packages/all_your_base
 
 # install fortran runtime for cligen43
 RUN wget -q http://archive.ubuntu.com/ubuntu/pool/universe/g/gcc-6/gcc-6-base_6.4.0-17ubuntu1_amd64.deb \
  && wget -q http://archive.ubuntu.com/ubuntu/pool/universe/g/gcc-6/libgfortran3_6.4.0-17ubuntu1_amd64.deb \
- && dpkg -i gcc-6-base_6.4.0-17ubuntu1_amd64.deb libgfortran3_6.4.0-17ubuntu1_amd64.deb \
- && rm *.deb
+ && dpkg -i gcc-6-base_6.4.0-17ubuntu1_amd64.deb libgfortran3_6.4.0-17ubuntu1_amd64.deb || true \
+ && apt-get update \
+ && apt-get -f install -y \
+ && rm -f *.deb
 
 # expose and default command
 EXPOSE 8090

@@ -24,7 +24,7 @@ from fastapi.responses import JSONResponse
 from typing import Optional
 from pydantic import BaseModel, ValidationError, field_validator, model_validator
 
-from wepppy2.climates.cligen import ClimateFile
+from .cligen import ClimateFile
 
 from .rockclim import ClimatePars, get_climate
 from .shared_models import SoilTexture

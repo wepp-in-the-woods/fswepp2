@@ -4,7 +4,7 @@ from typing import Optional
 import pandas as pd
 import re
 
-from wepppy2.climates.cligen import ClimateFile
+from .cligen import ClimateFile
 
 
 def calc_rec_intervals(annuals: dict, measure: str, rec_intervals=[1, 2, 5, 10]) -> dict:

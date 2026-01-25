@@ -7,6 +7,7 @@ import { createDataTable } from "./components/data-table.js";
 import { createRunButton } from "./components/run-button.js";
 import { createStatCard } from "./components/stat-card.js";
 import { createAlert } from "./components/alert.js";
+import { createPreformattedBlock } from "./components/preformatted.js";
 
 function mountGallery() {
   const root = document.getElementById("component-gallery-root");
@@ -197,6 +198,16 @@ function mountGallery() {
   });
   collapsibleSection.appendChild(collapsible);
 
+  const preSection = section(
+    "Preformatted Blocks",
+    "Standardized preformatted text styling."
+  );
+  const preBlock = createPreformattedBlock({
+    text: "Sample output:\nMEAN P   0.40  0.35  0.28  0.20\nTMAX AV 72.0  75.1  82.3  90.2",
+  });
+  preBlock.pre.setAttribute("data-contrast-id", "preformatted-block");
+  preSection.appendChild(preBlock.pre);
+
   const tabsSection = section("Tabs", "Keyboard navigable tabbed interface.");
   const tabs = createTabPanel({
     tabs: [
@@ -370,6 +381,20 @@ function mountGallery() {
       })()
     )
   );
+  themeGrid.appendChild(
+    themeCard(
+      "preformatted",
+      "Preformatted block",
+      "Preformatted text contrast check.",
+      (() => {
+        const block = createPreformattedBlock({
+          text: "CLIGEN STATION OUTPUT\nMEAN P   0.40  0.35  0.28",
+        });
+        block.pre.setAttribute("data-contrast-id", "theme-preformatted");
+        return block.pre;
+      })()
+    )
+  );
   themeLab.appendChild(themeGrid);
 
   const metricsSection = section(
@@ -385,10 +410,8 @@ function mountGallery() {
   metricsControls.appendChild(metricsDownload);
   metricsSection.appendChild(metricsControls);
 
-  const metricsOutput = document.createElement("pre");
-  metricsOutput.className =
-    "mt-3 whitespace-pre-wrap rounded-lg border border-border bg-muted/20 p-3 text-xs";
-  metricsSection.appendChild(metricsOutput);
+  const metricsOutput = createPreformattedBlock({ className: "mt-3" });
+  metricsSection.appendChild(metricsOutput.pre);
 
   root.appendChild(buttons);
   root.appendChild(runButtons);
@@ -397,6 +420,7 @@ function mountGallery() {
   root.appendChild(stats);
   root.appendChild(modalSection);
   root.appendChild(collapsibleSection);
+  root.appendChild(preSection);
   root.appendChild(tabsSection);
   root.appendChild(tableSection);
   root.appendChild(themeLab);
@@ -502,7 +526,7 @@ function mountGallery() {
   metricsButton.addEventListener("click", () => {
     const rows = getContrastRows();
     const markdown = buildMarkdown(rows);
-    metricsOutput.textContent = markdown;
+    metricsOutput.setText(markdown);
     metricsDownload.disabled = false;
     metricsDownload.onclick = () => downloadMarkdown(markdown);
   });
