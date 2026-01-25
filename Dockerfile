@@ -8,8 +8,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       apt-transport-https ca-certificates curl software-properties-common \
-      python3-full python3-venv python3-numpy \
-      gdal-bin libgdal-dev python3-gdal wget dpkg git\
+      build-essential pkg-config python3-dev \
+      python3-full python3-venv \
+      gdal-bin libgdal-dev wget dpkg git \
       proj-bin libproj-dev \
  && rm -rf /var/lib/apt/lists/*
 
@@ -21,12 +22,14 @@ ENV PATH="/root/.local/bin:$PATH"
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # install Python requirements
-RUN uv venv --system-site-packages /opt/venv
+RUN uv venv /opt/venv
 ENV VIRTUAL_ENV="/opt/venv"
 ENV PATH="/root/.local/bin:/opt/venv/bin:$PATH"
 ENV UV_PYTHON="/opt/venv/bin/python"
 COPY requirements.txt ./
-RUN uv pip install --python /opt/venv/bin/python --no-cache-dir -r requirements.txt \
+RUN uv pip install --python /opt/venv/bin/python --no-cache-dir "numpy==2.4.1" "setuptools" "wheel" \
+ && uv pip install --python /opt/venv/bin/python --no-cache-dir --no-build-isolation "GDAL==$(gdal-config --version)" \
+ && uv pip install --python /opt/venv/bin/python --no-cache-dir -r requirements.txt \
  && /opt/venv/bin/python -c "import pyproj"
 
 # install fortran runtime for cligen43
