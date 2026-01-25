@@ -2,12 +2,12 @@
 	encode zstd gzip
 
 	# Security headers (HAProxy handles TLS)
-	header {
-		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
-		X-Content-Type-Options "nosniff"
-		Referrer-Policy "no-referrer"
-		Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; font-src 'self' data:;"
-	}
+		header {
+			Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+			X-Content-Type-Options "nosniff"
+			Referrer-Policy "no-referrer"
+			Content-Security-Policy "default-src 'self'; img-src 'self' data: https://tile.openstreetmap.org https://*.tile.openstreetmap.org; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://tile.openstreetmap.org https://*.tile.openstreetmap.org; font-src 'self' data:;"
+		}
 
 	handle_path /fswepp2/api/* {
 		reverse_proxy api:8090
@@ -29,9 +29,14 @@
 		file_server
 	}
 
-	# App pages
-	handle /fswepp* {
+	# App pages (FSWEPP2)
+	handle /fswepp2* {
 		reverse_proxy ui:5173
+	}
+
+	# Guard legacy namespace (served elsewhere during migration)
+	handle /fswepp* {
+		respond "legacy fswepp is not served by this stack" 404
 	}
 
 	# Root (reserved for later legacy/index backfill)

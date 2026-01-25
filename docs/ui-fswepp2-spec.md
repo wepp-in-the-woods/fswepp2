@@ -52,13 +52,13 @@ This section summarizes critical design decisions confirmed during specification
 ### Technical Implementation
 - ✅ **Testing Requirements**: Mandatory test coverage for all components (90% utils, 80% components); Bun test + Playwright
 - ✅ **Icon Strategy**: Hybrid inline SVG (UI) + static files (tools) from React frontend
-- ✅ **deck.gl**: Load from CDN (unpkg), OpenStreetMap basemap, no bundling
-- ✅ **Modal Component**: TBD during implementation (native `<dialog>` or custom)
-- ✅ **Asset Bundling**: TBD during implementation (individual vs concatenated)
+- ✅ **deck.gl**: Self-hosted (local bundle or static asset), OpenStreetMap basemap
+- ✅ **Modal Component**: Custom modal (not native `<dialog>`)
+- ✅ **Asset Bundling**: Individual ES modules with a single `app.js` entrypoint
 - ✅ **Chart Interactivity**: Hover tooltips with value details (MVP), pan/zoom deferred
 - ✅ **Table Pagination**: Client-side, 25 rows default, options: 10/25/50/100/All
 - ✅ **Error Handling**: HTTP status-specific messages with actionable guidance
-- ✅ **URL Sharing**: Base64-encoded JSON query parameter (`?config=<base64>`)
+- ✅ **URL Sharing**: Base64-encoded JSON query parameter (`?config=<base64url>`)
 
 ### API and Data
 - ✅ **Unit System**: API uses SI units only; frontend converts for display
@@ -149,7 +149,7 @@ Implements the climate selection interface as specified by the user. This contro
   - Map visible: "Hide Map" button clearly visible for easy dismissal
 - **Map interaction**: User clicks point on map to set location
   - Click updates longitude/latitude input fields
-  - Triggers API call to `/rockclim/GET/closest_stations` with clicked coordinates
+  - Triggers API call to `/api/rockclim/GET/closest_stations` with clicked coordinates
   - Station dropdown populates with 10 closest stations
 - **Location fields**: User can manually enter exact longitude/latitude values
   - On change, triggers same closest stations API call
@@ -350,7 +350,7 @@ The Rock Climate Control appears at the top of every tool page as a collapsible 
    - Map re-centers to show entered location
    - Marker placed at entered coordinates
 7. On location change (click or manual entry):
-   - API call to `/rockclim/GET/closest_stations` with location
+   - API call to `/api/rockclim/GET/closest_stations` with location
    - Station dropdown populates with 10 closest stations (showing station name, distance, elevation)
    - First station auto-selected by default
 8. User clicks "Hide Map" to collapse map view
@@ -402,7 +402,7 @@ Selection updates `par_id` in climate state and optionally triggers preview of m
 - "Cancel" button
 
 **Behavior:**
-- On open, fetch `/rockclim/GET/station_par_monthlies` to populate with current values
+- On open, fetch `/api/rockclim/GET/station_par_monthlies` to populate with current values
 - Input changes update preview calculations in real-time
 - "Apply" updates `user_defined_par_mod` in climate state and saves to `fswepp_climate` cookie
 - "Save as Named Climate" prompts for name, then adds to `fswepp_user_climates` cookie array
@@ -435,7 +435,8 @@ Selection updates `par_id` in climate state and optionally triggers preview of m
 WEPP Road predicts erosion from forest roads with three profile elements: road surface, fill slope, and buffer slope.
 
 ### API Endpoint
-- **Run Model:** `POST /wepproad/RUN/wepp`
+- **Run Model:** `POST /api/wepproad/RUN/wepp`
+  - **Backend requirement:** run WEPP with detailed annual output so the response includes `annuals` for charts/tables.
 
 ### Request Schema (WeppRoadState)
 
@@ -550,7 +551,7 @@ Behavior:
 Disturbed WEPP predicts erosion from disturbed forest lands (post-fire, harvest, etc.) using a two-element hillslope.
 
 ### API Endpoint
-- **Run Model:** `POST /disturbedwepp/RUN/wepp`
+- **Run Model:** `POST /api/disturbedwepp/RUN/wepp`
 
 ### Request Schema (DisturbedWeppState)
 
@@ -661,7 +662,7 @@ Label: "Run Disturbed WEPP Model"
 ERMiT (Erosion Risk Management Tool) predicts post-fire erosion with probabilistic analysis across multiple burn severities and soil conditions.
 
 ### API Endpoint
-- **Run Model:** `POST /ermit/RUN/wepp`
+- **Run Model:** `POST /api/ermit/RUN/wepp`
 
 ### Request Schema (ErmitState)
 
@@ -919,18 +920,19 @@ User inputs persist across sessions using client-side storage:
 
 Support for sharing complete configurations via URL for collaboration and documentation.
 
-**Format**: Base64-encoded JSON
+**Format**: Base64url-encoded JSON
 ```
-/fswepp/wepproad?config=eyJjbGltYXRlIjp7InBhcl9pZCI6IldBNDU5MDc0...
+/fswepp2/wepproad?config=eyJjbGltYXRlIjp7InBhcl9pZCI6IldBNDU5MDc0...
 ```
 
 **Implementation**:
-- Encode entire state (climate + tool parameters) as JSON, then base64
-- URL parameter: `config=<base64_encoded_json>`
+- Encode entire state (climate + tool parameters) as JSON, then base64url
+- URL parameter: `config=<base64url_encoded_json>`
 - On page load: Check for `config` parameter
 - If present: Decode, validate, apply to state
 - Override cookie/localStorage values with URL config
 - Handle decode errors gracefully (show warning, fall back to defaults)
+- Use URL-safe base64 encoding (`+`→`-`, `/`→`_`, trim `=`) to avoid URL parsing issues
 
 **State Included**:
 - Climate parameters (station, location, custom modifications)
@@ -1294,6 +1296,8 @@ const runModel = async (toolState) => {
 };
 ```
 
+**API Base Path**: All backend endpoints are mounted under `/api`, so every tool request must use the `/api/...` prefix.
+
 ### Error Handling Pattern
 
 ```javascript
@@ -1366,6 +1370,7 @@ The unit conversion system is adapted from WEPPcloud (wepppy project):
    - Maps between canonical units and display units
    - Includes precision definitions per unit
    - Organized by category (length, area, temperature, etc.)
+   - **Trim to FSWEPP categories only** to control bundle size
 
 3. **Map Builder** (`unitizer_map_builder.py`)
    - Python script to generate `unitizer_map.js` from backend registry
@@ -1544,7 +1549,7 @@ To rebuild the unit conversion map:
 #### Implementation Notes
 
 **Alignment Issues to Address**:
-- `unitizer_client.js` references `/static/js/unitizer_map.js` with `window.site_prefix` support
+- Update `unitizer_client.js` to load `/public/js/unitizer_map.js` (FSWEPP2 static path)
 - Global preference radio names: `applyGlobalRadio()` expects `uni_main_selector` but template uses `unit_main_selector`
 - Adjust function or template naming for consistency
 
@@ -1944,13 +1949,13 @@ export const icons = {
 
 **Purpose**: Interactive map for location selection in RockClim control
 
-**Loading Strategy**: CDN (no bundling required)
+**Loading Strategy**: Self-hosted (local bundle or static asset)
 
 **Implementation**:
 
-1. **Include deck.gl from CDN**:
+1. **Include deck.gl from local asset**:
 ```html
-<script src="https://unpkg.com/deck.gl@latest/dist.min.js"></script>
+<script src="/public/js/deck.gl.min.js"></script>
 ```
 
 2. **Minimal Configuration**:
@@ -1993,7 +1998,8 @@ const map = new deck.DeckGL({
 
 5. **Performance**:
 - Load stations for selected database only (not all 2600+)
-- Use GeoJSON format from API: `/rockclim/GET/stations_geojson`
+- Use GeoJSON format from API: `/api/rockclim/GET/stations_geojson`
+- When requesting `stations_geojson`, compute `bbox: [ul_x, ul_y, lr_x, lr_y]` from the current map view bounds
 - deck.gl handles rendering efficiently with WebGL
 
 6. **Map Interaction**:
@@ -2025,6 +2031,9 @@ const map = new deck.DeckGL({
 - Requires WebGL support (all modern browsers)
 - Fallback: Show message if WebGL not available
 - Mobile: Touch gestures work automatically
+
+**CSP Note**:
+- If using OSM tiles directly, ensure CSP allows tile domains under `img-src`/`connect-src`.
 
 ---
 
@@ -2182,8 +2191,8 @@ Recommended client-side file structure:
    - Canvas dimension calculations
 
 5. **URL Parameter Handling** (`src/utils/url.js`)
-   - Base64 JSON encoding/decoding
-   - Malformed Base64 handling
+   - Base64url JSON encoding/decoding
+   - Malformed base64url handling
    - Invalid JSON handling
    - Configuration merging with defaults
    - Query parameter extraction
@@ -2294,7 +2303,7 @@ tests/
 **Required Test Coverage:**
 
 1. **WEPP Road Complete Workflow**
-   - Navigate to /fswepp/wepproad
+   - Navigate to /fswepp2/wepproad
    - Set location via map click
    - Fill all required form fields
    - Submit form
@@ -2303,7 +2312,7 @@ tests/
    - Share URL and verify configuration loads
 
 2. **Disturbed WEPP Complete Workflow**
-   - Navigate to /fswepp/disturbed
+   - Navigate to /fswepp2/disturbed
    - Set location via coordinate entry
    - Select vegetation treatment
    - Configure soil parameters
@@ -2312,7 +2321,7 @@ tests/
    - Verify probability table renders
 
 3. **ERMiT Complete Workflow**
-   - Navigate to /fswepp/ermit
+   - Navigate to /fswepp2/ermit
    - Set location from saved climate
    - Configure fire severity
    - Set slope/aspect parameters
@@ -2520,35 +2529,35 @@ The following features are documented for potential future implementation but ar
 
 ### Rock Climate Endpoints
 
-- `POST /rockclim/GET/available_state_codes` - Get states in database
-- `POST /rockclim/GET/stations_in_state` - Get stations by state
-- `POST /rockclim/GET/closest_stations` - Get nearest stations to location
-- `POST /rockclim/GET/station_par_monthlies` - Get monthly climate summary
-- `POST /rockclim/GET/climate` - Generate climate file
+- `POST /api/rockclim/GET/available_state_codes` - Get states in database
+- `POST /api/rockclim/GET/stations_in_state` - Get stations by state
+- `POST /api/rockclim/GET/closest_stations` - Get nearest stations to location
+- `POST /api/rockclim/GET/station_par_monthlies` - Get monthly climate summary
+- `POST /api/rockclim/GET/climate` - Generate climate file
 
 **Note:** User-defined climate storage is client-side only via cookies. No server-side user database exists.
 
 ### WEPP Road Endpoints
 
-- `POST /wepproad/RUN/wepp` - Run WEPP Road model
-- `POST /wepproad/GET/soil` - Get soil file
-- `POST /wepproad/GET/slope` - Get slope file
-- `POST /wepproad/GET/management` - Get management file
+- `POST /api/wepproad/RUN/wepp` - Run WEPP Road model
+- `POST /api/wepproad/GET/soil` - Get soil file
+- `POST /api/wepproad/GET/slope` - Get slope file
+- `POST /api/wepproad/GET/management` - Get management file
 
 ### Disturbed WEPP Endpoints
 
-- `POST /disturbedwepp/RUN/wepp` - Run Disturbed WEPP model
-- `POST /disturbed/GET/soil` - Get soil file
-- `POST /disturbed/GET/slope` - Get slope file
-- `POST /disturbed/GET/management` - Get management file
+- `POST /api/disturbedwepp/RUN/wepp` - Run Disturbed WEPP model
+- `POST /api/disturbed/GET/soil` - Get soil file
+- `POST /api/disturbed/GET/slope` - Get slope file
+- `POST /api/disturbed/GET/management` - Get management file
 
 ### ERMiT Endpoints
 
-- `POST /ermit/RUN/wepp` - Run ERMiT model
-- `POST /ermit/GET/slope/{spatial_severity}` - Get slope file
-- `POST /ermit/GET/soil/{spatial_severity}/{k}` - Get soil file
-- `POST /ermit/GET/management/{spatial_severity}` - Get management file
-- `POST /ermit/GET/pre_fire_covers` - Calculate pre-fire vegetation covers
+- `POST /api/ermit/RUN/wepp` - Run ERMiT model
+- `POST /api/ermit/GET/slope/{spatial_severity}` - Get slope file
+- `POST /api/ermit/GET/soil/{spatial_severity}/{k}` - Get soil file
+- `POST /api/ermit/GET/management/{spatial_severity}` - Get management file
+- `POST /api/ermit/GET/pre_fire_covers` - Calculate pre-fire vegetation covers
 
 ---
 
@@ -2799,27 +2808,27 @@ This section documents key design decisions made during specification developmen
 
 ### 10. deck.gl Loading Strategy
 
-**Decision**: CDN loading (no bundling)
+**Decision**: Self-hosted deck.gl bundle
 
 **Rationale**:
-- Simple integration without build complexity
-- Automatic updates to latest stable version
-- Smaller application bundle size
-- Well-maintained library with stable CDN
+- Avoid CDN dependency and CSP `script-src` issues
+- Predictable versioning and offline-friendly dev
+- Aligns with minimal external runtime dependencies
 
 **Implementation**:
-- Load from unpkg CDN: `https://unpkg.com/deck.gl@latest/dist.min.js`
+- Serve `/public/js/deck.gl.min.js` from UI static assets
 - Minimal configuration for station map display
 - OpenStreetMap basemap (no API key required)
 - WebGL rendering for performance
+- Update CSP to allow OSM tile domains (img/connect) if used
 
 **Trade-offs**:
-- External dependency (but widely available CDN)
-- Acceptable for mapping-only use case
+- Requires managing a local deck.gl build/update cadence
+- Slightly larger static asset footprint
 
 ### 11. URL Configuration Sharing
 
-**Decision**: Base64-encoded JSON query parameters
+**Decision**: Base64url-encoded JSON query parameters
 
 **Rationale**:
 - Simple encoding/decoding with built-in `btoa`/`atob`
@@ -2828,8 +2837,8 @@ This section documents key design decisions made during specification developmen
 - Standard approach for state sharing
 
 **Implementation**:
-- Encode climate + tool parameters as JSON, then base64
-- URL param: `?config=<base64_string>`
+- Encode climate + tool parameters as JSON, then base64url
+- URL param: `?config=<base64url_string>`
 - Parse on page load, override cookies/localStorage
 - Validate and handle decode errors gracefully
 
