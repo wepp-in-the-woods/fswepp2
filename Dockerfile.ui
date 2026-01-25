@@ -10,5 +10,7 @@ COPY ui/src ./src
 COPY ui/styles ./styles
 COPY ui/public ./public
 
+RUN bun run build:css
+
 EXPOSE 5173
 CMD ["bun", "run", "dev"]
