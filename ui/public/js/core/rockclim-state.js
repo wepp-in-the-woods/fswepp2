@@ -5,7 +5,7 @@ const CLIMATE_COOKIE = "fswepp_climate";
 
 const ALLOWED_DATABASES = new Set(["legacy", "2015", "au", "ghcn"]);
 const ALLOWED_CLIGEN = new Set(["4.3", "5.3.2"]);
-const PRISM_DATABASES = new Set([null, "legacy", "ghcn"]);
+const PRISM_DATABASES = new Set([null, "legacy", "2015", "ghcn"]);
 
 export function getDefaultClimateState() {
   return {

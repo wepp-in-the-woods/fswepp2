@@ -75,11 +75,11 @@
 - [x] Add UI test coverage for PRISM overlay unit switching
 
 ## Phase 4 — Charting + Visualizations
-- [ ] Chart core (canvas setup, resize, scales)
-- [ ] Renderers (line, bar, scatter, area, text)
-- [ ] Interactions (hover tooltips, legend toggle)
-- [ ] Chart types (line, bar, exceedance, histogram, scatter)
-- [ ] SlopeProfile renderer (WEPP Road + Disturbed)
+- [x] Chart core (canvas setup, resize, scales)
+- [x] Renderers (line, bar, scatter, area, text)
+- [x] Interactions (hover tooltips, legend toggle)
+- [x] Chart types (line, bar, exceedance, histogram, scatter)
+- [x] SlopeProfile renderer (WEPP Road + Disturbed)
 
 ## Phase 5 — Tool Pages
 - [ ] WEPP Road UI + slope profile

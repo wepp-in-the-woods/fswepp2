@@ -354,6 +354,8 @@ test("PRISM overlay opacity slider updates label", () => {
 test("PRISM overlay handles GeoTIFF load failures", async () => {
   const prevDeck = window.deck;
   const prevGeoTiff = window.GeoTIFF;
+  const prevConsoleError = console.error;
+  console.error = () => {};
 
   window.GeoTIFF = {
     fromUrl: async () => {
@@ -416,4 +418,5 @@ test("PRISM overlay handles GeoTIFF load failures", async () => {
 
   window.deck = prevDeck;
   window.GeoTIFF = prevGeoTiff;
+  console.error = prevConsoleError;
 });

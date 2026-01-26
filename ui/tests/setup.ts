@@ -3,6 +3,36 @@ import { GlobalRegistrator } from "@happy-dom/global-registrator";
 GlobalRegistrator.register();
 window.location.href = "http://localhost/fswepp2/wepproad";
 
+const noop = () => {};
+const canvasStub = {
+  clearRect: noop,
+  fillRect: noop,
+  save: noop,
+  restore: noop,
+  beginPath: noop,
+  moveTo: noop,
+  lineTo: noop,
+  stroke: noop,
+  fill: noop,
+  fillText: noop,
+  arc: noop,
+  setLineDash: noop,
+  strokeRect: noop,
+  scale: noop,
+  setTransform: noop,
+  translate: noop,
+  rotate: noop,
+  createImageData: (width, height) => ({
+    data: new Uint8ClampedArray(width * height * 4),
+  }),
+  putImageData: noop,
+};
+const originalGetContext = HTMLCanvasElement.prototype.getContext;
+HTMLCanvasElement.prototype.getContext = function (...args) {
+  const ctx = originalGetContext ? originalGetContext.apply(this, args) : null;
+  return ctx || canvasStub;
+};
+
 // Stub fetch to avoid network calls during unit tests.
 globalThis.fetch = async (url) => {
   const target = String(url || "");

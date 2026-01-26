@@ -1006,6 +1006,19 @@ All components meet WCAG 2.1 AA standards:
 
 ## Canvas Plotting Specifications
 
+### Implementation Status (Phase 4 Complete)
+
+FSWEPP2 now includes a lightweight canvas charting library with the modules described below:
+
+- **Core**: canvas sizing, resize observers, PNG export (`chart-core.js`)
+- **Scales**: linear/log/band scales + tick helpers (`chart-scales.js`)
+- **Renderers**: line/bar/area/text primitives (`chart-renderers.js`)
+- **Interactions**: hover tooltips + legend toggles (`chart-interactions.js`)
+- **Chart types**: line/bar/scatter/exceedance/histogram (`chart-types.js`)
+- **SlopeProfile**: hillslope cross-section renderer (`slope-profile.js`)
+
+Pan/zoom and crosshair interactions remain post-MVP.
+
 ### Chart Components
 
 All charts share common features:

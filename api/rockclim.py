@@ -84,8 +84,8 @@ class ClimatePars(BaseModel):
 
     @model_validator(mode="after")
     def validate_prism_support(self):
-        if self.use_prism and self.database not in [None, "legacy", "ghcn"]:
-            raise ValueError("PRISM adjustments are only supported for legacy or GHCN datasets.")
+        if self.use_prism and self.database not in [None, "legacy", "2015", "ghcn"]:
+            raise ValueError("PRISM adjustments are only supported for legacy, 2015, or GHCN datasets.")
         return self
     
     def __hash__(self):

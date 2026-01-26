@@ -38,7 +38,7 @@ const MONTH_NAMES = [
 ];
 const PRISM_OVERLAY_OPACITY_DEFAULT = 0.15;
 const PRISM_OVERLAY_MAX_WIDTH = 2048;
-const PRISM_ALLOWED_DATABASES = new Set(["legacy", "ghcn"]);
+const PRISM_ALLOWED_DATABASES = new Set([null, "legacy", "2015", "ghcn"]);
 const PRISM_PPT_COG_URL =
   "/prism_data/prism_ppt_us_30s_2020_avg_30y/prism_ppt_us_30s_2020_avg_30y_cog.tif";
 const PRISM_PPT_LEGEND_BINS = [
@@ -209,7 +209,18 @@ function formatStationLabel(station) {
 }
 
 function isPrismAllowed(database) {
-  return PRISM_ALLOWED_DATABASES.has(database);
+  const normalized = database ?? "legacy";
+  return PRISM_ALLOWED_DATABASES.has(normalized);
+}
+
+function hasValidLocation(state, lonInput, latInput) {
+  if (state?.location && isLongitude(state.location.longitude) && isLatitude(state.location.latitude)) {
+    return true;
+  }
+  return (
+    isLongitude(lonInput?.value) &&
+    isLatitude(latInput?.value)
+  );
 }
 
 function formatLocationSummary(location) {
@@ -1008,7 +1019,8 @@ export function mountRockClimControl(root) {
   function persistState(options = {}) {
     const { skipPrefetch = false } = options;
     const prismAllowed = isPrismAllowed(climateState.database);
-    if (!climateState.location) {
+    const locationAvailable = hasValidLocation(climateState, lonField.input, latField.input);
+    if (!locationAvailable) {
       climateState.use_prism = false;
       prismField.input.checked = false;
     }
@@ -1017,7 +1029,7 @@ export function mountRockClimControl(root) {
       prismField.input.checked = false;
     }
     prismField.input.disabled =
-      !climateState.location ||
+      !locationAvailable ||
       !prismAllowed ||
       Boolean(climateState.user_defined_par_mod);
     stationField.select.disabled = !climateState.location;
@@ -2013,7 +2025,13 @@ export function mountRockClimControl(root) {
   });
 
   prismField.input.addEventListener("change", () => {
-    climateState.use_prism = prismField.input.checked;
+    if (prismField.input.checked && !climateState.location) {
+      setLocationFromInputs();
+    }
+    const prismAllowed = isPrismAllowed(climateState.database);
+    const locationAvailable = hasValidLocation(climateState, lonField.input, latField.input);
+    climateState.use_prism = prismField.input.checked && prismAllowed && locationAvailable;
+    prismField.input.checked = climateState.use_prism;
     persistState();
     syncPrismOverlayControls();
     if (climateState.use_prism) {

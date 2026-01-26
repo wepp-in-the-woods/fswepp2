@@ -9,6 +9,8 @@ import { createStatCard } from "./components/stat-card.js";
 import { createAlert } from "./components/alert.js";
 import { createPreformattedBlock } from "./components/preformatted.js";
 import { createDropAndUpload } from "./components/drop-and-upload.js";
+import { createCanvasChart } from "./components/canvas-chart.js";
+import { createSlopeProfile } from "./components/slope-profile.js";
 
 function mountGallery() {
   const root = document.getElementById("component-gallery-root");
@@ -189,6 +191,80 @@ function mountGallery() {
     ],
   });
   modalSection.appendChild(modal);
+
+  const charts = section("Charts", "Canvas-based charts with hover tooltips and legends.");
+  const chartGrid = document.createElement("div");
+  chartGrid.className = "grid gap-6 lg:grid-cols-2";
+  const lineChart = createCanvasChart({
+    type: "line",
+    data: {
+      x: [2019, 2020, 2021, 2022, 2023],
+      series: [
+        { label: "Runoff", values: [92, 88, 110, 95, 102] },
+        { label: "Sediment", values: [2.1, 2.4, 2.2, 2.8, 2.5] },
+      ],
+    },
+    options: {
+      xAxis: { label: "Year" },
+      yAxis: { label: "Metric value" },
+    },
+  });
+  const barChart = createCanvasChart({
+    type: "bar",
+    data: {
+      categories: ["Road", "Fill", "Buffer"],
+      series: [
+        { label: "Erosion", values: [4.2, 1.4, 0.8] },
+      ],
+    },
+    options: {
+      xAxis: { label: "Profile Element" },
+      yAxis: { label: "Sediment (kg/m²)" },
+      legend: false,
+    },
+  });
+  chartGrid.appendChild(lineChart.wrapper);
+  chartGrid.appendChild(barChart.wrapper);
+  charts.appendChild(chartGrid);
+
+  const externalLegendBlock = document.createElement("div");
+  externalLegendBlock.className = "space-y-2";
+  const externalLegendNote = document.createElement("p");
+  externalLegendNote.className = "text-xs text-muted-foreground";
+  externalLegendNote.textContent = "External legend host (resize-safe).";
+  const externalLegendHost = document.createElement("div");
+  externalLegendHost.className = "flex flex-wrap gap-2 text-xs";
+  const externalLegendChart = createCanvasChart({
+    type: "line",
+    data: {
+      x: [1, 2, 3, 4, 5],
+      series: [
+        { label: "Series A", values: [5, 9, 7, 10, 12] },
+        { label: "Series B", values: [3, 4, 6, 8, 9] },
+        { label: "Series C", values: [2, 3, 4, 5, 6] },
+      ],
+    },
+    options: {
+      xAxis: { label: "Step" },
+      yAxis: { label: "Value" },
+      legendContainer: externalLegendHost,
+    },
+  });
+  externalLegendBlock.appendChild(externalLegendChart.wrapper);
+  externalLegendBlock.appendChild(externalLegendNote);
+  externalLegendBlock.appendChild(externalLegendHost);
+  charts.appendChild(externalLegendBlock);
+
+  const slopeProfile = createSlopeProfile({
+    data: {
+      segments: [
+        { label: "Road", length: 30, slopePct: 4 },
+        { label: "Fill", length: 20, slopePct: 35 },
+        { label: "Buffer", length: 45, slopePct: 12 },
+      ],
+    },
+  });
+  charts.appendChild(slopeProfile.wrapper);
 
   const collapsibleSection = section("Collapsible Section", "Expandable content container.");
   const collapsible = createCollapsibleSection({

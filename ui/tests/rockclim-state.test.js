@@ -33,5 +33,5 @@ test("writeClimateState persists climate cookie", () => {
   expect(reloaded.cligen_version).toBe("4.3");
   expect(reloaded.location.longitude).toBe(updated.location.longitude);
   expect(reloaded.par_id).toBe("WA459074");
-  expect(reloaded.use_prism).toBe(false);
+  expect(reloaded.use_prism).toBe(true);
 });
