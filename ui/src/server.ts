@@ -121,7 +121,7 @@ app.get("/fswepp2/disturbed", (c) =>
     renderLayout(
       "Disturbed WEPP",
       `<section id="rockclim-control-root" class="mb-6"></section>
-      <p>Shell page for Disturbed WEPP tool.</p>`
+      <section id="disturbed-root" class="space-y-8"></section>`
     )
   )
 );

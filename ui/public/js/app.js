@@ -2,6 +2,7 @@ import { readJsonCookie, writeJsonCookie } from "./utils/cookies.js";
 import { getConfigFromUrl } from "./utils/url.js";
 import { mountRockClimControl } from "./components/rockclim-control.js";
 import { mountWeppRoadTool } from "./tools/wepproad.js";
+import { mountDisturbedTool } from "./tools/disturbed.js";
 
 window.FSWEPP = window.FSWEPP || {};
 window.FSWEPP.cookies = { readJsonCookie, writeJsonCookie };
@@ -109,14 +110,22 @@ function initWeppRoad() {
   mountWeppRoadTool(root);
 }
 
+function initDisturbed() {
+  const root = document.getElementById("disturbed-root");
+  if (!root) return;
+  mountDisturbedTool(root);
+}
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
     initUnitizer();
     initRockClim();
     initWeppRoad();
+    initDisturbed();
   });
 } else {
   initUnitizer();
   initRockClim();
   initWeppRoad();
+  initDisturbed();
 }

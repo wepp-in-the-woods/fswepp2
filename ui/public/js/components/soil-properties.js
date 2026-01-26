@@ -52,38 +52,105 @@ function formatPercent(value) {
   return `${value.toFixed(1)}%`;
 }
 
-function buildPropertiesUrl(lon, lat) {
+const ISRIC_WMS_ENDPOINT = "https://maps.isric.org/mapserv";
+const ISRIC_WMS_VERSION = "1.3.0";
+const ISRIC_WMS_CRS = "EPSG:4326";
+const ISRIC_WMS_SIZE = 256;
+const ISRIC_WMS_BBOX_BUFFER = 0.05;
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function buildWmsFeatureInfoUrl({ map, layer, lon, lat }) {
+  const safeLon = clamp(Number(lon), -180, 180);
+  const safeLat = clamp(Number(lat), -89.9999, 89.9999);
+  const delta = ISRIC_WMS_BBOX_BUFFER;
+  let minLon = safeLon - delta;
+  let maxLon = safeLon + delta;
+  let minLat = safeLat - delta;
+  let maxLat = safeLat + delta;
+  minLon = clamp(minLon, -180, 180);
+  maxLon = clamp(maxLon, -180, 180);
+  minLat = clamp(minLat, -89.9999, 89.9999);
+  maxLat = clamp(maxLat, -89.9999, 89.9999);
+
+  const width = ISRIC_WMS_SIZE;
+  const height = ISRIC_WMS_SIZE;
+  const bboxWidth = Math.max(maxLon - minLon, 1e-9);
+  const bboxHeight = Math.max(maxLat - minLat, 1e-9);
+  const i = Math.round(((safeLon - minLon) / bboxWidth) * (width - 1));
+  const j = Math.round(((maxLat - safeLat) / bboxHeight) * (height - 1));
+  const bbox =
+    ISRIC_WMS_VERSION === "1.3.0" && ISRIC_WMS_CRS === "EPSG:4326"
+      ? `${minLat},${minLon},${maxLat},${maxLon}`
+      : `${minLon},${minLat},${maxLon},${maxLat}`;
+
   const params = new URLSearchParams();
-  params.set("lon", String(lon));
-  params.set("lat", String(lat));
-  params.append("property", "clay");
-  params.append("property", "sand");
-  params.append("property", "cfvo");
-  params.append("depth", "0-5cm");
-  params.append("value", "Q0.5");
-  return `https://rest.isric.org/soilgrids/v2.0/properties/query?${params.toString()}`;
+  params.set("map", `/map/${map}.map`);
+  params.set("REQUEST", "GetFeatureInfo");
+  params.set("SERVICE", "WMS");
+  params.set("VERSION", ISRIC_WMS_VERSION);
+  params.set("FORMAT", "image/png");
+  params.set("STYLES", "");
+  params.set("TRANSPARENT", "TRUE");
+  params.set("LAYERS", layer);
+  params.set("QUERY_LAYERS", layer);
+  params.set("INFO_FORMAT", "application/geo+json");
+  params.set("WIDTH", String(width));
+  params.set("HEIGHT", String(height));
+  params.set("CRS", ISRIC_WMS_CRS);
+  params.set("BBOX", bbox);
+  params.set("I", String(clamp(i, 0, width - 1)));
+  params.set("J", String(clamp(j, 0, height - 1)));
+
+  return `${ISRIC_WMS_ENDPOINT}?${params.toString()}`;
 }
 
-function buildClassificationUrl(lon, lat) {
-  const params = new URLSearchParams();
-  params.set("lon", String(lon));
-  params.set("lat", String(lat));
-  params.set("number_classes", "1");
-  return `https://rest.isric.org/soilgrids/v2.0/classification/query?${params.toString()}`;
+function parseWmsFeatureValue(payload) {
+  const feature = payload?.features?.[0];
+  const props = feature?.properties;
+  if (!props) return { value: null, unit: null };
+  const raw =
+    props.pixel_value ??
+    props.GRAY_INDEX ??
+    props.value ??
+    props.VALUE ??
+    null;
+  const unit = typeof props.unit === "string" ? props.unit : null;
+  return { value: raw, unit };
 }
 
-function extractPropertyValue(layer, valueKey) {
-  if (!layer?.depths?.length) return null;
-  const depth = layer.depths.find((d) => d.label === "0-5cm") || layer.depths[0];
-  if (!depth?.values) return null;
-  const raw = depth.values[valueKey];
-  if (!Number.isFinite(Number(raw))) return null;
-  const dFactor = Number(layer.unit_measure?.d_factor || 1);
-  if (!Number.isFinite(dFactor) || dFactor === 0) return Number(raw);
-  return Number(raw) / dFactor;
+function normalizeWmsValue(value, unit) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return value;
+  if (!unit) return numeric;
+  const normalized = unit.toLowerCase();
+  if (normalized === "g/kg" || normalized === "gkg") return numeric / 10;
+  if (normalized.includes("cm") && normalized.includes("dm")) return numeric / 10;
+  if (normalized.includes("%")) return numeric;
+  return numeric;
 }
 
-export function createSoilProperties({ state, onChange }) {
+async function fetchWmsValue({ map, layer, lon, lat }) {
+  const url = buildWmsFeatureInfoUrl({ map, layer, lon, lat });
+  const response = await fetch(url, { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`ISRIC WMS request failed (${response.status})`);
+  }
+  const payload = await response.json();
+  const { value, unit } = parseWmsFeatureValue(payload);
+  return { value: normalizeWmsValue(value, unit), unit };
+}
+
+export function createSoilProperties({
+  state,
+  onChange,
+  idPrefix = "wepproad",
+  rfgMin = 0,
+  rfgMax = 50,
+  rfgStep = 1,
+} = {}) {
   let current = { ...state };
   let requestId = 0;
   let lastLocationKey = null;
@@ -101,7 +168,7 @@ export function createSoilProperties({ state, onChange }) {
   soilGrid.className = "grid gap-4 md:grid-cols-2";
 
   const soilField = createSelectField({
-    id: "wepproad_soil_texture",
+    id: `${idPrefix}_soil_texture`,
     label: "Soil Texture",
     options: SOIL_OPTIONS,
   });
@@ -112,15 +179,15 @@ export function createSoilProperties({ state, onChange }) {
   });
 
   const rockField = createFormField({
-    id: "wepproad_rock_fragments",
+    id: `${idPrefix}_rock_fragments`,
     label: "Rock Fragment Content",
     type: "number",
     value: String(current.rfg_pct),
     unitLabel: "%",
   });
-  rockField.input.step = "1";
-  rockField.input.min = "0";
-  rockField.input.max = "50";
+  rockField.input.step = String(rfgStep);
+  rockField.input.min = String(rfgMin);
+  rockField.input.max = String(rfgMax);
   rockField.input.addEventListener("input", () => {
     const value = Number(rockField.input.value);
     if (Number.isFinite(value)) {
@@ -134,8 +201,10 @@ export function createSoilProperties({ state, onChange }) {
       rockField.setError("Rock fragment content must be a number.");
       return false;
     }
-    if (value < 0 || value > 50) {
-      rockField.setError("Rock fragment content must be between 0 and 50.");
+    if (value < rfgMin || value > rfgMax) {
+      rockField.setError(
+        `Rock fragment content must be between ${rfgMin} and ${rfgMax}.`
+      );
       return false;
     }
     rockField.setValid();
@@ -155,7 +224,7 @@ export function createSoilProperties({ state, onChange }) {
   soilGrid.appendChild(rockField.wrapper);
 
   const isricField = createCheckboxField({
-    id: "wepproad_isric",
+    id: `${idPrefix}_isric`,
     label: "Determine Soil Texture and Rock from ISRIC",
     help: "Requires latitude/longitude from Rock Climate Control.",
   });
@@ -183,27 +252,36 @@ export function createSoilProperties({ state, onChange }) {
     const id = ++requestId;
     setSummary([], "Fetching ISRIC soil data…");
     try {
-      const [propsResponse, classResponse] = await Promise.all([
-        fetch(buildPropertiesUrl(lon, lat)),
-        fetch(buildClassificationUrl(lon, lat)),
+      const [clayResult, sandResult, cfvoResult, wrbResult] = await Promise.all([
+        fetchWmsValue({
+          map: "clay",
+          layer: "clay_0-5cm_mean",
+          lon,
+          lat,
+        }),
+        fetchWmsValue({
+          map: "sand",
+          layer: "sand_0-5cm_mean",
+          lon,
+          lat,
+        }),
+        fetchWmsValue({
+          map: "cfvo",
+          layer: "cfvo_0-5cm_mean",
+          lon,
+          lat,
+        }),
+        fetchWmsValue({
+          map: "wrb",
+          layer: "MostProbable",
+          lon,
+          lat,
+        }),
       ]);
-      if (!propsResponse.ok) {
-        throw new Error(`ISRIC properties request failed (${propsResponse.status})`);
-      }
-      if (!classResponse.ok) {
-        throw new Error(`ISRIC classification request failed (${classResponse.status})`);
-      }
-      const propsData = await propsResponse.json();
-      const classData = await classResponse.json();
       if (id !== requestId) return;
-
-      const layers = propsData?.properties?.layers || [];
-      const clayLayer = layers.find((layer) => layer.name === "clay");
-      const sandLayer = layers.find((layer) => layer.name === "sand");
-      const cfvoLayer = layers.find((layer) => layer.name === "cfvo");
-      const clay = extractPropertyValue(clayLayer, "Q0.5");
-      const sand = extractPropertyValue(sandLayer, "Q0.5");
-      const cfvo = extractPropertyValue(cfvoLayer, "Q0.5");
+      const clay = clayResult?.value;
+      const sand = sandResult?.value;
+      const cfvo = cfvoResult?.value;
 
       const textureLabel = Number.isFinite(clay) && Number.isFinite(sand)
         ? simpleTexture(clay, sand)
@@ -211,7 +289,7 @@ export function createSoilProperties({ state, onChange }) {
       const mappedTexture = mapToSoilOption(textureLabel);
 
       if (Number.isFinite(cfvo)) {
-        current.rfg_pct = Math.min(Math.max(cfvo, 0), 50);
+        current.rfg_pct = Math.min(Math.max(cfvo, rfgMin), rfgMax);
         rockField.input.value = String(Math.round(current.rfg_pct));
       }
       if (mappedTexture) {
@@ -224,18 +302,13 @@ export function createSoilProperties({ state, onChange }) {
         rfg_pct: current.rfg_pct,
       });
 
-      const wrbName = classData?.wrb_class_name;
-      const wrbProb = Array.isArray(classData?.wrb_class_probability)
-        ? classData.wrb_class_probability[0]?.[1]
-        : null;
+      const wrbName = typeof wrbResult?.value === "string" ? wrbResult.value : null;
       const lines = [
         `Clay: ${formatPercent(clay)} • Sand: ${formatPercent(sand)} • Rock fragments: ${formatPercent(cfvo)}`,
         textureLabel ? `Derived texture: ${textureLabel}` : "Derived texture: —",
-        wrbName
-          ? `WRB: ${wrbName}${Number.isFinite(wrbProb) ? ` (${wrbProb}%)` : ""}`
-          : "WRB: —",
+        wrbName ? `WRB: ${wrbName}` : "WRB: —",
       ];
-      setSummary(lines, "ISRIC 0–5 cm median (Q0.5).");
+      setSummary(lines, "ISRIC WMS 0–5 cm mean.");
     } catch (error) {
       if (id !== requestId) return;
       console.error("[wepproad] ISRIC fetch failed", error);

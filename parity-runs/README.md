@@ -56,3 +56,9 @@ python /workdir/fswepp2/scripts/collect_representative_runs.py \
 - The legacy CGI stack must be running and volume-mounted.
 - Provide curl commands exactly as used in the browser form submission.
 - If legacy responses are gzip-compressed, the script will auto-decompress.
+- **Important (do not wipe legacy runs):** `collect_representative_runs.py` clears
+  the destination `legacy/working/` directory for each case before writing new
+  files. To preserve existing legacy artifacts, either:
+  - run with a different `--out` directory (e.g., `/workdir/fswepp2/parity-runs-YYYYMMDD`), or
+  - copy `parity-runs/<model>/<run_enum>/legacy/working` elsewhere before re-running,
+  - or rely on git to restore (`git checkout -- parity-runs/<model>/<run_enum>/legacy/working`).
