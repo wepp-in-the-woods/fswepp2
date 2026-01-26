@@ -20,7 +20,7 @@ from pydantic import BaseModel, field_validator
 
 from .rockclim import ClimatePars
 from .shared_models import SoilTexture
-from .wepp import parse_wepp_soil_output
+from .wepp import parse_wepp_soil_output, parse_wepp_ebe_return_periods
 from .logger import log_run
 from .hash_utils import stable_hash
 from .wepp_runner import resolve_wepp_binary, run_wepp_binary
@@ -33,6 +33,25 @@ _thisdir = os.path.dirname(os.path.abspath(__file__))
 TMP_BASE = "/dev/shm/disturbed"  # nosec B108
 
 management_data_dir = _join(_thisdir, 'db/disturbed/datatahoebasin')
+
+
+def _short_hash(value, length: int = 12) -> str:
+    return stable_hash(value)[:length]
+
+
+def _output_path_for_state(state: "DisturbedWeppState") -> str:
+    hash_id = _short_hash(state)
+    return _join(TMP_BASE, f"wd_{hash_id}.dat")
+
+
+def _ebe_path_for_state(state: "DisturbedWeppState") -> str:
+    hash_id = _short_hash(state)
+    return _join(TMP_BASE, f"wd_{hash_id}.ebe")
+
+
+def _run_path_for_state(state: "DisturbedWeppState") -> str:
+    hash_id = _short_hash(state)
+    return _join(TMP_BASE, f"wd_{hash_id}.run")
 
 
 class LanduseType(enum.Enum):
@@ -133,7 +152,7 @@ soil_db_file = _join(_thisdir, "db/disturbed/soildb2014.yaml")
 def create_soil_file(state: DisturbedWeppState) -> str:
     global soil_db_file
     
-    hash_id = stable_hash(state.disturbedwepp_pars)
+    hash_id = _short_hash(state.disturbedwepp_pars)
     new_soil_file = f"{TMP_BASE}/wd_{hash_id}.sol"
     
     if _exists(new_soil_file):
@@ -188,7 +207,7 @@ def create_soil_file(state: DisturbedWeppState) -> str:
 def create_management_file(state: DisturbedWeppState):
     global management_data_dir
     
-    hash_id = stable_hash(state)
+    hash_id = _short_hash(state)
     man_file = f"{TMP_BASE}/wd_{hash_id}.man"
     
     if _exists(man_file):
@@ -398,7 +417,7 @@ W. Elliot 02/99
             
 
 def create_slope_file(state: DisturbedWeppState) -> str:
-    hash_id = stable_hash(state.disturbedwepp_pars)
+    hash_id = _short_hash(state.disturbedwepp_pars)
     slope_file = f"{TMP_BASE}/wd_{hash_id}.slp"
     
     if _exists(slope_file):
@@ -448,64 +467,17 @@ def create_slope_file(state: DisturbedWeppState) -> str:
     return slope_file
 
             
-def run_disturbedwepp(state: DisturbedWeppPars):
+def run_disturbedwepp(state: DisturbedWeppState):
     
     # subprocess used with allowlisted binaries
     import subprocess  # nosec B404
-    from .rockclim import get_climate
-    
     cwd = TMP_BASE
-    
-    slope_fn = create_slope_file(state)
-    _slope_fn = _split(slope_fn)[1]
-    
-    soil_fn = create_soil_file(state)
-    _soil_fn = _split(soil_fn)[1]
-    
-    man_fn = create_management_file(state)
-    _man_fn = _split(man_fn)[1]
-    
-    cli_fn = get_climate(state.climate)
-    
-    hash_id = stable_hash(state)
-    run_fn = _join(cwd, f'wd_{hash_id}.run')
-    output_fn = _join(cwd, f'wd_{hash_id}.dat')
-    _output_fn = _split(output_fn)[1]
-    
+    hash_id = _short_hash(state)
+    run_fn = create_run_file(state)
+    output_fn = _output_path_for_state(state)
+
     stout_fn = _join(cwd, f'wd_{hash_id}.stout')
     sterr_fn = _join(cwd, f'wd_{hash_id}.sterr')
-    content = [
-        "m",  # english or metric
-        "y",  # not watershed
-        "1",  # 1 = continuous
-        "1",  # 1 = hillslope
-        "n",  # hillslope pass file out?
-        "2",  # 1 = abbreviated annual out, 2 = detailed annual out
-        "n",  # initial conditions file?
-        f"{_output_fn}",  # soil loss output file
-        "n",  # water balance output?
-        "n",  # crop output?
-        "n",  # soil output?
-        "n",  # distance/sed loss output?
-        "n",  # large graphics output?
-        "n",  # event-by-event out?
-        "n",  # element output?
-        "n",  # final summary out?
-        "n",  # daily winter out?
-        "n",  # plant yield out?
-        f"{_man_fn}",  # management file name
-        f"{_slope_fn}",  # slope file name
-        f"{cli_fn}",  # climate file name
-        f"{_soil_fn}",  # soil file name
-        "0",  # 0 = no irrigation
-        f"{state.climate.input_years}",  # no. years to simulate
-        "0"  # 0 = route all events
-    ]
-    
-    content = "\n".join(content)
-
-    with atomic_write(run_fn, "w") as fp:
-        fp.write(content)
         
     try:
         weppversion = resolve_wepp_binary(state.wepp_version)
@@ -522,10 +494,93 @@ def run_disturbedwepp(state: DisturbedWeppPars):
                 break
     
     if not successful:
-        raise Exception(wepp_stout)
+        detail = "WEPP run was not successful."
+        parts = []
+        try:
+            wepp_stout.seek(0)
+            stout_text = wepp_stout.read().strip()
+            if stout_text:
+                parts.append(f"STDOUT:\n{stout_text}")
+        except Exception:
+            stout_text = ""
+        try:
+            with open(sterr_fn, 'r') as wepp_sterr:
+                sterr_text = wepp_sterr.read().strip()
+                if sterr_text:
+                    parts.append(f"STDERR:\n{sterr_text}")
+        except Exception:
+            sterr_text = ""
+        if parts:
+            detail = "\n\n".join(parts)
+        raise Exception(detail)
         return {"error": "WEPP run was not successful"}
 
     return output_fn
+
+
+def create_run_file(state: DisturbedWeppState):
+    from .rockclim import get_climate
+
+    cwd = TMP_BASE
+    os.makedirs(cwd, exist_ok=True)
+
+    slope_fn = create_slope_file(state)
+    _slope_fn = _split(slope_fn)[1]
+
+    soil_fn = create_soil_file(state)
+    _soil_fn = _split(soil_fn)[1]
+
+    man_fn = create_management_file(state)
+    _man_fn = _split(man_fn)[1]
+
+    cli_fn = get_climate(state.climate)
+
+    hash_id = _short_hash(state)
+    _cli_fn = f"wd_{hash_id}.cli"
+    cli_copy = _join(cwd, _cli_fn)
+    shutil.copyfile(cli_fn, cli_copy)
+
+    run_fn = _run_path_for_state(state)
+    output_fn = _output_path_for_state(state)
+    _output_fn = _split(output_fn)[1]
+    ebe_fn = _ebe_path_for_state(state)
+    _ebe_fn = _split(ebe_fn)[1]
+
+    content = [
+        "m",  # english or metric
+        "y",  # not watershed
+        "1",  # 1 = continuous
+        "1",  # 1 = hillslope
+        "n",  # hillslope pass file out?
+        "2",  # 1 = abbreviated annual out, 2 = detailed annual out
+        "n",  # initial conditions file?
+        f"{_output_fn}",  # soil loss output file
+        "n",  # water balance output?
+        "n",  # crop output?
+        "n",  # soil output?
+        "n",  # distance/sed loss output?
+        "n",  # large graphics output?
+        "y",  # event-by-event out?
+        f"{_ebe_fn}",  # event-by-event output file
+        "n",  # element output?
+        "n",  # final summary out?
+        "n",  # daily winter out?
+        "n",  # plant yield out?
+        f"{_man_fn}",  # management file name
+        f"{_slope_fn}",  # slope file name
+        f"{_cli_fn}",  # climate file name
+        f"{_soil_fn}",  # soil file name
+        "0",  # 0 = no irrigation
+        f"{state.climate.input_years}",  # no. years to simulate
+        "0"  # 0 = route all events
+    ]
+
+    content = "\n".join(content)
+
+    with atomic_write(run_fn, "w") as fp:
+        fp.write(content)
+
+    return run_fn
 
 
 example_pars = {
@@ -601,6 +656,22 @@ def disturbed_get_slope(state: DisturbedWeppState = Body(
         return {"error": str(e)}
     except FileNotFoundError as e:
         return {"error": str(e)}
+
+
+@router.post("/disturbed/GET/run_file")
+def disturbed_get_run_file(state: DisturbedWeppState = Body(
+        ...,
+        examples={"default": {"value": example_pars}}
+    )
+):
+    try:
+        run_file_path = create_run_file(state)
+        contents = open(run_file_path).read()
+        return Response(content=contents, media_type="application/text")
+    except ValueError as e:
+        return {"error": str(e)}
+    except FileNotFoundError as e:
+        return {"error": str(e)}
     
     
 @router.post("/disturbedwepp/RUN/wepp")
@@ -614,7 +685,20 @@ def disturbed_run_wepp(
     output_fn = run_disturbedwepp(state)
     log_run(ip=request.client.host, model="disturbed")
     slope_length = state.disturbedwepp_pars.upper_ofe.length_m + state.disturbedwepp_pars.lower_ofe.length_m
-    return parse_wepp_soil_output(output_fn, slope_length=slope_length)
+    base = parse_wepp_soil_output(output_fn, slope_length=slope_length)
+    if isinstance(base, dict):
+        response = dict(base)
+    else:
+        response = {"annual_averages": base}
+    ebe_summary = parse_wepp_ebe_return_periods(
+        _ebe_path_for_state(state),
+        years=int(state.climate.input_years),
+        slope_length=slope_length,
+        rec_intervals=[10, 5, 2, 1],
+    )
+    if ebe_summary:
+        response.update(ebe_summary)
+    return response
 
 
 @router.post("/disturbedwepp/GET/wepp_output")
@@ -623,8 +707,23 @@ def disturbed_get_wepp_output(state: DisturbedWeppState = Body(
         examples={"default": {"value": example_pars}}
     )
 ):
-    output_fn = run_disturbedwepp(state)
+    output_fn = _output_path_for_state(state)
+    if not _exists(output_fn):
+        output_fn = run_disturbedwepp(state)
     contents = open(output_fn).read()
+    return Response(content=contents, media_type="application/text")
+
+
+@router.post("/disturbedwepp/GET/wepp_ebe")
+def disturbed_get_wepp_ebe(state: DisturbedWeppState = Body(
+        ...,
+        examples={"default": {"value": example_pars}}
+    )
+):
+    ebe_fn = _ebe_path_for_state(state)
+    if not _exists(ebe_fn):
+        run_disturbedwepp(state)
+    contents = open(ebe_fn).read()
     return Response(content=contents, media_type="application/text")
     
 

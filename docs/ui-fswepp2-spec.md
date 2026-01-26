@@ -650,12 +650,13 @@ Disturbed WEPP predicts erosion from disturbed forest lands (post-fire, harvest,
 - Same fields as Upper Slope Element
 - Independent values for toe-slope conditions
 
-**Section 4: Hillslope Properties**
-- Representative Width: Number input (m or acres/hectares)
+**Section 4: Simulation Options**
 - Simulation Years: Number input (1-200)
+  - **Note**: Representative width is currently fixed to the default (90 m) in the UI.
 
 **Visual Aid:**
 - Dual-segment slope profile showing both OFEs with treatments labeled
+  - **MVP status**: Disabled in the current UI due to behavior issues; tracked for post-MVP.
 
 ### Run Button
 
@@ -686,10 +687,30 @@ Legacy results only (match the legacy results page):
 - Title: "Return period analysis based on {simyears} years of climate"
 - Rows for 1st, 2nd, 5th, 10th, 20th largest events (if available) plus an "Average" row.
 - Columns: Return Period, Precipitation, Runoff, Erosion, Sediment.
+- **FSWEPP2 computation**: use the event-by-event (EBE) file, compute annual maxima
+  for precipitation, runoff, erosion (Av-det), and sediment delivery, and rank
+  annual maxima with Weibull (annual-maxima method, no Gringorten correction).
 
 **Probabilities of occurrence table**
 - Title: "Probabilities of occurrence first year following disturbance based on {simyears} years of climate"
 - Three rows: runoff, erosion, sediment delivery, each with percent and bar indicator.
+- **FSWEPP2 computation**: use EBE annual maxima and compute the fraction of years
+  with a non-zero annual maximum for each metric.
+
+**Implementation status (FSWEPP2 UI)**
+- Mean annual averages table + model file collapsibles are implemented.
+- Return period analysis and probabilities are implemented (EBE-based).
+- Time-series tables remain pending.
+ - Slope profile visual aid is currently disabled (post-MVP).
+
+**Model File Collapsibles (Results Pane)**
+- Provide collapsible sections with prefetch + download links for:
+  - Management File (`/api/disturbed/GET/management`)
+  - Soil File (`/api/disturbed/GET/soil`)
+  - Slope File (`/api/disturbed/GET/slope`)
+  - Run File (`/api/disturbed/GET/run_file`)
+  - WEPP Output (`/api/disturbedwepp/GET/wepp_output`)
+  - WEPP EBE Output (`/api/disturbedwepp/GET/wepp_ebe`)
 
 **Provenance of annual-average values (legacy source: `fswepp-docker/var/www/cgi-bin/fswepp/wd/wd.pl`)**
 - `precip`: parsed from WEPP output section **I. RAINFALL AND RUNOFF SUMMARY -> annual averages -> Mean annual precipitation**.
@@ -2622,6 +2643,9 @@ The following features are documented for potential future implementation but ar
 ### Disturbed WEPP Endpoints
 
 - `POST /api/disturbedwepp/RUN/wepp` - Run Disturbed WEPP model
+- `POST /api/disturbedwepp/GET/wepp_output` - Get raw WEPP output
+- `POST /api/disturbedwepp/GET/wepp_ebe` - Get WEPP event-by-event output
+- `POST /api/disturbed/GET/run_file` - Get run file
 - `POST /api/disturbed/GET/soil` - Get soil file
 - `POST /api/disturbed/GET/slope` - Get slope file
 - `POST /api/disturbed/GET/management` - Get management file

@@ -1,4 +1,5 @@
 from api.all_your_base.stats import weibull_series
+import math
 from typing import Optional
 
 import pandas as pd
@@ -193,6 +194,89 @@ def parse_wepp_soil_output(
                 'return_periods': return_periods,
                 'annuals': annuals
             }
+
+
+def _annual_maxima_by_year(df, years: int, column: str) -> list:
+    if years <= 0:
+        return []
+    if df is None or df.empty:
+        return [0.0] * years
+    series = df.groupby("year")[column].max()
+    lookup = series.to_dict()
+    values = []
+    for year in range(1, years + 1):
+        value = lookup.get(year, 0.0)
+        if value is None or not math.isfinite(value):
+            value = 0.0
+        values.append(float(value))
+    return values
+
+
+def _return_period_values(values: list, rec_intervals: list, years: int) -> dict:
+    ranked = sorted(values, reverse=True) if values else []
+    if years <= 0:
+        return {str(interval): None for interval in rec_intervals}
+    rec_indices = weibull_series(
+        rec_intervals,
+        years,
+        method="am",
+        gringorten_correction=False
+    )
+    result = {}
+    for interval in rec_intervals:
+        index = rec_indices.get(interval)
+        if index is None or index >= len(ranked):
+            result[str(interval)] = None
+        else:
+            result[str(interval)] = float(ranked[index])
+    return result
+
+
+def parse_wepp_ebe_return_periods(
+    ebe_file: str,
+    years: int,
+    slope_length: Optional[float] = None,
+    rec_intervals: Optional[list] = None,
+) -> dict:
+    if rec_intervals is None:
+        rec_intervals = [10, 5, 2, 1]
+
+    try:
+        df = _read_ebe_file(ebe_file)
+    except FileNotFoundError:
+        return {}
+
+    precip_max = _annual_maxima_by_year(df, years, "precip_mm")
+    runoff_max = _annual_maxima_by_year(df, years, "runoff_mm")
+    erosion_max = _annual_maxima_by_year(df, years, "av_det_kg_m2")
+    sediment_max = _annual_maxima_by_year(df, years, "sed_del_kg_m")
+
+    if slope_length and slope_length > 0:
+        sediment_max = [value / slope_length for value in sediment_max]
+
+    return {
+        "return_periods": {
+            "recurrence_intervals": rec_intervals,
+            "precip_mm": _return_period_values(precip_max, rec_intervals, years),
+            "runoff_mm": _return_period_values(runoff_max, rec_intervals, years),
+            "soil_loss_mean_kg_m2": _return_period_values(erosion_max, rec_intervals, years),
+            "sediment_yield_kg_m2": _return_period_values(sediment_max, rec_intervals, years),
+        },
+        "occurrence_probabilities": {
+            "runoff": {
+                "count": sum(1 for value in runoff_max if value > 0),
+                "probability": sum(1 for value in runoff_max if value > 0) / years if years > 0 else 0.0,
+            },
+            "erosion": {
+                "count": sum(1 for value in erosion_max if value > 0),
+                "probability": sum(1 for value in erosion_max if value > 0) / years if years > 0 else 0.0,
+            },
+            "sediment_delivery": {
+                "count": sum(1 for value in sediment_max if value > 0),
+                "probability": sum(1 for value in sediment_max if value > 0) / years if years > 0 else 0.0,
+            },
+        },
+    }
         
         
 def _read_ebe_file(ebe_file):

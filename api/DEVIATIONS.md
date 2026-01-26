@@ -24,6 +24,10 @@ normalize around API-native parameters for new frontends.
   Legacy CGI typically returns generic HTML errors (with optional debug behavior).
 - **Hash-based caching**: API names cached files using a deterministic SHA-256
   hash of request models. Hashes are stable across interpreter restarts.
+- **WEPP filename length limits**: The WEPP 2010 binary truncates long file
+  paths/names (Fortran input handling). The API mitigates this by using a short
+  hash (12 chars) for generated filenames and by copying climate `.cli` files
+  into the tool-specific TMP directory before writing `.run` files.
 - **User identification**: API sets a `user_id` cookie in middleware after the
   request completes. The cookie is currently unused by RockClim endpoints.
 
@@ -95,6 +99,16 @@ directly in the new frontend.
 - **Input validation**: Legacy CGI enforces range checks (e.g., road length,
   slopes, years). API currently does not enforce these ranges.
 - **Batch mode**: Legacy has WEPP:Road batch workflows. API does not.
+- **Parity note (2026-01-26)**: For the representative WEPP:Road runs under
+  `/workdir/fswepp2/parity-runs/wepproad`, slope and soil files match legacy
+  output (excluding the legacy HTML-extraction artifact line at the top of
+  `*.sol`). Run files differ by design (`97.3`/`.in`/`.out` in legacy vs
+  `m`/`.run`/`.dat` in API). Annual averages in `*.out` show small numeric
+  differences; these are acceptable and attributed to PRISM monthly normals
+  drift (legacy uses an older 30-year normal dataset).
+- **Filename handling**: WEPP:Road writes `.run` files that reference short
+  local filenames (e.g., `wr_<hash>.cli`) to avoid WEPP truncation. Climate
+  outputs are copied into `/dev/shm/wepproad` before execution.
 
 ### Parameter mapping (WEPP:Road)
 
@@ -123,6 +137,13 @@ directly in the new frontend.
   (`tree20`, `tree5`, `shrub`, etc.) and maps them internally.
 - **Units**: API expects meters only; legacy supports feet or meters.
 - **Response format**: API returns JSON and raw files; legacy CGI returns HTML.
+- **Filename handling**: Disturbed WEPP uses short hashed filenames and copies
+  climate `.cli` files into `/dev/shm/disturbed` before execution to avoid
+  WEPP truncation of long file paths.
+- **Return periods/probabilities**: FSWEPP2 derives return periods and first-year
+  occurrence probabilities from the event-by-event (EBE) file using annual maxima
+  (Weibull annual-maxima method, no Gringorten correction). Legacy CGI derives
+  return periods from the annual detailed `.out` summaries instead.
 
 ### Parameter mapping (Disturbed WEPP)
 

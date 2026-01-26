@@ -84,8 +84,8 @@
 ## Phase 5 — Tool Pages
 - [x] WEPP Road UI + slope profile
 - [x] WEPP Road results (legacy table + file collapsibles)
-- [ ] Disturbed WEPP UI + slope profile
-- [ ] Disturbed results (return period, time series, tables)
+- [x] Disturbed WEPP UI (slope profile deferred)
+- [x] Disturbed results (mean annual + file collapsibles + EBE-based return periods/probabilities)
 - [ ] ERMiT UI + conditional pre-fire community
 - [ ] ERMiT results (tabs, exceedance, tables)
 

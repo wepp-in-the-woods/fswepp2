@@ -1,38 +1,26 @@
-import { createFormField } from "../components/form-field.js";
+import { createFormField, createSelectField } from "../components/form-field.js";
 import { createRunButton } from "../components/run-button.js";
-import { createRadioGroup } from "../components/radio-group.js";
 import { createSoilProperties } from "../components/soil-properties.js";
 import { createCollapsibleSection } from "../components/collapsible.js";
-import { createPreformattedBlock } from "../components/preformatted.js";
 import { createAnnualAveragesTable } from "../components/annual-averages-table.js";
+import { createPreformattedBlock } from "../components/preformatted.js";
 import { createSimulationOptions } from "../components/simulation-options.js";
 import { apiPost } from "../utils/api-client.js";
 import { readClimateState } from "../core/rockclim-state.js";
-import { readWeppRoadState, writeWeppRoadState } from "../core/wepproad-state.js";
+import { readDisturbedState, writeDisturbedState } from "../core/disturbed-state.js";
+import { createReturnPeriodTable } from "../components/return-period-table.js";
+import { createOccurrenceProbabilities } from "../components/occurrence-probabilities.js";
 
-const DESIGN_OPTIONS = [
-  { value: "inveg", label: "Insloped with vegetated ditch" },
-  { value: "inbare", label: "Insloped with bare ditch" },
-  { value: "outunrut", label: "Outsloped with unrutted surface" },
-  { value: "outrut", label: "Outsloped with rutted surface" },
+const LANDUSE_OPTIONS = [
+  { value: "OldForest", label: "Old Forest" },
+  { value: "YoungForest", label: "Young Forest" },
+  { value: "Shrub", label: "Shrub" },
+  { value: "Bunchgrass", label: "Bunchgrass" },
+  { value: "Sod", label: "Sod" },
+  { value: "LowFire", label: "Low Severity Fire" },
+  { value: "HighFire", label: "High Severity Fire" },
+  { value: "Skid", label: "Skid Trail" },
 ];
-
-const SURFACE_OPTIONS = [
-  { value: "native", label: "Native" },
-  { value: "gravel", label: "Graveled" },
-  { value: "paved", label: "Paved" },
-];
-
-const TRAFFIC_OPTIONS = [
-  { value: "high", label: "High traffic" },
-  { value: "low", label: "Low traffic" },
-  { value: "none", label: "No traffic" },
-];
-
-const PRECIP_UNIT_METRIC = "mm";
-const PRECIP_UNIT_ENGLISH = "in";
-const SED_UNIT_METRIC = "kg";
-const SED_UNIT_ENGLISH = "lb";
 
 function getUnitizerClient() {
   return window.UnitizerClient?.getClientSync?.() || null;
@@ -48,12 +36,15 @@ function resolveUnitMeta(categoryKey, canonicalUnit) {
   const client = getUnitizerClient();
   const override = getGlobalUnitOverride();
   let unitKey = canonicalUnit;
-  if (override === "english") {
-    if (categoryKey === "xs-distance") unitKey = "in";
-    if (categoryKey === "sm-weight") unitKey = "lb";
-  } else if (override === "metric") {
-    if (categoryKey === "xs-distance") unitKey = "mm";
-    if (categoryKey === "sm-weight") unitKey = "kg";
+  const manualCategories = new Set(["xs-distance", "sm-distance"]);
+  if (override && manualCategories.has(categoryKey)) {
+    if (override === "english") {
+      if (categoryKey === "xs-distance") unitKey = "in";
+      if (categoryKey === "sm-distance") unitKey = "ft";
+    } else if (override === "metric") {
+      if (categoryKey === "xs-distance") unitKey = "mm";
+      if (categoryKey === "sm-distance") unitKey = "m";
+    }
   } else if (client) {
     const prefs = client.getPreferencePayload?.() || {};
     unitKey = prefs[categoryKey] || canonicalUnit;
@@ -72,7 +63,7 @@ function resolveUnitMeta(categoryKey, canonicalUnit) {
 
 function formatUnitValue(value, categoryKey, canonicalUnit, precisionOverrides) {
   if (!Number.isFinite(value)) {
-    return { value: "—", unit: canonicalUnit };
+    return { value: "--", unit: canonicalUnit };
   }
   const client = getUnitizerClient();
   const meta = resolveUnitMeta(categoryKey, canonicalUnit);
@@ -94,6 +85,20 @@ function formatUnitValue(value, categoryKey, canonicalUnit, precisionOverrides) 
   };
 }
 
+function formatSurfaceDensity(valueKgM2) {
+  if (!Number.isFinite(valueKgM2)) {
+    return { value: "--", unit: "tonne/ha" };
+  }
+  const override = getGlobalUnitOverride();
+  const useEnglish = override === "english";
+  if (useEnglish) {
+    const tonPerAcre = Number(valueKgM2) * 4.460895;
+    return { value: tonPerAcre.toFixed(2), unit: "ton/acre" };
+  }
+  const tonnePerHa = Number(valueKgM2) * 10;
+  return { value: tonnePerHa.toFixed(2), unit: "tonne/ha" };
+}
+
 function normalizeNumber(value) {
   const num = Number(value);
   return Number.isFinite(num) ? num : null;
@@ -106,21 +111,6 @@ function readCanonical(input) {
     if (Number.isFinite(parsed)) return parsed;
   }
   return normalizeNumber(input.value);
-}
-
-function setFieldValue(input, value) {
-  if (!Number.isFinite(value)) return;
-  input.value = String(value);
-  input.dataset.unitizerCanonicalValue = String(value);
-}
-
-function mapSurfaceToApi(surface) {
-  if (surface === "native") return "native";
-  if (surface === "paved") return "paved";
-  if (surface === "gravel" || surface === "graveled") {
-    return "gravel";
-  }
-  return "gravel";
 }
 
 function attachUnitLabel(field, category, unitKey) {
@@ -176,10 +166,10 @@ function attachCanonicalValidator(field, options) {
   return { validate };
 }
 
-export function mountWeppRoadTool(root) {
+export function mountDisturbedTool(root) {
   if (!root) return;
 
-  let state = readWeppRoadState();
+  let state = readDisturbedState();
   let lastResults = null;
   let lastYears = null;
 
@@ -192,296 +182,272 @@ export function mountWeppRoadTool(root) {
 
   const soilSection = createSoilProperties({
     state,
+    idPrefix: "disturbed",
+    rfgMax: 75,
     onChange: (patch) => {
-      state = { ...state, ...patch };
-      writeWeppRoadState(state);
+      const next = { ...state, ...patch };
+      if (patch.rfg_pct != null) {
+        next.upper_ofe = { ...next.upper_ofe, rfg_pct: patch.rfg_pct };
+        next.lower_ofe = { ...next.lower_ofe, rfg_pct: patch.rfg_pct };
+      }
+      state = next;
+      writeDisturbedState(state);
     },
   });
 
-  const roadSection = createSection("Road Geometry");
-  const designGroup = createRadioGroup({
-    name: "wepproad_design",
-    label: "Road Design",
-    options: DESIGN_OPTIONS,
-    value: state.road.design,
-    onChange: (value) => {
-      setDesignValue(value);
-    },
+  const upperSection = createSection("Upper Slope Element (OFE 1)");
+  const upperGrid = document.createElement("div");
+  upperGrid.className = "grid gap-6 md:grid-cols-2";
+  const upperLeft = document.createElement("div");
+  upperLeft.className = "space-y-4";
+  const upperRight = document.createElement("div");
+  upperRight.className = "space-y-4";
+
+  const upperLanduseField = createSelectField({
+    id: "disturbed_upper_landuse",
+    label: "Treatment Type",
+    options: LANDUSE_OPTIONS,
   });
-  function setDesignValue(value) {
-    state.road.design = value;
-    designGroup.inputs.forEach((input) => {
-      input.checked = input.value === value;
-    });
-    writeWeppRoadState(state);
-  }
-  roadSection.appendChild(designGroup.wrapper);
-  roadSection.appendChild(
-    createRadioGroup({
-      name: "wepproad_surface",
-      label: "Road Surface",
-      options: SURFACE_OPTIONS,
-      value: state.road.surface,
-      onChange: (value) => {
-        state.road.surface = value;
-        writeWeppRoadState(state);
-      },
-      help:
-        "Paving reduces road-surface erosion but increases runoff that can erode fillslopes, ditches, and flow paths.",
-    }).wrapper
-  );
-  roadSection.appendChild(
-    createRadioGroup({
-      name: "wepproad_traffic",
-      label: "Traffic Level",
-      options: TRAFFIC_OPTIONS,
-      value: state.road.traffic,
-      onChange: (value) => {
-        state.road.traffic = value;
-        writeWeppRoadState(state);
-      },
-      help:
-        "Traffic affects fine sediment exposure, vegetation cover, and rut formation; low/no traffic reduces rill erodibility.",
-    }).wrapper
-  );
-
-  const roadHelp = document.createElement("details");
-  roadHelp.className = "text-sm text-muted-foreground";
-  const roadHelpSummary = document.createElement("summary");
-  roadHelpSummary.className = "cursor-pointer text-sm text-muted-foreground";
-  roadHelpSummary.textContent = "More Info";
-  const roadHelpBody = document.createElement("div");
-  roadHelpBody.className = "mt-2 space-y-2";
-  const roadHelpTexts = [
-    "Paved roads are most beneficial on outsloped designs or where buffers are minimal, and least beneficial on insloped roads or when moderate buffers can absorb runoff. Far from streams, treatment choice matters less because forest buffers absorb runoff.",
-    "High traffic is typically rutted; low traffic may or may not rut depending on maintenance and season. To reduce sediment on low/no traffic roads, outsloping and wet-season restrictions help.",
-    "No-traffic roads assume more vegetation. To model fully vegetated road surfaces, keep road length minimal and move the remaining length into fill/buffer values.",
-  ];
-  roadHelpTexts.forEach((text) => {
-    const p = document.createElement("p");
-    p.className = "text-sm text-muted-foreground";
-    p.textContent = text;
-    roadHelpBody.appendChild(p);
+  upperLanduseField.select.value = state.upper_ofe.landuse;
+  upperLanduseField.select.addEventListener("change", () => {
+    state.upper_ofe.landuse = upperLanduseField.select.value;
+    writeDisturbedState(state);
   });
-  roadHelp.appendChild(roadHelpSummary);
-  roadHelp.appendChild(roadHelpBody);
-  roadSection.appendChild(roadHelp);
 
-  const roadGrid = document.createElement("div");
-  roadGrid.className = "grid gap-4 md:grid-cols-3";
-
-  const roadSlopeField = createFormField({
-    id: "wepproad_road_slope",
-    label: "Road Gradient",
+  const upperSlope1Field = createFormField({
+    id: "disturbed_upper_slope_top",
+    label: "Upper Slope",
     type: "number",
-    value: String(state.road.slope_pct),
+    value: String(state.upper_ofe.slope_point1_pct),
     unitLabel: "%",
-    help: "Percent slope of the water flow path along the road surface.",
   });
-  roadSlopeField.input.step = "0.1";
-  roadSlopeField.input.addEventListener("input", () => {
-    const canonical = readCanonical(roadSlopeField.input);
+  upperSlope1Field.input.step = "0.1";
+  upperSlope1Field.input.addEventListener("input", () => {
+    const canonical = readCanonical(upperSlope1Field.input);
     if (canonical != null) {
-      state.road.slope_pct = canonical;
-      writeWeppRoadState(state);
+      state.upper_ofe.slope_point1_pct = canonical;
+      writeDisturbedState(state);
     }
   });
-  const roadSlopeValidator = attachCanonicalValidator(roadSlopeField, {
-    min: 0.1,
-    max: 40,
-    label: "Road gradient",
+  const upperSlope1Validator = attachCanonicalValidator(upperSlope1Field, {
+    min: 0,
+    max: 1000,
+    label: "Top slope gradient",
   });
 
-  const roadLengthField = createFormField({
-    id: "wepproad_road_length",
-    label: "Road Length",
+  const upperSlope2Field = createFormField({
+    id: "disturbed_upper_slope_mid",
+    label: "Lower Slope",
     type: "number",
-    value: String(state.road.length_m),
-    unitLabel: "m",
-    help: "Horizontal length of the road segment between drainage locations.",
-  });
-  roadLengthField.input.step = "0.1";
-  roadLengthField.input.setAttribute("data-unitizer-category", "sm-distance");
-  roadLengthField.input.setAttribute("data-unitizer-unit", "m");
-  roadLengthField.input.setAttribute("data-precision", "2");
-  attachUnitLabel(roadLengthField, "sm-distance", "m");
-  roadLengthField.input.addEventListener("input", () => {
-    const canonical = readCanonical(roadLengthField.input);
-    if (canonical != null) {
-      state.road.length_m = canonical;
-      writeWeppRoadState(state);
-    }
-  });
-  const roadLengthValidator = attachCanonicalValidator(roadLengthField, {
-    min: 1,
-    max: 300,
-    label: "Road length",
-  });
-
-  const roadWidthField = createFormField({
-    id: "wepproad_road_width",
-    label: "Road Width",
-    type: "number",
-    value: String(state.road.width_m),
-    unitLabel: "m",
-    help:
-      "Insloped: ditch + travelway. Outsloped/unrutted: travelway. Outsloped/rutted: rut spacing + rut width.",
-  });
-  roadWidthField.input.step = "0.1";
-  roadWidthField.input.setAttribute("data-unitizer-category", "sm-distance");
-  roadWidthField.input.setAttribute("data-unitizer-unit", "m");
-  roadWidthField.input.setAttribute("data-precision", "2");
-  attachUnitLabel(roadWidthField, "sm-distance", "m");
-  roadWidthField.input.addEventListener("input", () => {
-    const canonical = readCanonical(roadWidthField.input);
-    if (canonical != null) {
-      state.road.width_m = canonical;
-      writeWeppRoadState(state);
-    }
-  });
-  const roadWidthValidator = attachCanonicalValidator(roadWidthField, {
-    min: 0.3,
-    max: 100,
-    label: "Road width",
-  });
-
-  roadGrid.appendChild(roadSlopeField.wrapper);
-  roadGrid.appendChild(roadLengthField.wrapper);
-  roadGrid.appendChild(roadWidthField.wrapper);
-  roadSection.appendChild(roadGrid);
-
-  const fillSection = createSection("Fill Slope");
-  const fillGrid = document.createElement("div");
-  fillGrid.className = "grid gap-4 md:grid-cols-2";
-
-  const fillSlopeField = createFormField({
-    id: "wepproad_fill_slope",
-    label: "Fill Gradient",
-    type: "number",
-    value: String(state.fill.slope_pct),
+    value: String(state.upper_ofe.slope_point2_pct),
     unitLabel: "%",
-    help: "Percent slope of the fill slope surface.",
   });
-  fillSlopeField.input.step = "0.1";
-  fillSlopeField.input.addEventListener("input", () => {
-    const canonical = readCanonical(fillSlopeField.input);
+  upperSlope2Field.input.step = "0.1";
+  upperSlope2Field.input.addEventListener("input", () => {
+    const canonical = readCanonical(upperSlope2Field.input);
     if (canonical != null) {
-      state.fill.slope_pct = canonical;
-      writeWeppRoadState(state);
+      state.upper_ofe.slope_point2_pct = canonical;
+      writeDisturbedState(state);
     }
   });
-  const fillSlopeValidator = attachCanonicalValidator(fillSlopeField, {
-    min: 0.1,
+  const upperSlope2Validator = attachCanonicalValidator(upperSlope2Field, {
+    min: 0,
+    max: 1000,
+    label: "Mid slope gradient",
+  });
+
+  const upperLengthField = createFormField({
+    id: "disturbed_upper_length",
+    label: "Length",
+    type: "number",
+    value: String(state.upper_ofe.length_m),
+    unitLabel: "m",
+  });
+  upperLengthField.input.step = "0.1";
+  upperLengthField.input.setAttribute("data-unitizer-category", "sm-distance");
+  upperLengthField.input.setAttribute("data-unitizer-unit", "m");
+  upperLengthField.input.setAttribute("data-precision", "2");
+  attachUnitLabel(upperLengthField, "sm-distance", "m");
+  upperLengthField.input.addEventListener("input", () => {
+    const canonical = readCanonical(upperLengthField.input);
+    if (canonical != null) {
+      state.upper_ofe.length_m = canonical;
+      writeDisturbedState(state);
+    }
+  });
+  const upperLengthValidator = attachCanonicalValidator(upperLengthField, {
+    min: 0,
+    max: 3000,
+    label: "Upper length",
+  });
+
+  const upperCoverField = createFormField({
+    id: "disturbed_upper_cover",
+    label: "Ground Cover",
+    type: "number",
+    value: String(state.upper_ofe.cover_pct),
+    unitLabel: "%",
+  });
+  upperCoverField.input.step = "1";
+  upperCoverField.input.addEventListener("input", () => {
+    const canonical = readCanonical(upperCoverField.input);
+    if (canonical != null) {
+      state.upper_ofe.cover_pct = canonical;
+      writeDisturbedState(state);
+    }
+  });
+  const upperCoverValidator = attachCanonicalValidator(upperCoverField, {
+    min: 0,
     max: 150,
-    label: "Fill gradient",
+    label: "Plant cover",
   });
 
-  const fillLengthField = createFormField({
-    id: "wepproad_fill_length",
-    label: "Fill Length",
+  upperLeft.appendChild(upperLanduseField.wrapper);
+  upperLeft.appendChild(upperCoverField.wrapper);
+  upperRight.appendChild(upperSlope1Field.wrapper);
+  upperRight.appendChild(upperSlope2Field.wrapper);
+  upperRight.appendChild(upperLengthField.wrapper);
+  upperGrid.appendChild(upperLeft);
+  upperGrid.appendChild(upperRight);
+  upperSection.appendChild(upperGrid);
+
+  const lowerSection = createSection("Lower Slope Element (OFE 2)");
+  const lowerGrid = document.createElement("div");
+  lowerGrid.className = "grid gap-6 md:grid-cols-2";
+  const lowerLeft = document.createElement("div");
+  lowerLeft.className = "space-y-4";
+  const lowerRight = document.createElement("div");
+  lowerRight.className = "space-y-4";
+
+  const lowerLanduseField = createSelectField({
+    id: "disturbed_lower_landuse",
+    label: "Treatment Type",
+    options: LANDUSE_OPTIONS,
+  });
+  lowerLanduseField.select.value = state.lower_ofe.landuse;
+  lowerLanduseField.select.addEventListener("change", () => {
+    state.lower_ofe.landuse = lowerLanduseField.select.value;
+    writeDisturbedState(state);
+  });
+
+  const lowerSlope1Field = createFormField({
+    id: "disturbed_lower_slope_mid",
+    label: "Upper Slope",
     type: "number",
-    value: String(state.fill.length_m),
-    unitLabel: "m",
-    help: "Horizontal length of the fill slope.",
-  });
-  fillLengthField.input.step = "0.1";
-  fillLengthField.input.setAttribute("data-unitizer-category", "sm-distance");
-  fillLengthField.input.setAttribute("data-unitizer-unit", "m");
-  fillLengthField.input.setAttribute("data-precision", "2");
-  attachUnitLabel(fillLengthField, "sm-distance", "m");
-  fillLengthField.input.addEventListener("input", () => {
-    const canonical = readCanonical(fillLengthField.input);
-    if (canonical != null) {
-      state.fill.length_m = canonical;
-      writeWeppRoadState(state);
-    }
-  });
-  const fillLengthValidator = attachCanonicalValidator(fillLengthField, {
-    min: 0.3,
-    max: 100,
-    label: "Fill length",
-  });
-
-  fillGrid.appendChild(fillSlopeField.wrapper);
-  fillGrid.appendChild(fillLengthField.wrapper);
-  fillSection.appendChild(fillGrid);
-
-  const bufferSection = createSection("Buffer Slope");
-  const bufferGrid = document.createElement("div");
-  bufferGrid.className = "grid gap-4 md:grid-cols-2";
-
-  const bufferSlopeField = createFormField({
-    id: "wepproad_buffer_slope",
-    label: "Buffer Gradient",
-    type: "number",
-    value: String(state.buffer.slope_pct),
+    value: String(state.lower_ofe.slope_point1_pct),
     unitLabel: "%",
-    help: "Percent slope of the buffer surface.",
   });
-  bufferSlopeField.input.step = "0.1";
-  bufferSlopeField.input.addEventListener("input", () => {
-    const canonical = readCanonical(bufferSlopeField.input);
+  lowerSlope1Field.input.step = "0.1";
+  lowerSlope1Field.input.addEventListener("input", () => {
+    const canonical = readCanonical(lowerSlope1Field.input);
     if (canonical != null) {
-      state.buffer.slope_pct = canonical;
-      writeWeppRoadState(state);
+      state.lower_ofe.slope_point1_pct = canonical;
+      writeDisturbedState(state);
     }
   });
-  const bufferSlopeValidator = attachCanonicalValidator(bufferSlopeField, {
-    min: 0.1,
-    max: 100,
-    label: "Buffer gradient",
+  const lowerSlope1Validator = attachCanonicalValidator(lowerSlope1Field, {
+    min: 0,
+    max: 1000,
+    label: "Mid slope gradient",
   });
 
-  const bufferLengthField = createFormField({
-    id: "wepproad_buffer_length",
-    label: "Buffer Length",
+  const lowerSlope2Field = createFormField({
+    id: "disturbed_lower_slope_bottom",
+    label: "Lower Slope",
     type: "number",
-    value: String(state.buffer.length_m),
-    unitLabel: "m",
-    help: "Horizontal length of the buffer.",
+    value: String(state.lower_ofe.slope_point2_pct),
+    unitLabel: "%",
   });
-  bufferLengthField.input.step = "0.1";
-  bufferLengthField.input.setAttribute("data-unitizer-category", "sm-distance");
-  bufferLengthField.input.setAttribute("data-unitizer-unit", "m");
-  bufferLengthField.input.setAttribute("data-precision", "2");
-  attachUnitLabel(bufferLengthField, "sm-distance", "m");
-  bufferLengthField.input.addEventListener("input", () => {
-    const canonical = readCanonical(bufferLengthField.input);
+  lowerSlope2Field.input.step = "0.1";
+  lowerSlope2Field.input.addEventListener("input", () => {
+    const canonical = readCanonical(lowerSlope2Field.input);
     if (canonical != null) {
-      state.buffer.length_m = canonical;
-      writeWeppRoadState(state);
+      state.lower_ofe.slope_point2_pct = canonical;
+      writeDisturbedState(state);
     }
   });
-  const bufferLengthValidator = attachCanonicalValidator(bufferLengthField, {
-    min: 0.3,
-    max: 300,
-    label: "Buffer length",
+  const lowerSlope2Validator = attachCanonicalValidator(lowerSlope2Field, {
+    min: 0,
+    max: 1000,
+    label: "Bottom slope gradient",
   });
 
-  bufferGrid.appendChild(bufferSlopeField.wrapper);
-  bufferGrid.appendChild(bufferLengthField.wrapper);
-  bufferSection.appendChild(bufferGrid);
+  const lowerLengthField = createFormField({
+    id: "disturbed_lower_length",
+    label: "Length",
+    type: "number",
+    value: String(state.lower_ofe.length_m),
+    unitLabel: "m",
+  });
+  lowerLengthField.input.step = "0.1";
+  lowerLengthField.input.setAttribute("data-unitizer-category", "sm-distance");
+  lowerLengthField.input.setAttribute("data-unitizer-unit", "m");
+  lowerLengthField.input.setAttribute("data-precision", "2");
+  attachUnitLabel(lowerLengthField, "sm-distance", "m");
+  lowerLengthField.input.addEventListener("input", () => {
+    const canonical = readCanonical(lowerLengthField.input);
+    if (canonical != null) {
+      state.lower_ofe.length_m = canonical;
+      writeDisturbedState(state);
+    }
+  });
+  const lowerLengthValidator = attachCanonicalValidator(lowerLengthField, {
+    min: 0,
+    max: 3000,
+    label: "Lower length",
+  });
 
-  const simSection = createSimulationOptions({
-    id: "wepproad_sim_years",
+  const lowerCoverField = createFormField({
+    id: "disturbed_lower_cover",
+    label: "Ground Cover",
+    type: "number",
+    value: String(state.lower_ofe.cover_pct),
+    unitLabel: "%",
+  });
+  lowerCoverField.input.step = "1";
+  lowerCoverField.input.addEventListener("input", () => {
+    const canonical = readCanonical(lowerCoverField.input);
+    if (canonical != null) {
+      state.lower_ofe.cover_pct = canonical;
+      writeDisturbedState(state);
+    }
+  });
+  const lowerCoverValidator = attachCanonicalValidator(lowerCoverField, {
+    min: 0,
+    max: 150,
+    label: "Plant cover",
+  });
+
+  lowerLeft.appendChild(lowerLanduseField.wrapper);
+  lowerLeft.appendChild(lowerCoverField.wrapper);
+  lowerRight.appendChild(lowerSlope1Field.wrapper);
+  lowerRight.appendChild(lowerSlope2Field.wrapper);
+  lowerRight.appendChild(lowerLengthField.wrapper);
+  lowerGrid.appendChild(lowerLeft);
+  lowerGrid.appendChild(lowerRight);
+  lowerSection.appendChild(lowerGrid);
+
+  const hillslopeSection = createSimulationOptions({
+    id: "disturbed_sim_years",
     value: String(state.simulation_years),
     onInput: (input) => {
       const canonical = readCanonical(input);
       if (canonical != null) {
         state.simulation_years = canonical;
-        writeWeppRoadState(state);
+        writeDisturbedState(state);
       }
     },
   });
-  const simValidator = attachCanonicalValidator(simSection.field, {
+  const yearsValidator = attachCanonicalValidator(hillslopeSection.field, {
     min: 1,
     max: 200,
     label: "Simulation years",
   });
 
+
   const runSection = document.createElement("div");
   runSection.className = "space-y-3";
-  const runButton = createRunButton({ label: "Run WEPP Road Model" });
+  const runButton = createRunButton({ label: "Run Disturbed WEPP Model" });
   runSection.appendChild(runButton.wrapper);
 
   const details = document.createElement("details");
@@ -496,18 +462,22 @@ export function mountWeppRoadTool(root) {
   runSection.appendChild(details);
 
   form.appendChild(soilSection.wrapper);
-  form.appendChild(roadSection);
-  form.appendChild(fillSection);
-  form.appendChild(bufferSection);
-  form.appendChild(simSection.wrapper);
+  form.appendChild(upperSection);
+  form.appendChild(lowerSection);
+  form.appendChild(hillslopeSection.wrapper);
   form.appendChild(runSection);
 
   const resultsSection = createSection("Results");
-  resultsSection.id = "wepproad-results";
+  resultsSection.id = "disturbed-results";
   resultsSection.style.display = "none";
 
-  const annualTable = createAnnualAveragesTable({ idPrefix: "wepproad" });
+  const annualTable = createAnnualAveragesTable({ idPrefix: "disturbed" });
   resultsSection.appendChild(annualTable.table);
+
+  const returnPeriodTable = createReturnPeriodTable({ idPrefix: "disturbed" });
+  const occurrenceTable = createOccurrenceProbabilities({ idPrefix: "disturbed" });
+  resultsSection.appendChild(returnPeriodTable.wrapper);
+  resultsSection.appendChild(occurrenceTable.wrapper);
   const { tableBody } = annualTable;
 
   const filesContainer = document.createElement("div");
@@ -606,48 +576,57 @@ export function mountWeppRoadTool(root) {
   const fileSections = [
     {
       key: "management",
-      endpoint: "/api/wepproad/GET/management",
+      endpoint: "/api/disturbed/GET/management",
       title: "Management File",
       description: "Generated management (.man) file used by WEPP.",
       downloadLabel: "Download .man",
-      filename: "wepproad-management.man",
-      persistKey: "fswepp2_wepproad_man_open",
+      filename: "disturbed-management.man",
+      persistKey: "fswepp2_disturbed_man_open",
     },
     {
       key: "soil",
-      endpoint: "/api/wepproad/GET/soil",
+      endpoint: "/api/disturbed/GET/soil",
       title: "Soil File",
       description: "Generated soil (.sol) file used by WEPP.",
       downloadLabel: "Download .sol",
-      filename: "wepproad-soil.sol",
-      persistKey: "fswepp2_wepproad_sol_open",
+      filename: "disturbed-soil.sol",
+      persistKey: "fswepp2_disturbed_sol_open",
     },
     {
       key: "slope",
-      endpoint: "/api/wepproad/GET/slope",
+      endpoint: "/api/disturbed/GET/slope",
       title: "Slope File",
       description: "Generated slope (.slp) file used by WEPP.",
       downloadLabel: "Download .slp",
-      filename: "wepproad-slope.slp",
-      persistKey: "fswepp2_wepproad_slp_open",
+      filename: "disturbed-slope.slp",
+      persistKey: "fswepp2_disturbed_slp_open",
     },
     {
       key: "run",
-      endpoint: "/api/wepproad/GET/run_file",
+      endpoint: "/api/disturbed/GET/run_file",
       title: "Run File",
       description: "Generated WEPP run (.run) file.",
       downloadLabel: "Download .run",
-      filename: "wepproad-run.run",
-      persistKey: "fswepp2_wepproad_run_open",
+      filename: "disturbed-run.run",
+      persistKey: "fswepp2_disturbed_run_open",
     },
     {
       key: "output",
-      endpoint: "/api/wepproad/GET/wepp_output",
+      endpoint: "/api/disturbedwepp/GET/wepp_output",
       title: "WEPP Output",
       description: "Raw WEPP output file.",
       downloadLabel: "Download .out",
-      filename: "wepproad-output.out",
-      persistKey: "fswepp2_wepproad_out_open",
+      filename: "disturbed-output.out",
+      persistKey: "fswepp2_disturbed_out_open",
+    },
+    {
+      key: "ebe",
+      endpoint: "/api/disturbedwepp/GET/wepp_ebe",
+      title: "WEPP EBE Output",
+      description: "Event-by-event WEPP output file.",
+      downloadLabel: "Download .ebe",
+      filename: "disturbed-events.ebe",
+      persistKey: "fswepp2_disturbed_ebe_open",
     },
   ].map((config) => ({
     ...config,
@@ -678,16 +657,9 @@ export function mountWeppRoadTool(root) {
       "mm",
       { mm: 0, in: 2 }
     );
-    const roadSedMeta = formatUnitValue(
-      annual.road_prism_erosion_kg,
-      "sm-weight",
-      "kg"
-    );
-    const bufferSedMeta = formatUnitValue(
-      annual.sediment_leaving_buffer_kg,
-      "sm-weight",
-      "kg"
-    );
+    const erosionRate = formatSurfaceDensity(annual.soil_loss_mean_kg_m2);
+    const sedimentYield = formatSurfaceDensity(annual.sediment_yield_kg_m2);
+
     annualTable.setHeader(years);
 
     const rows = [
@@ -713,16 +685,16 @@ export function mountWeppRoadTool(root) {
         countLabel: "events",
       },
       {
-        value: roadSedMeta.value,
-        unit: roadSedMeta.unit,
-        text: "road prism erosion",
+        value: erosionRate.value,
+        unit: erosionRate.unit,
+        text: "upland erosion rate",
         count: null,
         countLabel: null,
       },
       {
-        value: bufferSedMeta.value,
-        unit: bufferSedMeta.unit,
-        text: "sediment leaving buffer",
+        value: sedimentYield.value,
+        unit: sedimentYield.unit,
+        text: "sediment leaving profile",
         count: null,
         countLabel: null,
       },
@@ -741,6 +713,92 @@ export function mountWeppRoadTool(root) {
       `;
       tableBody.appendChild(tr);
     });
+
+    const returnPeriods = response?.return_periods;
+    if (returnPeriods && returnPeriods.recurrence_intervals) {
+      const intervals = returnPeriods.recurrence_intervals;
+      const rows = intervals.map((interval) => {
+        const key = String(interval);
+        const precipValue = returnPeriods.precip_mm?.[key];
+        const runoffValue = returnPeriods.runoff_mm?.[key];
+        const erosionValue = returnPeriods.soil_loss_mean_kg_m2?.[key];
+        const sedimentValue = returnPeriods.sediment_yield_kg_m2?.[key];
+        const precipMeta = formatUnitValue(
+          precipValue,
+          "xs-distance",
+          "mm",
+          { mm: 0, in: 2 }
+        );
+        const runoffMeta = formatUnitValue(
+          runoffValue,
+          "xs-distance",
+          "mm",
+          { mm: 0, in: 2 }
+        );
+        const erosionMeta = formatSurfaceDensity(erosionValue);
+        const sedimentMeta = formatSurfaceDensity(sedimentValue);
+        return {
+          label: `${interval} year`,
+          precip: precipMeta.value,
+          runoff: runoffMeta.value,
+          erosion: erosionMeta.value,
+          sediment: sedimentMeta.value,
+        };
+      });
+
+      const average = {
+        precip: precipMeta.value,
+        runoff: formatUnitValue(
+          annual.runoff_from_rain_mm + annual.runoff_from_snow_mm,
+          "xs-distance",
+          "mm",
+          { mm: 0, in: 2 }
+        ).value,
+        erosion: erosionRate.value,
+        sediment: sedimentYield.value,
+      };
+
+      returnPeriodTable.setData({
+        years,
+        rows,
+        average,
+        units: {
+          precip: precipMeta.unit,
+          runoff: runoffRainMeta.unit,
+          erosion: erosionRate.unit,
+          sediment: sedimentYield.unit,
+        },
+      });
+    } else {
+      returnPeriodTable.setData();
+    }
+
+    const probabilities = response?.occurrence_probabilities;
+    if (probabilities) {
+      const rows = [
+        {
+          label: "Probability there is runoff",
+          percent: probabilities.runoff?.probability != null
+            ? probabilities.runoff.probability * 100
+            : null,
+        },
+        {
+          label: "Probability there is erosion",
+          percent: probabilities.erosion?.probability != null
+            ? probabilities.erosion.probability * 100
+            : null,
+        },
+        {
+          label: "Probability there is sediment delivery",
+          percent: probabilities.sediment_delivery?.probability != null
+            ? probabilities.sediment_delivery.probability * 100
+            : null,
+        },
+      ];
+      occurrenceTable.setData({ years, rows });
+    } else {
+      occurrenceTable.setData();
+    }
   }
 
   async function prefetchFile(entry, payload) {
@@ -757,7 +815,7 @@ export function mountWeppRoadTool(root) {
       }
       entry.ui.setText(text, entry.filename);
     } catch (error) {
-      console.error(`[wepproad] Failed to load ${entry.key} file`, error);
+      console.error(`[disturbed] Failed to load ${entry.key} file`, error);
       entry.ui.setStatus("Unable to load file.");
     }
   }
@@ -800,14 +858,15 @@ export function mountWeppRoadTool(root) {
   function validateAll() {
     const validators = [
       ...(soilSection.validators || []),
-      roadSlopeValidator,
-      roadLengthValidator,
-      roadWidthValidator,
-      fillSlopeValidator,
-      fillLengthValidator,
-      bufferSlopeValidator,
-      bufferLengthValidator,
-      simValidator,
+      upperSlope1Validator,
+      upperSlope2Validator,
+      upperLengthValidator,
+      upperCoverValidator,
+      lowerSlope1Validator,
+      lowerSlope2Validator,
+      lowerLengthValidator,
+      lowerCoverValidator,
+      yearsValidator,
     ];
     return validators.every((validator) => {
       if (typeof validator === "function") return validator();
@@ -816,21 +875,6 @@ export function mountWeppRoadTool(root) {
       }
       return true;
     });
-  }
-
-  function enforceHighTrafficOutunrutRule() {
-    if (
-      state.road.traffic === "high" &&
-      state.road.design === "outunrut" &&
-      state.road.surface === "native"
-    ) {
-      const proceed = window.confirm(
-        "High traffic unrutted not allowed -- selecting rutted"
-      );
-      if (!proceed) return false;
-      setDesignValue("outrut");
-    }
-    return true;
   }
 
   async function handleRun() {
@@ -853,15 +897,6 @@ export function mountWeppRoadTool(root) {
       return;
     }
 
-    if (!enforceHighTrafficOutunrutRule()) {
-      runButton.setState(
-        "error",
-        "Retry",
-        "High traffic unrutted is not allowed for native surfaces."
-      );
-      return;
-    }
-
     if (!validateAll()) {
       runButton.setState("error", "Retry", "Fix validation errors and retry.");
       return;
@@ -879,31 +914,31 @@ export function mountWeppRoadTool(root) {
         use_prism: climateState.use_prism,
         user_defined_par_mod: climateState.user_defined_par_mod,
       },
-      wepproad_pars: {
+      disturbedwepp_pars: {
         soil_texture: state.soil_texture,
-        rfg_pct: state.rfg_pct,
-        road: {
-          slope_pct: state.road.slope_pct,
-          length_m: state.road.length_m,
-          width_m: state.road.width_m,
-          surface: mapSurfaceToApi(state.road.surface),
-          design: state.road.design,
-          traffic: state.road.traffic,
+        width_m: state.width_m,
+        upper_ofe: {
+          landuse: state.upper_ofe.landuse,
+          slope_point1_pct: state.upper_ofe.slope_point1_pct,
+          slope_point2_pct: state.upper_ofe.slope_point2_pct,
+          length_m: state.upper_ofe.length_m,
+          cover_pct: state.upper_ofe.cover_pct,
+          rfg_pct: state.upper_ofe.rfg_pct,
         },
-        fill: {
-          slope_pct: state.fill.slope_pct,
-          length_m: state.fill.length_m,
-        },
-        buffer: {
-          slope_pct: state.buffer.slope_pct,
-          length_m: state.buffer.length_m,
+        lower_ofe: {
+          landuse: state.lower_ofe.landuse,
+          slope_point1_pct: state.lower_ofe.slope_point1_pct,
+          slope_point2_pct: state.lower_ofe.slope_point2_pct,
+          length_m: state.lower_ofe.length_m,
+          cover_pct: state.lower_ofe.cover_pct,
+          rfg_pct: state.lower_ofe.rfg_pct,
         },
       },
       wepp_version: "wepp2010",
     };
 
     try {
-      const response = await apiPost("/api/wepproad/RUN/wepp", payload, {
+      const response = await apiPost("/api/disturbedwepp/RUN/wepp", payload, {
         timeoutMs: 60000,
       });
       lastResults = response;
@@ -939,7 +974,7 @@ export function mountWeppRoadTool(root) {
 
       runButton.setState("error", "Retry", message);
       showErrorDetails(detail);
-      console.error("[wepproad] run failed", error);
+      console.error("[disturbed] run failed", error);
     } finally {
       setFormDisabled(false);
     }

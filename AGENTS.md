@@ -13,3 +13,13 @@
   - `docker compose exec -T ui bun install`
   - `docker compose exec -T ui bun test --preload ./tests/setup.ts`
   - `docker compose exec -T ui bun run build:css`
+
+## Unitization (canonical guidance)
+- Prefer UnitizerClient for conversions, labels, and preference-driven units across UI and results tables.
+- Use canonical metric values in state/requests; convert only for display.
+- Apply `data-unitizer-category`/`data-unitizer-unit` on numeric inputs and rely on Unitizer to manage labels.
+- If a global unit toggle is present, treat it as an explicit override; otherwise honor Unitizer preferences.
+- Re-render result tables on `unitizer:preferences-changed` so display units stay in sync.
+
+## Agent prompt formatting
+- Provide agent prompts inside Markdown code blocks.
