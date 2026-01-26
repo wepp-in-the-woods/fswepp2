@@ -83,7 +83,7 @@
 
 ## Phase 5 — Tool Pages
 - [ ] WEPP Road UI + slope profile
-- [ ] WEPP Road results (stats, charts, tables)
+- [ ] WEPP Road results
 - [ ] Disturbed WEPP UI + slope profile
 - [ ] Disturbed results (return period, time series, tables)
 - [ ] ERMiT UI + conditional pre-fire community

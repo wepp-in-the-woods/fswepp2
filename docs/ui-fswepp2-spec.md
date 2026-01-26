@@ -498,7 +498,7 @@ WEPP Road predicts erosion from forest roads with three profile elements: road s
 
 **Section 1: Soil Properties**
 - Soil Texture: Dropdown (clay loam, silt loam, sandy loam, loam)
-- Rock Fragment Content: Number input with slider (0-100%)
+- Rock Fragment Content: Number input with slider (0-50%)
 
 **Section 2: Road Geometry**
 - Road Design: Radio buttons with visual icons
@@ -521,10 +521,7 @@ WEPP Road predicts erosion from forest roads with three profile elements: road s
 - Buffer Length: Number input (0.3-300 m)
 
 **Section 5: Simulation Options**
-- Simulation Years: Number input (1-200, default 30)
-
-**Visual Aid:**
-- Slope profile diagram updates in real-time showing road, fill, and buffer geometry
+- Simulation Years: Number input (1-200, default 100)
 
 ### Run Button
 
@@ -539,35 +536,41 @@ Behavior:
 
 ### Results Display
 
-**Summary Statistics (StatCards):**
-- Annual Average Precipitation (mm)
-- Rainfall Runoff (mm)
-- Snowmelt Runoff (mm)
-- Soil Loss from Road Surface (kg/m²)
-- Sediment Delivery Off-site (kg/m²)
+Legacy results only (match the legacy results page):
 
-**Visualizations:**
+**Inputs Summary Table**
+- Climate name plus CLIGEN parameter summary (from legacy `GetParSummary`)
+- Soil texture + rock fragments
+- Road design, surface, traffic
+- Road, fill, and buffer geometry (gradient/length/width)
 
-1. **Annual Erosion Chart (Bar)**
-   - X-axis: Years
-   - Y-axis: Sediment Delivery (kg/m²)
-   - Color-coded by severity threshold
+**`{years} - YEAR MEAN ANNUAL AVERAGES` table**
+- Header includes the "Total in {years} years" label (legacy wording).
+- Values are mean annual averages; storm/event counts are totals across all simulated years.
+- Rows (legacy order/wording):
+  1. `{precip}` `{units}` precipitation from `{storms}` storms
+  2. `{rro}` `{units}` runoff from rainfall from `{rain_events}` events
+  3. `{sro}` `{units}` runoff from snowmelt or winter rainstorm from `{snow_events}` events
+  4. `{syra}` `{sed_units}` road prism erosion
+  5. `{sypa}` `{sed_units}` sediment leaving buffer
 
-2. **Runoff Distribution (Stacked Bar)**
-   - X-axis: Years
-   - Y-axis: Runoff (mm)
-   - Stacks: Rainfall vs Snowmelt
-
-3. **Probability Exceedance Curve**
-   - X-axis: Sediment Delivery (kg/m²)
-   - Y-axis: Probability of Exceedance
-
-**Detailed Tables:**
-
-1. **Annual Summary Table**
-   - Columns: Year, Precipitation, Runoff, Erosion, Sediment Delivery
-   - Sortable by any column
-   - Export to CSV option
+**Provenance of annual-average values (legacy source: `fswepp-docker/var/www/cgi-bin/fswepp/wr/wr.pl`)**
+- `precip`: parsed from WEPP output section **I. RAINFALL AND RUNOFF SUMMARY -> annual averages -> Mean annual precipitation**.
+- `storms`: parsed from **I. RAINFALL AND RUNOFF SUMMARY -> total summary -> "{storms} storms produced ..."**.
+- `rro`: parsed from **I. RAINFALL AND RUNOFF SUMMARY -> annual averages -> Mean annual runoff from rainfall**.
+- `rain_events`: parsed from **I. RAINFALL AND RUNOFF SUMMARY -> total summary -> "{events} rain storm runoff events produced ..."**.
+- `sro`: parsed from **I. RAINFALL AND RUNOFF SUMMARY -> annual averages -> Mean annual runoff from snow melt and/or rain storm during winter**.
+- `snow_events`: parsed from **I. RAINFALL AND RUNOFF SUMMARY -> total summary -> "{events} snow melts and/or events during winter produced ..."**.
+- `syra` (road prism erosion): computed as `syr * effective_road_length * WeppRoadWidth`, where:
+  - `syr` is the **Soil Loss MEAN (kg/m^2)** from **II.A. AREA OF NET SOIL LOSS** (first net-loss row in WEPP output),
+  - `effective_road_length` is the **Area of Net Loss (m)** from that same row,
+  - `WeppRoadWidth` is the profile width written into the slope file by `CreateSlopeFileWeppRoad` (`fswepp-docker/etc/perl/MoscowFSL/FSWEPP/WeppRoad.pm`).
+- `sypa` (sediment leaving buffer): computed as `syp * WeppRoadWidth`, where:
+  - `syp` is the **Average annual sediment leaving profile (kg/m of width)** from **III.A. OFF SITE EFFECTS**,
+  - `WeppRoadWidth` is as above.
+- Unit conversions (legacy behavior):
+  - If `units == "m"`, precipitation/runoff remain in **mm**, sediment in **kg**.
+  - If `units != "m"`, precipitation/runoff are converted from **mm -> in** (`/ 25.4`) and sediment from **kg -> lb** (`* 2.2046`).
 
 ---
 
@@ -648,37 +651,50 @@ Label: "Run Disturbed WEPP Model"
 
 ### Results Display
 
-**Summary Statistics:**
-- Annual Average Precipitation (mm)
-- Average Runoff (mm)
-- Average Snowmelt (mm)
-- Upland Erosion Rate (kg/m²)
-- Sediment Leaving Profile (kg/m²)
+Legacy results only (match the legacy results page):
 
-**Visualizations:**
+**Inputs Summary Table**
+- Climate name plus CLIGEN parameter summary (from legacy `GetParSummary`)
+- Soil texture
+- Upper/Lower OFE table: treatment, gradients (top/mid/bottom), length, cover, rock
+- Description field (free text)
 
-1. **Return Period Analysis (Line Chart)**
-   - X-axis: Return Period (years)
-   - Y-axis: Sediment Delivery (kg/m²)
-   - Multiple lines for different probability levels
+**Mean annual averages table**
+- Title: "Mean annual averages for {simyears} years"
+- Header includes "Total in {years2sim} years" label.
+- Values are mean annual averages; storm/event counts are totals across all simulated years.
+- Rows (legacy order/wording):
+  1. `{precip}` `{pcp_unit}` precipitation from `{storms}` storms
+  2. `{rro}` `{pcp_unit}` runoff from rainfall from `{rain_events}` events
+  3. `{sro}` `{pcp_unit}` runoff from snowmelt or winter rainstorm from `{snow_events}` events
+  4. `{asyra}` `{rate}` upland erosion rate (`{syra} kg m^-2`)
+  5. `{asypa}` `{rate}` sediment leaving profile (`{sypa} kg m^-1 width`)
 
-2. **Probability Exceedance Curve**
-   - X-axis: Sediment Delivery (kg/m²)
-   - Y-axis: Probability of Exceedance
-   - Separate curves for runoff and erosion
+**Return period analysis table**
+- Title: "Return period analysis based on {simyears} years of climate"
+- Rows for 1st, 2nd, 5th, 10th, 20th largest events (if available) plus an "Average" row.
+- Columns: Return Period, Precipitation, Runoff, Erosion, Sediment.
 
-3. **Annual Time Series (Line Chart)**
-   - X-axis: Years
-   - Y-axis: Multiple metrics (runoff, erosion, delivery)
-   - Toggle lines on/off
+**Probabilities of occurrence table**
+- Title: "Probabilities of occurrence first year following disturbance based on {simyears} years of climate"
+- Three rows: runoff, erosion, sediment delivery, each with percent and bar indicator.
 
-**Detailed Tables:**
+**Provenance of annual-average values (legacy source: `fswepp-docker/var/www/cgi-bin/fswepp/wd/wd.pl`)**
+- `precip`: parsed from WEPP output section **I. RAINFALL AND RUNOFF SUMMARY -> annual averages -> Mean annual precipitation**.
+- `storms`: parsed from **I. RAINFALL AND RUNOFF SUMMARY -> total summary -> "{storms} storms produced ..."**.
+- `rro`: parsed from **I. RAINFALL AND RUNOFF SUMMARY -> annual averages -> Mean annual runoff from rainfall**.
+- `rain_events`: parsed from **I. RAINFALL AND RUNOFF SUMMARY -> total summary -> "{events} rain storm runoff events produced ..."**.
+- `sro`: parsed from **I. RAINFALL AND RUNOFF SUMMARY -> annual averages -> Mean annual runoff from snow melt and/or rain storm during winter**.
+- `snow_events`: parsed from **I. RAINFALL AND RUNOFF SUMMARY -> total summary -> "{events} snow melts and/or events during winter produced ..."**.
+- `syra` (upland erosion rate): `syr` from **II.A. AREA OF NET SOIL LOSS -> Soil Loss MEAN (kg/m^2)**.
+- `sypa` (sediment leaving profile): `syp` from **III. OFF SITE EFFECTS -> Average annual sediment leaving profile (kg/m of width)**.
+- `asyra`: `syra * 10` (kg/m^2 -> t/ha).
+- `asypa`: `(sypa * 10) / slope_length` (kg/m width -> t/ha using total slope length).
+- Unit conversions (legacy behavior):
+  - If `units == "m"`, precipitation/runoff remain in **mm**, rate units are **t ha^-1**.
+  - If `units == "ft"`, precipitation/runoff are converted from **mm -> in** (`* 0.0394`) and rates from **t/ha -> t/ac** (`* 0.445`).
 
-1. **Annual Summary**
-   - Year, Precip, Runoff, Erosion, Delivery
-
-2. **Probability Distribution**
-   - Delivery Amount, Exceedance Probability, Return Period
+**Note:** The FSWEPP2 API returns JSON (not HTML) and uses metric-only units; see `api/DEVIATIONS.md` for current deviations and mapping.
 
 ---
 
@@ -753,70 +769,61 @@ Label: "Run ERMiT Model"
 
 ### Results Display
 
-**Summary Statistics:**
-- Annual Average Precipitation (mm)
-- Average Annual Runoff (mm)
-- Climate Classification (Monsoonal/Non-monsoonal)
+Legacy results only (match the legacy results page):
 
-**Post-Fire Year Predictions (Tab Panel):**
+**Inputs Summary Table**
+- Climate name plus CLIGEN parameter summary (from legacy `GetParSummary`)
+- Soil texture + rock fragment percent
+- Slope gradients (top/average/toe) and hillslope length
+- Burn severity + vegetation type
+- Prefire community (shrub/grass/bare) for non-forest vegetation
 
-5 tabs for years 1-5 after fire, each showing:
+**`{years2sim} - YEAR MEAN ANNUAL AVERAGES` table**
+- Header includes "Total in {years2sim} years".
+- Values are mean annual averages; storm/event counts are totals across all simulated years.
+- Rows (legacy order/wording):
+  1. `{precip}` `{precip_units}` annual precipitation from `{storms}` storms
+  2. `{rro}` `{precip_units}` annual runoff from rainfall from `{rain_events}` events
+  3. `{sro}` `{precip_units}` annual runoff from snowmelt or winter rainstorm from `{snow_events}` events
 
-1. **Probability Exceedance Curves**
-   - Separate curve for each treatment scenario:
-     - Untreated
-     - Seeding
-     - Mulching 47% cover (0.5 ton/acre)
-     - Mulching 72% cover (1 ton/acre)
-     - Mulching 89% cover (1.5 ton/acre)
-     - Mulching 94% cover (2 ton/acre)
+**Rainfall Event Rankings and Characteristics table**
+- Title: "Rainfall Event Rankings and Characteristics from the Selected Storms"
+- Columns: Storm rank (based on runoff / return interval), storm runoff, storm precipitation, duration, 10-min peak intensity, 30-min peak intensity, date.
+- Ranks are selected from the 100-year event file; reduced if fewer runoff events exist.
 
-2. **Treatment Comparison Table**
-   - Columns: Treatment, 10% Exceedance, 20% Exceedance, 50% Exceedance
-   - Highlights most effective treatment
+**Sediment delivery exceedance plot (gnuplot PNG)**
+- Clickable image that opens the untreated (or unburned) sediment delivery exceedance table.
+- Plot specification is captured in `api/DEVIATIONS.md` (Legacy ERMiT gnuplot specification).
 
-**Event Analysis:**
+**Sediment Delivery table (interactive probability selector)**
+- User sets a target exceedance probability (default 20%).
+- Columns for years 1-5 following the fire.
+- Rows:
+  - Unburned (if severity = unburned), otherwise:
+  - Untreated
+  - Seeding
+  - Mulch 47% cover
+  - Mulch 72% cover
+  - Mulch 89% cover
+  - Mulch 94% cover
+  - Logs & Wattles (erosion barriers; diameter/spacing inputs shown in-table)
+- Links to popup tables for treatment-specific exceedance probabilities and event sediment delivery.
 
-1. **Selected Storm Events Table**
-   - Shows the 5 critical events (5yr, 10yr, 20yr, 50yr, 75yr return periods)
-   - Columns: Date, Spatial Severity, Soil Condition (k), Runoff, Sediment Delivery
+**Footer metadata**
+- Observed annual precipitation, July-August-September precipitation, and climate classification (MONSOONAL / NON-MONSOONAL).
 
-2. **Spatial Severity Distribution**
-   - Visual representation of how burn severity varies spatially
-   - Shows all tested combinations (e.g., hhh, lhh, hlh, etc.)
+**Provenance of annual-average values (legacy source: `fswepp-docker/var/www/cgi-bin/fswepp/ermit/erm.pl`)**
+- `precip`: parsed from WEPP output section **I. RAINFALL AND RUNOFF SUMMARY -> annual averages -> Mean annual precipitation**.
+- `storms`: parsed from **I. RAINFALL AND RUNOFF SUMMARY -> total summary -> "{storms} storms produced ..."**.
+- `rro`: parsed from **I. RAINFALL AND RUNOFF SUMMARY -> annual averages -> Mean annual runoff from rainfall**.
+- `rain_events`: parsed from **I. RAINFALL AND RUNOFF SUMMARY -> total summary -> "{events} rain storm runoff events produced ..."**.
+- `sro`: parsed from **I. RAINFALL AND RUNOFF SUMMARY -> annual averages -> Mean annual runoff from snow melt and/or rain storm during winter**.
+- `snow_events`: parsed from **I. RAINFALL AND RUNOFF SUMMARY -> total summary -> "{events} snow melts and/or events during winter produced ..."**.
+- Unit conversions (legacy behavior):
+  - If `units == "m"`, precipitation/runoff remain in **mm**.
+  - If `units == "ft"`, precipitation/runoff are converted from **mm -> in** (`/ 25.4`).
 
-**Visualizations:**
-
-1. **Multi-Treatment Exceedance Chart**
-   - X-axis: Sediment Delivery (kg/m²)
-   - Y-axis: Probability of Exceedance
-   - 6 lines (one per treatment)
-   - Interactive legend to toggle treatments
-   - Year selector to switch between post-fire years
-
-2. **Treatment Effectiveness Bar Chart**
-   - X-axis: Treatments
-   - Y-axis: Expected Sediment Delivery Reduction (%)
-   - Grouped bars for different probability levels
-
-3. **Annual Runoff Events**
-   - Scatter plot of all runoff events
-   - X-axis: Date
-   - Y-axis: Runoff (mm)
-   - Point size indicates sediment delivery
-   - Highlight selected events
-
-**Detailed Tables:**
-
-1. **Probability Matrix**
-   - Rows: Sediment delivery thresholds
-   - Columns: Treatments
-   - Cells: Exceedance probability
-
-2. **Complete Event List**
-   - All storm events from selected storms analysis
-   - Sortable, filterable
-   - Export to CSV
+**Note:** The FSWEPP2 API returns JSON (not HTML), uses metric-only units, and differs in parameter handling; see `api/DEVIATIONS.md` for current deviations and mapping.
 
 ---
 
