@@ -41,7 +41,9 @@ class RoadDesign(enum.Enum):
 
 
 class RoadSurface(enum.Enum):
+    NATIVE = 'native'
     GRAVEL = 'gravel'
+    GRAVELED = 'graveled'
     PAVED = 'paved'
     
     __str__ = lambda self: self.value
@@ -95,21 +97,21 @@ class Road(BaseModel):
     @property
     def slope(self):
         if self.design == RoadDesign.OUTUNRUT:
-            return self.outslope**2.0 + (self.slope_pct / 100.0)**2.0
+            return math.sqrt(self.outslope**2.0 + (self.slope_pct / 100.0)**2.0)
         else:    
             return self.slope_pct / 100.0
             
     @property
     def sim_length_m(self):
         if self.design == RoadDesign.OUTUNRUT:
-            return self.length_m * self.slope / self.outslope
+            return self.width_m * self.slope / self.outslope
         else:
             return self.length_m
         
     @property
     def sim_width_m(self):
         if self.design == RoadDesign.OUTUNRUT:
-            return self.width_m / (self.slope / self.outslope)
+            return self.length_m * self.width_m / self.sim_length_m
         else:
             return self.width_m
     
@@ -178,12 +180,12 @@ class WepproadPars(BaseModel):
 
     @field_validator("rfg_pct")
     def validate_rfg_pct(cls, value):
-        if value < 0 or value > 100:
-            raise ValueError("rfg_pct must be between 0 and 100")
+        if value < 0 or value > 50:
+            raise ValueError("rfg_pct must be between 0 and 50")
         return value
     
     def __hash__(self):
-        return hash((self.soil_texture, self.road, self.fill, self.buffer))
+        return hash((self.soil_texture, self.rfg_pct, self.road, self.fill, self.buffer))
 
 
 class WeppRoadState(BaseModel):
@@ -203,7 +205,7 @@ def get_soil_file_template(state: WeppRoadState):
     road_design = state.wepproad_pars.road.design
     
     surf = ''
-    if surface == RoadSurface.GRAVEL:
+    if surface in (RoadSurface.GRAVEL, RoadSurface.GRAVELED):
         surf = 'g'
     elif surface == RoadSurface.PAVED:
         surf = 'p'
@@ -233,7 +235,7 @@ def create_soil_file(state: WeppRoadState):
     
     soil_file_template_path = get_soil_file_template(state)
     
-    hash_id = stable_hash(state.wepproad_pars)
+    hash_id = _short_hash(state.wepproad_pars)
     new_soil_file = f"{TMP_BASE}/wr_{hash_id}.sol"
     surface = state.wepproad_pars.road.surface
     traffic = state.wepproad_pars.road.traffic
@@ -250,7 +252,7 @@ def create_soil_file(state: WeppRoadState):
     os.makedirs(os.path.dirname(new_soil_file), exist_ok=True)
     
     with open(soil_file_template_path, 'r') as soil_file, atomic_write(new_soil_file, "w") as new_soil:
-        if surface == RoadSurface.GRAVEL:
+        if surface in (RoadSurface.GRAVEL, RoadSurface.GRAVELED):
             urr_ref = 65.0
             ufr_ref = (ubr + 65.0) / 2.0
         elif surface == RoadSurface.PAVED:
@@ -268,6 +270,8 @@ def create_soil_file(state: WeppRoadState):
             while line.startswith('#'):
                 new_soil.write(line)
                 line = soil_file.readline()
+            new_soil.write(line)  # line after comments (e.g., Plume for road)
+            line = soil_file.readline()
             new_soil.write(line)  # line 3: ntemp, ksflag
             line = soil_file.readline()
             pos1 = line.find("'")
@@ -277,26 +281,28 @@ def create_soil_file(state: WeppRoadState):
             slid_texid = line[:pos4 + 1]  # slid; texid
             rest = line[pos4 + 1:]
             nsl, salb, sat, ki, kr, shcrit, avke = rest.split()
-            kr = float(kr) / 4
-            ki = float(ki) / 4
-            new_soil.write(f"{slid_texid}\t{nsl}\t{salb}\t{sat}\t{ki:.2f}\t{kr:.2f}\t{shcrit}\t{avke}\n")
+            kr_val = float(kr) / 4
+            ki_val = float(ki) / 4
+            new_soil.write(
+                f"{slid_texid}\t{nsl}\t{salb}\t{sat}\t{ki_val:g}\t{kr_val:g}\t{shcrit}\t{avke}\n"
+            )
         
         for line in soil_file:
             if 'urr' in line:
                 ind = line.index('urr')
                 left = line[:ind]
                 right = line[ind + 3:]
-                line = f"{left}{urr_ref}{right}"
+                line = f"{left}{urr_ref:g}{right}"
             elif 'ufr' in line:
                 ind = line.index('ufr')
                 left = line[:ind]
                 right = line[ind + 3:]
-                line = f"{left}{ufr_ref}{right}"
+                line = f"{left}{ufr_ref:g}{right}"
             elif 'ubr' in line:
                 ind = line.index('ubr')
                 left = line[:ind]
                 right = line[ind + 3:]
-                line = f"{left}{ubr}{right}"
+                line = f"{left}{ubr:g}{right}"
             new_soil.write(line)
 
     if not _exists(new_soil_file):
@@ -342,7 +348,7 @@ def create_slope_file(state: WeppRoadState):
     if units not in ('m', 'ft'):
         raise ValueError("Invalid units: must be 'm' or 'ft'")
 
-    hash_id = stable_hash(state.wepproad_pars)
+    hash_id = _short_hash(state.wepproad_pars)
     slope_file = f"{TMP_BASE}/wr_{hash_id}.slp"
     
     if _exists(slope_file):
@@ -362,7 +368,7 @@ def create_slope_file(state: WeppRoadState):
         slope_f.write("97.3\n")  # datver
         slope_f.write(f"# Slope file for {hash_id} by WEPP:Road Interface\n")
         slope_f.write("3\n")  # no. OFE
-        slope_f.write(f"100 {wepp_road_width}\n")  # aspect; profile width
+        slope_f.write(f"100 {wepp_road_width:.15g}\n")  # aspect; profile width
 
         # OFE 1 (road)
         slope_f.write(f"2  {wepp_road_length:.2f}\n")
@@ -379,41 +385,39 @@ def create_slope_file(state: WeppRoadState):
     return slope_file
 
 
-def run_wepproad(state: WeppRoadState):
-    
-    # subprocess used with allowlisted binaries
-    import subprocess  # nosec B404
+def write_run_file(state: WeppRoadState) -> str:
     from .rockclim import get_climate
-    
+
     cwd = TMP_BASE
-    
+    os.makedirs(cwd, exist_ok=True)
+
     slope_fn = create_slope_file(state)
     _slope_fn = _split(slope_fn)[1]
-    
+
     soil_fn = create_soil_file(state)
     _soil_fn = _split(soil_fn)[1]
-    
+
     man_fn = get_management_file(state)
     _man_fn = _split(man_fn)[1]
-    
-    shutil.copyfile(man_fn, _join(cwd, f'{_man_fn}'))
-    
+    shutil.copyfile(man_fn, _join(cwd, f"{_man_fn}"))
+
     cli_fn = get_climate(state.climate)
-    
-    hash_id = stable_hash(state)
-    run_fn = _join(cwd, f'wr_{hash_id}.run')
-    output_fn = _join(cwd, f'wr_{hash_id}.dat')
+    hash_id = _short_hash(state)
+    _cli_fn = f"wr_{hash_id}.cli"
+    cli_copy = _join(cwd, _cli_fn)
+    shutil.copyfile(cli_fn, cli_copy)
+
+    run_fn = _run_path_for_state(state)
+    output_fn = _output_path_for_state(state)
     _output_fn = _split(output_fn)[1]
-    
-    stout_fn = _join(cwd, f'wr_{hash_id}.stout')
-    sterr_fn = _join(cwd, f'wr_{hash_id}.sterr')
+
     content = [
         "m",  # english or metric
         "y",  # not watershed
         "1",  # 1 = continuous
         "1",  # 1 = hillslope
         "n",  # hillslope pass file out?
-        "2",  # 2 = detailed annual out (required for annual tables/charts)
+        "1",  # 1 = abbreviated annual output (legacy WEPP:Road default)
         "n",  # initial conditions file?
         f"{_output_fn}",  # soil loss output file
         "n",  # water balance output?
@@ -428,7 +432,7 @@ def run_wepproad(state: WeppRoadState):
         "n",  # plant yield out?
         f"{_man_fn}",  # management file name
         f"{_slope_fn}",  # slope file name
-        f"{cli_fn}",  # climate file name
+        f"{_cli_fn}",  # climate file name
         f"{_soil_fn}",  # soil file name
         "0",  # 0 = no irrigation
         f"{state.climate.input_years}",  # no. years to simulate
@@ -438,24 +442,53 @@ def run_wepproad(state: WeppRoadState):
 
     with atomic_write(run_fn, "w") as fp:
         fp.write(content)
+
+    return run_fn
+
+
+def run_wepproad(state: WeppRoadState):
+    
+    # subprocess used with allowlisted binaries
+    import subprocess  # nosec B404
+    cwd = TMP_BASE
+    os.makedirs(cwd, exist_ok=True)
+    run_fn = write_run_file(state)
+
+    hash_id = _short_hash(state)
+    output_fn = _output_path_for_state(state)
+
+    stout_fn = _join(cwd, f'wr_{hash_id}.stout')
+    sterr_fn = _join(cwd, f'wr_{hash_id}.sterr')
         
     try:
         weppversion = resolve_wepp_binary(state.wepp_version)
         run_wepp_binary(weppversion, run_fn, stout_fn, sterr_fn, cwd, timeout_seconds=10)
     except subprocess.CalledProcessError as e:
         raise Exception(str(e))
-        return {"error": str(e)}
     
     successful = False
-    with open(stout_fn, 'r') as wepp_stout:
-        for line in wepp_stout:
-            if 'SUCCESSFUL' in line:
+    stout_contents = ""
+    sterr_contents = ""
+    try:
+        with open(stout_fn, "r") as wepp_stout:
+            stout_contents = wepp_stout.read()
+            if "SUCCESSFUL" in stout_contents:
                 successful = True
-                break
-    
+    except FileNotFoundError:
+        stout_contents = "[missing stdout]"
+
+    try:
+        with open(sterr_fn, "r") as wepp_sterr:
+            sterr_contents = wepp_sterr.read()
+    except FileNotFoundError:
+        sterr_contents = "[missing stderr]"
+
     if not successful:
-        raise Exception(wepp_stout)
-        return {"error": "WEPP run was not successful"}
+        message = (
+            "WEPP run was not successful.\n"
+            f"STDOUT:\n{stout_contents}\n\nSTDERR:\n{sterr_contents}"
+        )
+        raise Exception(message)
 
     return output_fn
 
@@ -498,9 +531,9 @@ def wepproad_get_soil(state: WeppRoadState = Body(
         contents = open(soil_file_path).read()
         return Response(content=contents, media_type="application/text")
     except ValueError as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=400, detail=str(e))
     except FileNotFoundError as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=404, detail=str(e))
     
 
 @router.post("/wepproad/GET/management")
@@ -514,9 +547,9 @@ def wepproad_get_management(state: WeppRoadState = Body(
         contents = open(man_file_path).read()
         return Response(content=contents, media_type="application/text")
     except ValueError as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=400, detail=str(e))
     except FileNotFoundError as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=404, detail=str(e))
     
     
 @router.post("/wepproad/GET/slope")
@@ -530,9 +563,9 @@ def wepproad_get_slope(state: WeppRoadState = Body(
         contents = open(slope_file).read()
         return Response(content=contents, media_type="application/text")
     except ValueError as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=400, detail=str(e))
     except FileNotFoundError as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=404, detail=str(e))
     
 
 @router.post("/wepproad/RUN/wepp")
@@ -554,7 +587,34 @@ def wepproad_get_wepp_output(state: WeppRoadState = Body(
         examples={"default": {"value": example_pars}}
     )
 ):
-    output_fn = run_wepproad(state)
+    output_fn = _output_path_for_state(state)
+    if not _exists(output_fn):
+        output_fn = run_wepproad(state)
     contents = open(output_fn).read()
     return Response(content=contents, media_type="application/text")
+
+
+@router.post("/wepproad/GET/run_file")
+def wepproad_get_run_file(state: WeppRoadState = Body(
+        ...,
+        examples={"default": {"value": example_pars}}
+    )
+):
+    run_fn = _run_path_for_state(state)
+    if not _exists(run_fn):
+        run_fn = write_run_file(state)
+    contents = open(run_fn).read()
+    return Response(content=contents, media_type="application/text")
     
+def _short_hash(value, length: int = 12) -> str:
+    return stable_hash(value)[:length]
+
+
+def _output_path_for_state(state: WeppRoadState) -> str:
+    hash_id = _short_hash(state)
+    return _join(TMP_BASE, f"wr_{hash_id}.dat")
+
+
+def _run_path_for_state(state: WeppRoadState) -> str:
+    hash_id = _short_hash(state)
+    return _join(TMP_BASE, f"wr_{hash_id}.run")

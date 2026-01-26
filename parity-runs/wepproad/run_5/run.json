@@ -1,29 +1,111 @@
 {
-  "api": [],
-  "finished_at": 1769136829.2371418,
+  "api": [
+    {
+      "meta": {
+        "headers": {
+          "content-length": "394",
+          "content-type": "application/json",
+          "date": "Mon, 26 Jan 2026 07:20:24 GMT",
+          "server": "uvicorn",
+          "set-cookie": "user_id=1ee9159f-a1b3-4a3e-9e9c-7c0a419b4ea2; Max-Age=604800; Path=/; SameSite=lax",
+          "x-request-id": "ec286813-351c-4ce3-8378-f51001e419a2"
+        },
+        "status_code": 200,
+        "url": "http://localhost:8090/api/wepproad/RUN/wepp"
+      },
+      "name": "run"
+    },
+    {
+      "meta": {
+        "headers": {
+          "content-length": "132",
+          "content-type": "application/text",
+          "date": "Mon, 26 Jan 2026 07:20:26 GMT",
+          "server": "uvicorn",
+          "set-cookie": "user_id=1a4869d0-d112-4cb2-a46d-737b60ac5147; Max-Age=604800; Path=/; SameSite=lax",
+          "x-request-id": "9f0f7204-eee3-4256-8d8d-72b46a87399a"
+        },
+        "status_code": 200,
+        "url": "http://localhost:8090/api/wepproad/GET/run_file"
+      },
+      "name": "run_file"
+    },
+    {
+      "meta": {
+        "headers": {
+          "content-length": "188",
+          "content-type": "application/text",
+          "date": "Mon, 26 Jan 2026 07:20:26 GMT",
+          "server": "uvicorn",
+          "set-cookie": "user_id=d9954781-e1d1-4a74-b754-5a4308682b51; Max-Age=604800; Path=/; SameSite=lax",
+          "x-request-id": "9b8b5543-ce21-4cda-902f-565c0cdc6dcb"
+        },
+        "status_code": 200,
+        "url": "http://localhost:8090/api/wepproad/GET/slope"
+      },
+      "name": "slope"
+    },
+    {
+      "meta": {
+        "headers": {
+          "content-length": "722",
+          "content-type": "application/text",
+          "date": "Mon, 26 Jan 2026 07:20:26 GMT",
+          "server": "uvicorn",
+          "set-cookie": "user_id=2ae7ecd7-5bbd-4902-a074-0d67080b4026; Max-Age=604800; Path=/; SameSite=lax",
+          "x-request-id": "c039c3fc-e117-47fc-ba09-e5a078e1c013"
+        },
+        "status_code": 200,
+        "url": "http://localhost:8090/api/wepproad/GET/soil"
+      },
+      "name": "soil"
+    },
+    {
+      "meta": {
+        "headers": {
+          "content-length": "77653",
+          "content-type": "application/text",
+          "date": "Mon, 26 Jan 2026 07:20:26 GMT",
+          "server": "uvicorn",
+          "set-cookie": "user_id=2f3c3e79-c038-4895-90bb-aafc38ea818b; Max-Age=604800; Path=/; SameSite=lax",
+          "x-request-id": "af12fc2e-9bbb-4f41-b771-c62a234adec8"
+        },
+        "status_code": 200,
+        "url": "http://localhost:8090/api/wepproad/GET/management"
+      },
+      "name": "management"
+    },
+    {
+      "meta": {
+        "headers": {
+          "content-length": "12949",
+          "content-type": "application/text",
+          "date": "Mon, 26 Jan 2026 07:20:26 GMT",
+          "server": "uvicorn",
+          "set-cookie": "user_id=fd8b96d9-2a8e-4a2c-ab70-865df43980ce; Max-Age=604800; Path=/; SameSite=lax",
+          "x-request-id": "23930b0b-71e4-4d89-aa5f-fc87ae19060d"
+        },
+        "status_code": 200,
+        "url": "http://localhost:8090/api/wepproad/GET/wepp_output"
+      },
+      "name": "wepp_output"
+    }
+  ],
+  "finished_at": 1769412027.2787373,
   "id": "run_5",
   "legacy": [
     {
       "meta": {
         "command": "curl 'http://localhost:8080/cgi-bin/fswepp/wr/wr.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/wr/wepproad.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 209' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'Climate=..%2Fclimates%2Fco052220&SoilType=sand&Rock=20&SlopeType=outrut&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=39&surface=native&traffic=high&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'",
-        "returncode": 0,
-        "run_ids": [
-          "wepp-1113"
-        ],
-        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100   209    0     0  100   209      0   1041 --:--:-- --:--:-- --:--:--  1039\r100 10042  100  9833  100   209   9416    200  0:00:01  0:00:01 --:--:--  9618",
-        "stdout_bytes": 9833
+        "returncode": 7,
+        "run_ids": [],
+        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\ncurl: (7) Failed to connect to localhost port 8080 after 0 ms: Couldn't connect to server",
+        "stdout_bytes": 0
       },
       "name": "run"
     }
   ],
   "model": "wepproad",
-  "started_at": 1769136826.6128867,
-  "working_files": [
-    "/workdir/fswepp2/parity-runs/wepproad/run_5/legacy/working/wepp-1113.cli",
-    "/workdir/fswepp2/parity-runs/wepproad/run_5/legacy/working/wepp-1113.in",
-    "/workdir/fswepp2/parity-runs/wepproad/run_5/legacy/working/wepp-1113.out",
-    "/workdir/fswepp2/parity-runs/wepproad/run_5/legacy/working/wepp-1113.par",
-    "/workdir/fswepp2/parity-runs/wepproad/run_5/legacy/working/wepp-1113.slp",
-    "/workdir/fswepp2/parity-runs/wepproad/run_5/legacy/working/wepp-1113.sol"
-  ]
+  "started_at": 1769412025.6249814,
+  "working_files": []
 }

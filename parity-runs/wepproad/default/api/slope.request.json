@@ -1,0 +1,37 @@
+{
+  "headers": {},
+  "json": {
+    "climate": {
+      "cligen_version": "4.3",
+      "database": "legacy",
+      "input_years": 30,
+      "location": null,
+      "par_id": "AL010831",
+      "use_prism": false,
+      "user_defined_par_mod": null
+    },
+    "wepp_version": "wepp2010",
+    "wepproad_pars": {
+      "buffer": {
+        "length_m": 39.62,
+        "slope_pct": 25
+      },
+      "fill": {
+        "length_m": 4.57,
+        "slope_pct": 50
+      },
+      "rfg_pct": 20,
+      "road": {
+        "design": "inveg",
+        "length_m": 60.96,
+        "slope_pct": 4,
+        "surface": "native",
+        "traffic": "high",
+        "width_m": 3.96
+      },
+      "soil_texture": "clay"
+    }
+  },
+  "method": "POST",
+  "url": "http://localhost:8090/api/wepproad/GET/slope"
+}

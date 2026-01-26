@@ -1,0 +1,12 @@
+{
+  "headers": {
+    "content-length": "188",
+    "content-type": "application/text",
+    "date": "Mon, 26 Jan 2026 07:20:23 GMT",
+    "server": "uvicorn",
+    "set-cookie": "user_id=eb462dd7-0af8-465c-91a9-9b4ea0344680; Max-Age=604800; Path=/; SameSite=lax",
+    "x-request-id": "c1e05663-47f7-4c4d-b1a8-b48de987dfb9"
+  },
+  "status_code": 200,
+  "url": "http://localhost:8090/api/wepproad/GET/slope"
+}

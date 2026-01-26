@@ -29,6 +29,8 @@ def parse_wepp_soil_output(
     return_period_measures = ['precip_mm', 'runoff_from_rain+snow_mm', 'soil_loss_mean_kg_m2', 'sediment_yield_kg_m']) -> dict:
     
     storms, rainevents, snowevents, precip, rro, sro, syr, syp = None, None, None, None, None, None, None, None
+    table_syr = None
+    area_of_net_loss = None
     
     with open(output_file, 'r') as fp:
         wepp_out = fp.readlines()
@@ -139,8 +141,16 @@ def parse_wepp_soil_output(
                 sym = wepp_out[i+3].split('=')[1].split()[0].strip()
                 sym = float(sym)
                 
-                area_of_net_loss = wepp_out[i+10][9:18].strip() # Area of Net Loss (m)
-                area_of_net_loss = float(area_of_net_loss)
+                if i + 10 < len(wepp_out):
+                    table_line = wepp_out[i+10]
+                    try:
+                        table_syr = float(table_line[17:24].strip())
+                    except (ValueError, IndexError):
+                        table_syr = None
+                    try:
+                        area_of_net_loss = float(table_line[9:18].strip())
+                    except (ValueError, IndexError):
+                        area_of_net_loss = None
 
         for i, line in enumerate(wepp_out):
             if 'OFF SITE EFFECTS' in line:
@@ -165,9 +175,10 @@ def parse_wepp_soil_output(
         else:
             annual_averages['sediment_yield_kg_m2'] = syp / slope_length
             
-        if road_width is not None:
+        if road_width is not None and area_of_net_loss is not None:
             road_length_exhibiting_soil_loss_m = area_of_net_loss
-            road_prism_erosion_kg = syr * road_width * road_length_exhibiting_soil_loss_m
+            road_prism_syr = table_syr if table_syr is not None else syr
+            road_prism_erosion_kg = road_prism_syr * road_width * road_length_exhibiting_soil_loss_m
             sediment_leaving_buffer_kg = syp * road_width
             
             annual_averages['sim_width_m'] = road_width

@@ -10,7 +10,7 @@
 			Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
 			X-Content-Type-Options "nosniff"
 			Referrer-Policy "no-referrer"
-			Content-Security-Policy "default-src 'self'; img-src 'self' data: https://tile.openstreetmap.org https://*.tile.openstreetmap.org; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://tile.openstreetmap.org https://*.tile.openstreetmap.org; font-src 'self' data:;"
+			Content-Security-Policy "default-src 'self'; img-src 'self' data: https://tile.openstreetmap.org https://*.tile.openstreetmap.org; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://rest.isric.org; font-src 'self' data:;"
 		}
 
 	@cors_origin {

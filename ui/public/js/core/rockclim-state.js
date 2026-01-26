@@ -80,6 +80,11 @@ export function writeClimateState(state) {
     maxAge: 60 * 60 * 24 * 365,
     path: "/",
   });
+  if (typeof document !== "undefined") {
+    document.dispatchEvent(
+      new CustomEvent("fswepp:climate-changed", { detail: normalized })
+    );
+  }
   return normalized;
 }
 

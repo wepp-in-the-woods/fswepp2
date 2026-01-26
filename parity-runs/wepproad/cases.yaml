@@ -27,6 +27,52 @@ cases:
             -H 'Cookie: FSWEPPuser=1edb' \
             -H 'Priority: u=0, i' \
             --data 'Climate=..%2Fclimates%2Fal010831&SoilType=clay&Rock=20&SlopeType=inveg&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=130&surface=native&traffic=high&years=30&ActionW=Running...&weppversion=2010&climate_name=&units=ft'
+    api:
+      base_url: http://localhost:8090/api
+      requests:
+        - name: run
+          path: /wepproad/RUN/wepp
+          json: &wepproad_default_payload
+            climate:
+              database: legacy
+              par_id: AL010831
+              input_years: 30
+              cligen_version: "4.3"
+              location: null
+              use_prism: false
+              user_defined_par_mod: null
+            wepproad_pars:
+              soil_texture: clay
+              rfg_pct: 20
+              road:
+                slope_pct: 4
+                length_m: 60.96
+                width_m: 3.96
+                surface: native
+                design: inveg
+                traffic: high
+              fill:
+                slope_pct: 50
+                length_m: 4.57
+              buffer:
+                slope_pct: 25
+                length_m: 39.62
+            wepp_version: wepp2010
+        - name: run_file
+          path: /wepproad/GET/run_file
+          json: *wepproad_default_payload
+        - name: slope
+          path: /wepproad/GET/slope
+          json: *wepproad_default_payload
+        - name: soil
+          path: /wepproad/GET/soil
+          json: *wepproad_default_payload
+        - name: management
+          path: /wepproad/GET/management
+          json: *wepproad_default_payload
+        - name: wepp_output
+          path: /wepproad/GET/wepp_output
+          json: *wepproad_default_payload
 
   - id: run_2
     model: wepproad
@@ -56,6 +102,52 @@ cases:
             -H 'Cookie: FSWEPPuser=1edb' \
             -H 'Priority: u=0, i' \
             --data 'Climate=..%2Fclimates%2Fco052220&SoilType=silt&Rock=20&SlopeType=outrut&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=130&surface=graveled&traffic=low&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'
+    api:
+      base_url: http://localhost:8090/api
+      requests:
+        - name: run
+          path: /wepproad/RUN/wepp
+          json: &wepproad_run_2_payload
+            climate:
+              database: legacy
+              par_id: CO052220
+              input_years: 50
+              cligen_version: "4.3"
+              location: null
+              use_prism: false
+              user_defined_par_mod: null
+            wepproad_pars:
+              soil_texture: silt
+              rfg_pct: 20
+              road:
+                slope_pct: 4
+                length_m: 60.96
+                width_m: 3.96
+                surface: gravel
+                design: outrut
+                traffic: low
+              fill:
+                slope_pct: 50
+                length_m: 4.57
+              buffer:
+                slope_pct: 25
+                length_m: 39.62
+            wepp_version: wepp2010
+        - name: run_file
+          path: /wepproad/GET/run_file
+          json: *wepproad_run_2_payload
+        - name: slope
+          path: /wepproad/GET/slope
+          json: *wepproad_run_2_payload
+        - name: soil
+          path: /wepproad/GET/soil
+          json: *wepproad_run_2_payload
+        - name: management
+          path: /wepproad/GET/management
+          json: *wepproad_run_2_payload
+        - name: wepp_output
+          path: /wepproad/GET/wepp_output
+          json: *wepproad_run_2_payload
 
   - id: run_3
     model: wepproad
@@ -85,6 +177,52 @@ cases:
             -H 'Cookie: FSWEPPuser=1edb' \
             -H 'Priority: u=0, i' \
             --data 'Climate=..%2Fclimates%2Faz023010&SoilType=loam&Rock=20&SlopeType=inbare&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=130&surface=paved&traffic=low&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'
+    api:
+      base_url: http://localhost:8090/api
+      requests:
+        - name: run
+          path: /wepproad/RUN/wepp
+          json: &wepproad_run_3_payload
+            climate:
+              database: legacy
+              par_id: AZ023010
+              input_years: 50
+              cligen_version: "4.3"
+              location: null
+              use_prism: false
+              user_defined_par_mod: null
+            wepproad_pars:
+              soil_texture: loam
+              rfg_pct: 20
+              road:
+                slope_pct: 4
+                length_m: 60.96
+                width_m: 3.96
+                surface: paved
+                design: inbare
+                traffic: low
+              fill:
+                slope_pct: 50
+                length_m: 4.57
+              buffer:
+                slope_pct: 25
+                length_m: 39.62
+            wepp_version: wepp2010
+        - name: run_file
+          path: /wepproad/GET/run_file
+          json: *wepproad_run_3_payload
+        - name: slope
+          path: /wepproad/GET/slope
+          json: *wepproad_run_3_payload
+        - name: soil
+          path: /wepproad/GET/soil
+          json: *wepproad_run_3_payload
+        - name: management
+          path: /wepproad/GET/management
+          json: *wepproad_run_3_payload
+        - name: wepp_output
+          path: /wepproad/GET/wepp_output
+          json: *wepproad_run_3_payload
 
   - id: run_4
     model: wepproad
@@ -114,6 +252,52 @@ cases:
             -H 'Cookie: FSWEPPuser=1edb' \
             -H 'Priority: u=0, i' \
             --data 'Climate=..%2Fclimates%2Fwv461570&SoilType=loam&Rock=20&SlopeType=outunrut&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=130&surface=native&traffic=none&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'
+    api:
+      base_url: http://localhost:8090/api
+      requests:
+        - name: run
+          path: /wepproad/RUN/wepp
+          json: &wepproad_run_4_payload
+            climate:
+              database: legacy
+              par_id: WV461570
+              input_years: 50
+              cligen_version: "4.3"
+              location: null
+              use_prism: false
+              user_defined_par_mod: null
+            wepproad_pars:
+              soil_texture: loam
+              rfg_pct: 20
+              road:
+                slope_pct: 4
+                length_m: 60.96
+                width_m: 3.96
+                surface: native
+                design: outunrut
+                traffic: none
+              fill:
+                slope_pct: 50
+                length_m: 4.57
+              buffer:
+                slope_pct: 25
+                length_m: 39.62
+            wepp_version: wepp2010
+        - name: run_file
+          path: /wepproad/GET/run_file
+          json: *wepproad_run_4_payload
+        - name: slope
+          path: /wepproad/GET/slope
+          json: *wepproad_run_4_payload
+        - name: soil
+          path: /wepproad/GET/soil
+          json: *wepproad_run_4_payload
+        - name: management
+          path: /wepproad/GET/management
+          json: *wepproad_run_4_payload
+        - name: wepp_output
+          path: /wepproad/GET/wepp_output
+          json: *wepproad_run_4_payload
 
   - id: run_5
     model: wepproad
@@ -143,3 +327,49 @@ cases:
             -H 'Cookie: FSWEPPuser=1edb' \
             -H 'Priority: u=0, i' \
             --data 'Climate=..%2Fclimates%2Fco052220&SoilType=sand&Rock=20&SlopeType=outrut&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=39&surface=native&traffic=high&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'
+    api:
+      base_url: http://localhost:8090/api
+      requests:
+        - name: run
+          path: /wepproad/RUN/wepp
+          json: &wepproad_run_5_payload
+            climate:
+              database: legacy
+              par_id: CO052220
+              input_years: 50
+              cligen_version: "4.3"
+              location: null
+              use_prism: false
+              user_defined_par_mod: null
+            wepproad_pars:
+              soil_texture: sand
+              rfg_pct: 20
+              road:
+                slope_pct: 4
+                length_m: 60.96
+                width_m: 3.96
+                surface: native
+                design: outrut
+                traffic: high
+              fill:
+                slope_pct: 50
+                length_m: 4.57
+              buffer:
+                slope_pct: 25
+                length_m: 11.89
+            wepp_version: wepp2010
+        - name: run_file
+          path: /wepproad/GET/run_file
+          json: *wepproad_run_5_payload
+        - name: slope
+          path: /wepproad/GET/slope
+          json: *wepproad_run_5_payload
+        - name: soil
+          path: /wepproad/GET/soil
+          json: *wepproad_run_5_payload
+        - name: management
+          path: /wepproad/GET/management
+          json: *wepproad_run_5_payload
+        - name: wepp_output
+          path: /wepproad/GET/wepp_output
+          json: *wepproad_run_5_payload

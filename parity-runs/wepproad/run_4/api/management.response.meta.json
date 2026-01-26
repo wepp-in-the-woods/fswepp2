@@ -1,0 +1,12 @@
+{
+  "headers": {
+    "content-length": "77807",
+    "content-type": "application/text",
+    "date": "Mon, 26 Jan 2026 07:20:24 GMT",
+    "server": "uvicorn",
+    "set-cookie": "user_id=c3e97285-60fc-4b45-8420-94acbb71b3c0; Max-Age=604800; Path=/; SameSite=lax",
+    "x-request-id": "75fde1a3-683d-43ad-8279-6a52a2ec8dd5"
+  },
+  "status_code": 200,
+  "url": "http://localhost:8090/api/wepproad/GET/management"
+}

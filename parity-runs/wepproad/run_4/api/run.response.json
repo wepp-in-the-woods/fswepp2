@@ -1,0 +1,16 @@
+{
+  "precip_mm": 1101.43,
+  "rainevents": 2571,
+  "road_length_exhibiting_soil_loss_m": 5.6,
+  "road_prism_erosion_kg": 101.3834995044223,
+  "runoff_from_rain+snow_mm": 6.22,
+  "runoff_from_rain_mm": 5.59,
+  "runoff_from_snow_mm": 0.63,
+  "sediment_leaving_buffer_kg": 19.440458450890503,
+  "sediment_yield_kg_m": 0.451,
+  "sim_width_m": 43.105229381131934,
+  "snowevents": 786,
+  "soil_loss_max_kg_m2": 0.474,
+  "soil_loss_mean_kg_m2": 0.09,
+  "storms": 7454
+}

@@ -111,7 +111,7 @@ app.get("/fswepp2/wepproad", (c) =>
     renderLayout(
       "WEPP Road",
       `<section id="rockclim-control-root" class="mb-6"></section>
-      <p>Shell page for WEPP Road tool.</p>`
+      <section id="wepproad-root" class="space-y-8"></section>`
     )
   )
 );

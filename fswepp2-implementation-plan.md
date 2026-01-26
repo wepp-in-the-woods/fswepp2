@@ -82,8 +82,8 @@
 - [x] SlopeProfile renderer (WEPP Road + Disturbed)
 
 ## Phase 5 — Tool Pages
-- [ ] WEPP Road UI + slope profile
-- [ ] WEPP Road results
+- [x] WEPP Road UI + slope profile
+- [x] WEPP Road results (legacy table + file collapsibles)
 - [ ] Disturbed WEPP UI + slope profile
 - [ ] Disturbed results (return period, time series, tables)
 - [ ] ERMiT UI + conditional pre-fire community

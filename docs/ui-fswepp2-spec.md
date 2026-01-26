@@ -463,7 +463,7 @@ WEPP Road predicts erosion from forest roads with three profile elements: road s
 
 ### API Endpoint
 - **Run Model:** `POST /api/wepproad/RUN/wepp`
-  - **Backend requirement:** run WEPP with detailed annual output so the response includes `annuals` for charts/tables.
+  - **Backend requirement:** use abbreviated annual output for WEPP:Road parity (legacy default). Annuals are not required for the legacy-only display.
 
 ### Request Schema (WeppRoadState)
 
@@ -499,6 +499,12 @@ WEPP Road predicts erosion from forest roads with three profile elements: road s
 **Section 1: Soil Properties**
 - Soil Texture: Dropdown (clay loam, silt loam, sandy loam, loam)
 - Rock Fragment Content: Number input with slider (0-50%)
+- **ISRIC SoilGrids (optional)**:
+  - Checkbox: "Determine Soil Texture and Rock from ISRIC"
+  - When enabled and location is set in RockClim, query SoilGrids v2 for clay, sand, and coarse fragments (cfvo) at 0–5 cm depth using median (Q0.5).
+  - Use returned clay/sand values to derive a simplified texture (loam, silt loam, sand loam, clay loam), then map to the dropdown options (loam/silt/sand/clay).
+  - Use coarse fragments (cfvo) as rock fragment percent (0–50% clamp for UI).
+  - Display a small summary line with clay/sand/rock %, derived texture, and top WRB class.
 
 **Section 2: Road Geometry**
 - Road Design: Radio buttons with visual icons
@@ -539,10 +545,7 @@ Behavior:
 Legacy results only (match the legacy results page):
 
 **Inputs Summary Table**
-- Climate name plus CLIGEN parameter summary (from legacy `GetParSummary`)
-- Soil texture + rock fragments
-- Road design, surface, traffic
-- Road, fill, and buffer geometry (gradient/length/width)
+Legacy includes an inputs summary table, but FSWEPP2 omits it because the full input form remains visible above the results.
 
 **`{years} - YEAR MEAN ANNUAL AVERAGES` table**
 - Header includes the "Total in {years} years" label (legacy wording).
@@ -553,6 +556,15 @@ Legacy results only (match the legacy results page):
   3. `{sro}` `{units}` runoff from snowmelt or winter rainstorm from `{snow_events}` events
   4. `{syra}` `{sed_units}` road prism erosion
   5. `{sypa}` `{sed_units}` sediment leaving buffer
+
+**Model File Collapsibles (Results Pane)**
+- Provide collapsible sections with prefetch + download links for:
+  - Management File (`/api/wepproad/GET/management`)
+  - Soil File (`/api/wepproad/GET/soil`)
+  - Slope File (`/api/wepproad/GET/slope`)
+  - Run File (`/api/wepproad/GET/run_file`)
+  - WEPP Output (`/api/wepproad/GET/wepp_output`)
+- Use the same formatting and client-side download behavior as RockClim "Station Par File" and "Climate File".
 
 **Provenance of annual-average values (legacy source: `fswepp-docker/var/www/cgi-bin/fswepp/wr/wr.pl`)**
 - `precip`: parsed from WEPP output section **I. RAINFALL AND RUNOFF SUMMARY -> annual averages -> Mean annual precipitation**.
@@ -2604,6 +2616,8 @@ The following features are documented for potential future implementation but ar
 - `POST /api/wepproad/GET/soil` - Get soil file
 - `POST /api/wepproad/GET/slope` - Get slope file
 - `POST /api/wepproad/GET/management` - Get management file
+- `POST /api/wepproad/GET/run_file` - Get run file
+- `POST /api/wepproad/GET/wepp_output` - Get raw WEPP output
 
 ### Disturbed WEPP Endpoints
 

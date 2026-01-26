@@ -11,6 +11,7 @@ import { createPreformattedBlock } from "./components/preformatted.js";
 import { createDropAndUpload } from "./components/drop-and-upload.js";
 import { createCanvasChart } from "./components/canvas-chart.js";
 import { createSlopeProfile } from "./components/slope-profile.js";
+import { createRadioGroup } from "./components/radio-group.js";
 
 function mountGallery() {
   const root = document.getElementById("component-gallery-root");
@@ -103,9 +104,23 @@ function mountGallery() {
     error: "This field is required.",
   });
   errorField.input.setAttribute("data-contrast-id", "form-input-error");
+  const radioGroup = createRadioGroup({
+    name: "field_radio",
+    label: "Radio Group",
+    options: [
+      { value: "opt_a", label: "Option A" },
+      { value: "opt_b", label: "Option B" },
+    ],
+    value: "opt_a",
+    onChange: () => {},
+  });
+  radioGroup.wrapper
+    .querySelector("span")
+    ?.setAttribute("data-contrast-id", "form-radio-label");
   fieldGrid.appendChild(textField.wrapper);
   fieldGrid.appendChild(numberField.wrapper);
   fieldGrid.appendChild(errorField.wrapper);
+  fieldGrid.appendChild(radioGroup.wrapper);
   fields.appendChild(fieldGrid);
 
   const validationHint = document.createElement("p");
@@ -496,6 +511,29 @@ function mountGallery() {
         });
         drop.dropZone.setAttribute("data-contrast-id", "theme-drop-upload");
         return drop.wrapper;
+      })()
+    )
+  );
+  themeGrid.appendChild(
+    themeCard(
+      "radio-group",
+      "Radio group",
+      "Radio label text contrast check.",
+      (() => {
+        const group = createRadioGroup({
+          name: "theme_radio",
+          label: "Traffic level",
+          options: [
+            { value: "high", label: "High traffic" },
+            { value: "low", label: "Low traffic" },
+          ],
+          value: "high",
+          onChange: () => {},
+        });
+        group.wrapper
+          .querySelector("span")
+          ?.setAttribute("data-contrast-id", "theme-radio-label");
+        return group.wrapper;
       })()
     )
   );

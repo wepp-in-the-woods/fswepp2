@@ -1,0 +1,12 @@
+{
+  "headers": {
+    "content-length": "790",
+    "content-type": "application/text",
+    "date": "Mon, 26 Jan 2026 07:20:23 GMT",
+    "server": "uvicorn",
+    "set-cookie": "user_id=e7da8805-8ddb-426a-b513-b598a3b53b64; Max-Age=604800; Path=/; SameSite=lax",
+    "x-request-id": "6f62a6ec-ebf8-4cd4-8a57-77f84a9ea899"
+  },
+  "status_code": 200,
+  "url": "http://localhost:8090/api/wepproad/GET/soil"
+}

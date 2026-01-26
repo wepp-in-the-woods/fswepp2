@@ -1,6 +1,7 @@
 import { readJsonCookie, writeJsonCookie } from "./utils/cookies.js";
 import { getConfigFromUrl } from "./utils/url.js";
 import { mountRockClimControl } from "./components/rockclim-control.js";
+import { mountWeppRoadTool } from "./tools/wepproad.js";
 
 window.FSWEPP = window.FSWEPP || {};
 window.FSWEPP.cookies = { readJsonCookie, writeJsonCookie };
@@ -102,12 +103,20 @@ function initRockClim() {
   mountRockClimControl(root);
 }
 
+function initWeppRoad() {
+  const root = document.getElementById("wepproad-root");
+  if (!root) return;
+  mountWeppRoadTool(root);
+}
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
     initUnitizer();
     initRockClim();
+    initWeppRoad();
   });
 } else {
   initUnitizer();
   initRockClim();
+  initWeppRoad();
 }
