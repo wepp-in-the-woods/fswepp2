@@ -8,10 +8,10 @@ const VEGETATION_OPTIONS = [
 ];
 
 const SEVERITY_OPTIONS = [
-  { value: "High", label: "High", badge: "bg-red-500/20 text-red-700" },
-  { value: "Moderate", label: "Moderate", badge: "bg-orange-500/20 text-orange-700" },
-  { value: "Low", label: "Low", badge: "bg-yellow-500/30 text-yellow-800" },
-  { value: "Unburned", label: "Unburned", badge: "bg-green-500/20 text-green-700" },
+  { value: "High", label: "High" },
+  { value: "Moderate", label: "Moderate" },
+  { value: "Low", label: "Low" },
+  { value: "Unburned", label: "Unburned" },
 ];
 
 function createSection(title) {
@@ -43,7 +43,7 @@ export function createVegetationBurnSeverity({ state, onChange, idPrefix = "ermi
     options: VEGETATION_OPTIONS,
     value: state.vegetation_type,
     onChange: (value) => setVegetation(value, true),
-    columns: 2,
+    columns: 3,
   });
   section.appendChild(vegetationGroup.wrapper);
 
@@ -103,13 +103,14 @@ export function createVegetationBurnSeverity({ state, onChange, idPrefix = "ermi
   severityFieldset.appendChild(severityLegend);
 
   const severityGrid = document.createElement("div");
-  severityGrid.className = "grid gap-2 sm:grid-cols-2";
+  severityGrid.className = "flex flex-wrap gap-2";
   const severityInputs = [];
   SEVERITY_OPTIONS.forEach((option) => {
     const id = `${idPrefix}_burn_${option.value}`;
     const label = document.createElement("label");
     label.className =
-      "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm cursor-pointer hover:bg-accent";
+      "flex items-center gap-2 text-sm cursor-pointer";
+    label.style.flex = "1 1 9rem";
 
     const input = document.createElement("input");
     input.type = "radio";
@@ -126,13 +127,8 @@ export function createVegetationBurnSeverity({ state, onChange, idPrefix = "ermi
     const text = document.createElement("span");
     text.textContent = option.label;
 
-    const badge = document.createElement("span");
-    badge.className = `ml-auto inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${option.badge}`;
-    badge.textContent = option.label;
-
     label.appendChild(input);
     label.appendChild(text);
-    label.appendChild(badge);
     severityGrid.appendChild(label);
     severityInputs.push(input);
   });

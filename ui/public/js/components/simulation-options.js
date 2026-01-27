@@ -17,25 +17,28 @@ export function createSimulationOptions({
   onInput,
   sectionTitle = "Simulation Options",
   fieldLabel = "Simulation Years",
+  showYearsField = true,
   checkbox,
   weppVersion,
 } = {}) {
   const section = createSection(sectionTitle);
-  const grid = document.createElement("div");
-  grid.className = "grid gap-4 md:grid-cols-2";
-
-  const field = createFormField({
-    id,
-    label: fieldLabel,
-    type: "number",
-    value,
-  });
-  field.input.step = "1";
-  field.input.addEventListener("input", () => {
-    onInput?.(field.input);
-  });
-
-  grid.appendChild(field.wrapper);
+  let field = null;
+  if (showYearsField) {
+    const grid = document.createElement("div");
+    grid.className = "grid gap-4 md:grid-cols-2";
+    field = createFormField({
+      id,
+      label: fieldLabel,
+      type: "number",
+      value,
+    });
+    field.input.step = "1";
+    field.input.addEventListener("input", () => {
+      onInput?.(field.input);
+    });
+    grid.appendChild(field.wrapper);
+    section.appendChild(grid);
+  }
 
   let weppVersionField = null;
   if (weppVersion) {
@@ -68,7 +71,6 @@ export function createSimulationOptions({
       checkbox.onInput?.(checkboxField.input);
     });
   }
-  section.appendChild(grid);
   if (checkboxField) {
     section.appendChild(checkboxField.wrapper);
   }

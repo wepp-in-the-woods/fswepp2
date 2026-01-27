@@ -460,7 +460,7 @@ export function mountErmitTool(root) {
   // 4) Hillslope
   const hillslopeSection = createSection("Hillslope");
   const hillslopeGrid = document.createElement("div");
-  hillslopeGrid.className = "grid gap-4 md:grid-cols-2";
+  hillslopeGrid.className = "grid gap-4 md:grid-cols-3";
 
   const topSlopeField = createFormField({
     id: "ermit_top_slope",
@@ -514,6 +514,7 @@ export function mountErmitTool(root) {
     value: String(state.length_m),
     unitLabel: "m",
   });
+  lengthField.wrapper.classList.add("md:col-start-1");
   lengthField.input.step = "0.1";
   lengthField.input.min = "0";
   lengthField.input.max = "300";
@@ -542,6 +543,7 @@ export function mountErmitTool(root) {
       const canonical = readCanonical(input);
       if (canonical != null) updateState({ simulation_years: canonical });
     },
+    showYearsField: false,
     weppVersion: {
       id: "ermit_wepp_version",
       label: "WEPP Version",
@@ -1030,11 +1032,13 @@ export function mountErmitTool(root) {
     max: 300,
     label: "Hillslope length",
   });
-  const simValidator = attachCanonicalValidator(simSection.field, {
-    min: 1,
-    max: 200,
-    label: "Simulation years",
-  });
+  const simValidator = simSection.field
+    ? attachCanonicalValidator(simSection.field, {
+        min: 1,
+        max: 200,
+        label: "Simulation years",
+      })
+    : null;
 
   let shrubTouched = false;
   let grassTouched = false;

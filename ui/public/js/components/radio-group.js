@@ -16,7 +16,13 @@ export function createRadioGroup({
   wrapper.appendChild(legend);
 
   const grid = document.createElement("div");
-  grid.className = columns === 1 ? "grid gap-2" : "grid gap-2 sm:grid-cols-2";
+  if (columns === 1) {
+    grid.className = "grid gap-2";
+  } else if (columns === 3) {
+    grid.className = "flex flex-wrap gap-2";
+  } else {
+    grid.className = "grid gap-2 sm:grid-cols-2";
+  }
 
   const inputs = [];
   options.forEach((option) => {
@@ -36,6 +42,9 @@ export function createRadioGroup({
     });
     const text = document.createElement("span");
     text.textContent = option.label;
+    if (columns === 3) {
+      labelEl.style.flex = "1 1 8rem";
+    }
     labelEl.appendChild(input);
     labelEl.appendChild(text);
     grid.appendChild(labelEl);
