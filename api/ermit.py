@@ -1,6 +1,7 @@
 from typing import Any
 
 import os
+from numbers import Number
 from os.path import join as _join
 from os.path import split as _split
 from os.path import exists as _exists
@@ -46,6 +47,35 @@ soil_db_file = _join(_thisdir, "db/ermit/soilsdb.yaml")
 
 with open(soil_db_file, 'r') as file:
     soil_db = yaml.safe_load(file)
+
+
+def _short_hash(value, length: int = 12) -> str:
+    return stable_hash(value)[:length]
+
+
+def _unlink_if_exists(path: str) -> None:
+    try:
+        os.remove(path)
+    except FileNotFoundError:
+        return
+
+
+def _sanitize_json(value):
+    if isinstance(value, dict):
+        return {k: _sanitize_json(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_sanitize_json(v) for v in value]
+    if isinstance(value, tuple):
+        return [_sanitize_json(v) for v in value]
+    if isinstance(value, np.ndarray):
+        return [_sanitize_json(v) for v in value.tolist()]
+    if isinstance(value, np.integer):
+        return int(value)
+    if isinstance(value, (float, np.floating)):
+        return value if math.isfinite(float(value)) else None
+    if isinstance(value, Number) and not isinstance(value, bool):
+        return float(value) if math.isfinite(float(value)) else None
+    return value
 
 
 class BurnSeverity(enum.Enum):
@@ -264,7 +294,7 @@ def create_soil_file(spatial_severity: str, k: int, ermit_state: ErmitState) -> 
             f"{soil_parameters['orgmat']}\t{soil_parameters['cec']}\t{rfg}\n"
         )
 
-    hash_id = stable_hash(ermit_pars)
+    hash_id = _short_hash(ermit_pars)
     soil_file = _join(TMP_BASE, f"e_{hash_id}_{spatial_severity}{k}.sol")
     
     os.makedirs(os.path.dirname(soil_file), exist_ok=True)
@@ -532,7 +562,7 @@ def create_slope_file(spatial_severity: str, ermit_state: ErmitState) -> str:
 0, {middle_slope}\t0.85, {middle_slope}\t1.0, {bottom_slope}
 """
 
-    hash_id = stable_hash(ermit_pars)
+    hash_id = _short_hash(ermit_pars)
     slope_file = _join(TMP_BASE, f"e_{hash_id}_{spatial_severity}.slp")
     
     os.makedirs(os.path.dirname(slope_file), exist_ok=True)
@@ -592,7 +622,7 @@ def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int
     if not _exists(cli_fn):
         raise FileNotFoundError(f"Climate file {cli_fn} does not exist")
     
-    hash_id = stable_hash(state)
+    hash_id = _short_hash(state)
     run_fn = _join(cwd, f'e_{hash_id}.{spatial_severity}{k}.run')
     output_fn = _join(cwd, f'e_{hash_id}.{spatial_severity}{k}.dat')
     _output_fn = _split(output_fn)[1]
@@ -602,6 +632,15 @@ def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int
     
     stout_fn = _join(cwd, f'e_{hash_id}.{spatial_severity}{k}.stout')
     sterr_fn = _join(cwd, f'e_{hash_id}.{spatial_severity}{k}.sterr')
+    cli_copy = _join(cwd, f"e_{hash_id}.{spatial_severity}{k}.cli")
+    if cli_fn != cli_copy:
+        shutil.copyfile(cli_fn, cli_copy)
+    _cli_fn = _split(cli_copy)[1]
+
+    _unlink_if_exists(output_fn)
+    _unlink_if_exists(ebe_fn)
+    _unlink_if_exists(stout_fn)
+    _unlink_if_exists(sterr_fn)
     content = [
         "m",  # english or metric
         "y",  # not watershed
@@ -624,7 +663,7 @@ def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int
         "n",  # plant yield out?
         f"{_man_fn}",  # management file name
         f"{_slope_fn}",  # slope file name
-        f"{cli_fn}",  # climate file name
+        f"{_cli_fn}",  # climate file name
         f"{_soil_fn}",  # soil file name
         "0",  # 0 = no irrigation
         f"{len(selected_dates)}",  # no. years to simulate
@@ -690,7 +729,7 @@ def run_ermitwepp(state: ErmitState):
     
     cli_fn = get_climate(state.climate)
     
-    hash_id = stable_hash(state)
+    hash_id = _short_hash(state)
     run_fn = _join(cwd, f'e_{hash_id}.100.run')
     output_fn = _join(cwd, f'e_{hash_id}.100.dat')
     _output_fn = _split(output_fn)[1]
@@ -700,6 +739,15 @@ def run_ermitwepp(state: ErmitState):
     
     stout_fn = _join(cwd, f'e_{hash_id}.100.stout')
     sterr_fn = _join(cwd, f'e_{hash_id}.100.sterr')
+    cli_copy = _join(cwd, f"e_{hash_id}.100.cli")
+    if cli_fn != cli_copy:
+        shutil.copyfile(cli_fn, cli_copy)
+    _cli_fn = _split(cli_copy)[1]
+
+    _unlink_if_exists(output_fn)
+    _unlink_if_exists(ebe_fn)
+    _unlink_if_exists(stout_fn)
+    _unlink_if_exists(sterr_fn)
     content = [
         "m",  # english or metric
         "y",  # not watershed
@@ -722,7 +770,7 @@ def run_ermitwepp(state: ErmitState):
         "n",  # plant yield out?
         f"{_man_fn}",  # management file name
         f"{_slope_fn}",  # slope file name
-        f"{cli_fn}",  # climate file name
+        f"{_cli_fn}",  # climate file name
         f"{_soil_fn}",  # soil file name
         "0",  # 0 = no irrigation
         f"{state.climate.input_years}",  # no. years to simulate
@@ -885,20 +933,6 @@ def ermit_get_management(spatial_severity: str, state: ErmitState = Body(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.post("/ermit/GET/pre_fire_covers")
-def get_ermit_pre_fire_covers(
-    request: Request,
-    state: ErmitState = Body(
-        ...,
-        examples={"default": {"value": example_pars}}
-    )
-) -> Any:
-    return {
-        "pre_fire_shrub_pct": state.ermit_pars.pre_fire_shrub_pct,
-        "pre_fire_grass_pct": state.ermit_pars.pre_fire_grass_pct,
-        "pre_fire_bare_pct": state.ermit_pars.pre_fire_bare_pct
-    }
-
 @router.post("/ermit/RUN/wepp")
 def ermit_run_wepp(
     request: Request, 
@@ -907,6 +941,6 @@ def ermit_run_wepp(
         examples={"default": {"value": example_pars}}
     )
 ):
-    results = run_ermitwepp(state)
+    results = _sanitize_json(run_ermitwepp(state))
     log_run(ip=request.client.host, model="ermit")
     return JSONResponse(content=results)

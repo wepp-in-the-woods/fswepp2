@@ -3,6 +3,7 @@ import { getConfigFromUrl } from "./utils/url.js";
 import { mountRockClimControl } from "./components/rockclim-control.js";
 import { mountWeppRoadTool } from "./tools/wepproad.js";
 import { mountDisturbedTool } from "./tools/disturbed.js";
+import { mountErmitTool } from "./tools/ermit.js";
 
 window.FSWEPP = window.FSWEPP || {};
 window.FSWEPP.cookies = { readJsonCookie, writeJsonCookie };
@@ -116,16 +117,24 @@ function initDisturbed() {
   mountDisturbedTool(root);
 }
 
+function initErmit() {
+  const root = document.getElementById("ermit-root");
+  if (!root) return;
+  mountErmitTool(root);
+}
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
     initUnitizer();
     initRockClim();
     initWeppRoad();
     initDisturbed();
+    initErmit();
   });
 } else {
   initUnitizer();
   initRockClim();
   initWeppRoad();
   initDisturbed();
+  initErmit();
 }

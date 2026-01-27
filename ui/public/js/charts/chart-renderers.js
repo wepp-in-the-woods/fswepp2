@@ -84,12 +84,15 @@ export function drawAxes(ctx, area, xAxis, yAxis, options = {}) {
 
   // Axis labels
   if (xAxis?.label) {
+    const labelOffset = Number.isFinite(xAxis.labelOffset)
+      ? xAxis.labelOffset
+      : 20;
     ctx.textAlign = "center";
     ctx.textBaseline = "bottom";
     ctx.fillText(
       xAxis.label,
       area.x + area.width / 2,
-      area.y + area.height + tickSize + 20
+      area.y + area.height + tickSize + labelOffset
     );
   }
 

@@ -944,7 +944,7 @@ class ClimateFile(object):
         for i, row in df.iterrows():
             indx = int(row.mo) - 1
             prcps[indx] += row.prcp
-            nwds[indx] += (0.0, 1.0)[row.prcp > 0.0]
+            nwds[indx] += 1.0 if row.prcp > 0.0 else 0.0
             tmaxs[indx] += row.tmax
             tmins[indx] += row.tmin
 

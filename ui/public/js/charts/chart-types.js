@@ -191,8 +191,8 @@ class BaseChart extends ChartCore {
     this._hover = null;
     this._boundMove = this._onPointerMove.bind(this);
     this._boundLeave = this._onPointerLeave.bind(this);
-    this.canvas.addEventListener("mousemove", this._boundMove);
-    this.canvas.addEventListener("mouseleave", this._boundLeave);
+    this.container.addEventListener("mousemove", this._boundMove);
+    this.container.addEventListener("mouseleave", this._boundLeave);
     this.onResize = () => this.render();
 
     if (this.legend) {
@@ -271,8 +271,8 @@ class BaseChart extends ChartCore {
   }
 
   destroy() {
-    this.canvas.removeEventListener("mousemove", this._boundMove);
-    this.canvas.removeEventListener("mouseleave", this._boundLeave);
+    this.container.removeEventListener("mousemove", this._boundMove);
+    this.container.removeEventListener("mouseleave", this._boundLeave);
     this.tooltip?.destroy();
     this.legend?.destroy();
     super.destroy();
@@ -395,6 +395,7 @@ export class LineChart extends BaseChart {
       scale: xScale,
       ticks: xTicks,
       label: this.options?.xAxis?.label,
+      labelOffset: this.options?.xAxis?.labelOffset,
       format: xFormat,
     };
     const yAxis = {
@@ -410,6 +411,17 @@ export class LineChart extends BaseChart {
 
     const visibleSeries = this.series.filter((item) => !item.hidden);
     this._pointsBySeries = [];
+
+    this.ctx.save();
+    this.ctx.beginPath();
+    this.ctx.rect(
+      this.plotArea.x,
+      this.plotArea.y,
+      this.plotArea.width,
+      this.plotArea.height
+    );
+    this.ctx.clip();
+
     visibleSeries.forEach((series) => {
       const points = series.values.map((point) => {
         const xValue = isDate(point.x) ? point.x.getTime() : point.x;
@@ -453,6 +465,8 @@ export class LineChart extends BaseChart {
         });
       });
     }
+
+    this.ctx.restore();
   }
 
   hitTest(point) {

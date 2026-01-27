@@ -29,7 +29,17 @@ def parse_wepp_soil_output(
     rec_intervals=[1, 2, 5, 10],
     return_period_measures = ['precip_mm', 'runoff_from_rain+snow_mm', 'soil_loss_mean_kg_m2', 'sediment_yield_kg_m']) -> dict:
     
-    storms, rainevents, snowevents, precip, rro, sro, syr, syp = None, None, None, None, None, None, None, None
+    storms, rainevents, snowevents, precip, rro, sro, syr, syp, sym = (
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
     table_syr = None
     area_of_net_loss = None
     
@@ -159,6 +169,9 @@ def parse_wepp_soil_output(
                 syp = float(syp)
                 break
             
+        if sym is None:
+            sym = syr
+
         annual_averages = {
             'storms': int(storms),
             'rainevents': int(rainevents),
@@ -462,7 +475,7 @@ def get_annual_maxima_events_from_ebe(ebe_file, cli_file=None):
     if climate is not None:
         cli_df = climate.as_dataframe(calc_peak_intensities=True)
         largest_runoff_events = largest_runoff_events.merge(
-            cli_df[['da', 'mo', 'year', '10-min Peak Rainfall Intensity (mm/hour)', 
+            cli_df[['da', 'mo', 'year', 'dur', '10-min Peak Rainfall Intensity (mm/hour)', 
                 '30-min Peak Rainfall Intensity (mm/hour)', 
                 '60-min Peak Rainfall Intensity (mm/hour)']],
             left_on=['day', 'month', 'year'],

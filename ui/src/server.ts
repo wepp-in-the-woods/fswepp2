@@ -15,6 +15,9 @@ app.use("*", async (c, next) => {
     (forwardedFor ? forwardedFor.split(",")[0].trim() : null) ||
     c.req.header("x-real-ip") ||
     "unknown";
+  // Skip logging for health checks
+  if (c.req.path === "/health") return;
+
   const payload = {
     ts: Date.now() / 1000,
     level: "info",
@@ -131,7 +134,7 @@ app.get("/fswepp2/ermit", (c) =>
     renderLayout(
       "ERMiT",
       `<section id="rockclim-control-root" class="mb-6"></section>
-      <p>Shell page for ERMiT tool.</p>`
+      <section id="ermit-root" class="space-y-8"></section>`
     )
   )
 );

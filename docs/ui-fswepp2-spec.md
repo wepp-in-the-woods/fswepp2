@@ -793,6 +793,7 @@ ERMiT (Erosion Risk Management Tool) predicts post-fire erosion with probabilist
 - Shrub Cover: Number input (%, defaults: Range=15, Chaparral=80)
 - Grass Cover: Number input (%, defaults: Range=75, Chaparral=0)
 - Bare Ground: Calculated automatically (100 - shrub - grass)
+- Pre-fire cover defaults and calculations are client-side (no API endpoint required)
 
 **Section 5: Simulation Options**
 - Simulation Years: Number input (default 100)
@@ -2664,7 +2665,6 @@ The following features are documented for potential future implementation but ar
 - `POST /api/ermit/GET/slope/{spatial_severity}` - Get slope file
 - `POST /api/ermit/GET/soil/{spatial_severity}/{k}` - Get soil file
 - `POST /api/ermit/GET/management/{spatial_severity}` - Get management file
-- `POST /api/ermit/GET/pre_fire_covers` - Calculate pre-fire vegetation covers
 
 ---
 

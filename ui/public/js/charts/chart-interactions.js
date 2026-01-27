@@ -24,16 +24,24 @@ export function getCanvasPoint(event, canvas) {
 }
 
 export function createTooltip(container, options = {}) {
+  const portalTarget =
+    options.portal === "body" || options.portal === true
+      ? document.body
+      : options.portalTarget || container;
   const tooltip = document.createElement("div");
   tooltip.className = options.className || "fswepp-chart-tooltip";
-  Object.assign(tooltip.style, DEFAULT_TOOLTIP_STYLE, options.style || {});
-  container.appendChild(tooltip);
+  const style = { ...DEFAULT_TOOLTIP_STYLE, ...(options.style || {}) };
+  if (portalTarget !== container && !options.style?.position) {
+    style.position = "fixed";
+  }
+  Object.assign(tooltip.style, style);
+  portalTarget.appendChild(tooltip);
 
   const show = (content, position) => {
     tooltip.innerHTML = content;
     tooltip.style.opacity = "1";
     if (position) {
-      positionTooltip(tooltip, position, container);
+      positionTooltip(tooltip, position, container, portalTarget);
     }
   };
 
@@ -48,7 +56,12 @@ export function createTooltip(container, options = {}) {
   return { element: tooltip, show, hide, destroy };
 }
 
-export function positionTooltip(tooltip, position, container) {
+export function positionTooltip(
+  tooltip,
+  position,
+  container,
+  portalTarget = container
+) {
   const bounds = container.getBoundingClientRect();
   const tooltipRect = tooltip.getBoundingClientRect();
   let left = position.x + 12;
@@ -60,6 +73,17 @@ export function positionTooltip(tooltip, position, container) {
   if (top + tooltipRect.height > bounds.height) {
     top = position.y - tooltipRect.height - 12;
   }
+
+  if (portalTarget !== container) {
+    const viewportLeft = bounds.left + left;
+    const viewportTop = bounds.top + top;
+    const maxLeft = window.innerWidth - tooltipRect.width - 4;
+    const maxTop = window.innerHeight - tooltipRect.height - 4;
+    tooltip.style.left = `${Math.min(Math.max(viewportLeft, 4), maxLeft)}px`;
+    tooltip.style.top = `${Math.min(Math.max(viewportTop, 4), maxTop)}px`;
+    return;
+  }
+
   tooltip.style.left = `${Math.max(left, 4)}px`;
   tooltip.style.top = `${Math.max(top, 4)}px`;
 }

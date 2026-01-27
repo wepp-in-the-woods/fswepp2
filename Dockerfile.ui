@@ -8,9 +8,15 @@ RUN apt-get update \
   && apt-get install -y nodejs \
   && rm -rf /var/lib/apt/lists/*
 
+# Keep Playwright browsers inside the image
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
 # Install deps
 COPY ui/package.json ui/tsconfig.json ui/tailwind.config.ts ./
 RUN bun install
+
+# Install Playwright browsers + system deps once during image build
+RUN npx playwright install --with-deps chromium
 
 # Copy source
 COPY ui/src ./src
