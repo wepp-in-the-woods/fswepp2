@@ -385,3 +385,8 @@ Log files are stored under `api/logs/<year>/<model>.log`.
 - WEPP run files and outputs are stored under `/dev/shm/<model>/`.
 - Slope/soil/management outputs are cached by a deterministic SHA-256 hash of the input models.
 - Hashes are stable across interpreter restarts.
+- WEPP winter controls use `frost.txt` in the model temp dir; line 1 is `wintRed fineTop fineBot`, line 2 is `ksnowf kresf ksoilf kfactor1` (legacy style).
+- ERMiT: `/dev/shm/ermit/frost.txt` = `1 2 2` + `1.000000 1.000000 1.000000 0.500000`.
+- Disturbed: `/dev/shm/disturbed/frost.txt` = `1 2 2` + `1.000000 1.000000 1.000000 0.500000`.
+- WEPP:Road: `/dev/shm/wepproad/frost.txt` = `0 2 2` + `1.000000 1.000000 1.000000 0.500000`.
+- FuME: `/dev/shm/fume/frost.txt` = `1 2 2` + `1.000000 1.000000 1.000000 0.500000`.

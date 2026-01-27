@@ -10,6 +10,7 @@
 
     var modulePromise = null;
     var clientInstance = null;
+    var clientPromise = null;
 
     function resolveStaticPath(filename) {
         var prefix = (typeof global.site_prefix === "string" && global.site_prefix) ? global.site_prefix : "";
@@ -590,7 +591,13 @@
             if (clientInstance) {
                 return Promise.resolve(clientInstance);
             }
-            return initClient();
+            if (!clientPromise) {
+                clientPromise = initClient().catch(function (error) {
+                    clientPromise = null;
+                    throw error;
+                });
+            }
+            return clientPromise;
         },
         getClientSync: function () {
             return clientInstance;

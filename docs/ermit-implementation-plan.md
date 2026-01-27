@@ -96,13 +96,22 @@
 - [x] Document spatial severity variants in UI (e.g., hhh/lll/uuu + mixed variants for severity cases).
 
 ### Phase 7 — Testing + Parity Checks
-- [ ] Unit tests:
-  - [ ] `ui/tests/ermit-state.test.js` (defaults, normalization, URL overrides).
-  - [ ] `ui/tests/ermit-tool.test.js` (payload assembly, validation gating, veg defaults).
-  - [ ] Component test if new vegetation/burn component is added.
-- [ ] E2E: add `ui/playwright-tests/ermit.pw.cjs` (smoke flow + results visible + unit toggle).
-- [ ] Parity runs using `parity-runs/ermit/cases.yaml`.
-  - [ ] Compare annual averages, rainfall rankings, sediment table at 20% exceedance, exceedance curve shape.
+- [x] Unit tests:
+  - [x] `ui/tests/ermit-state.test.js` (defaults, normalization, URL overrides).
+  - [x] `ui/tests/ermit-tool.test.js` (payload assembly, validation gating, veg defaults).
+  - [x] Component test if new vegetation/burn component is added.
+- [x] E2E: add `ui/playwright-tests/ermit.pw.cjs` (smoke flow + results visible + unit toggle).
+- [x] E2E: add `ui/playwright-tests/ermit-logs-wattles.pw.cjs` (logs & wattles computation across years).
+- [x] Parity runs using `parity-runs/ermit/cases.yaml`.
+  - [x] Compare annual averages, rainfall rankings, sediment table at 20% exceedance, exceedance curve shape.
+
+### Phase 8 — Logs & Wattles
+- [x] Implement Logs & Wattles row calculation (legacy regression + efficiencies).
+- [x] Add diameter/spacing inputs using shared form-field component with explicit unit labels.
+- [x] Keep canonical metric values in state; convert only for display.
+- [x] Compute weighted i10 from ranked storms (5/10/20/50/75 with legacy weights).
+- [x] Update results on unitizer preference changes.
+- [x] Add E2E coverage for multi-year Logs & Wattles results.
 
 ---
 

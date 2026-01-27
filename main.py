@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.wepproad import router as wepproad_router
 from api.disturbed import router as disturbed_router
 from api.ermit import router as ermit_router
+from api.fume import router as fume_router
 from api.rockclim import router as rockclim_router
 from api.logger import router as logger_router
 from api import prism_cache
@@ -155,5 +156,6 @@ async def custom_exception_handler(request: Request, exc: Exception):
 app.include_router(wepproad_router, prefix="/api")
 app.include_router(disturbed_router, prefix="/api")
 app.include_router(ermit_router, prefix="/api")
+app.include_router(fume_router, prefix="/api")
 app.include_router(rockclim_router, prefix="/api")
 app.include_router(logger_router, prefix="/api")

@@ -25,6 +25,7 @@ from .logger import log_run
 from .hash_utils import stable_hash
 from .wepp_runner import resolve_wepp_binary, run_wepp_binary
 from .file_utils import atomic_write
+from .frost_utils import FROST_DEFAULTS, ensure_frost_file
 
 router = APIRouter()
 
@@ -542,6 +543,7 @@ def create_run_file(state: DisturbedWeppState):
 
     cwd = TMP_BASE
     os.makedirs(cwd, exist_ok=True)
+    ensure_frost_file(cwd, FROST_DEFAULTS["disturbed"])
 
     slope_fn = create_slope_file(state)
     _slope_fn = _split(slope_fn)[1]

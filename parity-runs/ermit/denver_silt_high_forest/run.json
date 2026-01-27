@@ -1,38 +1,20 @@
 {
   "api": [],
-  "finished_at": 1769136912.7984688,
+  "finished_at": 1769497897.2458212,
   "id": "denver_silt_high_forest",
   "legacy": [
     {
       "meta": {
         "command": "curl 'http://localhost:8080/cgi-bin/fswepp/ermit/erm.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/ermit/ermit.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 249' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'me=&units=ft&debug=0&Climate=..%2Fclimates%2Fco052220&SoilType=silt&rfg=20&achtung=Run+WEPP&vegetation=forest&top_slope=50&avg_slope=50&toe_slope=50&length=300&severity=h&pct_shrub=&pct_grass=&pct_bare=&climate_name=&Units=m&actionw=Running+ERMiT...'",
-        "returncode": 0,
-        "run_ids": [
-          "wepp-1275"
-        ],
-        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100   249    0     0  100   249      0   1241 --:--:-- --:--:-- --:--:--  1238\r100   249    0     0  100   249      0    207  0:00:01  0:00:01 --:--:--   207\r100   249    0     0  100   249      0    113  0:00:02  0:00:02 --:--:--   113\r100   249    0     0  100   249      0     77  0:00:03  0:00:03 --:--:--    77\r100   249    0     0  100   249      0     59  0:00:04  0:00:04 --:--:--    59\r100   249    0     0  100   249      0     47  0:00:05  0:00:05 --:--:--     0\r100   249    0     0  100   249      0     40  0:00:06  0:00:06 --:--:--     0\r100   249    0     0  100   249      0     34  0:00:07  0:00:07 --:--:--     0\r100 44187  100 43938  100   249   5826     33  0:00:07  0:00:07 --:--:-- 10130",
-        "stdout_bytes": 43938
+        "returncode": 7,
+        "run_ids": [],
+        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\ncurl: (7) Failed to connect to localhost port 8080 after 0 ms: Couldn't connect to server",
+        "stdout_bytes": 0
       },
       "name": "run"
     }
   ],
   "model": "ermit",
-  "started_at": 1769136903.6110098,
-  "working_files": [
-    "/workdir/fswepp2/parity-runs/ermit/denver_silt_high_forest/legacy/working/wepp-1275.evo",
-    "/workdir/fswepp2/parity-runs/ermit/denver_silt_high_forest/legacy/working/wepp-1275.slp",
-    "/workdir/fswepp2/parity-runs/ermit/denver_silt_high_forest/legacy/working/wepp-1275.event",
-    "/workdir/fswepp2/parity-runs/ermit/denver_silt_high_forest/legacy/working/wepp-1275.stout",
-    "/workdir/fswepp2/parity-runs/ermit/denver_silt_high_forest/legacy/working/wepp-1275.out",
-    "/workdir/fswepp2/parity-runs/ermit/denver_silt_high_forest/legacy/working/wepp-1275.gnudata",
-    "/workdir/fswepp2/parity-runs/ermit/denver_silt_high_forest/legacy/working/wepp-1275.event100",
-    "/workdir/fswepp2/parity-runs/ermit/denver_silt_high_forest/legacy/working/wepp-1275.gnujcl",
-    "/workdir/fswepp2/parity-runs/ermit/denver_silt_high_forest/legacy/working/wepp-1275.sol",
-    "/workdir/fswepp2/parity-runs/ermit/denver_silt_high_forest/legacy/working/wepp-1275.png",
-    "/workdir/fswepp2/parity-runs/ermit/denver_silt_high_forest/legacy/working/wepp-1275.in",
-    "/workdir/fswepp2/parity-runs/ermit/denver_silt_high_forest/legacy/working/wepp-1275.sterr",
-    "/workdir/fswepp2/parity-runs/ermit/denver_silt_high_forest/legacy/working/wepp-1275.cli",
-    "/workdir/fswepp2/parity-runs/ermit/denver_silt_high_forest/legacy/working/wepp-1275_.cli",
-    "/workdir/fswepp2/parity-runs/ermit/denver_silt_high_forest/legacy/working/wepp-1275.temp"
-  ]
+  "started_at": 1769497897.238642,
+  "working_files": []
 }

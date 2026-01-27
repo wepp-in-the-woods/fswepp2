@@ -1,103 +1,12 @@
 [
   {
-    "api": [
-      {
-        "meta": {
-          "headers": {
-            "content-length": "385",
-            "content-type": "application/json",
-            "date": "Mon, 26 Jan 2026 07:20:19 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=9888c663-19b8-4960-9466-899562e36db1; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "1d4141aa-61f3-46f8-af5d-4889398fee85"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/RUN/wepp"
-        },
-        "name": "run"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "133",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:20 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=4c0edd14-e1fc-4430-8743-63ff6b3138e0; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "2891e7fe-e7ed-4bfe-8a14-6fb8625ef4b3"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/run_file"
-        },
-        "name": "run_file"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "188",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:20 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=96334406-f399-41bb-9fb4-3666ed74afc3; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "27892f6d-f31f-402d-859f-79f9db8d05e2"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/slope"
-        },
-        "name": "slope"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "643",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:20 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=70702d40-af16-4820-afd9-f498d8f12229; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "23648e7c-7f30-48a3-8a0f-1b5134167f1b"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/soil"
-        },
-        "name": "soil"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "77640",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:20 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=e0ce41f2-0e08-4261-aa45-ab554c76bd8b; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "33916289-2b82-41cb-907f-16199ac6eb19"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/management"
-        },
-        "name": "management"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "13071",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:20 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=2cb5579b-c512-4070-8463-27d57b4c5eb7; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "3e2b430a-c372-49f5-a04c-6b123e9aeecd"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/wepp_output"
-        },
-        "name": "wepp_output"
-      }
-    ],
-    "finished_at": 1769412020.8705025,
-    "id": "default",
+    "api": [],
+    "finished_at": 1769497897.2202425,
+    "id": "default_settings",
     "legacy": [
       {
         "meta": {
-          "command": "curl 'http://localhost:8080/cgi-bin/fswepp/wr/wr.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/wr/wepproad.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 209' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'Climate=..%2Fclimates%2Fal010831&SoilType=clay&Rock=20&SlopeType=inveg&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=130&surface=native&traffic=high&years=30&ActionW=Running...&weppversion=2010&climate_name=&units=ft'",
+          "command": "curl 'http://localhost:8080/cgi-bin/fswepp/ermit/erm.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/ermit/ermit.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 248' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'me=&units=ft&debug=0&Climate=..%2Fclimates%2Fal010831&SoilType=clay&rfg=20&achtung=Run+WEPP&vegetation=forest&top_slope=0&avg_slope=50&toe_slope=30&length=300&severity=l&pct_shrub=&pct_grass=&pct_bare=&climate_name=&Units=m&actionw=Running+ERMiT...'",
           "returncode": 7,
           "run_ids": [],
           "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\ncurl: (7) Failed to connect to localhost port 8080 after 0 ms: Couldn't connect to server",
@@ -106,109 +15,18 @@
         "name": "run"
       }
     ],
-    "model": "wepproad",
-    "started_at": 1769412020.0517623,
+    "model": "ermit",
+    "started_at": 1769497897.2137616,
     "working_files": []
   },
   {
-    "api": [
-      {
-        "meta": {
-          "headers": {
-            "content-length": "370",
-            "content-type": "application/json",
-            "date": "Mon, 26 Jan 2026 07:20:20 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=e72a8900-64d2-43cf-b1e2-cd921ada6c11; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "1f8ccefe-eb9f-4ae4-b100-ebd0ebecf526"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/RUN/wepp"
-        },
-        "name": "run"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "132",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:21 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=8c2f4487-bd8c-4226-ab5c-fb12256a6e4c; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "f9418040-736c-49c0-aeba-933de10bf7bb"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/run_file"
-        },
-        "name": "run_file"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "188",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:21 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=0e5ba3bc-0eed-4b02-a1f0-63570e1449db; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "fd6ff040-3b19-4712-a323-175515d29879"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/slope"
-        },
-        "name": "slope"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "685",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:21 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=d77db788-7af3-4470-8ce7-565522b0fb8a; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "b01c734a-608f-4259-b55c-06b6f07dfe63"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/soil"
-        },
-        "name": "soil"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "77653",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:21 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=b318a029-ee4d-4650-83d2-6ae1fb32ec3e; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "a5dbccde-6866-476c-ab41-78eedca1ab9d"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/management"
-        },
-        "name": "management"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "12779",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:21 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=45243f5a-a22f-4928-b8c7-b05a84fc535d; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "31628deb-1123-4fcb-87bb-94acd1063c94"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/wepp_output"
-        },
-        "name": "wepp_output"
-      }
-    ],
-    "finished_at": 1769412022.5351942,
-    "id": "run_2",
+    "api": [],
+    "finished_at": 1769497897.2287543,
+    "id": "mount_shasta_silt_high",
     "legacy": [
       {
         "meta": {
-          "command": "curl 'http://localhost:8080/cgi-bin/fswepp/wr/wr.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/wr/wepproad.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 211' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'Climate=..%2Fclimates%2Fco052220&SoilType=silt&Rock=20&SlopeType=outrut&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=130&surface=graveled&traffic=low&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'",
+          "command": "curl 'http://localhost:8080/cgi-bin/fswepp/ermit/erm.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/ermit/ermit.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 253' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'me=&units=ft&debug=0&Climate=..%2Fclimates%2Fca045983&SoilType=silt&rfg=20&achtung=Run+WEPP&vegetation=range&top_slope=0&avg_slope=50&toe_slope=30&length=300&severity=h&pct_shrub=15&pct_grass=75&pct_bare=10&climate_name=&Units=m&actionw=Running+ERMiT...'",
           "returncode": 7,
           "run_ids": [],
           "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\ncurl: (7) Failed to connect to localhost port 8080 after 0 ms: Couldn't connect to server",
@@ -217,109 +35,18 @@
         "name": "run"
       }
     ],
-    "model": "wepproad",
-    "started_at": 1769412020.8712165,
+    "model": "ermit",
+    "started_at": 1769497897.2206664,
     "working_files": []
   },
   {
-    "api": [
-      {
-        "meta": {
-          "headers": {
-            "content-length": "398",
-            "content-type": "application/json",
-            "date": "Mon, 26 Jan 2026 07:20:21 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=606afa54-5fa8-491d-976e-b14fa342cc07; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "a05d0044-a48e-4312-abea-7af97412b649"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/RUN/wepp"
-        },
-        "name": "run"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "133",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:23 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=92956757-8315-4e8d-9e2e-87bd1778d8a1; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "e8a6f887-45df-418d-a766-6f26c536312a"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/run_file"
-        },
-        "name": "run_file"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "188",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:23 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=eb462dd7-0af8-465c-91a9-9b4ea0344680; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "c1e05663-47f7-4c4d-b1a8-b48de987dfb9"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/slope"
-        },
-        "name": "slope"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "790",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:23 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=e7da8805-8ddb-426a-b513-b598a3b53b64; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "6f62a6ec-ebf8-4cd4-8a57-77f84a9ea899"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/soil"
-        },
-        "name": "soil"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "77640",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:23 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=d582dcfd-15b8-4ae2-91bd-6171096503ca; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "e267e722-2257-47f5-b2ef-a8c0e65998e8"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/management"
-        },
-        "name": "management"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "14092",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:23 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=4909160e-91b3-4ee2-914c-aa2bea71d494; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "8243f143-62b0-46a8-9e0d-80ee3e23cb36"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/wepp_output"
-        },
-        "name": "wepp_output"
-      }
-    ],
-    "finished_at": 1769412024.3809392,
-    "id": "run_3",
+    "api": [],
+    "finished_at": 1769497897.2382433,
+    "id": "flagstaff_loam_unburned",
     "legacy": [
       {
         "meta": {
-          "command": "curl 'http://localhost:8080/cgi-bin/fswepp/wr/wr.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/wr/wepproad.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 208' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'Climate=..%2Fclimates%2Faz023010&SoilType=loam&Rock=20&SlopeType=inbare&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=130&surface=paved&traffic=low&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'",
+          "command": "curl 'http://localhost:8080/cgi-bin/fswepp/ermit/erm.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/ermit/ermit.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 251' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'me=&units=ft&debug=0&Climate=..%2Fclimates%2Faz023010&SoilType=loam&rfg=20&achtung=Run+WEPP&vegetation=chap&top_slope=0&avg_slope=50&toe_slope=30&length=300&severity=u&pct_shrub=80&pct_grass=0&pct_bare=20&climate_name=&Units=m&actionw=Running+ERMiT...'",
           "returncode": 7,
           "run_ids": [],
           "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\ncurl: (7) Failed to connect to localhost port 8080 after 0 ms: Couldn't connect to server",
@@ -328,109 +55,18 @@
         "name": "run"
       }
     ],
-    "model": "wepproad",
-    "started_at": 1769412022.5357203,
+    "model": "ermit",
+    "started_at": 1769497897.229861,
     "working_files": []
   },
   {
-    "api": [
-      {
-        "meta": {
-          "headers": {
-            "content-length": "404",
-            "content-type": "application/json",
-            "date": "Mon, 26 Jan 2026 07:20:23 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=23d645ae-af9a-42a5-a854-74a96288e2aa; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "67c05aac-8a55-4df6-98ab-a846a27e7096"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/RUN/wepp"
-        },
-        "name": "run"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "133",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:24 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=c244ae04-3832-44de-96fd-86baf8af68af; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "e7cf2654-bdfc-49e0-a072-93c7dba9121b"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/run_file"
-        },
-        "name": "run_file"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "199",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:24 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=a6c12f34-9259-4642-9d67-6b63053b2157; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "2acee234-e69c-469a-b47a-cde359d41ac8"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/slope"
-        },
-        "name": "slope"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "676",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:24 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=05371d0a-24d0-4886-be04-5ff0e950e135; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "50716af6-7699-4f60-a012-d960cd719d69"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/soil"
-        },
-        "name": "soil"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "77807",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:24 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=c3e97285-60fc-4b45-8420-94acbb71b3c0; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "75fde1a3-683d-43ad-8279-6a52a2ec8dd5"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/management"
-        },
-        "name": "management"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "15078",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:24 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=40132ec4-0f5a-4c25-9de0-908845a53c0b; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "9a14b275-8c1f-48f7-a41c-e7bc8394be58"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/wepp_output"
-        },
-        "name": "wepp_output"
-      }
-    ],
-    "finished_at": 1769412025.6244798,
-    "id": "run_4",
+    "api": [],
+    "finished_at": 1769497897.2458212,
+    "id": "denver_silt_high_forest",
     "legacy": [
       {
         "meta": {
-          "command": "curl 'http://localhost:8080/cgi-bin/fswepp/wr/wr.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/wr/wepproad.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 212' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'Climate=..%2Fclimates%2Fwv461570&SoilType=loam&Rock=20&SlopeType=outunrut&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=130&surface=native&traffic=none&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'",
+          "command": "curl 'http://localhost:8080/cgi-bin/fswepp/ermit/erm.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/ermit/ermit.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 249' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'me=&units=ft&debug=0&Climate=..%2Fclimates%2Fco052220&SoilType=silt&rfg=20&achtung=Run+WEPP&vegetation=forest&top_slope=50&avg_slope=50&toe_slope=50&length=300&severity=h&pct_shrub=&pct_grass=&pct_bare=&climate_name=&Units=m&actionw=Running+ERMiT...'",
           "returncode": 7,
           "run_ids": [],
           "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\ncurl: (7) Failed to connect to localhost port 8080 after 0 ms: Couldn't connect to server",
@@ -439,109 +75,18 @@
         "name": "run"
       }
     ],
-    "model": "wepproad",
-    "started_at": 1769412024.3814485,
+    "model": "ermit",
+    "started_at": 1769497897.238642,
     "working_files": []
   },
   {
-    "api": [
-      {
-        "meta": {
-          "headers": {
-            "content-length": "394",
-            "content-type": "application/json",
-            "date": "Mon, 26 Jan 2026 07:20:24 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=1ee9159f-a1b3-4a3e-9e9c-7c0a419b4ea2; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "ec286813-351c-4ce3-8378-f51001e419a2"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/RUN/wepp"
-        },
-        "name": "run"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "132",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:26 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=1a4869d0-d112-4cb2-a46d-737b60ac5147; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "9f0f7204-eee3-4256-8d8d-72b46a87399a"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/run_file"
-        },
-        "name": "run_file"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "188",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:26 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=d9954781-e1d1-4a74-b754-5a4308682b51; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "9b8b5543-ce21-4cda-902f-565c0cdc6dcb"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/slope"
-        },
-        "name": "slope"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "722",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:26 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=2ae7ecd7-5bbd-4902-a074-0d67080b4026; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "c039c3fc-e117-47fc-ba09-e5a078e1c013"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/soil"
-        },
-        "name": "soil"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "77653",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:26 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=2f3c3e79-c038-4895-90bb-aafc38ea818b; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "af12fc2e-9bbb-4f41-b771-c62a234adec8"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/management"
-        },
-        "name": "management"
-      },
-      {
-        "meta": {
-          "headers": {
-            "content-length": "12949",
-            "content-type": "application/text",
-            "date": "Mon, 26 Jan 2026 07:20:26 GMT",
-            "server": "uvicorn",
-            "set-cookie": "user_id=fd8b96d9-2a8e-4a2c-ab70-865df43980ce; Max-Age=604800; Path=/; SameSite=lax",
-            "x-request-id": "23930b0b-71e4-4d89-aa5f-fc87ae19060d"
-          },
-          "status_code": 200,
-          "url": "http://localhost:8090/api/wepproad/GET/wepp_output"
-        },
-        "name": "wepp_output"
-      }
-    ],
-    "finished_at": 1769412027.2787373,
-    "id": "run_5",
+    "api": [],
+    "finished_at": 1769497897.253616,
+    "id": "moscow_clay_low_forest",
     "legacy": [
       {
         "meta": {
-          "command": "curl 'http://localhost:8080/cgi-bin/fswepp/wr/wr.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/wr/wepproad.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 209' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'Climate=..%2Fclimates%2Fco052220&SoilType=sand&Rock=20&SlopeType=outrut&RS=4&RL=200&RW=13&FS=50&FL=15&BS=25&BL=39&surface=native&traffic=high&years=50&ActionW=Running...&weppversion=2010&climate_name=&units=ft'",
+          "command": "curl 'http://localhost:8080/cgi-bin/fswepp/ermit/erm.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/ermit/ermit.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 249' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'me=&units=ft&debug=0&Climate=..%2Fclimates%2Fid106152&SoilType=clay&rfg=20&achtung=Run+WEPP&vegetation=forest&top_slope=20&avg_slope=30&toe_slope=20&length=300&severity=l&pct_shrub=&pct_grass=&pct_bare=&climate_name=&Units=m&actionw=Running+ERMiT...'",
           "returncode": 7,
           "run_ids": [],
           "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\ncurl: (7) Failed to connect to localhost port 8080 after 0 ms: Couldn't connect to server",
@@ -550,8 +95,8 @@
         "name": "run"
       }
     ],
-    "model": "wepproad",
-    "started_at": 1769412025.6249814,
+    "model": "ermit",
+    "started_at": 1769497897.2462065,
     "working_files": []
   }
 ]

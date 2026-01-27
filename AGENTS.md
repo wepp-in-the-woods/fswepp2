@@ -20,6 +20,8 @@
 - Apply `data-unitizer-category`/`data-unitizer-unit` on numeric inputs and rely on Unitizer to manage labels.
 - If a global unit toggle is present, treat it as an explicit override; otherwise honor Unitizer preferences.
 - Re-render result tables on `unitizer:preferences-changed` so display units stay in sync.
+- For results tables, put units in the column headers (in parentheses) and keep cell values unitless.
 
 ## Agent prompt formatting
 - Provide agent prompts inside Markdown code blocks.
+- Provide handoff summaries inside Markdown code blocks.

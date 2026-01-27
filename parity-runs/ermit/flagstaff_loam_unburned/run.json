@@ -1,38 +1,20 @@
 {
   "api": [],
-  "finished_at": 1769136903.582048,
+  "finished_at": 1769497897.2382433,
   "id": "flagstaff_loam_unburned",
   "legacy": [
     {
       "meta": {
         "command": "curl 'http://localhost:8080/cgi-bin/fswepp/ermit/erm.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/ermit/ermit.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 251' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'me=&units=ft&debug=0&Climate=..%2Fclimates%2Faz023010&SoilType=loam&rfg=20&achtung=Run+WEPP&vegetation=chap&top_slope=0&avg_slope=50&toe_slope=30&length=300&severity=u&pct_shrub=80&pct_grass=0&pct_bare=20&climate_name=&Units=m&actionw=Running+ERMiT...'",
-        "returncode": 0,
-        "run_ids": [
-          "wepp-1256"
-        ],
-        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100   251    0     0  100   251      0   1251 --:--:-- --:--:-- --:--:--  1248\r100   251    0     0  100   251      0    208  0:00:01  0:00:01 --:--:--   208\r100   251    0     0  100   251      0    113  0:00:02  0:00:02 --:--:--   113\r100 17804  100 17553  100   251   7961    113  0:00:02  0:00:02 --:--:--  8074",
-        "stdout_bytes": 17553
+        "returncode": 7,
+        "run_ids": [],
+        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\ncurl: (7) Failed to connect to localhost port 8080 after 0 ms: Couldn't connect to server",
+        "stdout_bytes": 0
       },
       "name": "run"
     }
   ],
   "model": "ermit",
-  "started_at": 1769136899.751091,
-  "working_files": [
-    "/workdir/fswepp2/parity-runs/ermit/flagstaff_loam_unburned/legacy/working/wepp-1256.gnudata",
-    "/workdir/fswepp2/parity-runs/ermit/flagstaff_loam_unburned/legacy/working/wepp-1256.event100",
-    "/workdir/fswepp2/parity-runs/ermit/flagstaff_loam_unburned/legacy/working/wepp-1256.temp",
-    "/workdir/fswepp2/parity-runs/ermit/flagstaff_loam_unburned/legacy/working/wepp-1256.stout",
-    "/workdir/fswepp2/parity-runs/ermit/flagstaff_loam_unburned/legacy/working/wepp-1256.png",
-    "/workdir/fswepp2/parity-runs/ermit/flagstaff_loam_unburned/legacy/working/wepp-1256.gnujcl",
-    "/workdir/fswepp2/parity-runs/ermit/flagstaff_loam_unburned/legacy/working/wepp-1256.slp",
-    "/workdir/fswepp2/parity-runs/ermit/flagstaff_loam_unburned/legacy/working/wepp-1256.cli",
-    "/workdir/fswepp2/parity-runs/ermit/flagstaff_loam_unburned/legacy/working/wepp-1256_.cli",
-    "/workdir/fswepp2/parity-runs/ermit/flagstaff_loam_unburned/legacy/working/wepp-1256.out",
-    "/workdir/fswepp2/parity-runs/ermit/flagstaff_loam_unburned/legacy/working/wepp-1256.event",
-    "/workdir/fswepp2/parity-runs/ermit/flagstaff_loam_unburned/legacy/working/wepp-1256.sterr",
-    "/workdir/fswepp2/parity-runs/ermit/flagstaff_loam_unburned/legacy/working/wepp-1256.sol",
-    "/workdir/fswepp2/parity-runs/ermit/flagstaff_loam_unburned/legacy/working/wepp-1256.evo",
-    "/workdir/fswepp2/parity-runs/ermit/flagstaff_loam_unburned/legacy/working/wepp-1256.in"
-  ]
+  "started_at": 1769497897.229861,
+  "working_files": []
 }

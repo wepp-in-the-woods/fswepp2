@@ -1,38 +1,20 @@
 {
   "api": [],
-  "finished_at": 1769136899.707271,
+  "finished_at": 1769497897.2287543,
   "id": "mount_shasta_silt_high",
   "legacy": [
     {
       "meta": {
         "command": "curl 'http://localhost:8080/cgi-bin/fswepp/ermit/erm.pl' \\\n-X 'POST' \\\n-H 'Content-Type: application/x-www-form-urlencoded' \\\n-H 'Pragma: no-cache' \\\n-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \\\n-H 'Sec-Fetch-Site: same-origin' \\\n-H 'Accept-Language: en-US,en;q=0.9' \\\n-H 'Cache-Control: no-cache' \\\n-H 'Sec-Fetch-Mode: navigate' \\\n-H 'Accept-Encoding: gzip, deflate' \\\n-H 'Origin: http://localhost:8080' \\\n-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15' \\\n-H 'Referer: http://localhost:8080/cgi-bin/fswepp/ermit/ermit.pl' \\\n-H 'Upgrade-Insecure-Requests: 1' \\\n-H 'Content-Length: 253' \\\n-H 'Connection: keep-alive' \\\n-H 'Sec-Fetch-Dest: document' \\\n-H 'Cookie: FSWEPPuser=1edb' \\\n-H 'Priority: u=0, i' \\\n--data 'me=&units=ft&debug=0&Climate=..%2Fclimates%2Fca045983&SoilType=silt&rfg=20&achtung=Run+WEPP&vegetation=range&top_slope=0&avg_slope=50&toe_slope=30&length=300&severity=h&pct_shrub=15&pct_grass=75&pct_bare=10&climate_name=&Units=m&actionw=Running+ERMiT...'",
-        "returncode": 0,
-        "run_ids": [
-          "wepp-1167"
-        ],
-        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100   253    0     0  100   253      0    210  0:00:01  0:00:01 --:--:--   210\r100   253    0     0  100   253      0    114  0:00:02  0:00:02 --:--:--   114\r100   253    0     0  100   253      0     78  0:00:03  0:00:03 --:--:--    78\r100   253    0     0  100   253      0     60  0:00:04  0:00:04 --:--:--    60\r100   253    0     0  100   253      0     48  0:00:05  0:00:05 --:--:--    48\r100   253    0     0  100   253      0     40  0:00:06  0:00:06 --:--:--     0\r100   253    0     0  100   253      0     35  0:00:07  0:00:07 --:--:--     0\r100 44847  100 44594  100   253   6023     34  0:00:07  0:00:07 --:--:-- 10620\r100 44847  100 44594  100   253   6023     34  0:00:07  0:00:07 --:--:-- 13944",
-        "stdout_bytes": 44594
+        "returncode": 7,
+        "run_ids": [],
+        "stderr": "% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\ncurl: (7) Failed to connect to localhost port 8080 after 0 ms: Couldn't connect to server",
+        "stdout_bytes": 0
       },
       "name": "run"
     }
   ],
   "model": "ermit",
-  "started_at": 1769136890.3825154,
-  "working_files": [
-    "/workdir/fswepp2/parity-runs/ermit/mount_shasta_silt_high/legacy/working/wepp-1167.temp",
-    "/workdir/fswepp2/parity-runs/ermit/mount_shasta_silt_high/legacy/working/wepp-1167.event",
-    "/workdir/fswepp2/parity-runs/ermit/mount_shasta_silt_high/legacy/working/wepp-1167.png",
-    "/workdir/fswepp2/parity-runs/ermit/mount_shasta_silt_high/legacy/working/wepp-1167.slp",
-    "/workdir/fswepp2/parity-runs/ermit/mount_shasta_silt_high/legacy/working/wepp-1167.gnudata",
-    "/workdir/fswepp2/parity-runs/ermit/mount_shasta_silt_high/legacy/working/wepp-1167.gnujcl",
-    "/workdir/fswepp2/parity-runs/ermit/mount_shasta_silt_high/legacy/working/wepp-1167.evo",
-    "/workdir/fswepp2/parity-runs/ermit/mount_shasta_silt_high/legacy/working/wepp-1167.cli",
-    "/workdir/fswepp2/parity-runs/ermit/mount_shasta_silt_high/legacy/working/wepp-1167.event100",
-    "/workdir/fswepp2/parity-runs/ermit/mount_shasta_silt_high/legacy/working/wepp-1167.sol",
-    "/workdir/fswepp2/parity-runs/ermit/mount_shasta_silt_high/legacy/working/wepp-1167.sterr",
-    "/workdir/fswepp2/parity-runs/ermit/mount_shasta_silt_high/legacy/working/wepp-1167.in",
-    "/workdir/fswepp2/parity-runs/ermit/mount_shasta_silt_high/legacy/working/wepp-1167.stout",
-    "/workdir/fswepp2/parity-runs/ermit/mount_shasta_silt_high/legacy/working/wepp-1167_.cli",
-    "/workdir/fswepp2/parity-runs/ermit/mount_shasta_silt_high/legacy/working/wepp-1167.out"
-  ]
+  "started_at": 1769497897.2206664,
+  "working_files": []
 }

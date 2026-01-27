@@ -12,6 +12,13 @@ import { readClimateState } from "../core/rockclim-state.js";
 import { readErmitState, writeErmitState } from "../core/ermit-state.js";
 
 const SELECTED_RANKS = [5, 10, 20, 50, 75];
+const LOG_WATTLE_WEIGHTS = new Map([
+  [5, 0.075],
+  [10, 0.075],
+  [20, 0.2],
+  [50, 0.275],
+  [75, 0.375],
+]);
 
 function getUnitizerClient() {
   return window.UnitizerClient?.getClientSync?.() || null;
@@ -34,7 +41,10 @@ function resolveUnitMeta(categoryKey, canonicalUnit) {
     "surface-density",
   ]);
 
-  if (override && manualCategories.has(categoryKey)) {
+  if (client) {
+    const prefs = client.getPreferencePayload?.() || {};
+    unitKey = prefs[categoryKey] || canonicalUnit;
+  } else if (override && manualCategories.has(categoryKey)) {
     if (override === "english") {
       if (categoryKey === "xs-distance") unitKey = "in";
       if (categoryKey === "sm-distance") unitKey = "ft";
@@ -46,9 +56,6 @@ function resolveUnitMeta(categoryKey, canonicalUnit) {
       if (categoryKey === "xs-distance-rate") unitKey = "mm/hour";
       if (categoryKey === "surface-density") unitKey = "tonne/ha";
     }
-  } else if (client) {
-    const prefs = client.getPreferencePayload?.() || {};
-    unitKey = prefs[categoryKey] || canonicalUnit;
   }
 
   if (!client) {
@@ -105,13 +112,13 @@ function formatSurfaceDensity(valueKgM2) {
   const canonicalValue = Number(valueKgM2) * 10;
   let unitKey = canonicalUnit;
 
-  if (override === "english") {
+  if (client) {
+    const prefs = client.getPreferencePayload?.() || {};
+    unitKey = prefs[categoryKey] || canonicalUnit;
+  } else if (override === "english") {
     unitKey = "ton/acre";
   } else if (override === "metric") {
     unitKey = "tonne/ha";
-  } else if (client) {
-    const prefs = client.getPreferencePayload?.() || {};
-    unitKey = prefs[categoryKey] || canonicalUnit;
   }
 
   if (!client) {
@@ -144,6 +151,108 @@ function formatSurfaceDensity(valueKgM2) {
   };
 }
 
+function getSelectedRunoffEvents(ebeEvents) {
+  const events = Array.isArray(ebeEvents?.annual_maxima_events)
+    ? ebeEvents.annual_maxima_events
+    : [];
+  const maxRank = ebeEvents?.num_years_with_runoff_event || events.length;
+  const ranks = SELECTED_RANKS.filter((rank) => rank <= maxRank);
+  return events
+    .filter((event) => ranks.includes(event.runoff_rank))
+    .sort((a, b) => a.runoff_rank - b.runoff_rank);
+}
+
+function computeWeightedI10(ebeEvents) {
+  const selected = getSelectedRunoffEvents(ebeEvents);
+  let weighted = 0;
+  selected.forEach((event) => {
+    const weight = LOG_WATTLE_WEIGHTS.get(event.runoff_rank);
+    if (!weight) return;
+    const peak10 = Number(
+      event["10-min Peak Rainfall Intensity (mm/hour)"]
+    );
+    if (!Number.isFinite(peak10)) return;
+    weighted += weight * peak10;
+  });
+  return Number.isFinite(weighted) ? weighted : 0;
+}
+
+function getLogWattleBounds() {
+  const unitMeta = resolveUnitMeta("sm-distance", "m");
+  const unitKey = unitMeta.unitKey;
+  const isEnglish = unitKey === "ft";
+  const toMeters = (value) => (isEnglish ? value * 0.3048 : value);
+  return {
+    unitKey,
+    diameter: {
+      min: toMeters(isEnglish ? 0.15 : 0.05),
+      max: toMeters(isEnglish ? 3.5 : 1),
+      default: toMeters(isEnglish ? 1 : 0.3),
+    },
+    spacing: {
+      min: toMeters(isEnglish ? 5 : 1.5),
+      max: toMeters(isEnglish ? 82 : 25),
+      default: toMeters(isEnglish ? 20 : 5),
+    },
+  };
+}
+
+function clampValue(value, min, max, fallback) {
+  if (!Number.isFinite(value)) return fallback;
+  if (value < min) return min;
+  if (value > max) return max;
+  return value;
+}
+
+function getLogWattleDensity(soilTexture) {
+  if (soilTexture === "clay") return 1.1;
+  if (soilTexture === "silt") return 0.97;
+  if (soilTexture === "sand") return 1.23;
+  if (soilTexture === "loam") return 1.16;
+  return 1;
+}
+
+function computeLogWattleSediments({
+  untreatedKgM2,
+  diameter_m,
+  spacing_m,
+  slope_pct,
+  soil_texture,
+  i10,
+  spacingMin_m,
+}) {
+  if (!Array.isArray(untreatedKgM2) || untreatedKgM2.length !== 5) {
+    return [null, null, null, null, null];
+  }
+  let slope = Number.isFinite(slope_pct) ? slope_pct : 10;
+  if (slope > 100) slope = 100;
+  if (slope < 0.05 || spacing_m < spacingMin_m) {
+    return untreatedKgM2.slice();
+  }
+
+  const density = getLogWattleDensity(soil_texture);
+  const diam_cm = diameter_m * 100;
+  let capacityVol =
+    1342 / slope + 0.0029 * diam_cm * diam_cm + 272 / spacing_m - 35.4;
+  if (capacityVol < 0) capacityVol = 0;
+
+  const capacityMgHa = capacityVol * density;
+  const capacityKgM2 = capacityMgHa / 10;
+  const i10Value = Number.isFinite(i10) ? i10 : 0;
+  const eff0 = Math.min(Math.max(113.97 - 0.8425 * i10Value, 0), 100);
+  const eff1 = Math.min(Math.max(116 - 1.4 * i10Value, 0), 100);
+  const eff2 = eff1 * 0.75;
+  const eff3 = eff2 * 0.55;
+  const eff4 = eff3 * 0.45;
+  const efficiencies = [eff0, eff1, eff2, eff3, eff4];
+
+  return untreatedKgM2.map((sed, idx) => {
+    if (!Number.isFinite(sed)) return null;
+    const caught = Math.min((capacityKgM2 * efficiencies[idx]) / 100, sed);
+    return sed - caught;
+  });
+}
+
 function readCanonical(input) {
   const stored = input.dataset.unitizerCanonicalValue;
   if (stored != null && stored !== "") {
@@ -152,6 +261,27 @@ function readCanonical(input) {
   }
   const num = Number(input.value);
   return Number.isFinite(num) ? num : null;
+}
+
+function readCanonicalFromInput(input, categoryKey, canonicalUnit) {
+  const raw = Number(input.value);
+  if (!Number.isFinite(raw)) return null;
+  const client = getUnitizerClient();
+  const activeUnit =
+    input.dataset.unitizerActiveUnit || canonicalUnit;
+  if (client && activeUnit !== canonicalUnit) {
+    try {
+      return client.convert(raw, activeUnit, canonicalUnit);
+    } catch {
+      return raw;
+    }
+  }
+  if (!client && activeUnit !== canonicalUnit) {
+    if (canonicalUnit === "m" && activeUnit === "ft") {
+      return raw * 0.3048;
+    }
+  }
+  return raw;
 }
 
 function setFieldValue(input, value) {
@@ -290,6 +420,11 @@ export function mountErmitTool(root) {
   let lastRunState = null;
   let lastClimateState = null;
   let lastFilePayload = null;
+  const logsWattlesState = {
+    diameter_m: null,
+    spacing_m: null,
+    userSet: false,
+  };
 
   root.innerHTML = "";
   const container = document.createElement("div");
@@ -472,18 +607,26 @@ export function mountErmitTool(root) {
   rainfallTable.innerHTML = `
     <thead class="bg-muted text-left">
       <tr>
-        <th class="px-3 py-2">Rank</th>
-        <th class="px-3 py-2 text-right">Runoff</th>
-        <th class="px-3 py-2 text-right">Precip</th>
-        <th class="px-3 py-2 text-right">Duration</th>
-        <th class="px-3 py-2 text-right">10-min Peak</th>
-        <th class="px-3 py-2 text-right">30-min Peak</th>
+        <th class="px-3 py-2" id="ermit-rainfall-rank"></th>
+        <th class="px-3 py-2 text-right" id="ermit-rainfall-runoff"></th>
+        <th class="px-3 py-2 text-right" id="ermit-rainfall-precip"></th>
+        <th class="px-3 py-2 text-right" id="ermit-rainfall-duration"></th>
+        <th class="px-3 py-2 text-right" id="ermit-rainfall-peak10"></th>
+        <th class="px-3 py-2 text-right" id="ermit-rainfall-peak30"></th>
         <th class="px-3 py-2">Date</th>
       </tr>
     </thead>
     <tbody></tbody>
   `;
   const rainfallBody = rainfallTable.querySelector("tbody");
+  const rainfallHeaders = {
+    rank: rainfallTable.querySelector("#ermit-rainfall-rank"),
+    runoff: rainfallTable.querySelector("#ermit-rainfall-runoff"),
+    precip: rainfallTable.querySelector("#ermit-rainfall-precip"),
+    duration: rainfallTable.querySelector("#ermit-rainfall-duration"),
+    peak10: rainfallTable.querySelector("#ermit-rainfall-peak10"),
+    peak30: rainfallTable.querySelector("#ermit-rainfall-peak30"),
+  };
 
   const plotHeading = document.createElement("h3");
   plotHeading.className = "text-sm font-semibold";
@@ -530,16 +673,23 @@ export function mountErmitTool(root) {
     <thead class="bg-muted text-left">
       <tr>
         <th class="px-3 py-2">Treatment</th>
-        <th class="px-3 py-2 text-right">Year 1</th>
-        <th class="px-3 py-2 text-right">Year 2</th>
-        <th class="px-3 py-2 text-right">Year 3</th>
-        <th class="px-3 py-2 text-right">Year 4</th>
-        <th class="px-3 py-2 text-right">Year 5</th>
+        <th class="px-3 py-2 text-right" id="ermit-sediment-year-1"></th>
+        <th class="px-3 py-2 text-right" id="ermit-sediment-year-2"></th>
+        <th class="px-3 py-2 text-right" id="ermit-sediment-year-3"></th>
+        <th class="px-3 py-2 text-right" id="ermit-sediment-year-4"></th>
+        <th class="px-3 py-2 text-right" id="ermit-sediment-year-5"></th>
       </tr>
     </thead>
     <tbody></tbody>
   `;
   const sedimentBody = sedimentTable.querySelector("tbody");
+  const sedimentYearHeaders = [
+    sedimentTable.querySelector("#ermit-sediment-year-1"),
+    sedimentTable.querySelector("#ermit-sediment-year-2"),
+    sedimentTable.querySelector("#ermit-sediment-year-3"),
+    sedimentTable.querySelector("#ermit-sediment-year-4"),
+    sedimentTable.querySelector("#ermit-sediment-year-5"),
+  ];
 
   const filesContainer = document.createElement("div");
   filesContainer.className = "space-y-4";
@@ -1100,14 +1250,34 @@ export function mountErmitTool(root) {
   }
 
   function renderRainfallEvents(ebeEvents) {
-    const events = Array.isArray(ebeEvents?.annual_maxima_events)
-      ? ebeEvents.annual_maxima_events
-      : [];
-    const maxRank = ebeEvents?.num_years_with_runoff_event || events.length;
-    const ranks = SELECTED_RANKS.filter((rank) => rank <= maxRank);
-    const selected = events
-      .filter((event) => ranks.includes(event.runoff_rank))
-      .sort((a, b) => a.runoff_rank - b.runoff_rank);
+    const runoffUnit = resolveUnitMeta("xs-distance", "mm").label;
+    const precipUnit = resolveUnitMeta("xs-distance", "mm").label;
+    const intensityUnit = resolveUnitMeta("xs-distance-rate", "mm/hour").label;
+    if (rainfallHeaders.rank) {
+      rainfallHeaders.rank.innerHTML =
+        'Storm Rank<span class="block text-xs font-normal text-muted-foreground">based on runoff (return interval)</span>';
+    }
+    if (rainfallHeaders.runoff) {
+      rainfallHeaders.runoff.textContent = `Storm Runoff (${runoffUnit})`;
+    }
+    if (rainfallHeaders.precip) {
+      rainfallHeaders.precip.textContent = `Storm Precipitation (${precipUnit})`;
+    }
+    if (rainfallHeaders.duration) {
+      rainfallHeaders.duration.textContent = "Duration (hr)";
+    }
+    if (rainfallHeaders.peak10) {
+      rainfallHeaders.peak10.textContent = `10-min Peak (${intensityUnit})`;
+    }
+    if (rainfallHeaders.peak30) {
+      rainfallHeaders.peak30.textContent = `30-min Peak (${intensityUnit})`;
+    }
+
+    const maxRank =
+      ebeEvents?.num_years_with_runoff_event ||
+      ebeEvents?.annual_maxima_events?.length ||
+      0;
+    const selected = getSelectedRunoffEvents(ebeEvents);
 
     rainfallBody.innerHTML = "";
     if (!selected.length) {
@@ -1120,6 +1290,18 @@ export function mountErmitTool(root) {
     }
 
     selected.forEach((event) => {
+      let returnIntervalLabel = null;
+      if (Number.isFinite(maxRank) && maxRank > 0 && event.runoff_rank) {
+        const returnInterval = maxRank / event.runoff_rank;
+        if (Number.isFinite(returnInterval) && returnInterval > 0) {
+          const rounded = Math.round(returnInterval);
+          const display =
+            Math.abs(returnInterval - rounded) < 0.05
+              ? String(rounded)
+              : returnInterval.toFixed(1);
+          returnIntervalLabel = `(${display}-year)`;
+        }
+      }
       const runoffMeta = formatUnitValue(
         event.runoff_mm,
         "xs-distance",
@@ -1150,16 +1332,19 @@ export function mountErmitTool(root) {
         ? event.dur.toFixed(2)
         : "—";
       const date = `${event.month}/${event.day}/${event.year}`;
+      const rankLabel = returnIntervalLabel
+        ? `${event.runoff_rank}<span class="block text-xs text-muted-foreground">${returnIntervalLabel}</span>`
+        : String(event.runoff_rank);
 
       const tr = document.createElement("tr");
       tr.className = "border-t border-border";
       tr.innerHTML = `
-        <td class="px-3 py-2">${event.runoff_rank}</td>
-        <td class="px-3 py-2 text-right">${runoffMeta.value} ${runoffMeta.unit}</td>
-        <td class="px-3 py-2 text-right">${precipMeta.value} ${precipMeta.unit}</td>
+        <td class="px-3 py-2">${rankLabel}</td>
+        <td class="px-3 py-2 text-right">${runoffMeta.value}</td>
+        <td class="px-3 py-2 text-right">${precipMeta.value}</td>
         <td class="px-3 py-2 text-right">${duration}</td>
-        <td class="px-3 py-2 text-right">${peak10.value} ${peak10.unit}</td>
-        <td class="px-3 py-2 text-right">${peak30.value} ${peak30.unit}</td>
+        <td class="px-3 py-2 text-right">${peak10.value}</td>
+        <td class="px-3 py-2 text-right">${peak30.value}</td>
         <td class="px-3 py-2">${date}</td>
       `;
       rainfallBody.appendChild(tr);
@@ -1233,6 +1418,11 @@ export function mountErmitTool(root) {
       : [];
     const probabilities = response?.probabilities || {};
     const target = Number(targetPercent) / 100;
+    const unitLabel = resolveUnitMeta("surface-density", "tonne/ha").label;
+    sedimentYearHeaders.forEach((header, index) => {
+      if (!header) return;
+      header.textContent = `Year ${index + 1} (${unitLabel})`;
+    });
 
     const treatments = state.burn_severity === "Unburned"
       ? [
@@ -1259,6 +1449,8 @@ export function mountErmitTool(root) {
       return null;
     };
 
+    const untreatedByYear = [];
+
     treatments.forEach((treatment) => {
       const row = document.createElement("tr");
       row.className = "border-t border-border";
@@ -1267,9 +1459,12 @@ export function mountErmitTool(root) {
       const yearly = probabilities[treatment.key] || [];
       for (let yearIndex = 0; yearIndex < 5; yearIndex += 1) {
         const sedValue = findSedimentAtProb(yearly[yearIndex]);
+        if (treatment.key === "untreated") {
+          untreatedByYear[yearIndex] = sedValue;
+        }
         const meta = formatSurfaceDensity(sedValue);
         cells.push(
-          `<td class="px-3 py-2 text-right">${meta.value !== "—" ? `${meta.value} ${meta.unit}` : "—"}</td>`
+          `<td class="px-3 py-2 text-right">${meta.value}</td>`
         );
       }
       row.innerHTML = cells.join("");
@@ -1277,6 +1472,40 @@ export function mountErmitTool(root) {
     });
 
     if (state.burn_severity !== "Unburned") {
+      const bounds = getLogWattleBounds();
+      const distanceLabel = resolveUnitMeta("sm-distance", "m").label;
+      const defaultDiameter = bounds.diameter.default;
+      const defaultSpacing = bounds.spacing.default;
+      const diameterValue = logsWattlesState.userSet
+        ? logsWattlesState.diameter_m
+        : defaultDiameter;
+      const spacingValue = logsWattlesState.userSet
+        ? logsWattlesState.spacing_m
+        : defaultSpacing;
+      logsWattlesState.diameter_m = clampValue(
+        diameterValue,
+        bounds.diameter.min,
+        bounds.diameter.max,
+        defaultDiameter
+      );
+      logsWattlesState.spacing_m = clampValue(
+        spacingValue,
+        bounds.spacing.min,
+        bounds.spacing.max,
+        defaultSpacing
+      );
+
+      const i10Weighted = computeWeightedI10(response?.ebe_events);
+      const treatedValues = computeLogWattleSediments({
+        untreatedKgM2: untreatedByYear,
+        diameter_m: logsWattlesState.diameter_m,
+        spacing_m: logsWattlesState.spacing_m,
+        slope_pct: state.middle_slope_pct,
+        soil_texture: state.soil_texture,
+        i10: i10Weighted,
+        spacingMin_m: bounds.spacing.min,
+      });
+
       const logsRow = document.createElement("tr");
       logsRow.className = "border-t border-border";
       const logsCell = document.createElement("td");
@@ -1284,29 +1513,76 @@ export function mountErmitTool(root) {
       logsCell.textContent = "Logs & Wattles";
 
       const inputWrap = document.createElement("div");
-      inputWrap.className = "mt-2 flex flex-col gap-2 text-xs text-muted-foreground";
-      const diameter = document.createElement("input");
-      diameter.type = "number";
-      diameter.placeholder = "Diameter (cm)";
-      diameter.className =
-        "h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs";
-      const spacing = document.createElement("input");
-      spacing.type = "number";
-      spacing.placeholder = "Spacing (m)";
-      spacing.className =
-        "h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs";
-      inputWrap.appendChild(diameter);
-      inputWrap.appendChild(spacing);
+      inputWrap.className = "mt-2 grid gap-3";
+      const diameterField = createFormField({
+        id: "ermit_logs_diameter",
+        label: "Diameter",
+        type: "number",
+        value: "",
+        unitLabel: distanceLabel,
+      });
+      const spacingField = createFormField({
+        id: "ermit_logs_spacing",
+        label: "Spacing",
+        type: "number",
+        value: "",
+        unitLabel: distanceLabel,
+      });
+      diameterField.input.setAttribute("data-unitizer-category", "sm-distance");
+      diameterField.input.setAttribute("data-unitizer-unit", "m");
+      spacingField.input.setAttribute("data-unitizer-category", "sm-distance");
+      spacingField.input.setAttribute("data-unitizer-unit", "m");
+      attachUnitLabel(diameterField, "sm-distance", "m");
+      attachUnitLabel(spacingField, "sm-distance", "m");
+      setFieldValue(diameterField.input, logsWattlesState.diameter_m);
+      setFieldValue(spacingField.input, logsWattlesState.spacing_m);
+      diameterField.input.addEventListener("change", () => {
+        const boundsNext = getLogWattleBounds();
+        const updated = clampValue(
+          readCanonicalFromInput(diameterField.input, "sm-distance", "m"),
+          boundsNext.diameter.min,
+          boundsNext.diameter.max,
+          boundsNext.diameter.default
+        );
+        logsWattlesState.diameter_m = updated;
+        logsWattlesState.userSet = true;
+        setFieldValue(diameterField.input, updated);
+        if (lastResults) renderSedimentTable(lastResults, probInput.value);
+      });
+      spacingField.input.addEventListener("change", () => {
+        const boundsNext = getLogWattleBounds();
+        const updated = clampValue(
+          readCanonicalFromInput(spacingField.input, "sm-distance", "m"),
+          boundsNext.spacing.min,
+          boundsNext.spacing.max,
+          boundsNext.spacing.default
+        );
+        logsWattlesState.spacing_m = updated;
+        logsWattlesState.userSet = true;
+        setFieldValue(spacingField.input, updated);
+        if (lastResults) renderSedimentTable(lastResults, probInput.value);
+      });
+      inputWrap.appendChild(diameterField.wrapper);
+      inputWrap.appendChild(spacingField.wrapper);
       logsCell.appendChild(inputWrap);
 
       logsRow.appendChild(logsCell);
       for (let i = 0; i < 5; i += 1) {
         const td = document.createElement("td");
         td.className = "px-3 py-2 text-right";
-        td.textContent = "—";
+        const treated = treatedValues[i];
+        const meta = formatSurfaceDensity(treated);
+        td.textContent = meta.value;
         logsRow.appendChild(td);
       }
       sedimentBody.appendChild(logsRow);
+
+      const client = getUnitizerClient();
+      if (client) {
+        client.registerNumericInputs(logsRow);
+        client.updateNumericFields(logsRow);
+        client.updateUnitLabels(logsRow);
+      }
     }
   }
 
@@ -1362,6 +1638,12 @@ export function mountErmitTool(root) {
   function updateResultsUnits() {
     if (!lastResults || !lastYears) return;
     renderResults(lastResults, lastYears);
+    const client = getUnitizerClient();
+    if (client) {
+      client.registerNumericInputs(resultsSection);
+      client.updateNumericFields(resultsSection);
+      client.updateUnitLabels(resultsSection);
+    }
   }
 
   async function handleRun() {

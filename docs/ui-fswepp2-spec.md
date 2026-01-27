@@ -847,8 +847,57 @@ Legacy results only (match the legacy results page):
   - Mulch 72% cover
   - Mulch 89% cover
   - Mulch 94% cover
-  - Logs & Wattles (erosion barriers; diameter/spacing inputs shown in-table)
+- Logs & Wattles (erosion barriers; diameter/spacing inputs shown in-table)
 - Links to popup tables for treatment-specific exceedance probabilities and event sediment delivery.
+
+#### Logs & Wattles (Erosion Barriers)
+
+**Purpose:** Estimate post-treatment sediment delivery for contour-felled logs or straw wattles by reducing untreated sediment using a storage-capacity regression and time-varying barrier efficiency (legacy ERMiT).
+
+**Inputs (user)**
+- Diameter (mean log/wattle diameter)
+- Spacing (distance between rows)
+- Displayed in Unitizer-preferred units; stored and computed in canonical meters.
+
+**Defaults & ranges (legacy)**
+- Metric: diameter 0.3 m (min 0.05, max 1.0), spacing 5 m (min 1.5, max 25)
+- English: diameter 1 ft (min 0.15, max 3.5), spacing 20 ft (min 5, max 82)
+- Slope min 0.05%: if slope < 0.05 or spacing < min, no reduction is applied.
+
+**Additional inputs (model-derived)**
+- Average slope (%). FSWEPP2 uses the middle slope as the representative average.
+- Soil texture (clay/silt/sand/loam) selects bulk density.
+- Weighted i10 (10-min peak rainfall intensity, mm/hr), derived from ranked storms.
+
+**Weighted i10 (legacy)**
+- Use storm ranks 5, 10, 20, 50, 75.
+- Weights: 0.075, 0.075, 0.20, 0.275, 0.375 (sum = 1.0).
+
+**Storage capacity regression (legacy)**
+```
+capacity_vol = 1342/slope + 0.0029*(diam_cm^2) + 272/spacing_m - 35.4
+capacity_vol = max(capacity_vol, 0)
+capacity_mg_ha = capacity_vol * bulk_density
+capacity_kg_m2 = capacity_mg_ha / 10
+```
+- Bulk density: clay 1.1, silt 0.97, sand 1.23, loam 1.16.
+
+**Efficiency by year (legacy)**
+```
+eff0 = clamp(113.97 - 0.8425*i10, 0, 100)
+eff1 = clamp(116    - 1.4*i10,   0, 100)
+eff2 = eff1 * 0.75
+eff3 = eff2 * 0.55
+eff4 = eff3 * 0.45
+```
+
+**Sediment reduction (per year)**
+```
+caught = min(capacity_kg_m2 * eff/100, untreated_kg_m2)
+treated = untreated_kg_m2 - caught
+```
+- Treated values populate the Logs & Wattles row in the sediment delivery table.
+- Outputs display in Unitizer-preferred units (tonne/ha or ton/acre) from internal kg/m^2.
 
 **Footer metadata**
 - Observed annual precipitation, July-August-September precipitation, and climate classification (MONSOONAL / NON-MONSOONAL).

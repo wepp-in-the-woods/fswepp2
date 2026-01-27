@@ -60,6 +60,7 @@ const renderLayout = (title: string, body: string) => `
             <a href="/fswepp2/wepproad">WEPP:Road</a>
             <a href="/fswepp2/disturbed">Disturbed WEPP</a>
             <a href="/fswepp2/ermit">ERMiT</a>
+            <a href="/fswepp2/fume">FuME</a>
             <a href="/fswepp2/docs">Documentation</a>
             <a href="/fswepp2/about">About/Help</a>
             <a href="/fswepp2/ui-component-gallery">UI Gallery</a>
@@ -104,6 +105,7 @@ app.get("/fswepp2", (c) =>
         <li><a href="/fswepp2/wepproad">WEPP:Road</a></li>
         <li><a href="/fswepp2/disturbed">Disturbed WEPP</a></li>
         <li><a href="/fswepp2/ermit">ERMiT</a></li>
+        <li><a href="/fswepp2/fume">FuME</a></li>
       </ul>`
     )
   )
@@ -135,6 +137,16 @@ app.get("/fswepp2/ermit", (c) =>
       "ERMiT",
       `<section id="rockclim-control-root" class="mb-6"></section>
       <section id="ermit-root" class="space-y-8"></section>`
+    )
+  )
+);
+
+app.get("/fswepp2/fume", (c) =>
+  c.html(
+    renderLayout(
+      "FuME",
+      `<section id="rockclim-control-root" class="mb-6"></section>
+      <section id="fume-root" class="space-y-8"></section>`
     )
   )
 );

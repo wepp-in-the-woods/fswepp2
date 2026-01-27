@@ -7,6 +7,7 @@ _thisdir = os.path.dirname(os.path.abspath(__file__))
 _bin_dir = os.path.join(_thisdir, "cligen", "bin")
 
 CLIGEN431_BIN = os.path.join(_bin_dir, "cligen431")
+# Legacy FSWEPP uses the cligen43 binary for 4.31; we ship it as cligen430.
 CLIGEN430_BIN = os.path.join(_bin_dir, "cligen430")
 CLIGEN532_BIN = os.path.join(_bin_dir, "cligen532")
 
@@ -57,7 +58,8 @@ def run_cligen(par_path, cli_path, years, cliver="5.3.2", randseed=12345, wd=Non
     cli_fname = os.path.basename(cli_path)
 
     if cliver in ("4.31", "4.30"):
-        cligen_bin = CLIGEN431_BIN if cliver == "4.31" else CLIGEN430_BIN
+        # Legacy FSWEPP uses cligen43 for 4.30/4.31 (we ship it as cligen430).
+        cligen_bin = CLIGEN430_BIN
         if not os.path.exists(cligen_bin):
             raise CligenError(f"cligen {cliver} binary not found.")
         short_id = os.path.splitext(cli_fname)[0][:8]

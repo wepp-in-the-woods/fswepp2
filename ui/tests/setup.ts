@@ -12,6 +12,8 @@ const canvasStub = {
   beginPath: noop,
   moveTo: noop,
   lineTo: noop,
+  rect: noop,
+  clip: noop,
   stroke: noop,
   fill: noop,
   fillText: noop,

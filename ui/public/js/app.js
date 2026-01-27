@@ -4,6 +4,7 @@ import { mountRockClimControl } from "./components/rockclim-control.js";
 import { mountWeppRoadTool } from "./tools/wepproad.js";
 import { mountDisturbedTool } from "./tools/disturbed.js";
 import { mountErmitTool } from "./tools/ermit.js";
+import { mountFumeTool } from "./tools/fume.js";
 
 window.FSWEPP = window.FSWEPP || {};
 window.FSWEPP.cookies = { readJsonCookie, writeJsonCookie };
@@ -123,6 +124,12 @@ function initErmit() {
   mountErmitTool(root);
 }
 
+function initFume() {
+  const root = document.getElementById("fume-root");
+  if (!root) return;
+  mountFumeTool(root);
+}
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
     initUnitizer();
@@ -130,6 +137,7 @@ if (document.readyState === "loading") {
     initWeppRoad();
     initDisturbed();
     initErmit();
+    initFume();
   });
 } else {
   initUnitizer();
@@ -137,4 +145,5 @@ if (document.readyState === "loading") {
   initWeppRoad();
   initDisturbed();
   initErmit();
+  initFume();
 }

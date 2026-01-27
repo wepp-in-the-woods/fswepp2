@@ -326,6 +326,41 @@
     {
       "conversions": [
         {
+          "from": "km/km^2",
+          "offset": 0.0,
+          "scale": 1.609344,
+          "to": "mi/mi^2"
+        },
+        {
+          "from": "mi/mi^2",
+          "offset": 0.0,
+          "scale": 0.621371,
+          "to": "km/km^2"
+        }
+      ],
+      "defaultIndex": 1,
+      "key": "road-density",
+      "label": "Road Density",
+      "units": [
+        {
+          "htmlLabel": "km/km<sup>2</sup>",
+          "key": "km/km^2",
+          "label": "km/km^2",
+          "precision": 3,
+          "token": "km_km-sqr"
+        },
+        {
+          "htmlLabel": "mi/mi<sup>2</sup>",
+          "key": "mi/mi^2",
+          "label": "mi/mi^2",
+          "precision": 3,
+          "token": "mi_mi-sqr"
+        }
+      ]
+    },
+    {
+      "conversions": [
+        {
           "from": "$/acre",
           "offset": 0.0,
           "scale": 2.47105381467,
@@ -1334,6 +1369,7 @@
     "kg_yr": "kg/yr",
     "km": "km",
     "km-sqr": "km^2",
+    "km_km-sqr": "km/km^2",
     "lb": "lb",
     "lb_acre": "lb/acre",
     "lb_acre-_3": "lb/acre,3",
@@ -1351,6 +1387,7 @@
     "m-sqr": "m^2",
     "mg_L": "mg/L",
     "mi": "mi",
+    "mi_mi-sqr": "mi/mi^2",
     "mm": "mm",
     "mm_hour": "mm/hour",
     "mm_yr": "mm/yr",
@@ -1399,6 +1436,7 @@
     "kg/m^3": "snow-density",
     "kg/yr": "sm-weight-annual",
     "km": "distance",
+    "km/km^2": "road-density",
     "km^2": "area",
     "lb": "xs-weight",
     "lb/acre": "sm-surface-density",
@@ -1417,6 +1455,7 @@
     "m^3/yr": "volume-annual",
     "mg/L": "sm-concentration",
     "mi": "distance",
+    "mi/mi^2": "road-density",
     "mm": "xs-distance",
     "mm/hour": "xs-distance-rate",
     "mm/yr": "xs-distance-annual",

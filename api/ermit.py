@@ -34,6 +34,7 @@ from .logger import log_run
 from .hash_utils import stable_hash
 from .wepp_runner import resolve_wepp_binary, run_wepp_binary
 from .file_utils import atomic_write
+from .frost_utils import FROST_DEFAULTS, ensure_frost_file
 
 router = APIRouter()
 
@@ -116,8 +117,8 @@ class ErmitPars(BaseModel):
     
     @field_validator("top_slope_pct", "middle_slope_pct", "bottom_slope_pct")
     def check_slope_pct(cls, value):
-        if value < 0.001 or value > 100:
-            raise ValueError("Slope percentages must be between 0.001 and 100")
+        if value < 0 or value > 100:
+            raise ValueError("Slope percentages must be between 0 and 100")
         return value
 
     @field_validator("length_m")
@@ -274,11 +275,19 @@ def create_soil_file(spatial_severity: str, k: int, ermit_state: ErmitState) -> 
     nsl = 1  # number of soil layers for the current OFE
     salb = 0.2  # albedo of the bare dry surface soil on the current OFE
     sat = 0.75  # initial saturation level of the soil profile porosity (m/m)
-    rfg = ermit_pars.rfg_pct / 100.0  # rock fragment content of the soil profile
+    # Legacy ERMiT writes rock fragment content as percent (0-100), not fraction.
+    rfg = ermit_pars.rfg_pct
     
     soil_parameters = get_soil_parameters(ermit_state)
     
-    contents = f"95.1\n#  WEPP '{ermit_pars.soil_texture}' '{spatial_severity}{k}' {ermit_pars.vegetation_type} soil input file for ERMiT"
+    legacy_soil_labels = {
+        "clay": "clay loam",
+        "silt": "silt loam",
+        "sand": "sandy loam",
+        "loam": "loam",
+    }
+    soil_label = legacy_soil_labels.get(str(ermit_pars.soil_texture).lower(), str(ermit_pars.soil_texture))
+    contents = f"95.1\n#  WEPP '{soil_label}' '{spatial_severity}{k}' {ermit_pars.vegetation_type} soil input file for ERMiT"
     if ermit_pars.vegetation_type != VegetationType.Forest:
         contents += f"\n#  {ermit_pars.pre_fire_shrub_pct}% shrub {ermit_pars.pre_fire_grass_pct}% grass"
     contents += "\n#  Data from U.S. Forest Service RMRS Air, Water and Aquatic Environments (AWAE) Project, Moscow FSL"
@@ -287,7 +296,7 @@ def create_soil_file(spatial_severity: str, k: int, ermit_state: ErmitState) -> 
     
     for severity_code in _severities:
         contents += (
-            f"'ERMiT_{severity_code}{k}'\t'{ermit_pars.soil_texture}'\t{nsl}\t{salb}\t{sat}\t"
+            f"'ERMiT_{severity_code}{k}'\t'{soil_label}'\t{nsl}\t{salb}\t{sat}\t"
             f"{soil_parameters['ki'][severity_code][k]}\t{soil_parameters['kr'][severity_code][k]}\t"
             f"{soil_parameters['tauc'][severity_code]}\t{soil_parameters['ksat'][severity_code][k]}"
             f"\n{soil_parameters['solthk']}\t{soil_parameters['sand']}\t{soil_parameters['clay']}\t"
@@ -606,6 +615,7 @@ def get_management_file(spatial_severity: str, ermit_state: ErmitState) -> str:
 
 def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int, cli_fn: str, selected_dates: list):
     cwd = TMP_BASE
+    ensure_frost_file(cwd, FROST_DEFAULTS["ermit"])
         
     slope_fn = create_slope_file(spatial_severity, state)
     _slope_fn = _split(slope_fn)[1]
@@ -707,6 +717,7 @@ def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int
 
 def run_ermitwepp(state: ErmitState):
     cwd = TMP_BASE
+    ensure_frost_file(cwd, FROST_DEFAULTS["ermit"])
     
     if state.ermit_pars.burn_severity == BurnSeverity.Unburned:
         spatial_severity = 'uuu'
@@ -721,7 +732,7 @@ def run_ermitwepp(state: ErmitState):
     soil_fn = create_soil_file(spatial_severity, k, state)
     _soil_fn = _split(soil_fn)[1]
     
-    # apparently the management file is the same for all spatial severities
+    # Legacy ERMiT uses high100.man for the initial 100-year run.
     man_fn = _join(management_data_dir, 'high100.man')
     _man_fn = _split(man_fn)[1]
     
@@ -754,7 +765,7 @@ def run_ermitwepp(state: ErmitState):
         "1",  # 1 = continuous
         "1",  # 1 = hillslope
         "n",  # hillslope pass file out?
-        "2",  # 1 = abbreviated annual out, 2 = detailed annual out
+        "1",  # 1 = abbreviated annual out (legacy ERMiT 100-year run)
         "n",  # initial conditions file?
         f"{_output_fn}",  # soil loss output file
         "n",  # water balance output?
@@ -856,7 +867,10 @@ def run_ermitwepp(state: ErmitState):
         summary = future_summary.result()
         ebe_events = future_ebe_events.result()
         
-    del summary['annuals']
+    if isinstance(summary, dict):
+        summary.pop('annuals', None)
+        if 'annual_averages' not in summary:
+            summary = {'annual_averages': summary}
     
     return {
         'summary': summary, 

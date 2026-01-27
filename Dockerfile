@@ -5,13 +5,15 @@ FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # system deps + Python/GDAL
-RUN apt-get update \
+RUN dpkg --add-architecture i386 \
+ && apt-get update \
  && apt-get install -y --no-install-recommends \
       apt-transport-https ca-certificates curl software-properties-common \
       build-essential pkg-config python3-dev \
       python3-full python3-venv \
       gdal-bin libgdal-dev wget dpkg git \
       proj-bin libproj-dev \
+      libc6:i386 \
  && rm -rf /var/lib/apt/lists/*
 
 # tmpfs is mounted at /dev/shm via docker-compose
