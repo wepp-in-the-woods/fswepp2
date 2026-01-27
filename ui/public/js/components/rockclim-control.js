@@ -20,8 +20,9 @@ const DATABASE_OPTIONS = [
   { value: "ghcn", label: "GHCN" },
 ];
 const CLIGEN_OPTIONS = [
-  { value: "4.3", label: "4.3" },
   { value: "5.3.2", label: "5.3.2" },
+  { value: "4.31", label: "4.31" },
+  { value: "4.30", label: "4.30 (legacy)" },
 ];
 const MONTH_NAMES = [
   "Jan",
@@ -626,7 +627,7 @@ export function mountRockClimControl(root) {
 
   function isValidClimateImport(payload) {
     const allowedDatabases = new Set(["legacy", "2015", "au", "ghcn"]);
-    const allowedCligen = new Set(["4.3", "5.3.2"]);
+    const allowedCligen = new Set(["4.31", "4.30", "5.3.2"]);
 
     if (
       payload.database &&

@@ -14,6 +14,8 @@ test("readDisturbedState returns defaults when empty", () => {
   expect(state.lower_ofe.length_m).toBeGreaterThan(0);
   expect(state.simulation_years).toBe(100);
   expect(state.isric_enabled).toBe(false);
+  expect(state.ignore_snowmelt_runoff_events).toBe(false);
+  expect(state.wepp_version).toBe("wepp2010");
 });
 
 test("readDisturbedState applies stored values", () => {
@@ -38,6 +40,8 @@ test("readDisturbedState respects URL config overrides", () => {
     disturbedwepp_pars: {
       soil_texture: "loam",
       upper_ofe: { length_m: 10 },
+      ignore_snowmelt_runoff_events: true,
+      wepp_version: "wepp_dcc52a6_hill",
     },
     simulation_years: 25,
   });
@@ -50,4 +54,6 @@ test("readDisturbedState respects URL config overrides", () => {
   expect(state.soil_texture).toBe("loam");
   expect(state.upper_ofe.length_m).toBe(10);
   expect(state.simulation_years).toBe(25);
+  expect(state.ignore_snowmelt_runoff_events).toBe(true);
+  expect(state.wepp_version).toBe("wepp_dcc52a6_hill");
 });

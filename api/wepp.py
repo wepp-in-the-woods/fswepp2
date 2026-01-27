@@ -237,6 +237,8 @@ def parse_wepp_ebe_return_periods(
     years: int,
     slope_length: Optional[float] = None,
     rec_intervals: Optional[list] = None,
+    wat_file: Optional[str] = None,
+    ignore_snowmelt: bool = False,
 ) -> dict:
     if rec_intervals is None:
         rec_intervals = [10, 5, 2, 1]
@@ -245,6 +247,9 @@ def parse_wepp_ebe_return_periods(
         df = _read_ebe_file(ebe_file)
     except FileNotFoundError:
         return {}
+
+    if ignore_snowmelt and wat_file:
+        df = _filter_snowmelt_events(df, wat_file)
 
     precip_max = _annual_maxima_by_year(df, years, "precip_mm")
     runoff_max = _annual_maxima_by_year(df, years, "runoff_mm")
@@ -309,6 +314,140 @@ def _read_ebe_file(ebe_file):
     df["year"] = df["year"].astype(int)
     
     return df
+
+
+_WAT_HEADER_SUBSTITUTIONS = (
+    (" -", ""),
+    ("#", "(#)"),
+    (" mm", ""),
+    ("Water(mm)", "Water"),
+    ("m^2", "(m^2)"),
+)
+
+_WAT_HEADER_ALIASES = {
+    "OFE (#)": "OFE",
+    "OFE": "OFE",
+    "P (mm)": "P",
+    "RM (mm)": "RM",
+    "Q (mm)": "Q",
+    "Snow-Water (mm)": "Snow-Water",
+    "Area (m^2)": "Area",
+}
+
+
+def _extract_wat_header(lines):
+    header_start = None
+    header_end = None
+
+    for idx, line in enumerate(lines):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("-"):
+            if header_start is None:
+                header_start = idx
+            elif header_end is None:
+                header_end = idx
+                break
+
+    if header_start is None or header_end is None:
+        raise ValueError("Unable to locate WAT header delimiters")
+
+    raw_header_rows = [line.split() for line in lines[header_start + 1 : header_end]]
+    transposed = list(zip(*raw_header_rows))
+    header = []
+    for column_parts in transposed:
+        merged = " ".join(column_parts)
+        for old, new in _WAT_HEADER_SUBSTITUTIONS:
+            merged = merged.replace(old, new)
+        header.append(merged.strip())
+
+    canonical = [_WAT_HEADER_ALIASES.get(value, value) for value in header]
+    return canonical, header_end + 2
+
+
+def _read_wat_daily_aggregates(wat_file: str) -> dict:
+    lines = []
+    with open(wat_file, "r") as file:
+        lines = file.readlines()
+
+    header, data_start = _extract_wat_header(lines)
+    column_positions = {name: idx for idx, name in enumerate(header)}
+    required = ["J", "Y", "P", "RM", "Q", "Area"]
+    missing = [name for name in required if name not in column_positions]
+    if missing:
+        raise ValueError(f"Missing required WAT columns: {', '.join(missing)}")
+
+    daily = {}
+    for raw_line in lines[data_start:]:
+        if not raw_line.strip():
+            continue
+        tokens = raw_line.split()
+        if len(tokens) != len(header):
+            continue
+        try:
+            julian = int(tokens[column_positions["J"]])
+            year = int(tokens[column_positions["Y"]])
+            area = float(tokens[column_positions["Area"]])
+            precip = float(tokens[column_positions["P"]])
+            rm = float(tokens[column_positions["RM"]])
+            runoff = float(tokens[column_positions["Q"]])
+        except (ValueError, IndexError):
+            continue
+
+        key = (year, julian)
+        store = daily.get(key)
+        if store is None:
+            store = {"area": 0.0, "p_vol": 0.0, "rm_vol": 0.0, "q_vol": 0.0}
+            daily[key] = store
+
+        store["area"] += area
+        store["p_vol"] += precip * area
+        store["rm_vol"] += rm * area
+        store["q_vol"] += runoff * area
+
+    aggregated = {}
+    for key, store in daily.items():
+        area = store["area"]
+        if area <= 0:
+            aggregated[key] = {"P": 0.0, "RM": 0.0, "Q": 0.0}
+            continue
+        aggregated[key] = {
+            "P": store["p_vol"] / area,
+            "RM": store["rm_vol"] / area,
+            "Q": store["q_vol"] / area,
+        }
+
+    return aggregated
+
+
+def _snowmelt_runoff_days(wat_file: str, eps: float = 1e-6) -> set:
+    try:
+        daily = _read_wat_daily_aggregates(wat_file)
+    except (FileNotFoundError, ValueError):
+        return set()
+
+    days = set()
+    for key, values in daily.items():
+        if values["Q"] > 0 and values["RM"] - values["P"] > eps:
+            days.add(key)
+    return days
+
+
+def _filter_snowmelt_events(df: pd.DataFrame, wat_file: str) -> pd.DataFrame:
+    snowmelt_days = _snowmelt_runoff_days(wat_file)
+    if not snowmelt_days or df is None or df.empty:
+        return df
+
+    dates = pd.to_datetime(df[["year", "month", "day"]], errors="coerce")
+    julian = dates.dt.dayofyear
+    mask = [
+        (year, day) in snowmelt_days
+        for year, day in zip(df["year"].tolist(), julian.tolist())
+    ]
+    if not any(mask):
+        return df
+    return df.loc[~pd.Series(mask, index=df.index)]
 
 
 def get_annual_maxima_events_from_ebe(ebe_file, cli_file=None):

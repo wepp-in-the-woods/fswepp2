@@ -1,4 +1,5 @@
-import { createFormField } from "./form-field.js";
+import { createFormField, createSelectField } from "./form-field.js";
+import { createCheckboxField } from "./checkbox-field.js";
 
 function createSection(title) {
   const section = document.createElement("section");
@@ -16,6 +17,8 @@ export function createSimulationOptions({
   onInput,
   sectionTitle = "Simulation Options",
   fieldLabel = "Simulation Years",
+  checkbox,
+  weppVersion,
 } = {}) {
   const section = createSection(sectionTitle);
   const grid = document.createElement("div");
@@ -33,10 +36,50 @@ export function createSimulationOptions({
   });
 
   grid.appendChild(field.wrapper);
+
+  let weppVersionField = null;
+  if (weppVersion) {
+    weppVersionField = createSelectField({
+      id: weppVersion.id,
+      label: weppVersion.label,
+      help: weppVersion.help,
+      options: weppVersion.options,
+    });
+    if (weppVersion.value != null) {
+      weppVersionField.select.value = weppVersion.value;
+    }
+    weppVersionField.select.addEventListener("change", () => {
+      weppVersion.onInput?.(weppVersionField.select);
+    });
+    weppVersionField.wrapper.classList.add(
+      "w-full",
+      "md:max-w-[calc(50%-0.5rem)]"
+    );
+  }
+  let checkboxField = null;
+  if (checkbox) {
+    checkboxField = createCheckboxField({
+      id: checkbox.id,
+      label: checkbox.label,
+      help: checkbox.help,
+    });
+    checkboxField.input.checked = Boolean(checkbox.checked);
+    checkboxField.input.addEventListener("change", () => {
+      checkbox.onInput?.(checkboxField.input);
+    });
+  }
   section.appendChild(grid);
+  if (checkboxField) {
+    section.appendChild(checkboxField.wrapper);
+  }
+  if (weppVersionField) {
+    section.appendChild(weppVersionField.wrapper);
+  }
 
   return {
     wrapper: section,
     field,
+    checkbox: checkboxField,
+    weppVersion: weppVersionField,
   };
 }

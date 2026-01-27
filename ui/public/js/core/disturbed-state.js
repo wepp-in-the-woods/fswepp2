@@ -25,6 +25,8 @@ const DEFAULT_STATE = Object.freeze({
   width_m: 90,
   simulation_years: 100,
   isric_enabled: false,
+  ignore_snowmelt_runoff_events: false,
+  wepp_version: "wepp2010",
 });
 
 const SOIL_TEXTURES = new Set(["clay", "silt", "sand", "loam"]);
@@ -38,6 +40,7 @@ const LANDUSES = new Set([
   "HighFire",
   "Skid",
 ]);
+const WEPP_VERSIONS = new Set(["wepp2010", "wepp_dcc52a6_hill"]);
 
 function normalizeNumber(value, fallback) {
   const num = Number(value);
@@ -104,6 +107,12 @@ function normalizeState(raw) {
     next.soil_texture = DEFAULT_STATE.soil_texture;
   }
   next.isric_enabled = Boolean(next.isric_enabled);
+  next.ignore_snowmelt_runoff_events = Boolean(
+    next.ignore_snowmelt_runoff_events
+  );
+  if (!WEPP_VERSIONS.has(next.wepp_version)) {
+    next.wepp_version = DEFAULT_STATE.wepp_version;
+  }
 
   next.width_m = normalizeRange(next.width_m, 0.1, 10000, DEFAULT_STATE.width_m);
   next.simulation_years = Math.round(
@@ -129,6 +138,9 @@ export function readDisturbedState() {
     }
     if (overrides && config.simulation_years != null) {
       overrides.simulation_years = config.simulation_years;
+    }
+    if (overrides && config.wepp_version != null) {
+      overrides.wepp_version = config.wepp_version;
     }
   }
   if (overrides) {

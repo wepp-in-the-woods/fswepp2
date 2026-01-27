@@ -20,6 +20,7 @@ test("mountWeppRoadTool renders core fields", () => {
   expect(document.getElementById("wepproad_buffer_slope")).not.toBeNull();
   expect(document.getElementById("wepproad_buffer_length")).not.toBeNull();
   expect(document.getElementById("wepproad_sim_years")).not.toBeNull();
+  expect(document.getElementById("wepproad_wepp_version")).not.toBeNull();
 
   const runButton = Array.from(document.querySelectorAll("button")).find(
     (button) => button.textContent === "Run WEPP Road Model"

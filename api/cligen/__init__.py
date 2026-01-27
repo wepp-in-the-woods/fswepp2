@@ -1544,10 +1544,12 @@ class Cligen:
         self.cligen532 = _join(_thisdir, "bin", "cligen532")
         self.cligen53 = _join(_thisdir, "bin", "cligen53")
         self.cligen52 = _join(_thisdir, "bin", "cligen52")
-        self.cligen43 = _join(_thisdir, "bin", "cligen43")
+        self.cligen431 = _join(_thisdir, "bin", "cligen431")
+        self.cligen430 = _join(_thisdir, "bin", "cligen430")
 
         assert _exists(self.cligen532), "Cannot find cligen532 executable"
-        assert _exists(self.cligen43), "Cannot find cligen43 executable"
+        assert _exists(self.cligen431), "Cannot find cligen431 executable"
+        assert _exists(self.cligen430), "Cannot find cligen430 executable"
 
     def run_multiple_year(self, years, cli_fname='wepp.cli',
                           localization=None, verbose=False):
@@ -1573,8 +1575,12 @@ class Cligen:
             cmd = [self.cligen53, "-i%s" % par]
         elif self.cliver == "5.3.2":
             cmd = [self.cligen532, "-i%s" % par]
+        elif self.cliver in ("4.31", "4.3"):
+            cmd = [self.cligen431]
+        elif self.cliver == "4.30":
+            cmd = [self.cligen430]
         else:
-            cmd = [self.cligen43]
+            cmd = [self.cligen431]
 
         # change to working directory
         cli_dir = self.wd
@@ -1816,11 +1822,16 @@ def par_mod(par: int, years: int, lng: float, lat: float, wd: str, monthly_datas
     _clinp_path = _make_clinp(wd, cliver, years, cli_fn, par_fn, clinp_fn='{}{}.inp'.format(par, suffix))
 
     # build cmd
-    if cliver == "4.3":
+    if cliver in ("4.31", "4.3"):
         if IS_WINDOWS:
-            raise NotImplementedError('Cligen43.exe is not available on Windows')
+            raise NotImplementedError('Cligen431.exe is not available on Windows')
         else:
-            cmd = [_join(_bin_dir, 'cligen43')]
+            cmd = [_join(_bin_dir, 'cligen431')]
+    elif cliver == "4.30":
+        if IS_WINDOWS:
+            raise NotImplementedError('Cligen430.exe is not available on Windows')
+        else:
+            cmd = [_join(_bin_dir, 'cligen430')]
     elif cliver == "5.2":
         if IS_WINDOWS:
             raise NotImplementedError('Cligen52.exe is not available on Windows')

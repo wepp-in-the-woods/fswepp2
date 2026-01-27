@@ -50,7 +50,8 @@ class ClimatePars(BaseModel):
         par_id (Optional[str]): The station PAR file ID e.g. "WA459074"
         input_years (int): The number of input years for stochastic generation.
         cligen_version (str): The version of the CLIGEN model. Options are:
-            - 4.3: Legacy FSWEPP
+            - 4.31: Legacy FSWEPP
+            - 4.30: Legacy FSWEPP (older)
             - 5.3.2: WEPPcloud
     """
     database: Optional[str] = "legacy"
@@ -70,7 +71,7 @@ class ClimatePars(BaseModel):
 
     @field_validator('cligen_version')
     def validate_cligen_version(cls, value):
-        if value not in ["4.3", "5.3.2"]:
+        if value not in ["4.31", "4.30", "5.3.2"]:
             raise ValueError("Invalid cligen_version")
         return value
 

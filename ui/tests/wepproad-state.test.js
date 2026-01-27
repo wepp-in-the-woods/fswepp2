@@ -13,6 +13,7 @@ test("readWeppRoadState returns defaults when empty", () => {
   expect(state.road.length_m).toBeGreaterThan(0);
   expect(state.simulation_years).toBe(100);
   expect(state.isric_enabled).toBe(false);
+  expect(state.wepp_version).toBe("wepp2010");
 });
 
 test("readWeppRoadState applies stored values", () => {
@@ -34,6 +35,7 @@ test("readWeppRoadState respects URL config overrides", () => {
   const config = encodeConfig({
     wepproad_pars: { soil_texture: "loam", road: { length_m: 10 } },
     simulation_years: 25,
+    wepp_version: "wepp_dcc52a6_hill",
   });
   window.history.replaceState(
     {},
@@ -44,4 +46,5 @@ test("readWeppRoadState respects URL config overrides", () => {
   expect(state.soil_texture).toBe("loam");
   expect(state.road.length_m).toBe(10);
   expect(state.simulation_years).toBe(25);
+  expect(state.wepp_version).toBe("wepp_dcc52a6_hill");
 });

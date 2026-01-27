@@ -15,7 +15,8 @@ normalize around API-native parameters for new frontends.
 - **Units**: API models assume meters for lengths and percent for slopes. Legacy
   CGI supports both feet and meters and does explicit conversion.
 - **CLIGEN default**: API defaults to `cligen_version = "5.3.2"`; legacy CGI uses
-  CLIGEN 4.3 by default. This can change outputs even with identical inputs.
+  CLIGEN 4.31 by default (4.30 is available as a legacy option). This can change
+  outputs even with identical inputs.
 - **Database selection**: API supports multiple climate databases
   (`legacy`, `2015`, `au`, `ghcn`) via `ClimatePars.database`. Legacy CGI uses the
   local `.par` files only.
@@ -86,7 +87,7 @@ directly in the new frontend.
 | `state_code` | UI selection | n/a | Legacy uses station lists by region; API accepts explicit state code. |
 | `par_id` | station file path (`Climate`) | n/a | API uses station IDs; legacy uses file paths to `.par` files. |
 | `input_years` | `years` / `climyears` | UI: 1–200 | API explicit; legacy passes years to CLIGEN. |
-| `cligen_version` | fixed 4.3 | n/a | API default 5.3.2; legacy fixed 4.3. |
+| `cligen_version` | fixed 4.31 | n/a | API default 5.3.2; legacy fixed 4.31 (4.30 optional). |
 | `location` | UI map / lat-long | n/a | API requires explicit coordinates for prism or nearest station queries. |
 | `use_prism` | UI toggle | n/a | API boolean; legacy uses separate flow for PRISM-adjusted climates. |
 | `user_defined_par_mod.*` | custom `.par` file edits | n/a | UI stores JSON in cookies; legacy stores `.par` files. |
@@ -195,7 +196,7 @@ directly in the new frontend.
 | `ermit_pars.user_bare_pct` | `pct_bare` | UI: 0–100% | Optional. |
 | `climate.par_id` | `Climate` | allowlist | Legacy uses path to `.par` file; API expects station ID. |
 | `climate.input_years` | derived from `climyears` | UI: 1–200 | API explicit. |
-| `climate.cligen_version` | fixed 4.3 | n/a | API default 5.3.2; legacy fixed 4.3. |
+| `climate.cligen_version` | fixed 4.31 | n/a | API default 5.3.2; legacy fixed 4.31 (4.30 optional). |
 | `wepp_version` | `weppversion` | allowlist | API accepts a string; should be allowlisted in hardening pass. |
 
 ### Legacy ERMiT gnuplot specification

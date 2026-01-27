@@ -72,7 +72,7 @@ Allowed values:
   "state_code": "WA",
   "par_id": "WA459074",
   "input_years": 100,
-  "cligen_version": "5.3.2" | "4.3",
+  "cligen_version": "5.3.2" | "4.31" | "4.30",
   "location": {"longitude": -116.0, "latitude": 47.0},
   "use_prism": false,
   "user_defined_par_mod": {

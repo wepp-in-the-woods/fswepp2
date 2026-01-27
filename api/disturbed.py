@@ -39,18 +39,31 @@ def _short_hash(value, length: int = 12) -> str:
     return stable_hash(value)[:length]
 
 
+def _cache_key_for_state(state: "DisturbedWeppState") -> dict:
+    return {
+        "climate": state.climate,
+        "disturbedwepp_pars": state.disturbedwepp_pars,
+        "wepp_version": state.wepp_version,
+    }
+
+
 def _output_path_for_state(state: "DisturbedWeppState") -> str:
-    hash_id = _short_hash(state)
+    hash_id = _short_hash(_cache_key_for_state(state))
     return _join(TMP_BASE, f"wd_{hash_id}.dat")
 
 
 def _ebe_path_for_state(state: "DisturbedWeppState") -> str:
-    hash_id = _short_hash(state)
+    hash_id = _short_hash(_cache_key_for_state(state))
     return _join(TMP_BASE, f"wd_{hash_id}.ebe")
 
 
+def _wat_path_for_state(state: "DisturbedWeppState") -> str:
+    hash_id = _short_hash(_cache_key_for_state(state))
+    return _join(TMP_BASE, f"wd_{hash_id}.wat")
+
+
 def _run_path_for_state(state: "DisturbedWeppState") -> str:
-    hash_id = _short_hash(state)
+    hash_id = _short_hash(_cache_key_for_state(state))
     return _join(TMP_BASE, f"wd_{hash_id}.run")
 
 
@@ -142,9 +155,15 @@ class DisturbedWeppState(BaseModel):
     climate: ClimatePars
     disturbedwepp_pars: DisturbedWeppPars
     wepp_version: str = "wepp2010"
+    ignore_snowmelt_runoff_events: bool = False
     
     def __hash__(self):
-        return hash((self.climate, self.disturbedwepp_pars, self.wepp_version))
+        return hash((
+            self.climate,
+            self.disturbedwepp_pars,
+            self.wepp_version,
+            self.ignore_snowmelt_runoff_events,
+        ))
     
     
 soil_db_file = _join(_thisdir, "db/disturbed/soildb2014.yaml")
@@ -545,6 +564,8 @@ def create_run_file(state: DisturbedWeppState):
     _output_fn = _split(output_fn)[1]
     ebe_fn = _ebe_path_for_state(state)
     _ebe_fn = _split(ebe_fn)[1]
+    wat_fn = _wat_path_for_state(state)
+    _wat_fn = _split(wat_fn)[1]
 
     content = [
         "m",  # english or metric
@@ -552,10 +573,11 @@ def create_run_file(state: DisturbedWeppState):
         "1",  # 1 = continuous
         "1",  # 1 = hillslope
         "n",  # hillslope pass file out?
-        "2",  # 1 = abbreviated annual out, 2 = detailed annual out
+        "1",  # 1 = abbreviated annual out, 2 = detailed annual out
         "n",  # initial conditions file?
         f"{_output_fn}",  # soil loss output file
-        "n",  # water balance output?
+        "y",  # water balance output?
+        f"{_wat_fn}",  # water balance output file
         "n",  # crop output?
         "n",  # soil output?
         "n",  # distance/sed loss output?
@@ -692,9 +714,11 @@ def disturbed_run_wepp(
         response = {"annual_averages": base}
     ebe_summary = parse_wepp_ebe_return_periods(
         _ebe_path_for_state(state),
+        wat_file=_wat_path_for_state(state),
         years=int(state.climate.input_years),
         slope_length=slope_length,
         rec_intervals=[10, 5, 2, 1],
+        ignore_snowmelt=state.ignore_snowmelt_runoff_events,
     )
     if ebe_summary:
         response.update(ebe_summary)
@@ -724,6 +748,19 @@ def disturbed_get_wepp_ebe(state: DisturbedWeppState = Body(
     if not _exists(ebe_fn):
         run_disturbedwepp(state)
     contents = open(ebe_fn).read()
+    return Response(content=contents, media_type="application/text")
+
+
+@router.post("/disturbedwepp/GET/wepp_wat")
+def disturbed_get_wepp_wat(state: DisturbedWeppState = Body(
+        ...,
+        examples={"default": {"value": example_pars}}
+    )
+):
+    wat_fn = _wat_path_for_state(state)
+    if not _exists(wat_fn):
+        run_disturbedwepp(state)
+    contents = open(wat_fn).read()
     return Response(content=contents, media_type="application/text")
     
 

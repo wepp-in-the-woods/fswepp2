@@ -97,17 +97,48 @@ function formatUnitValue(value, categoryKey, canonicalUnit, precisionOverrides) 
 }
 
 function formatSurfaceDensity(valueKgM2) {
-  if (!Number.isFinite(valueKgM2)) {
-    return { value: "--", unit: "tonne/ha" };
-  }
+  const client = getUnitizerClient();
   const override = getGlobalUnitOverride();
-  const useEnglish = override === "english";
-  if (useEnglish) {
-    const tonPerAcre = Number(valueKgM2) * 4.460895;
-    return { value: tonPerAcre.toFixed(2), unit: "ton/acre" };
+  const categoryKey = "surface-density";
+  const canonicalUnit = "tonne/ha";
+  const canonicalValue = Number(valueKgM2) * 10;
+  let unitKey = canonicalUnit;
+
+  if (override === "english") {
+    unitKey = "ton/acre";
+  } else if (override === "metric") {
+    unitKey = "tonne/ha";
+  } else if (client) {
+    const prefs = client.getPreferencePayload?.() || {};
+    unitKey = prefs[categoryKey] || canonicalUnit;
   }
-  const tonnePerHa = Number(valueKgM2) * 10;
-  return { value: tonnePerHa.toFixed(2), unit: "tonne/ha" };
+
+  if (!client) {
+    const fallbackValue =
+      unitKey === "ton/acre" ? canonicalValue * 0.44609 : canonicalValue;
+    return {
+      value: Number.isFinite(valueKgM2) ? fallbackValue.toFixed(2) : "--",
+      unit: unitKey,
+    };
+  }
+
+  const category = client.getCategory?.(categoryKey);
+  const meta = category?.unitByKey?.get?.(unitKey);
+  let converted = canonicalValue;
+  if (Number.isFinite(valueKgM2) && unitKey !== canonicalUnit) {
+    try {
+      converted = client.convert(canonicalValue, canonicalUnit, unitKey);
+    } catch {
+      converted = canonicalValue;
+    }
+  }
+  const precision = meta?.precision ?? 2;
+  return {
+    value: Number.isFinite(valueKgM2)
+      ? Number(converted).toFixed(precision)
+      : "--",
+    unit: meta?.label || unitKey,
+  };
 }
 
 function normalizeNumber(value) {
@@ -495,6 +526,29 @@ export function mountDisturbedTool(root) {
         writeDisturbedState(state);
       }
     },
+    checkbox: {
+      id: "disturbed_ignore_snowmelt",
+      label: "Ignore rain/snow melt runoff events for return periods",
+      help: "Applies to return-period and first-year occurrence probabilities.",
+      checked: state.ignore_snowmelt_runoff_events,
+      onInput: (input) => {
+        state.ignore_snowmelt_runoff_events = input.checked;
+        writeDisturbedState(state);
+      },
+    },
+    weppVersion: {
+      id: "disturbed_wepp_version",
+      label: "WEPP Version",
+      options: [
+        { value: "wepp2010", label: "WEPP 2010" },
+        { value: "wepp_dcc52a6_hill", label: "WEPP dcc52a6 hill" },
+      ],
+      value: state.wepp_version,
+      onInput: (select) => {
+        state.wepp_version = select.value;
+        writeDisturbedState(state);
+      },
+    },
   });
   const yearsValidator = attachCanonicalValidator(hillslopeSection.field, {
     min: 1,
@@ -685,6 +739,15 @@ export function mountDisturbedTool(root) {
       downloadLabel: "Download .ebe",
       filename: "disturbed-events.ebe",
       persistKey: "fswepp2_disturbed_ebe_open",
+    },
+    {
+      key: "wat",
+      endpoint: "/api/disturbedwepp/GET/wepp_wat",
+      title: "WEPP Water Balance Output",
+      description: "Daily water balance WEPP output file.",
+      downloadLabel: "Download .wat",
+      filename: "disturbed-water-balance.wat",
+      persistKey: "fswepp2_disturbed_wat_open",
     },
   ].map((config) => ({
     ...config,
@@ -992,7 +1055,8 @@ export function mountDisturbedTool(root) {
           rfg_pct: state.lower_ofe.rfg_pct,
         },
       },
-      wepp_version: "wepp2010",
+      wepp_version: state.wepp_version,
+      ignore_snowmelt_runoff_events: state.ignore_snowmelt_runoff_events,
     };
 
     try {

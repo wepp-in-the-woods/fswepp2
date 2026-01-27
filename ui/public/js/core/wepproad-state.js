@@ -24,12 +24,14 @@ const DEFAULT_STATE = Object.freeze({
   },
   simulation_years: 100,
   isric_enabled: false,
+  wepp_version: "wepp2010",
 });
 
 const SOIL_TEXTURES = new Set(["clay", "silt", "sand", "loam"]);
 const SURFACES = new Set(["native", "gravel", "graveled", "paved"]);
 const DESIGNS = new Set(["inveg", "inbare", "outunrut", "outrut"]);
 const TRAFFIC = new Set(["high", "low", "none"]);
+const WEPP_VERSIONS = new Set(["wepp2010", "wepp_dcc52a6_hill"]);
 
 function normalizeNumber(value, fallback) {
   const num = Number(value);
@@ -65,6 +67,9 @@ function normalizeState(raw) {
     next.road.traffic = DEFAULT_STATE.road.traffic;
   }
   next.isric_enabled = Boolean(next.isric_enabled);
+  if (!WEPP_VERSIONS.has(next.wepp_version)) {
+    next.wepp_version = DEFAULT_STATE.wepp_version;
+  }
 
   next.rfg_pct = normalizeRange(next.rfg_pct, 0, 50, DEFAULT_STATE.rfg_pct);
   next.road.slope_pct = normalizeRange(
@@ -131,6 +136,9 @@ export function readWeppRoadState() {
     if (overrides) {
       if (config.simulation_years != null) {
         overrides.simulation_years = config.simulation_years;
+      }
+      if (config.wepp_version != null) {
+        overrides.wepp_version = config.wepp_version;
       }
     }
   }

@@ -833,7 +833,7 @@ example_pars = {
     "climate": {
         "par_id": "ID106152",
         "input_years": 100,
-        "cligen_version": "4.3"
+        "cligen_version": "4.31"
     }
 }
 

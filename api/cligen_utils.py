@@ -6,7 +6,8 @@ import subprocess
 _thisdir = os.path.dirname(os.path.abspath(__file__))
 _bin_dir = os.path.join(_thisdir, "cligen", "bin")
 
-CLIGEN43_BIN = os.path.join(_bin_dir, "cligen43")
+CLIGEN431_BIN = os.path.join(_bin_dir, "cligen431")
+CLIGEN430_BIN = os.path.join(_bin_dir, "cligen430")
 CLIGEN532_BIN = os.path.join(_bin_dir, "cligen532")
 
 
@@ -26,9 +27,9 @@ def _read_log_tail(log_path, max_chars=2000):
         return ""
 
 
-def _write_inp_43(inp_path, par_path, cli_path, years):
+def _write_inp_4x(inp_path, par_path, cli_path, years, version):
     with open(inp_path, "w") as inp_file:
-        inp_file.write("4.31\n")
+        inp_file.write(f"{version}\n")
         inp_file.write(f"{par_path}\n")
         inp_file.write("n do not display file here\n")
         inp_file.write("5 Multiple-year WEPP format\n")
@@ -55,21 +56,22 @@ def run_cligen(par_path, cli_path, years, cliver="5.3.2", randseed=12345, wd=Non
 
     cli_fname = os.path.basename(cli_path)
 
-    if cliver == "4.3":
-        if not os.path.exists(CLIGEN43_BIN):
-            raise CligenError("cligen43 binary not found.")
+    if cliver in ("4.31", "4.30"):
+        cligen_bin = CLIGEN431_BIN if cliver == "4.31" else CLIGEN430_BIN
+        if not os.path.exists(cligen_bin):
+            raise CligenError(f"cligen {cliver} binary not found.")
         short_id = os.path.splitext(cli_fname)[0][:8]
         short_par = f"c43_{short_id}.par"
         short_cli = f"c43_{short_id}.cli"
         short_inp = f"c43_{short_id}.inp"
         inp_path = os.path.join(wd, short_inp)
-        log_path = os.path.join(wd, f"cligen43_{short_id}.log")
+        log_path = os.path.join(wd, f"cligen4x_{short_id}.log")
         short_par_path = os.path.join(wd, short_par)
         short_cli_path = os.path.join(wd, short_cli)
         if par_path != short_par_path:
             shutil.copy(par_path, short_par_path)
-        _write_inp_43(inp_path, short_par, short_cli, years)
-        cmd = [CLIGEN43_BIN, f"-r{randseed}"]
+        _write_inp_4x(inp_path, short_par, short_cli, years, cliver)
+        cmd = [cligen_bin, f"-r{randseed}"]
         stdin_path = inp_path
     else:
         if not os.path.exists(CLIGEN532_BIN):
@@ -92,7 +94,7 @@ def run_cligen(par_path, cli_path, years, cliver="5.3.2", randseed=12345, wd=Non
 
     if os.path.exists(cli_path):
         os.remove(cli_path)
-    if cliver == "4.3" or cliver == "5.3.2":
+    if cliver in ("4.31", "4.30", "5.3.2"):
         if os.path.exists(short_cli_path):
             os.remove(short_cli_path)
 
@@ -110,7 +112,7 @@ def run_cligen(par_path, cli_path, years, cliver="5.3.2", randseed=12345, wd=Non
         tail = _read_log_tail(log_path)
         raise CligenError("Failed to generate climate file.", tail) from exc
 
-    if cliver == "4.3" or cliver == "5.3.2":
+    if cliver in ("4.31", "4.30", "5.3.2"):
         if os.path.exists(short_cli_path):
             shutil.move(short_cli_path, cli_path)
     if not os.path.exists(cli_path):

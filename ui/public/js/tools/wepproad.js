@@ -472,6 +472,19 @@ export function mountWeppRoadTool(root) {
         writeWeppRoadState(state);
       }
     },
+    weppVersion: {
+      id: "wepproad_wepp_version",
+      label: "WEPP Version",
+      options: [
+        { value: "wepp2010", label: "WEPP 2010" },
+        { value: "wepp_dcc52a6_hill", label: "WEPP dcc52a6 hill" },
+      ],
+      value: state.wepp_version,
+      onInput: (select) => {
+        state.wepp_version = select.value;
+        writeWeppRoadState(state);
+      },
+    },
   });
   const simValidator = attachCanonicalValidator(simSection.field, {
     min: 1,
@@ -899,7 +912,7 @@ export function mountWeppRoadTool(root) {
           length_m: state.buffer.length_m,
         },
       },
-      wepp_version: "wepp2010",
+      wepp_version: state.wepp_version,
     };
 
     try {

@@ -51,6 +51,7 @@ This section summarizes critical design decisions confirmed during specification
 
 ### Technical Implementation
 - ✅ **Testing Requirements**: Mandatory test coverage for all components (90% utils, 80% components); Bun test + Playwright
+- ✅ **Parity Baselines**: Parity testing uses already-captured legacy artifacts under `/workdir/fswepp2/parity-runs/*`; the legacy CGI stack is only required when re-capturing baselines.
 - ✅ **Icon Strategy**: Hybrid inline SVG (UI) + static files (tools) from React frontend
 - ✅ **deck.gl**: Self-hosted (local bundle or static asset), OpenStreetMap basemap
 - ✅ **Modal Component**: Custom modal (not native `<dialog>`)
@@ -130,7 +131,7 @@ Implements the climate selection interface as specified by the user. This contro
 
 **Sub-components:**
 - `DatabaseSelect`: Dropdown for selecting database (legacy, 2015, au, ghcn)
-- `CligenVersionSelect`: Dropdown for CLIGEN version (4.3, 5.3.2)
+- `CligenVersionSelect`: Dropdown for CLIGEN version (4.31, 4.30 legacy, 5.3.2)
 - `LocationFields`: Two separate numeric inputs for longitude and latitude
 - `MapLocationSection`: Collapsible section containing the deck.gl map
 - `MapView`: deck.gl map for location selection (expands inline within panel)
@@ -183,7 +184,7 @@ Implements the climate selection interface as specified by the user. This contro
 // Cookie: fswepp_climate
 {
   database: "legacy" | "2015" | "au" | "ghcn",
-  cligen_version: "4.3" | "5.3.2",
+  cligen_version: "4.31" | "4.30" | "5.3.2",
   location: { latitude: float, longitude: float } | null,
   par_id: string | null,
   input_years: int,
@@ -652,6 +653,8 @@ Disturbed WEPP predicts erosion from disturbed forest lands (post-fire, harvest,
 
 **Section 4: Simulation Options**
 - Simulation Years: Number input (1-200)
+  - Ignore rain/snow melt runoff events for return periods (checkbox)
+    - Applies to return-period analysis and first-year occurrence probabilities only.
   - **Note**: Representative width is currently fixed to the default (90 m) in the UI.
 
 **Visual Aid:**
@@ -690,6 +693,10 @@ Legacy results only (match the legacy results page):
 - **FSWEPP2 computation**: use the event-by-event (EBE) file, compute annual maxima
   for precipitation, runoff, erosion (Av-det), and sediment delivery, and rank
   annual maxima with Weibull (annual-maxima method, no Gringorten correction).
+- **Snowmelt filter (optional)**: when enabled, exclude EBE events whose runoff day
+  indicates snowmelt contributions (daily water balance output where RM > P and runoff > 0).
+- **Backend requirement:** use abbreviated annual output (annual average summaries still parsed);
+  return-period analysis is driven by the EBE file.
 
 **Probabilities of occurrence table**
 - Title: "Probabilities of occurrence first year following disturbance based on {simyears} years of climate"
@@ -2645,6 +2652,7 @@ The following features are documented for potential future implementation but ar
 - `POST /api/disturbedwepp/RUN/wepp` - Run Disturbed WEPP model
 - `POST /api/disturbedwepp/GET/wepp_output` - Get raw WEPP output
 - `POST /api/disturbedwepp/GET/wepp_ebe` - Get WEPP event-by-event output
+- `POST /api/disturbedwepp/GET/wepp_wat` - Get WEPP water balance output
 - `POST /api/disturbed/GET/run_file` - Get run file
 - `POST /api/disturbed/GET/soil` - Get soil file
 - `POST /api/disturbed/GET/slope` - Get slope file

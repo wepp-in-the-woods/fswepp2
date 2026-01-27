@@ -7,6 +7,7 @@ from fastapi import HTTPException
 
 ALLOWED_WEPP_VERSIONS = {
     "wepp2010",
+    "wepp_dcc52a6_hill",
 }
 
 

@@ -23,6 +23,8 @@ test("mountDisturbedTool renders core fields", () => {
   expect(document.getElementById("disturbed_lower_length")).not.toBeNull();
   expect(document.getElementById("disturbed_lower_cover")).not.toBeNull();
   expect(document.getElementById("disturbed_sim_years")).not.toBeNull();
+  expect(document.getElementById("disturbed_ignore_snowmelt")).not.toBeNull();
+  expect(document.getElementById("disturbed_wepp_version")).not.toBeNull();
 
   const runButton = Array.from(document.querySelectorAll("button")).find(
     (button) => button.textContent === "Run Disturbed WEPP Model"
