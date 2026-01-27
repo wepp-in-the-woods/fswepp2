@@ -201,10 +201,10 @@ def collect_case(case: dict, out_root: Path, skip_api: bool) -> dict:
 
     _ensure_dir(api_dir)
     _ensure_dir(legacy_dir)
-    if legacy_working_dir.exists():
-        for path in legacy_working_dir.iterdir():
-            if path.is_file():
-                path.unlink()
+
+    legacy_working_tmp = legacy_dir / "working_tmp"
+    if legacy_working_tmp.exists():
+        shutil.rmtree(legacy_working_tmp)
 
     summary = {
         "id": case_id,
@@ -231,33 +231,50 @@ def collect_case(case: dict, out_root: Path, skip_api: bool) -> dict:
 
     legacy_start = time.time()
     run_ids = []
+    legacy_success = False
+    has_legacy = False
     for curl_spec in curl_specs:
         name = curl_spec.get("name", "curl")
         command = curl_spec.get("command", "").strip()
         if not command or command.startswith("#"):
             continue
+        has_legacy = True
         out_path = legacy_dir / f"{name}.response.body"
         meta = _run_curl(command, out_path)
         run_ids.extend(meta.get("run_ids") or [])
         summary["legacy"].append({"name": name, "meta": meta})
+        if meta.get("returncode") == 0:
+            legacy_success = True
 
         if case.get("model") == "wepproad":
             response_text = out_path.read_text(encoding="utf-8", errors="replace")
             sections = _extract_wepproad_sections(response_text)
             if sections:
+                _ensure_dir(legacy_working_tmp)
                 for run_id in meta.get("run_ids") or []:
                     for ext, lines in sections.items():
-                        target = legacy_working_dir / f"{run_id}.{ext}"
+                        target = legacy_working_tmp / f"{run_id}.{ext}"
                         _write_text(target, "\n".join(lines) + "\n")
                         reconstructed_files.append(str(target))
 
-    copied = _copy_working_files(
-        working_dir,
-        legacy_working_dir,
-        legacy_start,
-        working_glob,
-        run_ids=sorted(set(run_ids)) or None,
-    )
+    copied = []
+    if has_legacy:
+        _ensure_dir(legacy_working_tmp)
+        copied = _copy_working_files(
+            working_dir,
+            legacy_working_tmp,
+            legacy_start,
+            working_glob,
+            run_ids=sorted(set(run_ids)) or None,
+        )
+        has_new_working = bool(copied or reconstructed_files)
+        if legacy_success and has_new_working:
+            if legacy_working_dir.exists():
+                shutil.rmtree(legacy_working_dir)
+            legacy_working_tmp.replace(legacy_working_dir)
+        else:
+            shutil.rmtree(legacy_working_tmp)
+
     if reconstructed_files:
         summary["working_files"] = sorted(set(copied + reconstructed_files))
     else:

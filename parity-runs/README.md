@@ -57,8 +57,10 @@ python /workdir/fswepp2/scripts/collect_representative_runs.py \
 - Provide curl commands exactly as used in the browser form submission.
 - If legacy responses are gzip-compressed, the script will auto-decompress.
 - **Important (do not wipe legacy runs):** `collect_representative_runs.py` clears
-  the destination `legacy/working/` directory for each case before writing new
-  files. To preserve existing legacy artifacts, either:
+  the destination `legacy/working/` directory only after a successful legacy
+  run that produces new working files. If the legacy curl fails or no new files
+  are captured, existing artifacts are preserved. To preserve existing legacy
+  artifacts across successful runs, either:
   - run with a different `--out` directory (e.g., `/workdir/fswepp2/parity-runs-YYYYMMDD`), or
   - copy `parity-runs/<model>/<run_enum>/legacy/working` elsewhere before re-running,
   - or rely on git to restore (`git checkout -- parity-runs/<model>/<run_enum>/legacy/working`).
