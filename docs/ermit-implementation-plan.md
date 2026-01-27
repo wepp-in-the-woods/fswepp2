@@ -87,11 +87,13 @@
 - [x] Re-render results on `unitizer:preferences-changed` (unit display sync).
 
 ### Phase 6 — File Download Collapsibles (ERMiT)
-- [ ] Add collapsible sections in results panel (prefetch + download):
-  - [ ] `/api/ermit/GET/management/{spatial_severity}`
-  - [ ] `/api/ermit/GET/soil/{spatial_severity}/{k}`
-  - [ ] `/api/ermit/GET/slope/{spatial_severity}`
-- [ ] Document spatial severity variants in UI (e.g., hhh/lll/uuu + mixed variants for severity cases).
+- [x] Add collapsible sections in results panel (prefetch + download):
+  - [x] `/api/ermit/GET/management/{spatial_severity}`
+  - [x] `/api/ermit/GET/soil/{spatial_severity}/{k}`
+  - [x] `/api/ermit/GET/slope/{spatial_severity}`
+  - [x] `/api/ermit/GET/wepp_output`
+  - [x] `/api/ermit/GET/wepp_ebe`
+- [x] Document spatial severity variants in UI (e.g., hhh/lll/uuu + mixed variants for severity cases).
 
 ### Phase 7 — Testing + Parity Checks
 - [ ] Unit tests:

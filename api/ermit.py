@@ -933,6 +933,40 @@ def ermit_get_management(spatial_severity: str, state: ErmitState = Body(
         raise HTTPException(status_code=404, detail=str(e))
 
 
+@router.post("/ermit/GET/wepp_output")
+def ermit_get_wepp_output(state: ErmitState = Body(
+        ...,
+        examples={"default": {"value": example_pars}}
+    )
+):
+    try:
+        hash_id = _short_hash(state)
+        output_fn = _join(TMP_BASE, f"e_{hash_id}.100.dat")
+        if not _exists(output_fn):
+            raise FileNotFoundError(f"I can't open file {output_fn}")
+        contents = open(output_fn).read()
+        return Response(content=contents, media_type="application/text")
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.post("/ermit/GET/wepp_ebe")
+def ermit_get_wepp_ebe(state: ErmitState = Body(
+        ...,
+        examples={"default": {"value": example_pars}}
+    )
+):
+    try:
+        hash_id = _short_hash(state)
+        ebe_fn = _join(TMP_BASE, f"e_{hash_id}.100.ebe")
+        if not _exists(ebe_fn):
+            raise FileNotFoundError(f"I can't open file {ebe_fn}")
+        contents = open(ebe_fn).read()
+        return Response(content=contents, media_type="application/text")
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
 @router.post("/ermit/RUN/wepp")
 def ermit_run_wepp(
     request: Request, 

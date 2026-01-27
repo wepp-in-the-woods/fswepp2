@@ -2665,6 +2665,8 @@ The following features are documented for potential future implementation but ar
 - `POST /api/ermit/GET/slope/{spatial_severity}` - Get slope file
 - `POST /api/ermit/GET/soil/{spatial_severity}/{k}` - Get soil file
 - `POST /api/ermit/GET/management/{spatial_severity}` - Get management file
+- `POST /api/ermit/GET/wepp_output` - Get WEPP soil loss output (.dat)
+- `POST /api/ermit/GET/wepp_ebe` - Get WEPP event-by-event output (.ebe)
 
 ---
 

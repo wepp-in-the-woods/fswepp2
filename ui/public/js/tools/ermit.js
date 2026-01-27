@@ -5,6 +5,8 @@ import { createVegetationBurnSeverity } from "../components/vegetation-burn-seve
 import { createRunButton } from "../components/run-button.js";
 import { createAnnualAveragesTable } from "../components/annual-averages-table.js";
 import { createCanvasChart } from "../components/canvas-chart.js";
+import { createCollapsibleSection } from "../components/collapsible.js";
+import { createPreformattedBlock } from "../components/preformatted.js";
 import { apiPost } from "../utils/api-client.js";
 import { readClimateState } from "../core/rockclim-state.js";
 import { readErmitState, writeErmitState } from "../core/ermit-state.js";
@@ -220,6 +222,64 @@ function ordinalSuffix(value) {
   return `${value}th year`;
 }
 
+function getSpatialSeverities(burnSeverity) {
+  switch (burnSeverity) {
+    case "High":
+      return ["hhh", "lhh", "hlh", "hhl", "llh", "lhl", "hll", "lll"];
+    case "Moderate":
+      return ["hlh", "hhl", "llh", "lhl", "hll", "lll"];
+    case "Low":
+      return ["llh", "lhl", "hll", "lll"];
+    case "Unburned":
+      return ["uuu"];
+    default:
+      return ["lll"];
+  }
+}
+
+function createSelectControl({ label, options = [], value, onChange } = {}) {
+  const wrapper = document.createElement("label");
+  wrapper.className = "flex flex-col gap-1 text-xs text-muted-foreground";
+  const text = document.createElement("span");
+  text.textContent = label || "";
+
+  const select = document.createElement("select");
+  select.className = "h-8 rounded-md border border-input bg-background px-2 text-xs";
+  wrapper.appendChild(text);
+  wrapper.appendChild(select);
+
+  const setOptions = (nextOptions = [], nextValue) => {
+    const currentValue = nextValue ?? select.value;
+    select.innerHTML = "";
+    nextOptions.forEach((option) => {
+      const opt = document.createElement("option");
+      if (option && typeof option === "object") {
+        opt.value = String(option.value);
+        opt.textContent = option.label ?? String(option.value);
+      } else {
+        opt.value = String(option);
+        opt.textContent = String(option);
+      }
+      select.appendChild(opt);
+    });
+    if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
+      select.value = currentValue;
+    } else if (nextOptions.length) {
+      const first = nextOptions[0];
+      select.value =
+        typeof first === "object" ? String(first.value) : String(first);
+    }
+  };
+
+  setOptions(options, value);
+
+  if (typeof onChange === "function") {
+    select.addEventListener("change", () => onChange(select.value));
+  }
+
+  return { wrapper, select, setOptions };
+}
+
 export function mountErmitTool(root) {
   if (!root) return;
   const state = readErmitState();
@@ -229,6 +289,7 @@ export function mountErmitTool(root) {
   let lastYears = null;
   let lastRunState = null;
   let lastClimateState = null;
+  let lastFilePayload = null;
 
   root.innerHTML = "";
   const container = document.createElement("div");
@@ -430,7 +491,7 @@ export function mountErmitTool(root) {
   const exceedanceChart = createCanvasChart({
     type: "exceedance",
     options: {
-      minHeight: 560,
+      minHeight: 640,
       margins: { bottom: 60 },
       tooltip: { portal: true },
       xAxis: { label: "Sediment Delivery", labelOffset: 32 },
@@ -480,6 +541,223 @@ export function mountErmitTool(root) {
   `;
   const sedimentBody = sedimentTable.querySelector("tbody");
 
+  const filesContainer = document.createElement("div");
+  filesContainer.className = "space-y-4";
+
+  function createFileSection({
+    id,
+    title,
+    description,
+    downloadLabel,
+    filename,
+    persistKey,
+    includeSeverity,
+    includeSoilIndex,
+  }) {
+    const content = document.createElement("div");
+    content.className = "space-y-3";
+    const meta = document.createElement("div");
+    meta.className = "flex flex-wrap items-center gap-3";
+    const status = document.createElement("p");
+    status.className = "text-xs text-muted-foreground";
+
+    const controls = document.createElement("div");
+    controls.className = "flex flex-wrap items-center gap-3";
+
+    let severitySelect = null;
+    if (includeSeverity) {
+      severitySelect = createSelectControl({
+        label: "Spatial severity",
+        options: [],
+      });
+      controls.appendChild(severitySelect.wrapper);
+    }
+
+    let soilIndexSelect = null;
+    if (includeSoilIndex) {
+      soilIndexSelect = createSelectControl({
+        label: "Soil set",
+        options: [
+          { value: 0, label: "Set 1" },
+          { value: 1, label: "Set 2" },
+          { value: 2, label: "Set 3" },
+          { value: 3, label: "Set 4" },
+          { value: 4, label: "Set 5" },
+        ],
+      });
+      controls.appendChild(soilIndexSelect.wrapper);
+    }
+
+    const download = document.createElement("a");
+    download.className =
+      "ml-auto inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-base font-medium transition-all border border-border bg-background hover:bg-accent";
+    download.textContent = downloadLabel;
+    download.href = "#";
+    download.setAttribute("aria-disabled", "true");
+    download.addEventListener("click", (event) => {
+      if (download.getAttribute("aria-disabled") === "true") {
+        event.preventDefault();
+      }
+    });
+
+    meta.appendChild(status);
+    if (controls.childNodes.length) {
+      meta.appendChild(controls);
+    }
+    meta.appendChild(download);
+
+    const block = createPreformattedBlock({
+      id,
+      className: "max-h-80 overflow-y-auto",
+    });
+    content.appendChild(meta);
+    content.appendChild(block.pre);
+    const section = createCollapsibleSection({
+      id: `${id}-section`,
+      title,
+      description,
+      content,
+      persistKey,
+      defaultOpen: false,
+    });
+
+    let blobUrl = "";
+    function setDownloadEnabled(enabled, nextFilename, text) {
+      download.setAttribute("aria-disabled", enabled ? "false" : "true");
+      download.tabIndex = enabled ? 0 : -1;
+      download.classList.toggle("opacity-60", !enabled);
+      download.classList.toggle("pointer-events-none", !enabled);
+      if (!enabled) {
+        download.removeAttribute("href");
+        download.removeAttribute("download");
+        if (blobUrl) {
+          URL.revokeObjectURL(blobUrl);
+          blobUrl = "";
+        }
+        return;
+      }
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
+      }
+      const blob = new Blob([text || ""], { type: "application/text" });
+      blobUrl = URL.createObjectURL(blob);
+      download.href = blobUrl;
+      download.download = nextFilename || filename;
+    }
+
+    function setStatus(message) {
+      status.textContent = message || "";
+    }
+
+    function setText(text, nextFilename) {
+      block.setText(text || "");
+      if (text) {
+        const label = nextFilename || filename;
+        setStatus(`Loaded ${label}`);
+        setDownloadEnabled(true, label, text);
+      } else {
+        setStatus("File is not available yet.");
+        setDownloadEnabled(false, "", "");
+      }
+    }
+
+    function clearText() {
+      block.setText("");
+      setDownloadEnabled(false, "", "");
+    }
+
+    return {
+      section,
+      setStatus,
+      setText,
+      clearText,
+      severitySelect,
+      soilIndexSelect,
+    };
+  }
+
+  const fileSections = [
+    {
+      key: "management",
+      title: "Management File",
+      description: "Generated management (.man) file used by WEPP.",
+      downloadLabel: "Download .man",
+      filename: "ermit-management.man",
+      persistKey: "fswepp2_ermit_man_open",
+      includeSeverity: true,
+      endpoint: ({ spatialSeverity }) =>
+        `/api/ermit/GET/management/${spatialSeverity}`,
+      buildFilename: ({ spatialSeverity }) =>
+        `ermit-management-${spatialSeverity}.man`,
+    },
+    {
+      key: "soil",
+      title: "Soil File",
+      description: "Generated soil (.sol) file used by WEPP.",
+      downloadLabel: "Download .sol",
+      filename: "ermit-soil.sol",
+      persistKey: "fswepp2_ermit_sol_open",
+      includeSeverity: true,
+      includeSoilIndex: true,
+      endpoint: ({ spatialSeverity, soilIndex }) =>
+        `/api/ermit/GET/soil/${spatialSeverity}/${soilIndex}`,
+      buildFilename: ({ spatialSeverity, soilIndex }) =>
+        `ermit-soil-${spatialSeverity}-set-${Number(soilIndex) + 1}.sol`,
+    },
+    {
+      key: "slope",
+      title: "Slope File",
+      description: "Generated slope (.slp) file used by WEPP.",
+      downloadLabel: "Download .slp",
+      filename: "ermit-slope.slp",
+      persistKey: "fswepp2_ermit_slp_open",
+      includeSeverity: true,
+      endpoint: ({ spatialSeverity }) =>
+        `/api/ermit/GET/slope/${spatialSeverity}`,
+      buildFilename: ({ spatialSeverity }) =>
+        `ermit-slope-${spatialSeverity}.slp`,
+    },
+    {
+      key: "wepp_output",
+      title: "WEPP Output",
+      description: "Raw WEPP output file.",
+      downloadLabel: "Download .dat",
+      filename: "ermit-wepp-output.dat",
+      persistKey: "fswepp2_ermit_wepp_out_open",
+      endpoint: () => "/api/ermit/GET/wepp_output",
+    },
+    {
+      key: "wepp_ebe",
+      title: "WEPP EBE Output",
+      description: "Event-by-event WEPP output file.",
+      downloadLabel: "Download .ebe",
+      filename: "ermit-wepp-output.ebe",
+      persistKey: "fswepp2_ermit_wepp_ebe_open",
+      endpoint: () => "/api/ermit/GET/wepp_ebe",
+    },
+  ].map((config) => ({
+    ...config,
+    ui: createFileSection(config),
+  }));
+
+  fileSections.forEach((entry) => {
+    if (entry.ui.severitySelect) {
+      entry.ui.severitySelect.select.addEventListener("change", () => {
+        if (!lastFilePayload) return;
+        prefetchFile(entry, lastFilePayload);
+      });
+    }
+    if (entry.ui.soilIndexSelect) {
+      entry.ui.soilIndexSelect.select.addEventListener("change", () => {
+        if (!lastFilePayload) return;
+        prefetchFile(entry, lastFilePayload);
+      });
+    }
+    entry.ui.setStatus("Run the model to generate files.");
+  });
+
+  fileSections.forEach((entry) => filesContainer.appendChild(entry.ui.section));
+
   const resultsContent = document.createElement("div");
   resultsContent.className = "space-y-6";
   resultsContent.appendChild(inputsSummaryHeading);
@@ -492,6 +770,7 @@ export function mountErmitTool(root) {
   resultsContent.appendChild(sedimentHeading);
   resultsContent.appendChild(sedimentControl);
   resultsContent.appendChild(sedimentTable);
+  resultsContent.appendChild(filesContainer);
   resultsSection.appendChild(resultsContent);
 
   function showErrorDetails(text) {
@@ -507,6 +786,70 @@ export function mountErmitTool(root) {
   function clearErrorDetails() {
     details.classList.add("hidden");
     detailBody.textContent = "";
+  }
+
+  function getFileSelection(entry) {
+    const spatialSeverity = entry.ui.severitySelect
+      ? entry.ui.severitySelect.select.value
+      : "uuu";
+    const soilIndex = entry.ui.soilIndexSelect
+      ? Number(entry.ui.soilIndexSelect.select.value)
+      : null;
+    return { spatialSeverity, soilIndex };
+  }
+
+  async function prefetchFile(entry, payload) {
+    if (!payload) return;
+    const { spatialSeverity, soilIndex } = getFileSelection(entry);
+    if (!spatialSeverity) return;
+    const endpoint = entry.endpoint({ spatialSeverity, soilIndex });
+    const downloadName = entry.buildFilename
+      ? entry.buildFilename({ spatialSeverity, soilIndex })
+      : entry.filename;
+
+    entry.ui.clearText();
+    entry.ui.setStatus("Loading file...");
+    try {
+      const response = await apiPost(endpoint, payload, { timeoutMs: 60000 });
+      const text = typeof response === "string" ? response : "";
+      if (!text) {
+        entry.ui.setStatus("File is not available yet.");
+        return;
+      }
+      entry.ui.setText(text, downloadName);
+    } catch (error) {
+      console.error(`[ermit] Failed to load ${entry.key} file`, error);
+      entry.ui.setStatus("Unable to load file.");
+    }
+  }
+
+  function prefetchFiles(payload) {
+    if (!payload) return;
+    fileSections.forEach((entry) => {
+      prefetchFile(entry, payload);
+    });
+  }
+
+  function configureFileSections(currentState, payload) {
+    lastFilePayload = payload;
+    const severities = getSpatialSeverities(currentState.burn_severity).map(
+      (value) => ({ value, label: value.toUpperCase() })
+    );
+    fileSections.forEach((entry) => {
+      if (entry.ui.severitySelect) {
+        entry.ui.severitySelect.setOptions(severities);
+      }
+      if (entry.ui.soilIndexSelect) {
+        entry.ui.soilIndexSelect.setOptions([
+          { value: 0, label: "Set 1" },
+          { value: 1, label: "Set 2" },
+          { value: 2, label: "Set 3" },
+          { value: 3, label: "Set 4" },
+          { value: 4, label: "Set 5" },
+        ]);
+      }
+    });
+    prefetchFiles(payload);
   }
 
   function setFormDisabled(disabled) {
@@ -1088,6 +1431,7 @@ export function mountErmitTool(root) {
       lastClimateState = { ...climateState };
       resultsSection.style.display = "";
       renderResults(response, lastYears);
+      configureFileSections(state, payload);
       runButton.setState("success", "Completed");
     } catch (error) {
       let message = "Unable to run ERMiT. Please try again.";
@@ -1110,6 +1454,11 @@ export function mountErmitTool(root) {
       runButton.setState("error", "Retry", message);
       showErrorDetails(detail);
       console.error("[ermit] run failed", error);
+      lastFilePayload = null;
+      fileSections.forEach((entry) => {
+        entry.ui.setStatus("Run the model to generate files.");
+        entry.ui.clearText();
+      });
     } finally {
       setFormDisabled(false);
     }
