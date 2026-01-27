@@ -46,6 +46,9 @@ management_data_dir = _join(_thisdir, 'db/ermit/managements')
 
 soil_db_file = _join(_thisdir, "db/ermit/soilsdb.yaml")
 
+CLIMATE_PROBABILITIES = (0.075, 0.075, 0.20, 0.275, 0.375)
+RUNOFF_SELECTED_RANKS = (5, 10, 20, 50, 75)
+
 with open(soil_db_file, 'r') as file:
     soil_db = yaml.safe_load(file)
 
@@ -77,6 +80,48 @@ def _sanitize_json(value):
     if isinstance(value, Number) and not isinstance(value, bool):
         return float(value) if math.isfinite(float(value)) else None
     return value
+
+
+def _select_runoff_years(annual_maxima_events, selected_ranks=RUNOFF_SELECTED_RANKS):
+    if not annual_maxima_events:
+        raise ValueError("No runoff ranks found")
+
+    max_events = sorted(annual_maxima_events, key=lambda e: e["year"])
+    run_off = [event.get("runoff_mm", 0.0) for event in max_events]
+    if not run_off:
+        raise ValueError("No runoff ranks found")
+
+    indx = list(range(len(run_off)))
+    for i in range(len(indx) - 1):
+        m = i
+        for j in range(i + 1, len(indx)):
+            if run_off[indx[j]] > run_off[indx[m]]:
+                m = j
+        indx[m], indx[i] = indx[i], indx[m]
+
+    selected_years_for_weights = []
+    selected_dates = []
+    previous_years = []
+    for rank in selected_ranks:
+        rank_idx = rank - 1
+        idx = indx[rank_idx] if rank_idx < len(indx) else 0
+        event = max_events[idx]
+        year = int(event["year"])
+        selected_years_for_weights.append(year)
+        selected_dates.append({"month": event["month"], "day": event["day"], "year": year})
+        previous_years.append(year - 1 if year > 1 else year)
+
+    years_to_run = sorted(set(selected_years_for_weights + previous_years))
+
+    return years_to_run, selected_years_for_weights, selected_dates
+
+
+def _climate_weights_by_year(selected_years_for_weights, base_weights=CLIMATE_PROBABILITIES):
+    weights = {}
+    for idx, year in enumerate(selected_years_for_weights):
+        weight = float(base_weights[idx])
+        weights[year] = weights.get(year, 0.0) + weight
+    return weights
 
 
 class BurnSeverity(enum.Enum):
@@ -339,13 +384,20 @@ def get_spatial_severities(severity_class: BurnSeverity) -> tuple:
     return spatial_severities
 
 
-def get_probabilities(severity_class: BurnSeverity, is_moonsoonal: bool, spatial_severities: list, selected_years: list, sed_results) -> dict:
+def get_probabilities(
+    severity_class: BurnSeverity,
+    is_moonsoonal: bool,
+    spatial_severities: list,
+    climate_weights_by_year: dict,
+    sed_results,
+) -> dict:
     """
     Get the probabilities based on severity class.
     
     Parameters:
     severity_class (str): The severity class (e.g., 'h', 'm', 'l', 'u').
-    
+    climate_weights_by_year (dict): Mapping of climate year -> probability weight.
+
     Returns:
     dict: A dictionary containing the probabilities.
     """
@@ -378,8 +430,6 @@ def get_probabilities(severity_class: BurnSeverity, is_moonsoonal: bool, spatial
         prob_spatial = [[1.0], [1.0], [1.0], [1.0], [1.0]]
     else:
         raise ValueError(f"Invalid severity class: {severity_class}")
-    
-    prob_climate = ( 0.075, 0.075, 0.20, 0.275, 0.375 )
     
     _prob_soil_untreated = [
         [0.10, 0.20, 0.40, 0.20, 0.10],  # year 0
@@ -439,19 +489,27 @@ def get_probabilities(severity_class: BurnSeverity, is_moonsoonal: bool, spatial
     ]
     
     prob_soil = {
-            "untreated": _prob_soil_untreated,
-            "seeding": _prob_soil_seeding,
-            "mulching_47": _prob_soil_mulching_47, # 1/2 ton / acre
-            "mulching_72": _prob_soil_mulching_72, # 1 ton / acre
-            "mulching_89": _prob_soil_mulching_89, # 1-1/2 ton / acre
-            "mulching_94": _prob_soil_mulching_94, # 2 ton / acre
+        "untreated": _prob_soil_untreated,
+        "seeding": _prob_soil_seeding,
+        "mulching_47": _prob_soil_mulching_47,  # 1/2 ton / acre
+        "mulching_72": _prob_soil_mulching_72,  # 1 ton / acre
+        "mulching_89": _prob_soil_mulching_89,  # 1-1/2 ton / acre
+        "mulching_94": _prob_soil_mulching_94,  # 2 ton / acre
     }
+
+    if severity_class == BurnSeverity.Unburned:
+        for treatment, rows in prob_soil.items():
+            base_row = list(rows[0])
+            prob_soil[treatment] = [list(base_row) for _ in range(5)]
      
     cum_probabilities = {}
+    stopped = {}
     for treatment in prob_soil:
         cum_probabilities[treatment] = []
+        stopped[treatment] = []
         for yr_after in range(5):
             cum_probabilities[treatment].append([0.01])
+            stopped[treatment].append(False)
             
     sed_deliveries = []
     for event in sed_results:
@@ -461,7 +519,7 @@ def get_probabilities(severity_class: BurnSeverity, is_moonsoonal: bool, spatial
         sed_delivery = event['sed_del_kg_m2']
         sed_deliveries.append(sed_delivery)
         
-        _prob_climate = float(prob_climate[selected_years.index(year)])
+        _prob_climate = float(climate_weights_by_year.get(year, 0.0))
                               
         for treatment in prob_soil:
             for yr_after in range(5):
@@ -470,17 +528,21 @@ def get_probabilities(severity_class: BurnSeverity, is_moonsoonal: bool, spatial
                 
                 _prob_soil_untreated = float(prob_soil[treatment][yr_after][k])
                 
+                last_p = cum_probabilities[treatment][yr_after][-1]
+                if stopped[treatment][yr_after]:
+                    cum_probabilities[treatment][yr_after].append(last_p)
+                    continue
+
+                prob = last_p + _prob_climate * _prob_spatial * _prob_soil_untreated
+                if prob > 1.0:
+                    prob = 1.0
+
                 if sed_delivery <= 0.0:
-                    cum_probabilities[treatment][yr_after].append(1.0)
-                else:
-                    last_p = cum_probabilities[treatment][yr_after][-1]
-                    if last_p >= 1.0:
-                        continue
-                    
-                    prob = last_p + _prob_climate * _prob_spatial * _prob_soil_untreated
-                    if prob > 1.0:
-                        prob = 1.0
                     cum_probabilities[treatment][yr_after].append(prob)
+                    stopped[treatment][yr_after] = True
+                    continue
+
+                cum_probabilities[treatment][yr_after].append(prob)
         
     return cum_probabilities, sed_deliveries
 
@@ -613,7 +675,14 @@ def get_management_file(spatial_severity: str, ermit_state: ErmitState) -> str:
     return man_file_path
 
 
-def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int, cli_fn: str, selected_dates: list):
+def run_ermitwepp_short_climate(
+    state: ErmitState,
+    spatial_severity: str,
+    k: int,
+    cli_fn: str,
+    selected_dates: list,
+    years_to_simulate: Optional[int] = None,
+):
     cwd = TMP_BASE
     ensure_frost_file(cwd, FROST_DEFAULTS["ermit"])
         
@@ -651,6 +720,9 @@ def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int
     _unlink_if_exists(ebe_fn)
     _unlink_if_exists(stout_fn)
     _unlink_if_exists(sterr_fn)
+    if years_to_simulate is None:
+        years_to_simulate = len(selected_dates)
+
     content = [
         "m",  # english or metric
         "y",  # not watershed
@@ -676,7 +748,7 @@ def run_ermitwepp_short_climate(state: ErmitState, spatial_severity: str, k: int
         f"{_cli_fn}",  # climate file name
         f"{_soil_fn}",  # soil file name
         "0",  # 0 = no irrigation
-        f"{len(selected_dates)}",  # no. years to simulate
+        f"{years_to_simulate}",  # no. years to simulate
         "0"  # 0 = route all events
     ]
     
@@ -735,7 +807,7 @@ def run_ermitwepp(state: ErmitState):
     # Legacy ERMiT uses high100.man for the initial 100-year run.
     man_fn = _join(management_data_dir, 'high100.man')
     _man_fn = _split(man_fn)[1]
-    
+
     shutil.copyfile(man_fn, _join(cwd, f'{_man_fn}'))
     
     cli_fn = get_climate(state.climate)
@@ -812,39 +884,36 @@ def run_ermitwepp(state: ErmitState):
         return {"error": "WEPP run was not successful"}
 
     largest_runoff_events = get_annual_maxima_events_from_ebe(ebe_fn)
-    runoff_year_ranks_descending = largest_runoff_events['runoff_year_ranks_descending']
-    
-    selected_ranks = [ 5, 10, 20, 50, 75 ]
-    
-    if len(runoff_year_ranks_descending) < selected_ranks[-1]:
-        raise ValueError(f"Insufficient runoff ranks: {len(runoff_year_ranks_descending)}")
-    
-    selected_years = [ runoff_year_ranks_descending[i-1] for i in selected_ranks ]
+    annual_maxima_events = largest_runoff_events['annual_maxima_events']
+
+    years_to_run, selected_years_for_weights, selected_dates = _select_runoff_years(
+        annual_maxima_events,
+        RUNOFF_SELECTED_RANKS,
+    )
+    climate_weights_by_year = _climate_weights_by_year(selected_years_for_weights, CLIMATE_PROBABILITIES)
     
     cli_fn = get_climate(state.climate)
     climate = ClimateFile(cli_fn)
     is_moonsoonal = climate.is_monsoonal
-    climate.selected_years_filter(selected_years)
+    climate.selected_years_filter(years_to_run)
     
     cli_truncated_fn = cli_fn.replace('.cli', '_.cli')
     climate.write(cli_truncated_fn)
     
     spatial_severities = get_spatial_severities(state.ermit_pars.burn_severity)
     
-    selected_dates = []
-    for year in selected_years:
-        for event in largest_runoff_events['annual_maxima_events']:
-            if event['year'] == year:
-                selected_dates.append({'month': event['month'], 'day': event['day'], 'year': year})
-                break
-        
-    if len(selected_dates) != len(selected_years):
-        raise ValueError("Selected dates length does not match selected years")
-        
     sed_results = []
     with ThreadPoolExecutor() as executor:
         futures = [
-            executor.submit(run_ermitwepp_short_climate, state, spatial_severity, k, cli_truncated_fn, selected_dates)
+            executor.submit(
+                run_ermitwepp_short_climate,
+                state,
+                spatial_severity,
+                k,
+                cli_truncated_fn,
+                selected_dates,
+                years_to_simulate=len(years_to_run),
+            )
             for spatial_severity in spatial_severities for k in range(5)
         ]
         for future in as_completed(futures):
@@ -859,7 +928,14 @@ def run_ermitwepp(state: ErmitState):
         json.dump(sed_results, fp, indent=2)
     
     with ThreadPoolExecutor() as executor:
-        future_probabilities = executor.submit(get_probabilities, state.ermit_pars.burn_severity, is_moonsoonal, spatial_severities, selected_years, sed_results)
+        future_probabilities = executor.submit(
+            get_probabilities,
+            state.ermit_pars.burn_severity,
+            is_moonsoonal,
+            spatial_severities,
+            climate_weights_by_year,
+            sed_results,
+        )
         future_summary = executor.submit(parse_wepp_soil_output, output_fn, return_period_measures = ['runoff_from_rain+snow_mm'])
         future_ebe_events = executor.submit(get_annual_maxima_events_from_ebe, ebe_fn, cli_fn)
 
