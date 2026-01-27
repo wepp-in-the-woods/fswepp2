@@ -22,6 +22,17 @@ const LANDUSE_OPTIONS = [
   { value: "Skid", label: "Skid Trail" },
 ];
 
+const LANDUSE_COVER_DEFAULTS = {
+  OldForest: 100,
+  YoungForest: 100,
+  Shrub: 80,
+  Bunchgrass: 40,
+  Sod: 60,
+  LowFire: 85,
+  HighFire: 45,
+  Skid: 10,
+};
+
 function getUnitizerClient() {
   return window.UnitizerClient?.getClientSync?.() || null;
 }
@@ -166,6 +177,15 @@ function attachCanonicalValidator(field, options) {
   return { validate };
 }
 
+function applyLanduseCover(landuseValue, coverField, coverValidator) {
+  const cover = LANDUSE_COVER_DEFAULTS[landuseValue];
+  if (!Number.isFinite(cover)) return null;
+  coverField.input.value = String(cover);
+  coverField.input.dataset.unitizerCanonicalValue = String(cover);
+  coverValidator?.validate?.();
+  return cover;
+}
+
 export function mountDisturbedTool(root) {
   if (!root) return;
 
@@ -205,14 +225,10 @@ export function mountDisturbedTool(root) {
 
   const upperLanduseField = createSelectField({
     id: "disturbed_upper_landuse",
-    label: "Treatment Type",
+    label: "Treatment/Vegetation",
     options: LANDUSE_OPTIONS,
   });
   upperLanduseField.select.value = state.upper_ofe.landuse;
-  upperLanduseField.select.addEventListener("change", () => {
-    state.upper_ofe.landuse = upperLanduseField.select.value;
-    writeDisturbedState(state);
-  });
 
   const upperSlope1Field = createFormField({
     id: "disturbed_upper_slope_top",
@@ -302,6 +318,28 @@ export function mountDisturbedTool(root) {
     label: "Plant cover",
   });
 
+  const upperCoverDefault = applyLanduseCover(
+    state.upper_ofe.landuse,
+    upperCoverField,
+    upperCoverValidator
+  );
+  if (upperCoverDefault != null && upperCoverDefault !== state.upper_ofe.cover_pct) {
+    state.upper_ofe.cover_pct = upperCoverDefault;
+  }
+
+  upperLanduseField.select.addEventListener("change", () => {
+    state.upper_ofe.landuse = upperLanduseField.select.value;
+    const cover = applyLanduseCover(
+      state.upper_ofe.landuse,
+      upperCoverField,
+      upperCoverValidator
+    );
+    if (cover != null) {
+      state.upper_ofe.cover_pct = cover;
+    }
+    writeDisturbedState(state);
+  });
+
   upperLeft.appendChild(upperLanduseField.wrapper);
   upperLeft.appendChild(upperCoverField.wrapper);
   upperRight.appendChild(upperSlope1Field.wrapper);
@@ -321,14 +359,10 @@ export function mountDisturbedTool(root) {
 
   const lowerLanduseField = createSelectField({
     id: "disturbed_lower_landuse",
-    label: "Treatment Type",
+    label: "Treatment/Vegetation",
     options: LANDUSE_OPTIONS,
   });
   lowerLanduseField.select.value = state.lower_ofe.landuse;
-  lowerLanduseField.select.addEventListener("change", () => {
-    state.lower_ofe.landuse = lowerLanduseField.select.value;
-    writeDisturbedState(state);
-  });
 
   const lowerSlope1Field = createFormField({
     id: "disturbed_lower_slope_mid",
@@ -418,6 +452,28 @@ export function mountDisturbedTool(root) {
     label: "Plant cover",
   });
 
+  const lowerCoverDefault = applyLanduseCover(
+    state.lower_ofe.landuse,
+    lowerCoverField,
+    lowerCoverValidator
+  );
+  if (lowerCoverDefault != null && lowerCoverDefault !== state.lower_ofe.cover_pct) {
+    state.lower_ofe.cover_pct = lowerCoverDefault;
+  }
+
+  lowerLanduseField.select.addEventListener("change", () => {
+    state.lower_ofe.landuse = lowerLanduseField.select.value;
+    const cover = applyLanduseCover(
+      state.lower_ofe.landuse,
+      lowerCoverField,
+      lowerCoverValidator
+    );
+    if (cover != null) {
+      state.lower_ofe.cover_pct = cover;
+    }
+    writeDisturbedState(state);
+  });
+
   lowerLeft.appendChild(lowerLanduseField.wrapper);
   lowerLeft.appendChild(lowerCoverField.wrapper);
   lowerRight.appendChild(lowerSlope1Field.wrapper);
@@ -426,6 +482,8 @@ export function mountDisturbedTool(root) {
   lowerGrid.appendChild(lowerLeft);
   lowerGrid.appendChild(lowerRight);
   lowerSection.appendChild(lowerGrid);
+
+  writeDisturbedState(state);
 
   const hillslopeSection = createSimulationOptions({
     id: "disturbed_sim_years",

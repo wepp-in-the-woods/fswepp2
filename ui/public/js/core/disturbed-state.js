@@ -11,7 +11,7 @@ const DEFAULT_STATE = Object.freeze({
     slope_point1_pct: 0,
     slope_point2_pct: 30,
     length_m: 100,
-    cover_pct: 80,
+    cover_pct: 100,
     rfg_pct: 20,
   },
   lower_ofe: {
@@ -19,7 +19,7 @@ const DEFAULT_STATE = Object.freeze({
     slope_point1_pct: 32,
     slope_point2_pct: 5,
     length_m: 200,
-    cover_pct: 10,
+    cover_pct: 45,
     rfg_pct: 20,
   },
   width_m: 90,
