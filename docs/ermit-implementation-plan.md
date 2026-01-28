@@ -13,7 +13,7 @@
 - [x] Lock in canonical default values (UI defaults):
   - [x] Soil texture: **clay loam** (`soil_texture: "clay"`)
   - [x] Rock fragment content: **20%** (`rfg_pct: 20`)
-  - [x] Slope gradients: **top 0.001%**, **middle 50%**, **bottom 30%**
+- [x] Slope gradients: **top 0%**, **middle 50%**, **bottom 30%**
   - [x] Hillslope length: **300 ft** (store canonical metric in state)
   - [x] Vegetation: **Chaparral**
   - [x] Burn severity: **Low**
@@ -24,7 +24,7 @@
 - [x] Add ERMiT state module: `ui/public/js/core/ermit-state.js`.
   - [x] Storage key: `fswepp_ermit_state`.
   - [x] Include URL override support via `getConfigFromUrl()` (keys aligned with other tools: `ermit_pars`, `ermit`, `ermit_state`, plus `simulation_years` + `wepp_version`).
-  - [x] Normalize ranges consistent with API: slopes 0.001–100, length 0–300, rfg 5–85, cover 0–100, sum ≤ 100 for non‑forest.
+  - [x] Normalize ranges consistent with API: slopes 0–100, length 0–300, rfg 5–85, cover 0–100, sum ≤ 100 for non‑forest.
   - [x] Store **canonical metric values** only.
 - [x] Add ERMiT tool mount in `ui/public/js/app.js` (e.g., `mountErmitTool`).
 - [x] Update ERMiT route in `ui/src/server.ts` to include tool root (e.g., `<section id="ermit-root" class="space-y-8"></section>`).
@@ -51,7 +51,7 @@
 
 ### Phase 3 — Validation + Defaults
 - [x] Implement validation in the ERMiT form:
-  - [x] Slopes: 0.001–100 (%).
+- [x] Slopes: 0–100 (%).
   - [x] Length: 0–300 m.
   - [x] Rock fragment content: 5–85 (%).
   - [x] Cover inputs: 0–100, sum ≤ 100 for non‑forest.
@@ -162,7 +162,7 @@ POST /api/ermit/RUN/wepp
 ---
 
 ## Validation Rules (UI mirrors API)
-- Slopes: 0.001–100 (%).
+- Slopes: 0–100 (%).
 - Length: 0–300 m.
 - Rock fragments: 5–85 (%).
 - Cover inputs: 0–100; sum ≤ 100 for non‑forest.

@@ -368,6 +368,8 @@ Runs ERMiT and returns JSON:
 ```
 
 `summary` is the parsed WEPP output with annual aggregates. `sed_results` is sorted by sediment delivery.
+If fewer than 75 runoff years occur, `selected_dates` contains fewer than five entries
+because ranks are trimmed to available years.
 
 ## Logger
 

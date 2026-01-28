@@ -178,17 +178,27 @@ directly in the new frontend.
 - **Units**: API expects meters only; legacy supports feet or meters.
 - **Response format**: API returns JSON structures (summary, selected dates,
   sediment results, probabilities). Legacy CGI returns HTML and generated files.
+- **100-year management file**: API uses `high100.man` for the initial 100‑year
+  run. Based on current parity runs, this matches the legacy outputs; earlier
+  notes about `1ofe.man`/`range_40%_cover_40%_canopy.man` for the 100‑year run
+  appear to be incorrect.
+- **Short-run selection ranks**: API trims selected runoff ranks to available
+  years when fewer than 75 runoff events occur (selected dates list can be
+  shorter than 5). Legacy CGI does not expose this as a hard error.
+- **Winter inputs**: API ensures a `frost.txt` is present in the WEPP run
+  directory (see `api/frost_utils.py`). Legacy CGI provides `frost.txt` via
+  its working directory defaults.
 
 ### Parameter mapping (ERMiT)
 
 | API field | Legacy CGI input | Legacy validation range | Notes / deviations |
 | --- | --- | --- | --- |
-| `ermit_pars.top_slope_pct` | `top_slope` | UI: 0–100% | Percent. |
-| `ermit_pars.middle_slope_pct` | `avg_slope` | UI: 0–100% | Percent. |
-| `ermit_pars.bottom_slope_pct` | `toe_slope` | UI: 0–100% | Percent. |
+| `ermit_pars.top_slope_pct` | `top_slope` | UI: 0–100% | Percent (0 allowed). |
+| `ermit_pars.middle_slope_pct` | `avg_slope` | UI: 0–100% | Percent (0 allowed). |
+| `ermit_pars.bottom_slope_pct` | `toe_slope` | UI: 0–100% | Percent (0 allowed). |
 | `ermit_pars.length_m` | `length` | UI: 0–300 m | API expects meters only; legacy supports feet. |
 | `ermit_pars.soil_texture` | `SoilType` | allowlist | Same logical values. |
-| `ermit_pars.rfg_pct` | `rfg` | UI: 0–50%; server: clamps 5–85 | API validates 5–85 (error); legacy clamps. |
+| `ermit_pars.rfg_pct` | `rfg` | UI: 5–85% | API validates 5–85 (error); legacy clamps. |
 | `ermit_pars.vegetation_type` | `vegetation` | allowlist | Legacy values `forest`, `range`, `chap` map to API enums. |
 | `ermit_pars.burn_severity` | `severity` | allowlist | Legacy uses `h/m/l/u`; API uses `High/Moderate/Low/Unburned`. |
 | `ermit_pars.user_shrub_pct` | `pct_shrub` | UI: 0–100% | Optional; API uses for non-forest vegetation. |

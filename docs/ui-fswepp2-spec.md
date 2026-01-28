@@ -753,9 +753,9 @@ ERMiT (Erosion Risk Management Tool) predicts post-fire erosion with probabilist
 {
   climate: ClimatePars,
   ermit_pars: {
-    top_slope_pct: 0.001-100,
-    middle_slope_pct: 0.001-100,
-    bottom_slope_pct: 0.001-100,
+    top_slope_pct: 0-100,
+    middle_slope_pct: 0-100,
+    bottom_slope_pct: 0-100,
     length_m: 0-300,
     soil_texture: "clay" | "silt" | "sand" | "loam",
     rfg_pct: 5-85,
@@ -807,6 +807,8 @@ ERMiT (Erosion Risk Management Tool) predicts post-fire erosion with probabilist
 Label: "Run ERMiT Model"
 
 **Note:** ERMiT runs are more complex (multiple WEPP runs in parallel), so loading indication should show progress if possible.
+**Note:** In low‑runoff climates, fewer than 75 runoff years may exist; the API
+will return fewer selected storm dates accordingly.
 
 ### Results Display
 
