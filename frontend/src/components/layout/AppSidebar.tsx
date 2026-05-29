@@ -272,8 +272,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <img
                   src={
                     state === "collapsed" && !isMobile
-                      ? "/fswepp-icon.png"
-                      : "/fswepp-logo.png"
+                      ? "/public/fswepp-icon.png"
+                      : "/public/fswepp-logo.png"
                   }
                   alt="FSWEPP Logo"
                   className={`h-10 w-fit object-contain transition-all duration-300 ease-in-out`}

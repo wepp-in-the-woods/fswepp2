@@ -4,7 +4,7 @@ const hillslopeModels = [
     label: "WEPP: Road",
     description:
       "Predict erosion from insloped or outsloped forest roads. WEPP: Road allows users to easily describe numerous road erosion conditions.",
-    icon: "wepp-road-icon.svg",
+    icon: "/public/wepp-road-icon.svg",
     href: "/wepp-road",
     isExternal: false,
   },
@@ -13,7 +13,7 @@ const hillslopeModels = [
     label: "WEPP: Road Batch",
     description:
       "Predict erosion from multiple insloped or outsloped forest roads.",
-    icon: "wepp-road-batch-icon.svg",
+    icon: "/public/wepp-road-batch-icon.svg",
     href: "/wepp-road-batch",
     isExternal: false,
   },
@@ -22,7 +22,7 @@ const hillslopeModels = [
     label: "ERMiT",
     description:
       "ERMiT allows users to predict the probability of a given amount of sediment delivery from the base of a hillslope following variable burns on forest, rangeland, and chaparral conditions in each of five years following wildfire.",
-    icon: "/ermit-icon.svg",
+    icon: "/public/ermit-icon.svg",
     href: "/ermit",
     isExternal: false,
   },
@@ -31,7 +31,7 @@ const hillslopeModels = [
     label: "ERMiT Batch",
     description:
       "Download the Batch ERMiT Interface Excel spreadsheet to run multiple ERMiT scnearios.",
-    icon: "/ermit-batch-icon.svg",
+    icon: "/public/ermit-batch-icon.svg",
     href: "/ermit-batch",
     isExternal: false,
   },
@@ -40,7 +40,7 @@ const hillslopeModels = [
     label: "Disturbed WEPP",
     description:
       "Predict erosion from rangeland, forestland, and forest skid trails. Disturbed WEPP allows users to easily describe numerous disturbed forest and rangeland erosion conditions. The interface  presents the probability of a given level of erosion occurring the year following a disturbance.",
-    icon: "/placeholder-model-icon.svg",
+    icon: "/public/placeholder-model-icon.svg",
     href: "/distributed-wepp",
     isExternal: false,
   },
@@ -49,7 +49,7 @@ const hillslopeModels = [
     label: "Disturbed WEPP Batch",
     description:
       "Download the Batch Disturbed WEPP Interface Excel spreadsheet to run multiple Distributed WEPP scenarios.",
-    icon: "/placeholder-model-icon.svg",
+    icon: "/public/placeholder-model-icon.svg",
     href: "/distributed-wepp-batch",
     isExternal: false,
   },
@@ -58,7 +58,7 @@ const hillslopeModels = [
     label: "FuME (Fuel Management)",
     description:
       "The FuME interface predicts soil erosion associated with fuel management practices including prescribed thinning, and a road network, and compares that prediction with erosion from wildfire.",
-    icon: "/placeholder-model-icon.svg",
+    icon: "/public/placeholder-model-icon.svg",
     href: "/fume",
     isExternal: false,
   },
@@ -67,7 +67,7 @@ const hillslopeModels = [
     label: "Rock CliMe",
     description:
       " The Rocky Mountain Climate Generator creates a daily weather file using the ARS CLIGEN weather generator. The file is intended to be used with the WEPP Windows and GeoWEPP interfaces, but also can be a source of weather data for any application. It creates up to 200 years of simlated weather values from a database of more than 2600 weather stations and the PRISM 2.5-mile grid of precipitation data.",
-    icon: "rockclime-icon.svg",
+    icon: "/public/rockclime-icon.svg",
     href: "/rock-clime",
     isExternal: false,
   },
@@ -95,7 +95,7 @@ const watershedModels = [
     title: "WEPPcloud",
     label: "WEPPcloud",
     description: "Simulation tool that estimates hillslope soil erosion, etc.",
-    icon: "/placeholder-model-icon.svg",
+    icon: "/public/placeholder-model-icon.svg",
     href: "https://wepp.cloud/weppcloud/",
     isExternal: true,
   },
@@ -113,7 +113,7 @@ const watershedModels = [
     label: "QWEPP",
     description:
       "Access QWEPP Manual from Rapid Response Erosion Database (RRED) website Instructions: Follow the link to RRED and click on 'Manuals' tab. Download 'QWEPP Manual for RRED,' and follow the instructions.",
-    icon: "/placeholder-model-icon.svg",
+    icon: "/public/placeholder-model-icon.svg",
     href: "https://rred.mtri.org/rred/",
     isExternal: true,
   },
@@ -123,7 +123,7 @@ const watershedModels = [
     label: "Peak Flow Calculator",
     description:
       "Estimate peak flow for burned areas using Curve Number technology.",
-    icon: "/peak-flow-icon.svg",
+    icon: "/public/peak-flow-icon.svg",
     href: "/peak-flow-calculator",
     isExternal: false,
   },

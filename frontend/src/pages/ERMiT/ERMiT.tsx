@@ -58,7 +58,7 @@ const ERMiT = () => {
         <AppHeader />
         <div className="page-container">
           <div className="flex flex-row justify-between gap-3 px-4 lg:px-6 items-start">
-            <img src="/ermit-icon.svg" alt="ERMiT icon" className="w-16" />
+            <img src="/public/ermit-icon.svg" alt="ERMiT icon" className="w-16" />
             <div className="flex w-full flex-col items-start gap-3">
               <div className="flex flex-row items-center gap-3">
                 <h1 className="text-foreground">

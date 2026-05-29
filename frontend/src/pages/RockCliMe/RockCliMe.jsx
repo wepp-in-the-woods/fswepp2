@@ -515,7 +515,7 @@ const RockCliMe = () => {
             dataslot="page-title"
           >
             <div className="flex flex-row items-start gap-3">
-              <img src="/rockclime-icon.svg" alt="Rock: Clime Icon" className="w-16" />
+              <img src="/public/rockclime-icon.svg" alt="Rock: Clime Icon" className="w-16" />
               <div className="flex w-full flex-col items-start gap-3">
                 <div className="flex flex-row items-center gap-3">
                   <h1 className="text-foreground">Rock: Clime</h1>
