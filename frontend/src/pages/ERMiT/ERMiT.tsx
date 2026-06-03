@@ -1,6 +1,7 @@
 import { SidebarProvider, SidebarInset} from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/layout/AppSidebar.tsx";
-import { AppHeader } from "@/components/layout/AppHeader.tsx";
+import { AppSidebar } from "@/components/layout/AppSidebar";
+import { AppHeader } from "@/components/layout/AppHeader";
+import { SoilProperties ,SoilPropertiesHandle } from "@/components/shared/SoilProperties";
 import {
   Dialog,
   DialogContent,
@@ -8,21 +9,24 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog.tsx";
-// import {
-//   Form,
-//   FormControl,
-//   FormDescription,
-//   FormField,
-//   FormItem,
-//   FormLabel,
-//   FormMessage,
-// } from "@/components/ui/form";
-// import { Input } from "@/components/ui/input";
-import { Icon } from "@/components/ui/icon.tsx";
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Icon } from "@/components/ui/icon";
 import { Info } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import React from "react";
+import {Button} from "@/components/ui/button";
 
 const formSchema = z.object({
   climate: z.object({
@@ -35,6 +39,7 @@ const formSchema = z.object({
     hillslopeHorizontalLength: z.number(),
     soilTexture: z.string(),
     rockContentPct: z.number().min(0).max(100),
+    isricEnabled: z.boolean(),
     vegetationType: z.string(),
     burnSeverityClass: z.string(),
   })
@@ -51,6 +56,38 @@ type FormFieldConfig = {
 }
 
 const ERMiT = () => {
+  const soilPropsRef = React.useRef<SoilPropertiesHandle>(null);
+
+  // Initialize form with react-hook-form
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      ermitPars: {
+        soilTexture: "clay",
+        rockContentPct: 20,
+        isricEnabled: false,
+      },
+    },
+  });
+
+  // Handle form submission
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    // Validate soil properties
+    if (soilPropsRef.current?.validators[0]?.()) {
+      console.log("Form submitted:", values);
+      // Send to API
+    } else {
+      console.log("Soil properties validation failed");
+    }
+  };
+
+  // Callback when soil properties change
+  const handleSoilPropertiesChange = (updates: any) => {
+    form.setValue("ermitPars.soilTexture", updates.soil_texture || form.getValues("ermitPars.soilTexture"));
+    form.setValue("ermitPars.rockContentPct", updates.rfg_pct ?? form.getValues("ermitPars.rockContentPct"));
+    form.setValue("ermitPars.isricEnabled", updates.isric_enabled ?? form.getValues("ermitPars.isricEnabled"));
+  };
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -119,18 +156,44 @@ const ERMiT = () => {
           <div className="@container flex flex-col gap-4 self-center px-4 py-2 lg:gap-6 lg:px-6 lg:py-6 w-full">
             {/*Inputs*/}
             <div className="flex flex-col xl:flex-row grow w-full gap-4 max-w-xl self-center">
-              {/*Climate Station input*/}
+              <Form {...form}>
+                <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-4"
+                >
+                  {/*Climate Station input*/}
 
-              {/*Soil Texture input*/}
+                  {/*Soil Texture input*/}
+                  <SoilProperties
+                      ref={soilPropsRef}
+                      state={{
+                        soil_texture: form.watch("ermitPars.soilTexture") || "clay",
+                        rfg_pct: form.watch("ermitPars.rockContentPct") || 20,
+                        isric_enabled: form.watch("ermitPars.isricEnabled") || false,
+                      }}
+                      idPrefix="ermit"
+                      rfgMin={5}
+                      rfgMax={85}
+                      onChange={handleSoilPropertiesChange}
+                  />
 
-              {/*Vegetation Type input*/}
+                  {/*Vegetation Type input*/}
 
-              {/*Hillslope Gradient input*/}
+                  {/*Hillslope Gradient input*/}
 
-              {/*Hillslope Length input*/}
+                  {/*Hillslope Length input*/}
 
-              {/*Soil burn severity class input*/}
+                  {/*Soil burn severity class input*/}
 
+                  {/*Submit button*/}
+                  <Button
+                      type="submit"
+                      className="w-full shrink cursor-pointer"
+                  >
+                    Run ERMiT Model
+                  </Button>
+                </form>
+              </Form>
             </div>
           </div>
         </div>
