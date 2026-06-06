@@ -2,6 +2,7 @@ import { SidebarProvider, SidebarInset} from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { SoilProperties ,SoilPropertiesHandle } from "@/components/shared/SoilProperties";
+import { VegetationBurnSeverity, VegetationBurnSeverityHandle } from "@/components/shared/VegetationBurnSeverity";
 import {
   Dialog,
   DialogContent,
@@ -41,7 +42,10 @@ const formSchema = z.object({
     rockContentPct: z.number().min(0).max(100),
     isricEnabled: z.boolean(),
     vegetationType: z.string(),
-    burnSeverityClass: z.string(),
+    userShrubPct: z.number().min(0).max(100).nullable(),
+    userGrassPct: z.number().min(0).max(100).nullable(),
+    userBarePct: z.number().min(0).max(100).nullable(),
+    burnSeverity: z.string(),
   })
 });
 
@@ -57,7 +61,7 @@ type FormFieldConfig = {
 
 const ERMiT = () => {
   const soilPropsRef = React.useRef<SoilPropertiesHandle>(null);
-
+  const vegBurnRef = React.useRef<VegetationBurnSeverityHandle>(null);
   // Initialize form with react-hook-form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -66,6 +70,11 @@ const ERMiT = () => {
         soilTexture: "clay",
         rockContentPct: 20,
         isricEnabled: false,
+        vegetationType: "forest",
+        userShrubPct: null,
+        userGrassPct: null,
+        userBarePct: null,
+        burnSeverity: "low",
       },
     },
   });
@@ -87,6 +96,15 @@ const ERMiT = () => {
     form.setValue("ermitPars.rockContentPct", updates.rfg_pct ?? form.getValues("ermitPars.rockContentPct"));
     form.setValue("ermitPars.isricEnabled", updates.isric_enabled ?? form.getValues("ermitPars.isricEnabled"));
   };
+
+  // Callback when vegetation burn severity class changes
+  const handleVegetationBurnSeverityChange = (updates: any) => {
+    form.setValue("ermitPars.vegetationType", updates.vegetation_type ?? form.getValues("ermitPars.vegetationType"));
+    form.setValue("ermitPars.userShrubPct", updates.user_shrub_pct ?? form.getValues("ermitPars.userShrubPct"));
+    form.setValue("ermitPars.userGrassPct", updates.user_grass_pct ?? form.getValues("ermitPars.userGrassPct"));
+    form.setValue("ermitPars.userBarePct", updates.user_bare_pct ?? form.getValues("ermitPars.userBarePct"));
+    form.setValue("ermitPars.burnSeverity", updates.burn_severity ?? form.getValues("ermitPars.burnSeverity"));
+  }
 
   return (
     <SidebarProvider>
@@ -159,7 +177,7 @@ const ERMiT = () => {
               <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-4"
+                    className="w-full space-y-4"
                 >
                   {/*Climate Station input*/}
 
@@ -167,9 +185,9 @@ const ERMiT = () => {
                   <SoilProperties
                       ref={soilPropsRef}
                       state={{
-                        soil_texture: form.watch("ermitPars.soilTexture") || "clay",
-                        rfg_pct: form.watch("ermitPars.rockContentPct") || 20,
-                        isric_enabled: form.watch("ermitPars.isricEnabled") || false,
+                        soil_texture: form.watch("ermitPars.soilTexture") ?? "clay",
+                        rfg_pct: form.watch("ermitPars.rockContentPct") ?? 20,
+                        isric_enabled: form.watch("ermitPars.isricEnabled") ?? false,
                       }}
                       idPrefix="ermit"
                       rfgMin={5}
@@ -178,6 +196,18 @@ const ERMiT = () => {
                   />
 
                   {/*Vegetation Type input*/}
+                  <VegetationBurnSeverity
+                    ref={vegBurnRef}
+                    state={{
+                      vegetation_type: form.watch("ermitPars.vegetationType") ?? "forest",
+                      user_shrub_pct: form.watch("ermitPars.userShrubPct") ?? null,
+                      user_grass_pct: form.watch("ermitPars.userGrassPct") ?? null,
+                      user_bare_pct: form.watch("ermitPars.userBarePct") ?? null,
+                      burn_severity: form.watch("ermitPars.burnSeverity") ?? "low",
+                    }}
+                    idPrefix="ermit"
+                    onChange={handleVegetationBurnSeverityChange}
+                  />
 
                   {/*Hillslope Gradient input*/}
 
