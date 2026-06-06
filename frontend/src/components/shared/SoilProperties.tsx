@@ -1,10 +1,16 @@
 import * as React from "react";
-import {useFormContext} from "react-hook-form";
-import {readClimateState} from "@/core/rockclim-state";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
-import {Checkbox} from "@/components/ui/checkbox";
-import {Input} from "@/components/ui/input";
-import {FormControl, FormField, FormItem, FormLabel, FormMessage,} from "@/components/ui/form";
+import { useFormContext } from "react-hook-form";
+import { readClimateState } from "@/core/rockclim-state";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+    Field,
+    FieldContent,
+    FieldDescription,
+    FieldLabel,
+} from "@/components/ui/field"
 
 const SOIL_OPTIONS = [
     { value: "clay", label: "Clay loam" },
@@ -437,7 +443,7 @@ export const SoilProperties = React.forwardRef<SoilPropertiesHandle, SoilPropert
                                             handleSoilTextureChange(value);
                                         }}
                                     >
-                                        <SelectTrigger id={`${idPrefix}_soil_texture`}>
+                                        <SelectTrigger id={`${idPrefix}_soil_texture`} className="w-full">
                                             <SelectValue placeholder="Select soil texture" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -492,32 +498,36 @@ export const SoilProperties = React.forwardRef<SoilPropertiesHandle, SoilPropert
                 </div>
 
                 {/* ISRIC checkbox */}
-                <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-sm">
-                        <Checkbox
-                            id={`${idPrefix}_isric`}
-                            checked={isricEnabled}
-                            disabled={!isricAvailable}
-                            onCheckedChange={(checked) => {
-                                handleIsricToggle(Boolean(checked));
-                            }}
-                        />
-                        Determine Soil Texture and Rock from ISRIC
-                    </label>
-                    <p className="text-sm text-muted-foreground">
-                        Requires latitude/longitude from Rock Climate Control.
-                    </p>
-                </div>
+                <Field orientation="horizontal">
+                    <Checkbox
+                        id={`${idPrefix}_isric`}
+                        checked={isricEnabled}
+                        disabled={!isricAvailable}
+                        onCheckedChange={(checked) => {
+                            handleIsricToggle(Boolean(checked));
+                        }}
+                    />
+                    <FieldContent>
+                        <FieldLabel htmlFor={`${idPrefix}_isric`}>
+                            Determine Soil Texture and Rock from ISRIC
+                        </FieldLabel>
+                        <FieldDescription>
+                            Requires latitude/longitude from Rock Climate Control.
+                        </FieldDescription>
+                    </FieldContent>
+                </Field>
 
                 {/* Summary */}
-                <div className="text-sm text-muted-foreground space-y-1">
-                    <p>{summaryStatus}</p>
-                    <div className="grid gap-1">
-                        {summaryLines.map((line, i) => (
-                            <p key={i}>{line}</p>
-                        ))}
+                {summaryStatus && (
+                    <div className="text-sm text-muted-foreground space-y-1">
+                        <p className="text-center">{summaryStatus}</p>
+                        <div className="grid gap-1">
+                            {summaryLines.map((line, i) => (
+                                <p key={i}>{line}</p>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
             </section>
         );
     }
