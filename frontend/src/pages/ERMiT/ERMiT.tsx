@@ -1,8 +1,6 @@
 import { SidebarProvider, SidebarInset} from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { AppHeader } from "@/components/layout/AppHeader";
-import { SoilProperties ,SoilPropertiesHandle } from "@/components/shared/SoilProperties";
-import { VegetationBurnSeverity, VegetationBurnSeverityHandle } from "@/components/shared/VegetationBurnSeverity";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +27,11 @@ import { z } from "zod";
 import React from "react";
 import {Button} from "@/components/ui/button";
 
+import { SoilProperties ,SoilPropertiesHandle } from "@/components/shared/SoilProperties";
+import { VegetationBurnSeverity, VegetationBurnSeverityHandle } from "@/components/shared/VegetationBurnSeverity";
+import { HillslopeGeometry, HillslopeGeometryHandle} from "@/components/shared/HillslopeGeometry";
+import { SimulationOptions, SimulationOptionsHandle } from "@/components/shared/SimulationOptions";
+
 const formSchema = z.object({
   climate: z.object({
     parId: z.string(),
@@ -46,7 +49,9 @@ const formSchema = z.object({
     userGrassPct: z.number().min(0).max(100).nullable(),
     userBarePct: z.number().min(0).max(100).nullable(),
     burnSeverity: z.string(),
-  })
+  }),
+  sim_years: z.number().min(1).max(200),
+  wepp_version: z.string(),
 });
 
 type FormFieldConfig = {
@@ -62,6 +67,8 @@ type FormFieldConfig = {
 const ERMiT = () => {
   const soilPropsRef = React.useRef<SoilPropertiesHandle>(null);
   const vegBurnRef = React.useRef<VegetationBurnSeverityHandle>(null);
+  const hillslopeGeomRef = React.useRef<HillslopeGeometryHandle>(null);
+  const simOptionsRef = React.useRef<SimulationOptionsHandle>(null);
   // Initialize form with react-hook-form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -76,6 +83,8 @@ const ERMiT = () => {
         userBarePct: null,
         burnSeverity: "low",
       },
+      sim_years: 100,
+      wepp_version: "wepp2010",
     },
   });
 
@@ -104,6 +113,19 @@ const ERMiT = () => {
     form.setValue("ermitPars.userGrassPct", updates.user_grass_pct ?? form.getValues("ermitPars.userGrassPct"));
     form.setValue("ermitPars.userBarePct", updates.user_bare_pct ?? form.getValues("ermitPars.userBarePct"));
     form.setValue("ermitPars.burnSeverity", updates.burn_severity ?? form.getValues("ermitPars.burnSeverity"));
+  }
+
+  // Callback when hillslope geometry changes
+  const handleHillslopeGeometryChange = (updates: any) => {
+    form.setValue("ermitPars.hillslopeHorizontalLength", updates.total_length_m ?? form.getValues("ermitPars.hillslopeHorizontalLength"));
+    form.setValue("ermitPars.topSlopePct", updates.top_slope_pct ?? form.getValues("ermitPars.topSlopePct"));
+    form.setValue("ermitPars.middleSlopePct", updates.mid_slope_pct ?? form.getValues("ermitPars.middleSlopePct"));
+    form.setValue("ermitPars.bottomSlopePct", updates.bottom_slope_pct ?? form.getValues("ermitPars.bottomSlopePct"));
+  }
+
+  const handleSimOptionsChange = (updates: any) => {
+    form.setValue("sim_years", updates.sim_years ?? form.getValues("sim_years"));
+    form.setValue("wepp_version", updates.wepp_version ?? form.getValues("wepp_version"));
   }
 
   return (
@@ -195,7 +217,7 @@ const ERMiT = () => {
                       onChange={handleSoilPropertiesChange}
                   />
 
-                  {/*Vegetation Type input*/}
+                  {/*Vegetation Type and Soil Burn Severity input*/}
                   <VegetationBurnSeverity
                     ref={vegBurnRef}
                     state={{
@@ -209,11 +231,30 @@ const ERMiT = () => {
                     onChange={handleVegetationBurnSeverityChange}
                   />
 
-                  {/*Hillslope Gradient input*/}
+                  {/*Hillslope Gradient and Length input*/}
+                  <HillslopeGeometry
+                    ref={hillslopeGeomRef}
+                    state={{
+                      total_length_m: form.watch("ermitPars.hillslopeHorizontalLength") ?? null,
+                      top_slope_pct: form.watch("ermitPars.topSlopePct") ?? null,
+                      mid_slope_pct: form.watch("ermitPars.middleSlopePct") ?? null,
+                      bottom_slope_pct: form.watch("ermitPars.bottomSlopePct") ?? null,
+                    }}
+                    idPrefix="ermit"
+                    onChange={handleHillslopeGeometryChange}
+                  />
 
-                  {/*Hillslope Length input*/}
-
-                  {/*Soil burn severity class input*/}
+                  {/*Simulation Option*/}
+                  <SimulationOptions
+                      ref={simOptionsRef}
+                      state={{
+                        sim_years: form.watch("sim_years") ?? 100,
+                        show_years_field: false,
+                        wepp_version: form.watch("wepp_version") ?? "wepp2010",
+                      }}
+                      idPrefix="ermit"
+                      onChange={handleSimOptionsChange}
+                  />
 
                   {/*Submit button*/}
                   <Button
