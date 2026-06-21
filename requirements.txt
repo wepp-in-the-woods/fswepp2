@@ -12,3 +12,4 @@ Flask
 werkzeug
 pyyaml
 pyproj
+pytest

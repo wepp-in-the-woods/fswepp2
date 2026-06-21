@@ -5,10 +5,27 @@ import numpy as np
 from fastapi import HTTPException
 from pydantic import ValidationError
 
-from api.rockclim import ClimatePars, UserDefinedParMod, get_station, get_station_par_monthlies
+from api.rockclim import (
+    ClimatePars,
+    UserDefinedParMod,
+    get_closest_stations,
+    get_station,
+    get_station_par_monthlies,
+)
 
 
 class RockClimUnitTests(unittest.TestCase):
+    def test_ghcn_closest_stations_are_unique(self):
+        pars = ClimatePars(
+            database="ghcn",
+            location={"longitude": -116.0, "latitude": 47.0},
+        )
+        stations = get_closest_stations(pars)
+        station_ids = [station["id"] for station in stations]
+
+        self.assertEqual(len(station_ids), 10)
+        self.assertEqual(len(station_ids), len(set(station_ids)))
+
     def test_station_par_monthlies_units(self):
         pars = ClimatePars(par_id="AK500352", database="legacy")
         station = get_station(pars)

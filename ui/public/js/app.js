@@ -3,6 +3,7 @@ import { getConfigFromUrl } from "./utils/url.js";
 import { mountRockClimControl } from "./components/rockclim-control.js";
 import { mountWeppRoadTool } from "./tools/wepproad.js";
 import { mountDisturbedTool } from "./tools/disturbed.js";
+import { mountPeakFlowTool } from "./tools/peakflow.js";
 import { mountErmitTool } from "./tools/ermit.js";
 import { mountFumeTool } from "./tools/fume.js";
 
@@ -118,6 +119,12 @@ function initDisturbed() {
   mountDisturbedTool(root);
 }
 
+function initPeakFlow() {
+  const root = document.getElementById("peakflow-root");
+  if (!root) return;
+  mountPeakFlowTool(root);
+}
+
 function initErmit() {
   const root = document.getElementById("ermit-root");
   if (!root) return;
@@ -136,6 +143,7 @@ if (document.readyState === "loading") {
     initRockClim();
     initWeppRoad();
     initDisturbed();
+    initPeakFlow();
     initErmit();
     initFume();
   });
@@ -144,6 +152,7 @@ if (document.readyState === "loading") {
   initRockClim();
   initWeppRoad();
   initDisturbed();
+  initPeakFlow();
   initErmit();
   initFume();
 }

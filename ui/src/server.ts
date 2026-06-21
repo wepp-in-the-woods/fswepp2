@@ -59,6 +59,7 @@ const renderLayout = (title: string, body: string) => `
           <nav class="layout-nav" aria-label="Primary">
             <a href="/fswepp2/wepproad">WEPP:Road</a>
             <a href="/fswepp2/disturbed">Disturbed WEPP</a>
+            <a href="/fswepp2/peakflow">Peak Flow</a>
             <a href="/fswepp2/ermit">ERMiT</a>
             <a href="/fswepp2/fume">FuME</a>
             <a href="/fswepp2/docs">Documentation</a>
@@ -104,6 +105,7 @@ app.get("/fswepp2", (c) =>
       `<ul class="list-disc pl-6">
         <li><a href="/fswepp2/wepproad">WEPP:Road</a></li>
         <li><a href="/fswepp2/disturbed">Disturbed WEPP</a></li>
+        <li><a href="/fswepp2/peakflow">Peak Flow</a></li>
         <li><a href="/fswepp2/ermit">ERMiT</a></li>
         <li><a href="/fswepp2/fume">FuME</a></li>
       </ul>`
@@ -127,6 +129,15 @@ app.get("/fswepp2/disturbed", (c) =>
       "Disturbed WEPP",
       `<section id="rockclim-control-root" class="mb-6"></section>
       <section id="disturbed-root" class="space-y-8"></section>`
+    )
+  )
+);
+
+app.get("/fswepp2/peakflow", (c) =>
+  c.html(
+    renderLayout(
+      "Peak Flow Calculator",
+      `<section id="peakflow-root" class="space-y-8"></section>`
     )
   )
 );
