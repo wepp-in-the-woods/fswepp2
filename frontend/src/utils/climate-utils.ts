@@ -1,23 +1,6 @@
 import { readJsonCookie, writeJsonCookie } from "@/utils/cookies";
 import { getConfigFromUrl } from "@/utils/url";
-
-const CLIMATE_COOKIE = "fswepp_climate";
-
-const ALLOWED_DATABASES = new Set(["legacy", "2015", "au", "ghcn"]);
-const ALLOWED_CLIGEN = new Set(["4.31", "4.30", "5.3.2"]);
-const PRISM_DATABASES = new Set([null, "legacy", "2015", "ghcn"]);
-
-export function getDefaultClimateState() {
-    return {
-        database: "legacy",
-        cligen_version: "5.3.2",
-        location: null,
-        par_id: null,
-        input_years: 100,
-        use_prism: false,
-        user_defined_par_mod: null,
-    };
-}
+import { DEFAULT_CLIMATE_STATE, ALLOWED_DATABASES, ALLOWED_CLIGEN, PRISM_DATABASES, CLIMATE_COOKIE_NAME } from "@/types/climate";
 
 function normalizeLocation(value: { longitude: any; latitude: any; }) {
     if (!value || typeof value !== "object") return null;
@@ -29,32 +12,32 @@ function normalizeLocation(value: { longitude: any; latitude: any; }) {
 }
 
 function normalizeClimateState(raw: any) {
-    const defaults = getDefaultClimateState();
+    const defaults = DEFAULT_CLIMATE_STATE;
     if (!raw || typeof raw !== "object") return defaults;
     const next = { ...defaults, ...raw };
     if (!ALLOWED_DATABASES.has(next.database)) next.database = defaults.database;
-    if (!ALLOWED_CLIGEN.has(next.cligen_version)) {
-        if (next.cligen_version === "4.3") {
-            next.cligen_version = "4.31";
+    if (!ALLOWED_CLIGEN.has(next.cligenVersion)) {
+        if (next.cligenVersion === "4.3") {
+            next.cligenVersion = "4.31";
         } else {
-            next.cligen_version = defaults.cligen_version;
+            next.cligenVersion = defaults.cligenVersion;
         }
     }
     next.location = normalizeLocation(next.location);
-    next.use_prism = Boolean(next.use_prism);
+    next.usePrism = Boolean(next.usePrism);
     if (!PRISM_DATABASES.has(next.database)) {
-        next.use_prism = false;
+        next.usePrism = false;
     }
-    if (!Number.isFinite(Number(next.input_years))) {
-        next.input_years = defaults.input_years;
+    if (!Number.isFinite(Number(next.inputYears))) {
+        next.inputYears = defaults.inputYears;
     }
-    if (!next.par_id || typeof next.par_id !== "string") {
-        next.par_id = null;
+    if (!next.parId || typeof next.parId !== "string") {
+        next.parId = null;
     }
-    if (!next.user_defined_par_mod || typeof next.user_defined_par_mod !== "object") {
-        next.user_defined_par_mod = null;
+    if (!next.userDefinedParMod || typeof next.userDefinedParMod !== "object") {
+        next.userDefinedParMod = null;
     } else {
-        const mod = next.user_defined_par_mod;
+        const mod = next.userDefinedParMod;
         const hasArrays =
             Array.isArray(mod.ppts) &&
             Array.isArray(mod.tmaxs) &&
@@ -62,14 +45,21 @@ function normalizeClimateState(raw: any) {
         const validLengths =
             hasArrays && mod.ppts.length === 12 && mod.tmaxs.length === 12 && mod.tmins.length === 12;
         if (!validLengths) {
-            next.user_defined_par_mod = null;
+            next.userDefinedParMod = null;
         }
     }
     return next;
 }
 
+function climateStatesEqual(
+    first: ReturnType<typeof normalizeClimateState>,
+    second: ReturnType<typeof normalizeClimateState>,
+) {
+    return JSON.stringify(first) === JSON.stringify(second);
+}
+
 export function readClimateState() {
-    const fromCookie = readJsonCookie(CLIMATE_COOKIE, null);
+    const fromCookie = readJsonCookie(CLIMATE_COOKIE_NAME, null);
     const normalized = normalizeClimateState(fromCookie);
     const urlConfig = getConfigFromUrl();
     if (urlConfig && typeof urlConfig === "object" && urlConfig.climate) {
@@ -80,7 +70,12 @@ export function readClimateState() {
 
 export function writeClimateState(state: any) {
     const normalized = normalizeClimateState(state);
-    writeJsonCookie(CLIMATE_COOKIE, normalized, {
+    const previous = normalizeClimateState(readJsonCookie(CLIMATE_COOKIE_NAME, null));
+    if (climateStatesEqual(previous, normalized)) {
+        return normalized;
+    }
+
+    writeJsonCookie(CLIMATE_COOKIE_NAME, normalized, {
         maxAge: 60 * 60 * 24 * 365,
         path: "/",
     });
