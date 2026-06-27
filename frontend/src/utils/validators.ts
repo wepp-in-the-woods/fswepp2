@@ -17,9 +17,9 @@ export function isNumber(value: any) {
 }
 
 export function isLatitude(value: string | null | undefined) {
-  return inRange(value, -90, 90);
+  return inRange(value, -90, 90) && !isNaN(Number(value));
 }
 
 export function isLongitude(value: string | null | undefined) {
-  return inRange(value, -180, 180);
+  return inRange(value, -180, 180) && !isNaN(Number(value));
 }

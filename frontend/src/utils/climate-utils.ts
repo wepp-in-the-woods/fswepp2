@@ -1,8 +1,34 @@
 import { readJsonCookie, writeJsonCookie } from "@/utils/cookies";
 import { getConfigFromUrl } from "@/utils/url";
+import type { ClimateState } from "@/types/climate";
+
 import { DEFAULT_CLIMATE_STATE, ALLOWED_DATABASES, ALLOWED_CLIGEN, PRISM_DATABASES, CLIMATE_COOKIE_NAME } from "@/types/climate";
 
-function normalizeLocation(value: { longitude: any; latitude: any; }) {
+function toCamelCase(snake: Record<string, any>): ClimateState {
+    return {
+        database: snake.database,
+        cligenVersion: snake.cligen_version,
+        location: snake.location,
+        parId: snake.par_id,
+        inputYears: snake.input_years,
+        usePrism: snake.use_prism,
+        userDefinedParMod: snake.user_defined_par_mod,
+    };
+}
+
+function toSnakeCase(camel: ClimateState): Record<string, any> {
+    return {
+        database: camel.database,
+        cligen_version: camel.cligenVersion,
+        location: camel.location,
+        par_id: camel.parId,
+        input_years: camel.inputYears,
+        use_prism: camel.usePrism,
+        user_defined_par_mod: camel.userDefinedParMod,
+    };
+}
+
+function normalizeLocation(value: any) {
     if (!value || typeof value !== "object") return null;
     const lon = Number(value.longitude);
     const lat = Number(value.latitude);
@@ -12,10 +38,17 @@ function normalizeLocation(value: { longitude: any; latitude: any; }) {
 }
 
 function normalizeClimateState(raw: any) {
+    // First convert from snake_case if coming from storage
+    const camelCased = raw?.cligen_version ? toCamelCase(raw) : raw;
     const defaults = DEFAULT_CLIMATE_STATE;
-    if (!raw || typeof raw !== "object") return defaults;
-    const next = { ...defaults, ...raw };
-    if (!ALLOWED_DATABASES.has(next.database)) next.database = defaults.database;
+    if (!camelCased || typeof camelCased !== "object") return defaults;
+    const next: ClimateState = {
+        ...defaults,
+        ...camelCased
+    };
+    if (!ALLOWED_DATABASES.has(next.database)) {
+        next.database = defaults.database;
+    }
     if (!ALLOWED_CLIGEN.has(next.cligenVersion)) {
         if (next.cligenVersion === "4.3") {
             next.cligenVersion = "4.31";
@@ -38,23 +71,27 @@ function normalizeClimateState(raw: any) {
         next.userDefinedParMod = null;
     } else {
         const mod = next.userDefinedParMod;
-        const hasArrays =
-            Array.isArray(mod.ppts) &&
-            Array.isArray(mod.tmaxs) &&
-            Array.isArray(mod.tmins);
-        const validLengths =
-            hasArrays && mod.ppts.length === 12 && mod.tmaxs.length === 12 && mod.tmins.length === 12;
-        if (!validLengths) {
+        // Check if it's a valid object with required properties
+        if (!mod.description || !mod.ppts || !mod.tmaxs || !mod.tmins) {
             next.userDefinedParMod = null;
+        } else {
+            const hasArrays =
+                Array.isArray(mod.ppts) &&
+                Array.isArray(mod.tmaxs) &&
+                Array.isArray(mod.tmins);
+            const validLengths =
+                hasArrays && mod.ppts.length === 12 &&
+                mod.tmaxs.length === 12 &&
+                mod.tmins.length === 12;
+            if (!validLengths) {
+                next.userDefinedParMod = null;
+            }
         }
     }
     return next;
 }
 
-function climateStatesEqual(
-    first: ReturnType<typeof normalizeClimateState>,
-    second: ReturnType<typeof normalizeClimateState>,
-) {
+function climateStatesEqual(first: ClimateState, second: ClimateState): boolean {
     return JSON.stringify(first) === JSON.stringify(second);
 }
 
@@ -75,7 +112,10 @@ export function writeClimateState(state: any) {
         return normalized;
     }
 
-    writeJsonCookie(CLIMATE_COOKIE_NAME, normalized, {
+    // Convert to snake_case before writing to cookie
+    const snakeCaseState = toSnakeCase(normalized);
+
+    writeJsonCookie(CLIMATE_COOKIE_NAME, snakeCaseState, {
         maxAge: 60 * 60 * 24 * 365,
         path: "/",
     });
@@ -85,6 +125,15 @@ export function writeClimateState(state: any) {
         );
     }
     return normalized;
+}
+
+export function sanitizeFilename(value: string | null): string {
+    if (!value) return "station";
+    const cleaned = String(value)
+        .trim()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9._-]/gi, "");
+    return cleaned || "station";
 }
 
 // User-defined climates are not stored separately; they live in fswepp_climate only.

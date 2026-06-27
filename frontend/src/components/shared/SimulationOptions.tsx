@@ -24,6 +24,7 @@ import {
     FieldLegend,
     FieldSet,
 } from "@/components/ui/field"
+import {writeClimateState} from "@/utils/climate-utils";
 
 const WEPP_VERSION_OPTIONS = [
     { value: "wepp2010", label: "WEPP 2010" },
@@ -183,22 +184,22 @@ export const SimulationOptions = React.forwardRef<SimulationOptionsHandle, Simul
                                 control={control}
                                 name={`${idPrefix}_${state.checkbox?.id}`}
                                 render={({ field }) => (
-                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
+                                    <FormItem className="flex flex-row items-start gap-3">
                                         <FormControl>
                                             <Checkbox
                                                 id={`${idPrefix}_${state.checkbox?.id}`}
-                                                checked={!!field.value}
+                                                checked={Boolean(field.value)}
                                                 onCheckedChange={field.onChange}
                                             />
-                                            <FieldContent>
-                                                <FieldLabel htmlFor={`${idPrefix}_${state.checkbox?.id}`}>
-                                                    {state.checkbox?.label}
-                                                </FieldLabel>
-                                                {state.checkbox?.description && (
-                                                    <FieldDescription>{state.checkbox.description}</FieldDescription>
-                                                )}
-                                            </FieldContent>
                                         </FormControl>
+                                        <FieldContent className="gap-1">
+                                            <FieldLabel htmlFor={`${idPrefix}_${state.checkbox?.id}`}>
+                                                {state.checkbox?.label}
+                                            </FieldLabel>
+                                            {state.checkbox?.description && (
+                                                <FieldDescription>{state.checkbox.description}</FieldDescription>
+                                            )}
+                                        </FieldContent>
                                     </FormItem>
                                 )}
                             />

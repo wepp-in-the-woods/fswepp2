@@ -4,6 +4,7 @@ export type Location = {
 };
 
 export type UserDefinedParMod = {
+    description: string;
     ppts: number[];
     tmins: number[];
     tmaxs: number[];
@@ -52,3 +53,18 @@ export const CLIGEN_OPTIONS = [
 ];
 
 export const CLIMATE_COOKIE_NAME = "fswepp_climate";
+
+export const MONTH_NAMES = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+];
