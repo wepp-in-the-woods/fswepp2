@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, lazy, use } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useFormContext } from "react-hook-form";
 
 import {Input} from "@/components/ui/input";
@@ -31,13 +31,16 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { DropAndUpload } from "@/components/ui/drop-and-upload";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
+import { ChevronDown, Trash } from "lucide-react";
 
 import { useSessionStorage } from "@/utils/session-storage";
 import { isLongitude, isLatitude } from "@/utils/validators";
+import { handleClimateImport } from "@/utils/climateValidation";
 import { useRockclimData } from "@/hooks/useRockclimData";
-import { DEFAULT_CLIMATE_STATE, DATABASE_OPTIONS, CLIGEN_OPTIONS, ClimateState, Location, UserDefinedParMod} from "@/types/climate";
+import { DEFAULT_CLIMATE_STATE, DATABASE_OPTIONS, CLIGEN_OPTIONS, ClimateState, Location } from "@/types/climate";
 import { readClimateState, writeClimateState } from "@/utils/climate-utils";
 
 import { MapSection, MapSectionState, MapSectionHandle } from "@/components/shared/RockClimeSettings/MapSection";
@@ -89,7 +92,7 @@ export const RockClimeSettings = React.forwardRef<RockClimSettingsHandle, RockCl
             writeClimateState({ ...climateState, cligen_version: cligenVersion });
         }, [cligenVersion]);
 
-        const [locationState, setLocationState] = useState<{ latitude: number | string; longitude: number | string }>(
+        const [locationState, setLocationState] = useState<Location>(
             () => readClimateState().location || DEFAULT_CLIMATE_STATE.location || { latitude: "", longitude: "" }
         );
 
@@ -129,6 +132,37 @@ export const RockClimeSettings = React.forwardRef<RockClimSettingsHandle, RockCl
         useEffect(() => {
             writeClimateState({ ...climateState, user_defined_par_mod: userDefinedParMod });
         }, [userDefinedParMod]);
+
+        const [uploadStatusKey, setUploadStatusKey] = useState(0);
+
+        const onFileImport = async (file: File, { setStatus }: { setStatus: (message: string, isError?: boolean) => void }) => {
+            const importedState = await handleClimateImport(file, setStatus);
+
+            if (importedState) {
+                // Update component state
+                if (importedState.database) setDatabaseVersion(importedState.database);
+                if (importedState.cligenVersion) setCligenVersion(importedState.cligenVersion);
+                if (importedState.location) setLocationState(importedState.location);
+                if (importedState.parId) setParId(importedState.parId);
+                if (importedState.inputYears != null) setInputYears(importedState.inputYears);
+                if (importedState.usePrism != null) setUsePrism(importedState.usePrism);
+                if (importedState.userDefinedParMod != null) setUserDefinedParMod(importedState.userDefinedParMod);
+
+                // Update map state
+                setMapState((prev) => ({
+                    ...prev,
+                    location: importedState.location
+                        ? {
+                            latitude: importedState.location.latitude ?? prev.location?.latitude,
+                            longitude: importedState.location.longitude ?? prev.location?.longitude,
+                        }
+                        : prev.location,
+                    usePrism: importedState.usePrism ?? prev.usePrism,
+                }));
+            }
+        };
+
+
 
         const validateCoordinateField = React.useCallback(
             (name: "rockclim_latitude" | "rockclim_longitude", value: string) => {
@@ -272,7 +306,7 @@ export const RockClimeSettings = React.forwardRef<RockClimSettingsHandle, RockCl
                                         RockClim Settings
                                     </FieldLegend>
                                     <FieldDescription>
-                                        Climate: {usePrism && (userDefinedParMod === null ? "PRISM modified" : "Customized")} {selectedStationLabel ? `${selectedStationLabel}` : ""} {locationState ? `(${locationState.latitude}, ${locationState.longitude})` : ""}
+                                        Climate: {userDefinedParMod ? "Customized": usePrism ? "PRISM modified" : ""} {userDefinedParMod ? `${userDefinedParMod.description}` : selectedStationLabel ? `${selectedStationLabel}` : "Not set"} {locationState ? `(${locationState.latitude}, ${locationState.longitude})` : ""}
                                     </FieldDescription>
                                 </div>
                                 <ChevronDown className="ml-auto group-data-[state=open]:rotate-180" />
@@ -333,9 +367,10 @@ export const RockClimeSettings = React.forwardRef<RockClimSettingsHandle, RockCl
                                                         climateState = {
                                                             ...climateState,
                                                             cligenVersion: value,
+                                                            parId: null,
+                                                            userDefinedParMod: null,
                                                         };
                                                         writeClimateState(climateState);
-                                                        // persistState();
                                                     }}
                                                     value={field.value ?? cligenVersion ?? climateState.cligenVersion ?? DEFAULT_CLIMATE_STATE.cligenVersion}
                                                 >
@@ -498,6 +533,7 @@ export const RockClimeSettings = React.forwardRef<RockClimSettingsHandle, RockCl
                                         <FormControl>
                                             <Checkbox
                                                 id="rockclim_prism"
+                                                disabled={userDefinedParMod}
                                                 checked={Boolean(field.value ?? usePrism ?? climateState.usePrism ?? DEFAULT_CLIMATE_STATE.usePrism)}
                                                 onCheckedChange= {(value) => {
                                                     const checked = Boolean(value);
@@ -564,40 +600,60 @@ export const RockClimeSettings = React.forwardRef<RockClimSettingsHandle, RockCl
                                 )}
                             />
 
-                            <ClimateCustomization
-                                state={{
-                                    location: locationState,
-                                    parId: parId ?? climateState.parId ?? DEFAULT_CLIMATE_STATE.parId,
-                                    database: databaseVersion ?? climateState.database ?? DEFAULT_CLIMATE_STATE.database,
-                                    cligenVersion: cligenVersion ?? climateState.cligenVersion ?? DEFAULT_CLIMATE_STATE.cligenVersion,
-                                    inputYears: inputYears ?? climateState.inputYears ?? DEFAULT_CLIMATE_STATE.inputYears,
-                                    usePrism: usePrism ?? climateState.usePrism ?? DEFAULT_CLIMATE_STATE.usePrism,
-                                    userDefinedParMod: userDefinedParMod ?? null,
-                                }}
-                                selectedStationLabel={selectedStationLabel ?? ""}
-                                onChange={(next) => {
-                                    if (next.userDefinedParMod !== undefined) {
-                                        setUserDefinedParMod(next.userDefinedParMod);
-                                    }
-                                }}
-                            />
-
-                            {userDefinedParMod && (
-                                <div className="mt-4">
-                                    <p className="text-sm text-muted-foreground">
-                                        Using customized climate: {userDefinedParMod.description}
-                                    </p>
-                                    <Button
-                                        variant="destructive"
-                                        size="sm"
-                                        onClick={() => {
-                                            setUserDefinedParMod(null);
+                            <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-2 sm:flex-row">
+                                    <ClimateCustomization
+                                        state={{
+                                            location: locationState,
+                                            parId: parId ?? climateState.parId ?? DEFAULT_CLIMATE_STATE.parId,
+                                            database: databaseVersion ?? climateState.database ?? DEFAULT_CLIMATE_STATE.database,
+                                            cligenVersion: cligenVersion ?? climateState.cligenVersion ?? DEFAULT_CLIMATE_STATE.cligenVersion,
+                                            inputYears: inputYears ?? climateState.inputYears ?? DEFAULT_CLIMATE_STATE.inputYears,
+                                            usePrism: usePrism ?? climateState.usePrism ?? DEFAULT_CLIMATE_STATE.usePrism,
+                                            userDefinedParMod: userDefinedParMod ?? null,
                                         }}
-                                    >
-                                        Delete Custom Climate
-                                    </Button>
+                                        selectedStationLabel={selectedStationLabel ?? ""}
+                                        onChange={(next) => {
+                                            if (next.userDefinedParMod !== undefined) {
+                                                setUserDefinedParMod(next.userDefinedParMod);
+                                            }
+                                        }}
+                                    />
+
+                                    {userDefinedParMod && (
+                                        <Button
+                                            variant="outline"
+                                            className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-500 dark:hover:text-white"
+                                            onClick={() => {
+                                                setUserDefinedParMod(null);
+                                                climateState = { ...climateState, userDefinedParMod: null };
+                                                writeClimateState(climateState);
+
+                                                // Reset upload file status
+                                                setUploadStatusKey(prev => prev + 1);
+                                            }}
+                                        >
+                                            <Icon icon={Trash} className="h-5 w-5" />
+                                            Delete Custom Climate
+                                        </Button>
+                                    )}
                                 </div>
-                            )}
+                                {userDefinedParMod && (
+                                    <div className="gap-2">
+                                        <p className="text-muted-foreground">
+                                            Using customized climate: {userDefinedParMod.description}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                            <DropAndUpload
+                                key={uploadStatusKey}
+                                buttonText="Drop or click to upload RockClime Climate (.json) file."
+                                helper="Max file size: 10MB"
+                                accept={".json"}
+                                maxFileSize={10 * 1024 * 1024} // 10MB
+                                onFile={onFileImport}
+                            />
 
                             {/*Map Section*/}
                             <MapSection
@@ -638,3 +694,5 @@ export const RockClimeSettings = React.forwardRef<RockClimSettingsHandle, RockCl
         );
     }
 );
+
+RockClimeSettings.displayName = "RockClimeSettings";

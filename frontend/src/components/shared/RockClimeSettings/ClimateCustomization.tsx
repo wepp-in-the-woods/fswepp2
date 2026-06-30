@@ -22,15 +22,12 @@ import {
 import {
     Table,
     TableBody,
-    TableCaption,
     TableCell,
     TableFooter,
     TableHead,
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Field, FieldGroup } from "@/components/ui/field";
-import { Label } from "@/components/ui/label"
 import {FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Icon } from "@/components/ui/icon";
@@ -272,7 +269,7 @@ export const ClimateCustomization = React.forwardRef<ClimateFileHandle, ClimateC
      },
      ref
     ) => {
-        const { control, getValues, handleSubmit } = useFormContext();
+        const { control, getValues } = useFormContext();
 
         // UI state
         const [climateCustomizationOpen, setClimateCustomizationOpen] = useSessionStorage(
@@ -286,10 +283,10 @@ export const ClimateCustomization = React.forwardRef<ClimateFileHandle, ClimateC
         const [originalMonthlies, setOriginalMonthlies] = React.useState<Record<string, any>>([]);
 
         const [customClimateDescription, setCustomClimateDescription] = React.useState<string>(
-            () => state.userDefinedParMod?.description || selectedStationLabel || "",
+            () => state.userDefinedParMod?.description || selectedStationLabel || "Custom climate",
         );
         useEffect(() => {
-            setCustomClimateDescription(state.userDefinedParMod?.description || selectedStationLabel || "");
+            setCustomClimateDescription(state.userDefinedParMod?.description || selectedStationLabel || "Custom climate");
         }, [selectedStationLabel]);
 
         // Fetch monthlies data
@@ -396,7 +393,12 @@ export const ClimateCustomization = React.forwardRef<ClimateFileHandle, ClimateC
         }, [collectCustomValues, applyChanges, state, customClimateDescription, onChange]);
 
         return (
-            <Dialog>
+            <Dialog
+                open={climateCustomizationOpen}
+                onOpenChange={(open) => {
+                    setClimateCustomizationOpen(open);
+                }}
+            >
                 <DialogTrigger asChild>
                     <Button
                         variant="outline"
@@ -539,3 +541,5 @@ export const ClimateCustomization = React.forwardRef<ClimateFileHandle, ClimateC
         );
     }
 );
+
+ClimateCustomization.displayName = "ClimateCustomization";
