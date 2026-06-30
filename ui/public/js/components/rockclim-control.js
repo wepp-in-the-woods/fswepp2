@@ -555,6 +555,10 @@ export function mountRockClimControl(root) {
     updateClimateFileUi();
   }
 
+  function clearClimateImportStatus() {
+    climateUpload.setStatus("");
+  }
+
   function applyImportedClimateState(payload) {
     climateState = writeClimateState(payload);
     databaseField.select.value = climateState.database;
@@ -992,6 +996,7 @@ export function mountRockClimControl(root) {
 
   function persistState(options = {}) {
     const { skipPrefetch = false } = options;
+    clearClimateImportStatus();
     const prismAllowed = isPrismAllowed(climateState.database);
     const locationAvailable = hasValidLocation(climateState, lonField.input, latField.input);
     if (!locationAvailable) {

@@ -230,6 +230,10 @@ test("import climate JSON updates cookie and inputs", async () => {
   const prism = document.getElementById("rockclim_prism");
   expect(prism?.checked).toBe(false);
   expect(prism?.disabled).toBe(true);
+
+  stationSelect.value = "";
+  stationSelect.dispatchEvent(new Event("change"));
+  expect(status?.textContent || "").toBe("");
 });
 
 test("PRISM overlay summary reflects unit toggle", async () => {
