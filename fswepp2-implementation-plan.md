@@ -59,6 +59,7 @@
 - [x] Add DropAndUpload component + gallery + theme metrics
 - [x] Add ClimatePars JSON export/import (client-side)
 - [x] Add RockClim UI tests for JSON import validation
+- [x] Normalize imported custom climates to disable PRISM and clear import status on subsequent climate changes
 - [x] Bundle CLIGEN binaries + station DB inside API
 - [x] Bundle WEPP binary inside API
 - [x] Bundle all_your_base inside API; remove container clone
@@ -70,9 +71,10 @@
 - [x] Replace metquery PRISM calls in CLIGEN path with cache-backed lookups
 - [x] Generate and serve COG for PRISM annual precipitation with Range support
 - [x] Add PRISM annual precip overlay to RockClim map when `use_prism` enabled
+- [x] Render PRISM annual precip overlay as latitude-banded bitmap layers to align lon/lat COG with Web Mercator basemap
 - [x] Add overlay opacity control + floating categorical legend
 - [x] Unit-aware legend + live point readout (mm/in) synced to unit toggle
-- [x] Add UI test coverage for PRISM overlay unit switching
+- [x] Add UI test coverage for PRISM overlay unit switching and latitude-band bounds
 
 ## Phase 4 — Charting + Visualizations
 - [x] Chart core (canvas setup, resize, scales)
