@@ -65,6 +65,9 @@ function normalizeClimateState(raw) {
       next.user_defined_par_mod = null;
     }
   }
+  if (next.user_defined_par_mod) {
+    next.use_prism = false;
+  }
   return next;
 }
 

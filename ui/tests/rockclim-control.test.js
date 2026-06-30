@@ -204,7 +204,7 @@ test("import climate JSON updates cookie and inputs", async () => {
     location: { longitude: -113.41235, latitude: 48.286 },
     par_id: "TEST123",
     input_years: 100,
-    use_prism: false,
+    use_prism: true,
     user_defined_par_mod: {
       description: "Imported Climate",
       ppts: Array(12).fill(1.25),
@@ -222,10 +222,14 @@ test("import climate JSON updates cookie and inputs", async () => {
   expect(status?.textContent || "").toContain("Imported");
   const cookie = getClimateCookie();
   expect(cookie?.par_id).toBe("TEST123");
+  expect(cookie?.use_prism).toBe(false);
   expect(cookie?.user_defined_par_mod?.description).toBe("Imported Climate");
 
   const stationSelect = document.getElementById("rockclim_station");
   expect(stationSelect?.value).toBe("TEST123");
+  const prism = document.getElementById("rockclim_prism");
+  expect(prism?.checked).toBe(false);
+  expect(prism?.disabled).toBe(true);
 });
 
 test("PRISM overlay summary reflects unit toggle", async () => {

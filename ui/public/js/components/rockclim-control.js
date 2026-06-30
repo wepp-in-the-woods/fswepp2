@@ -1002,6 +1002,10 @@ export function mountRockClimControl(root) {
       climateState.use_prism = false;
       prismField.input.checked = false;
     }
+    if (climateState.user_defined_par_mod) {
+      climateState.use_prism = false;
+      prismField.input.checked = false;
+    }
     prismField.input.disabled =
       !locationAvailable ||
       !prismAllowed ||
