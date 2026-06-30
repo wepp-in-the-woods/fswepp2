@@ -39,6 +39,7 @@ const MONTH_NAMES = [
   "Dec",
 ];
 const PRISM_OVERLAY_OPACITY_DEFAULT = 0.15;
+const PRISM_OVERLAY_LATITUDE_BANDS = 64;
 const PRISM_OVERLAY_MAX_WIDTH = 2048;
 const PRISM_ALLOWED_DATABASES = new Set([null, "legacy", "2015", "ghcn"]);
 const PRISM_PPT_COG_URL =
@@ -96,6 +97,46 @@ function colorForPrecipInches(value) {
     }
   }
   return [...PRISM_PPT_COLOR_STOPS[0].color, 255];
+}
+
+function createLatitudeBandCanvases(canvas, bounds, bandCount = PRISM_OVERLAY_LATITUDE_BANDS) {
+  if (!canvas || !Array.isArray(bounds) || bounds.length < 4) return [];
+  const [minX, minY, maxX, maxY] = bounds;
+  const width = canvas.width;
+  const height = canvas.height;
+  if (
+    !Number.isFinite(width) ||
+    !Number.isFinite(height) ||
+    width < 1 ||
+    height < 1 ||
+    ![minX, minY, maxX, maxY].every(Number.isFinite)
+  ) {
+    return [];
+  }
+
+  const count = Math.max(1, Math.min(Math.floor(bandCount), height));
+  const bands = [];
+  for (let bandIndex = 0; bandIndex < count; bandIndex += 1) {
+    const yStart = Math.round((bandIndex * height) / count);
+    const yEnd = Math.round(((bandIndex + 1) * height) / count);
+    const bandHeight = yEnd - yStart;
+    if (bandHeight < 1) continue;
+
+    const bandCanvas = document.createElement("canvas");
+    bandCanvas.width = width;
+    bandCanvas.height = bandHeight;
+    const ctx = bandCanvas.getContext("2d");
+    if (!ctx) continue;
+    ctx.drawImage(canvas, 0, yStart, width, bandHeight, 0, 0, width, bandHeight);
+
+    const north = maxY - ((yStart / height) * (maxY - minY));
+    const south = maxY - ((yEnd / height) * (maxY - minY));
+    bands.push({
+      canvas: bandCanvas,
+      bounds: [minX, south, maxX, north],
+    });
+  }
+  return bands;
 }
 
 function renderCategoricalLegend(items) {
@@ -233,6 +274,7 @@ export function mountRockClimControl(root) {
   const prismOverlay = {
     status: "idle",
     canvas: null,
+    bands: [],
     bounds: null,
     promise: null,
     error: null,
@@ -1248,6 +1290,7 @@ export function mountRockClimControl(root) {
       ctx.putImageData(imageData, 0, 0);
       const bounds = image.getBoundingBox();
       prismOverlay.canvas = canvas;
+      prismOverlay.bands = createLatitudeBandCanvases(canvas, bounds);
       prismOverlay.bounds = bounds;
       prismOverlay.raster = raster;
       prismOverlay.width = targetWidth;
@@ -1329,19 +1372,20 @@ export function mountRockClimControl(root) {
 
     if (
       climateState.use_prism &&
-      prismOverlay.canvas &&
-      prismOverlay.bounds &&
+      prismOverlay.bands.length &&
       window.deck.BitmapLayer
     ) {
-      layers.push(
-        new window.deck.BitmapLayer({
-          id: "prism-annual-ppt",
-          bounds: prismOverlay.bounds,
-          image: prismOverlay.canvas,
-          opacity: prismOverlayOpacity,
-          pickable: false,
-        })
-      );
+      prismOverlay.bands.forEach((band, index) => {
+        layers.push(
+          new window.deck.BitmapLayer({
+            id: `prism-annual-ppt-${index}`,
+            bounds: band.bounds,
+            image: band.canvas,
+            opacity: prismOverlayOpacity,
+            pickable: false,
+          })
+        );
+      });
     }
 
     const features = stationsGeojson?.features || [];

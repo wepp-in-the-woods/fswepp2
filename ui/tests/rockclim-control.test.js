@@ -242,6 +242,7 @@ test("PRISM overlay summary reflects unit toggle", async () => {
   const prevUnitizer = window.UnitizerClient;
   const prevGetContext = HTMLCanvasElement.prototype.getContext;
   let currentUnit = "mm";
+  let renderedLayers = [];
 
   window.UnitizerClient = {
     getClientSync: () => ({
@@ -254,6 +255,7 @@ test("PRISM overlay summary reflects unit toggle", async () => {
       data: new Uint8ClampedArray(width * height * 4),
     }),
     putImageData: () => {},
+    drawImage: () => {},
   });
 
   window.GeoTIFF = {
@@ -272,7 +274,11 @@ test("PRISM overlay summary reflects unit toggle", async () => {
       constructor(options) {
         this.options = options;
       }
-      setProps() {}
+      setProps(props) {
+        if (Array.isArray(props?.layers)) {
+          renderedLayers = props.layers;
+        }
+      }
     },
     WebMercatorViewport: class {
       getBounds() {
@@ -326,6 +332,12 @@ test("PRISM overlay summary reflects unit toggle", async () => {
   const summaryUnit = summaryValue?.nextElementSibling;
   expect(summaryValue?.textContent).toBe("254");
   expect(summaryUnit?.textContent).toBe("mm");
+  const prismLayers = renderedLayers.filter((layer) =>
+    String(layer.props?.id || "").startsWith("prism-annual-ppt-")
+  );
+  expect(prismLayers.length).toBe(2);
+  expect(prismLayers[0]?.props?.bounds).toEqual([-1, 0, 1, 1]);
+  expect(prismLayers[1]?.props?.bounds).toEqual([-1, -1, 1, 0]);
 
   currentUnit = "in";
   document.dispatchEvent(new Event("unitizer:preferences-changed"));
