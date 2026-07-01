@@ -53,7 +53,9 @@ const renderLayout = (title: string, body: string) => `
     <header class="layout-header">
       <div class="layout-header__inner">
         <div class="flex items-center gap-3">
-          <img src="/public/fswepp-logo.png" alt="FSWEPP logo" class="h-7 w-auto" />
+          <a href="/fswepp2">
+            <img src="/public/fswepp-logo.png" alt="FSWEPP logo" class="h-7 w-auto" />
+          </a>
         </div>
         <div class="flex items-center gap-4">
           <nav class="layout-nav" aria-label="Primary">
@@ -99,18 +101,12 @@ app.get("/", (c) =>
 
 // Entry point for the new utility flows
 app.get("/fswepp2", (c) =>
-  c.html(
-    renderLayout(
-      "FSWEPP2 Tools",
-      `<ul class="list-disc pl-6">
-        <li><a href="/fswepp2/wepproad">WEPP:Road</a></li>
-        <li><a href="/fswepp2/disturbed">Disturbed WEPP</a></li>
-        <li><a href="/fswepp2/peakflow">Peak Flow</a></li>
-        <li><a href="/fswepp2/ermit">ERMiT</a></li>
-        <li><a href="/fswepp2/fume">FuME</a></li>
-      </ul>`
+    c.html(
+      renderLayout(
+        "FSWEPP2 Tools",
+        `<section id="fswepp-tools" class="space-y-8"></section>`
+      )
     )
-  )
 );
 
 app.get("/fswepp2/wepproad", (c) =>

@@ -1,5 +1,6 @@
 import { readJsonCookie, writeJsonCookie } from "./utils/cookies.js";
 import { getConfigFromUrl } from "./utils/url.js";
+import { createToolSection } from "./components/tool-section.js";
 import { mountRockClimControl } from "./components/rockclim-control.js";
 import { mountWeppRoadTool } from "./tools/wepproad.js";
 import { mountDisturbedTool } from "./tools/disturbed.js";
@@ -101,6 +102,113 @@ function initUnitizer() {
   });
 }
 
+function initToolSections() {
+  const root = document.getElementById("fswepp-tools"); // Add this container to your HTML
+  if (!root) return;
+
+  const hillslopeModels = [
+    {
+      title: "WEPP: Road",
+      label: "WEPP: Road",
+      description: "Predict erosion from insloped or outsloped forest roads. WEPP: Road allows users to easily describe numerous road erosion conditions.",
+      icon: "/public/wepp-road-icon.svg",
+      href: "/fswepp2/wepproad",
+      isExternal: false
+    },
+    {
+      title: "WEPP: Road Batch",
+      label: "WEPP: Road Batch",
+      description: "Predict erosion from multiple insloped or outsloped forest roads.",
+      icon: "/public/wepp-road-batch-icon.svg",
+      href: "/fswepp2/wepproad-batch",
+      isExternal: false
+    },
+    {
+      title: "ERMiT",
+      label: "ERMiT",
+      description: "ERMiT allows users to predict the probability of a given amount of sediment delivery from the base of a hillslope following variable burns on forest, rangeland, and chaparral conditions in each of five years following wildfire.",
+      icon: "/public/ermit-icon.svg",
+      href: "/fswepp2/ermit",
+      isExternal: false
+    },
+    {
+      title: "ERMiT Batch",
+      label: "ERMiT Batch",
+      description: "Download the Batch ERMiT Interface Excel spreadsheet to run multiple ERMiT scnearios.",
+      icon: "/public/ermit-batch-icon.svg",
+      href: "/fswepp2/ermit-batch",
+      isExternal: false
+    },
+    {
+      title: "Disturbed WEPP",
+      label: "Disturbed WEPP",
+      description: "Predict erosion from rangeland, forestland, and forest skid trails. Disturbed WEPP allows users to easily describe numerous disturbed forest and rangeland erosion conditions. The interface  presents the probability of a given level of erosion occurring the year following a disturbance.",
+      icon: "/public/placeholder-model-icon.svg",
+      href: "/fswepp2/distributed",
+      isExternal: false
+    },
+    {
+      title: "Disturbed WEPP Batch",
+      label: "Disturbed WEPP Batch",
+      description: "Download the Batch Disturbed WEPP Interface Excel spreadsheet to run multiple Distributed WEPP scenarios.",
+      icon: "/public/placeholder-model-icon.svg",
+      href: "/fswepp2/distributed-batch",
+      isExternal: false
+    },
+    {
+      title: "FuME (Fuel Management)",
+      label: "FuME (Fuel Management)",
+      description: "The FuME interface predicts soil erosion associated with fuel management practices including prescribed thinning, and a road network, and compares that prediction with erosion from wildfire.",
+      icon: "/public/placeholder-model-icon.svg",
+      href: "/fswepp2/fume",
+      isExternal: false
+    },
+  ];
+  const watershedModels = [
+    {
+      title: "WEPPcloud",
+      label: "WEPPcloud",
+      description: "Simulation tool that estimates hillslope soil erosion, etc.",
+      icon: "/public/placeholder-model-icon.svg",
+      href: "https://wepp.cloud/weppcloud/",
+      isExternal: true
+    },
+    {
+      title: "QWEPP",
+      label: "QWEPP",
+      description: "Access QWEPP Manual from Rapid Response Erosion Database (RRED) website Instructions: Follow the link to RRED and click on 'Manuals' tab. Download 'QWEPP Manual for RRED,' and follow the instructions.",
+      icon: "/public/placeholder-model-icon.svg",
+      href: "https://rred.mtri.org/rred/",
+      isExternal: true
+    },
+    {
+      title: "Peak Flow Calculator",
+      label: "Peak Flow Calculator",
+      description: "Estimate peak flow for burned areas using Curve Number technology.",
+      icon: "/public/peak-flow-icon.svg",
+      href: "/fswepp2/peakflow",
+      isExternal: false
+    }
+  ];
+
+  const hillslopeSection = createToolSection({
+    id: "hillslope-models",
+    title: "Hillslope Scale Erosion and Runoff Prediction",
+    tools: hillslopeModels,
+    className: "bg-green-50 text-green-900"
+  });
+
+  const watershedSection = createToolSection({
+    id: "watershed-models",
+    title: "Watershed Prediction",
+    tools: watershedModels,
+    className: "bg-blue-50 text-blue-900"
+  });
+
+  root.appendChild(hillslopeSection);
+  root.appendChild(watershedSection);
+}
+
 function initRockClim() {
   const root = document.getElementById("rockclim-control-root");
   if (!root) return;
@@ -140,6 +248,7 @@ function initFume() {
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
     initUnitizer();
+    initToolSections();
     initRockClim();
     initWeppRoad();
     initDisturbed();
@@ -149,6 +258,7 @@ if (document.readyState === "loading") {
   });
 } else {
   initUnitizer();
+  initToolSections();
   initRockClim();
   initWeppRoad();
   initDisturbed();
