@@ -156,7 +156,7 @@ Implements the climate selection interface as specified by the user. This contro
   - Station dropdown populates with 10 closest stations
 - **Station Par File**: When expanded, prefetches `/api/rockclim/GET/station_par`
   - Displays content in `PreformattedBlock`
-  - Provides download link with descriptive filename (`id108137.par`, `prism-modified-id108137.par`, `customized-prism-modified-id108137.par`)
+  - Provides download link with descriptive filename (`id108137.par`, `prism-modified-id108137.par`, `customized-id108137.par`)
 - **Climate File**: When expanded, prefetches `/api/rockclim/GET/climate`
   - Displays content in `PreformattedBlock`
   - Provides download link with descriptive filename mirroring the station par naming
@@ -164,6 +164,9 @@ Implements the climate selection interface as specified by the user. This contro
   - Hydrates climate state and updates controls client-side only
   - Validates schema (arrays length 12, numeric values, known enums)
   - Preserves custom climate descriptions and monthlies
+  - If imported JSON contains `user_defined_par_mod`, import still succeeds when `use_prism` is true in the file, but normalization forces `use_prism: false`
+  - The PRISM checkbox is unchecked and disabled while a custom/imported climate is active
+  - Import success/error status clears on the next climate parameter change (database, CLIGEN version, location, station, PRISM toggle, or custom climate delete/apply)
 - **Location fields**: User can manually enter exact longitude/latitude values
   - On change, triggers same closest stations API call
   - Updates map center to show entered location
@@ -198,6 +201,8 @@ Implements the climate selection interface as specified by the user. This contro
 }
 
 // User-defined climates are stored in fswepp_climate.user_defined_par_mod only.
+// Invariant: user_defined_par_mod and use_prism are mutually exclusive.
+// Normalization always forces use_prism false when user_defined_par_mod is set.
 ```
 
 #### 2. FormField
@@ -434,7 +439,9 @@ Selection updates `par_id` in climate state and optionally triggers preview of m
 - Input changes update preview calculations in real-time
 - "Apply" updates `user_defined_par_mod` in climate state and saves to `fswepp_climate` cookie
 - Applied customizations persist in cookie and are available across all tool pages
+- Applying a custom climate forces `use_prism: false`
 - "Delete Climate" clears `user_defined_par_mod` and reverts to base station values (outside the modal)
+- Deleting a custom climate also clears any stale import/upload status message
 
 ### PRISM Spatialization
 
@@ -445,6 +452,15 @@ Selection updates `par_id` in climate state and optionally triggers preview of m
 - When checked, sets `use_prism: true` in climate state
 - When unchecked, resets to the base station PAR monthlies
 - Custom climates disable this checkbox until deleted
+- Climate state normalization enforces the same rule for cookie and JSON import paths: if `user_defined_par_mod` is present, `use_prism` is false
+- Changing PRISM state clears stale import/upload status text
+
+**Map Overlay:**
+- When `use_prism` is enabled and the map is open, the UI loads the annual precipitation PRISM COG through GeoTIFF.js
+- The PRISM COG is NAD83 geographic lon/lat; it is rendered over the Web Mercator basemap using deck.gl `BitmapLayer`
+- To avoid full-raster Web Mercator interpolation distortion, the rendered overlay is split into horizontal latitude bands, each with its own lon/lat bounds
+- The full downsampled raster remains available for live point readout; banding affects display alignment only
+- Overlay opacity is user-adjustable and the floating legend/readout stays unit-aware (mm/in)
 
 ### Visual Design Notes
 
@@ -2143,14 +2159,22 @@ const map = new deck.DeckGL({
 - When requesting `stations_geojson`, compute `bbox: [ul_x, ul_y, lr_x, lr_y]` from the current map view bounds
 - deck.gl handles rendering efficiently with WebGL
 
-6. **Map Interaction**:
+6. **PRISM Annual Precipitation Overlay**:
+- When `use_prism` is active, load `/prism_data/prism_ppt_us_30s_2020_avg_30y/prism_ppt_us_30s_2020_avg_30y_cog.tif`
+- Read and colorize a downsampled raster in browser with GeoTIFF.js and canvas
+- Do not render the whole CONUS PRISM raster as one bitmap over the Web Mercator basemap; that warps the interior of the lon/lat raster
+- Split the colorized canvas into horizontal latitude bands and render each band as a separate `BitmapLayer` with bounds `[west, south, east, north]`
+- Use the original PRISM bounds/raster for point readout so the legend summary and clicked/selected location remain consistent with the climate data
+- Keep PRISM overlay layers non-pickable so station/location interactions continue to work
+
+7. **Map Interaction**:
 - Click map to set location
 - Drag to pan
 - Scroll to zoom
 - Double-click to zoom in
 - Shift+drag to rotate (optional)
 
-7. **Responsive Sizing**:
+8. **Responsive Sizing**:
 - Container: 100% width of RockClim panel
 - Height: 400px (or `max-h-96` in Tailwind)
 - Resize handler: `map.setProps({width, height})` on window resize
