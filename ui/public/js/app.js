@@ -7,6 +7,7 @@ import { mountDisturbedTool } from "./tools/disturbed.js";
 import { mountPeakFlowTool } from "./tools/peakflow.js";
 import { mountErmitTool } from "./tools/ermit.js";
 import { mountFumeTool } from "./tools/fume.js";
+import { mountBurnedAreaReports } from "./tools/burnedarea-report.js";
 
 window.FSWEPP = window.FSWEPP || {};
 window.FSWEPP.cookies = { readJsonCookie, writeJsonCookie };
@@ -190,6 +191,16 @@ function initToolSections() {
       isExternal: false
     }
   ];
+  const baerTools = [
+    {
+      title: "BAER Burned Area Reports DB",
+      label: "BAER Burned Area Reports DB",
+      description: "View database containing post-fire assessment information from four decades of US Forest Service Burned Area Reports.",
+      icon: "/public/baer-reports.svg",
+      href: "/fswepp2/baer-reports",
+      isExternal: false
+    }
+  ];
 
   const hillslopeSection = createToolSection({
     id: "hillslope-models",
@@ -205,8 +216,15 @@ function initToolSections() {
     className: "bg-blue-50 text-blue-900"
   });
 
+  const baerSection = createToolSection({
+    id: "baer-tools",
+    title: "BAER Tools",
+    tools: baerTools,
+  })
+
   root.appendChild(hillslopeSection);
   root.appendChild(watershedSection);
+  root.appendChild(baerSection);
 }
 
 function initRockClim() {
@@ -245,6 +263,12 @@ function initFume() {
   mountFumeTool(root);
 }
 
+function initBurnedAreaReport() {
+  const root = document.getElementById("burnedarea-report-root");
+  if (!root) return;
+  mountBurnedAreaReports(root);
+}
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
     initUnitizer();
@@ -255,6 +279,7 @@ if (document.readyState === "loading") {
     initPeakFlow();
     initErmit();
     initFume();
+    initBurnedAreaReport();
   });
 } else {
   initUnitizer();
@@ -265,4 +290,5 @@ if (document.readyState === "loading") {
   initPeakFlow();
   initErmit();
   initFume();
+  initBurnedAreaReport();
 }

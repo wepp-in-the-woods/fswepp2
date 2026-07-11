@@ -46,9 +46,25 @@ const jsLinks = `
   <script src="/public/js/unitizer/unitizer_client.js"></script>
   <script type="module" src="/public/js/app.js"></script>
 `;
+const headMeta = `  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />`;
+
+const renderDocument = (title: string, body: string) => `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${title}</title>
+    ${cssLink}
+  </head>
+  <body>
+    ${body}
+    ${jsLinks}
+  </body>
+</html>`;
 
 const renderLayout = (title: string, body: string) => `
-  ${cssLink}${jsLinks}
+  ${headMeta} ${cssLink} ${jsLinks}
   <div class="layout-shell">
     <header class="layout-header">
       <div class="layout-header__inner">
@@ -91,12 +107,15 @@ const renderLayout = (title: string, body: string) => `
 
 // Placeholder landing (root reserved for future backfill)
 app.get("/", (c) =>
-  c.html(
-    `${cssLink}<main class="page-container">
-      <h1>FSWEPP2 UI (Bun + Hono)</h1>
-      <p>This is a placeholder. Core tools will live under <code>/fswepp2/…</code>.</p>
-    </main>`
-  )
+    c.html(
+        renderDocument(
+            "FSWEPP2 UI (Bun + Hono)",
+            `<main class="page-container">
+        <h1>FSWEPP2 UI (Bun + Hono)</h1>
+        <p>This is a placeholder. Core tools will live under <code>/fswepp2/…</code>.</p>
+      </main>`
+        )
+    )
 );
 
 // Entry point for the new utility flows
@@ -156,6 +175,18 @@ app.get("/fswepp2/fume", (c) =>
       <section id="fume-root" class="space-y-8"></section>`
     )
   )
+);
+
+app.get("/fswepp2/baer-reports", (c) =>
+    c.html(
+        renderDocument(
+            "BAER Burned Area Reports DB",
+            renderLayout(
+                "BAER Burned Area Reports DB",
+                `<section id="burnedarea-report-root" class="space-y-8"></section>`
+            )
+        )
+    )
 );
 
 app.get("/fswepp2/docs", (c) =>
