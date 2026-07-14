@@ -1,4 +1,4 @@
-export function createButton(text, variant = "default", options = {}) {
+export function createButton(text, variant = "default", options = {}, icon = null) {
   const button = document.createElement("button");
   const base =
     "inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-base font-medium transition-all";
@@ -10,7 +10,13 @@ export function createButton(text, variant = "default", options = {}) {
   };
   button.className = `${base} ${variants[variant] || variants.default}`;
   button.type = options.type || "button";
-  button.textContent = text;
+  if (icon) {
+    icon.classList.add("h-4", "w-4");
+    button.appendChild(icon);
+  }
+  const textSpan = document.createElement("span");
+  textSpan.textContent = text;
+  button.appendChild(textSpan);
   if (options.id) button.id = options.id;
   if (options.disabled) button.disabled = true;
   if (options.onClick) button.addEventListener("click", options.onClick);
