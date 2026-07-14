@@ -4,18 +4,21 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun run src/server.ts",
-    "dev:css": "bunx @tailwindcss/cli -i ./styles/theme.css -o ./public/app.css && bunx @tailwindcss/cli -i ./styles/theme.css -o ./public/app.css --watch",
-    "dev:all": "bun run dev:css & bun run dev",
+    "dev": "bun --watch run src/server.ts",
+    "dev:css": "bunx @tailwindcss/cli -i ./styles/theme.css -o ./public/dist/app.css --watch",
+    "dev:js": "bun build ./public/js/app.js --outfile ./public/dist/app.bundle.js --target browser --watch --sourcemap",
+    "dev:all": "bun run dev:css & bun run dev:js & bun run dev",
     "start": "PORT=${PORT:-5173} bun run src/server.ts",
     "lint": "echo \"(placeholder)\"",
     "test": "bun test --preload ./tests/setup.ts",
     "test:e2e": "node ./node_modules/@playwright/test/cli.js test --config ./playwright.config.cjs",
-    "build:css": "bunx @tailwindcss/cli -i ./styles/theme.css -o ./public/app.css --minify",
-    "build": "bun run build:css"
+    "build:css": "bunx @tailwindcss/cli -i ./styles/theme.css -o ./public/dist/app.css --minify",
+    "build:js": "bun build ./public/js/app.js --outfile ./public/dist/app.bundle.js --target browser --minify",
+    "build": "bun run build:css && bun run build:js"
   },
   "dependencies": {
-    "hono": "^4.4.7"
+    "hono": "^4.4.7",
+    "lucide": "^1.23.0"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^15.10.2",
