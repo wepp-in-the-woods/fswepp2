@@ -12,7 +12,8 @@ import { createPreformattedBlock } from "../components/preformatted.js";
 import { apiPost } from "../utils/api-client.js";
 import { createButton } from "../components/button.js";
 import { createTabPanel } from "../components/tabs.js";
-import {createDataTable} from "../components/data-table.js";
+import { createDataTable } from "../components/data-table.js";
+import { createElement, Funnel, RotateCcw } from 'lucide';
 
 /**
  * Unitizer helper functions
@@ -104,13 +105,6 @@ function createSection(title) {
 export function mountBurnedAreaReports(root) {
   if (!root) return;
 
-  // Local state for the tool
-  const state = {
-    param1: "",
-    param2: 0,
-    // Add more state properties as needed
-  };
-
   // Filter states
   const filterState = {
     region: [],
@@ -164,39 +158,6 @@ export function mountBurnedAreaReports(root) {
   const form = document.createElement("form");
   form.className = "space-y-6";
   form.addEventListener("submit", (event) => event.preventDefault());
-
-  // Input section
-  const inputSection = createSection("Inputs");
-
-  // Example input field 1
-  const param1Field = createFormField({
-    id: "burned_param1",
-    label: "Parameter 1",
-    type: "text",
-    value: state.param1,
-    help: "Enter parameter 1 value",
-  });
-  param1Field.input.addEventListener("input", () => {
-    state.param1 = param1Field.input.value;
-  });
-  inputSection.appendChild(param1Field.wrapper);
-
-  // Example input field 2
-  const param2Field = createFormField({
-    id: "burned_param2",
-    label: "Parameter 2",
-    type: "number",
-    value: String(state.param2),
-    unitLabel: "unit",
-    help: "Enter parameter 2 value",
-  });
-  param2Field.input.step = "0.1";
-  param2Field.input.min = "0";
-  param2Field.input.addEventListener("input", () => {
-    const val = parseFloat(param2Field.input.value);
-    state.param2 = Number.isFinite(val) ? val : 0;
-  });
-  inputSection.appendChild(param2Field.wrapper);
 
   const filterSectionContent = document.createElement("div");
   filterSectionContent.className = "grid grid-flow-row grid-cols-1 lg:grid-cols-3 gap-4";
@@ -594,12 +555,14 @@ export function mountBurnedAreaReports(root) {
   const buttonGroup = document.createElement("div");
   buttonGroup.className = "flex flex-col lg:flex-row items-stretch lg:items-center gap-2";
 
+  const filterIcon = createElement(Funnel);
   const applyFiltersButton = createButton("Apply Filters", "default", {
     onClick: () => {
       applyFilters();
     },
-  });
+  }, filterIcon);
 
+  const resetIcon = createElement(RotateCcw);
   const resetFiltersButton = createButton("Reset Filters", "outline", {
     onClick: () => {
       usfsRegionField.setSelectedValues([]);
@@ -621,7 +584,7 @@ export function mountBurnedAreaReports(root) {
       filterState.toDate = null;
       applyFilters();
     },
-  });
+  }, resetIcon);
 
   buttonGroup.appendChild(applyFiltersButton);
   buttonGroup.appendChild(resetFiltersButton);
@@ -1040,7 +1003,6 @@ export function mountBurnedAreaReports(root) {
   applyFilters();
 
   // Initialize map
-  // initMap();
   const observer = new MutationObserver(() => {
     if (mapSection.style.display === "block" && mapContainer.clientHeight > 0) {
       if (mapInstance && mapInstance.canvas) {

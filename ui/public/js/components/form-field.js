@@ -1,3 +1,5 @@
+import { createElement, Search } from 'lucide';
+
 export function createFormField({
   id,
   label,
@@ -185,9 +187,15 @@ export function createMultiSelectField({
   searchWrapper.className = "relative flex items-center";
 
   // Search icon
-  // const searchIcon = document.createElement("span");
-  // searchIcon.className = "absolute left-3 text-muted-foreground pointer-events-none";
-  // searchIcon.textContent = "🔍";
+  const searchIcon = createElement(Search);
+  searchIcon.classList.add(
+      "pointer-events-none",
+      "absolute",
+      "right-3",
+      "h-4",
+      "w-4",
+      "text-muted-foreground"
+  );
 
   // Search input
   const searchInput = document.createElement("input");
@@ -195,11 +203,11 @@ export function createMultiSelectField({
   searchInput.type = "text";
   searchInput.placeholder = placeholder;
   searchInput.className =
-      "flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm focus-visible:ring-ring/50 focus-visible:ring-[3px]";
+      "flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 pr-10 text-sm focus-visible:ring-ring/50 focus-visible:ring-[3px]";
   searchInput.setAttribute("autocomplete", "off");
 
-  // searchWrapper.appendChild(searchIcon);
   searchWrapper.appendChild(searchInput);
+  searchWrapper.appendChild(searchIcon);
 
   // Dropdown menu
   const dropdown = document.createElement("div");
@@ -324,7 +332,7 @@ export function createMultiSelectField({
     }
   });
 
-  container.appendChild(searchInput);
+  container.appendChild(searchWrapper);
   container.appendChild(dropdown);
   container.appendChild(infoSection);
 
