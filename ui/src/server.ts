@@ -39,12 +39,12 @@ app.use("/public/*", serveStatic({ root: "./" }));
 // Health check
 app.get("/health", (c) => c.json({ status: "ok" }));
 
-const cssLink = '<link rel="stylesheet" href="/public/app.css" />';
+const cssLink = '<link rel="stylesheet" href="/public/dist/app.css" />';
 const jsLinks = `
   <script src="/public/js/vendor/deck.gl.min.js"></script>
   <script src="/public/js/vendor/geotiff.js"></script>
   <script src="/public/js/unitizer/unitizer_client.js"></script>
-  <script type="module" src="/public/js/app.js"></script>
+  <script type="module" src="/public/dist/app.bundle.js"></script>
 `;
 const headMeta = `  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />`;
@@ -177,12 +177,12 @@ app.get("/fswepp2/fume", (c) =>
   )
 );
 
-app.get("/fswepp2/baer-reports", (c) =>
+app.get("/baer-reports", (c) =>
     c.html(
         renderDocument(
             "BAER Burned Area Reports DB",
             renderLayout(
-                "BAER Burned Area Reports DB",
+                "",
                 `<section id="burnedarea-report-root" class="space-y-8"></section>`
             )
         )
