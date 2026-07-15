@@ -1,7 +1,7 @@
 // For the climate customization dialog
 import * as React from "react";
 import { useCallback, useEffect } from "react";
-import { ClimateState, DEFAULT_CLIMATE_STATE, MONTH_NAMES } from "@/types/climate";
+import { ClimateState, MONTH_NAMES } from "@/types/climate";
 import { useSessionStorage } from "@/utils/session-storage";
 import {useFormContext} from "react-hook-form";
 import { useClimateExport } from '@/hooks/useClimateExport';

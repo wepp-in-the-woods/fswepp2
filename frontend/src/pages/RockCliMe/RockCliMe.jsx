@@ -1018,6 +1018,7 @@ const RockCliMe = () => {
                                 </p>
                                 <p className="text-sm">
                                   Elevation: {station.elevation}
+                                  {/*TODO: Add elevation unit*/}
                                 </p>
                                 {/* Conditional distance display */}
                                 {searchMethod === "location" &&

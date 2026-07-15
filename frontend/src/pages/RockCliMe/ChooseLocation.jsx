@@ -25,15 +25,15 @@ import { Label } from "@/components/ui/label";
 
 const MARKER_ICONS = {
   default: {
-    iconUrl: "/default-map-marker.png",
-    iconRetinaUrl: "/default-map-marker.png",
+    iconUrl: "/public/default-map-marker.png",
+    iconRetinaUrl: "/public/default-map-marker.png",
     iconSize: [40, 40],
     iconAnchor: [20, 40],
     popupAnchor: [1, -34],
   },
   station: {
-    iconUrl: "/station-map-marker.png",
-    iconRetinaUrl: "/station-map-marker.png",
+    iconUrl: "/public/station-map-marker.png",
+    iconRetinaUrl: "/public/station-map-marker.png",
     iconSize: [40, 40],
     iconAnchor: [20, 40],
     popupAnchor: [0, -35],

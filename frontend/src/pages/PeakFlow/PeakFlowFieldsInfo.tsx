@@ -757,7 +757,7 @@ export const IaOnPInfo = () => (
 export const UnitPeakFlowRateInfo = () => (
   <InfoDialog title="Unit peak flow rate">
     <p>
-      The unit peak flow rate <i>q<sub>u</sub></i> is estimated from the time of concentration <i>T<sub>c</sub></i> and the ratio of the initial abstraction <i>I<sub>a</sub></i> to the precipitation amount <i>P</i>. <i>q<sub>u</sub></i> can be obtained from the graph below.<br />q<sub>u</sub> = f(T<sub>c</sub>, I<sub>a</sub>/P); 0.1 &lt;= I<sub>a</sub>/P &lt;= 0.5; 0.1 &lt;= T<sub>c</sub> &lt;= 10<br/><img src="fangmeier.gif" title="Fangmeier_2006" /><br/>The SCS developed four dimensionless 24-hour rainfall distributions – type I, IA, II, and III – from the available NWS duration-frequency data to represent various regions of U.S.<br />Types I and IA represent the Pacific maritime climates with wet winters and dry summers.<br/>Type III represents Gulf of Mexico and Atlantic coastal areas where tropical storms result in large 24-hour rainfall.<br/>Type II represents the rest of the U.S. (USDA SCS, 1986).<br/><img src="stormtypes.gif" title="Iowa_2008" />
+      The unit peak flow rate <i>q<sub>u</sub></i> is estimated from the time of concentration <i>T<sub>c</sub></i> and the ratio of the initial abstraction <i>I<sub>a</sub></i> to the precipitation amount <i>P</i>. <i>q<sub>u</sub></i> can be obtained from the graph below.<br />q<sub>u</sub> = f(T<sub>c</sub>, I<sub>a</sub>/P); 0.1 &lt;= I<sub>a</sub>/P &lt;= 0.5; 0.1 &lt;= T<sub>c</sub> &lt;= 10<br/><img src="/public/fangmeier.gif" title="Fangmeier_2006" /><br/>The SCS developed four dimensionless 24-hour rainfall distributions – type I, IA, II, and III – from the available NWS duration-frequency data to represent various regions of U.S.<br />Types I and IA represent the Pacific maritime climates with wet winters and dry summers.<br/>Type III represents Gulf of Mexico and Atlantic coastal areas where tropical storms result in large 24-hour rainfall.<br/>Type II represents the rest of the U.S. (USDA SCS, 1986).<br/><img src="/public/stormtypes.gif" title="Iowa_2008" />
     </p>
   </InfoDialog>
 );
@@ -807,7 +807,7 @@ export const CulvertDiameterInfo = () => (
         <mn>12</mn>
       </mrow>
     </math>
-    <img src="../../images/culvertgraphic.png" />
+    <img src="/public/culvertgraphic.png" />
   </p>
   </InfoDialog>
 );

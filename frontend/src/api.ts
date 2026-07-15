@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = "https://fswepp2-api.bearhive.duckdns.org";
+const baseURL = "http://localhost:8090";
 
 export const api = axios.create({
   baseURL,
