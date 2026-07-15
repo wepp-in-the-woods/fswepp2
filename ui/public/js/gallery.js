@@ -13,9 +13,13 @@ import { createCanvasChart } from "./components/canvas-chart.js";
 import { createSlopeProfile } from "./components/slope-profile.js";
 import { createRadioGroup } from "./components/radio-group.js";
 
-function mountGallery() {
-  const root = document.getElementById("component-gallery-root");
+export function mountGallery(root) {
   if (!root) return;
+
+  if (root.dataset.galleryMounted === "true") return;
+  root.dataset.galleryMounted = "true";
+
+  root.replaceChildren();
 
   const section = (title, description) => {
     const wrapper = document.createElement("section");
@@ -566,6 +570,7 @@ function mountGallery() {
   root.appendChild(dropSection);
   root.appendChild(tabsSection);
   root.appendChild(tableSection);
+  root.appendChild(charts);
   root.appendChild(themeLab);
   root.appendChild(metricsSection);
 
@@ -674,11 +679,3 @@ function mountGallery() {
     metricsDownload.onclick = () => downloadMarkdown(markdown);
   });
 }
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", mountGallery);
-} else {
-  mountGallery();
-}
-
-export { mountGallery };

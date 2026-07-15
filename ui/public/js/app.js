@@ -198,7 +198,7 @@ function initToolSections() {
       label: "BAER Burned Area Reports DB",
       description: "View database containing post-fire assessment information from four decades of US Forest Service Burned Area Reports.",
       icon: "/public/baer-reports.svg",
-      href: "/fswepp2/baer-reports",
+      href: "/baertools/baer-reports",
       isExternal: false
     }
   ];
