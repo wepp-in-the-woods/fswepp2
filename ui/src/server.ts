@@ -208,8 +208,7 @@ app.get("/fswepp2/ui-component-gallery", (c) =>
       `<p class="text-sm text-muted-foreground">
         Shared UI components showcase with layout and accessibility metadata hooks.
       </p>
-      <section id="component-gallery-root" class="space-y-8" data-contrast-suite data-theme-select></section>
-      <script type="module" src="/public/js/gallery.js"></script>`
+      <section id="component-gallery-root" class="space-y-8" data-contrast-suite data-theme-select></section>`
     )
   )
 );

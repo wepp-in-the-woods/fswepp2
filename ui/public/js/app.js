@@ -8,6 +8,7 @@ import { mountPeakFlowTool } from "./tools/peakflow.js";
 import { mountErmitTool } from "./tools/ermit.js";
 import { mountFumeTool } from "./tools/fume.js";
 import { mountBurnedAreaReports } from "./tools/burnedarea-report.js";
+import { mountGallery } from "./gallery.js";
 
 window.FSWEPP = window.FSWEPP || {};
 window.FSWEPP.cookies = { readJsonCookie, writeJsonCookie };
@@ -269,6 +270,12 @@ function initBurnedAreaReport() {
   mountBurnedAreaReports(root);
 }
 
+function initGallery() {
+  const root = document.getElementById("component-gallery-root");
+  if (!root) return;
+  mountGallery(root);
+}
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
     initUnitizer();
@@ -280,6 +287,7 @@ if (document.readyState === "loading") {
     initErmit();
     initFume();
     initBurnedAreaReport();
+    initGallery();
   });
 } else {
   initUnitizer();
@@ -291,4 +299,5 @@ if (document.readyState === "loading") {
   initErmit();
   initFume();
   initBurnedAreaReport();
+  initGallery();
 }

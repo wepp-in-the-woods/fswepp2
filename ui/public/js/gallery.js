@@ -680,3 +680,5 @@ if (document.readyState === "loading") {
 } else {
   mountGallery();
 }
+
+export { mountGallery };
