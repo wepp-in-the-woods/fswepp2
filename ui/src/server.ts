@@ -46,8 +46,6 @@ const jsLinks = `
   <script src="/public/js/unitizer/unitizer_client.js"></script>
   <script type="module" src="/public/dist/app.bundle.js"></script>
 `;
-const headMeta = `  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />`;
 
 const renderDocument = (title: string, body: string) => `<!doctype html>
 <html lang="en">
@@ -201,6 +199,18 @@ app.get("/baertools/baer-reports", (c) =>
             renderLayout(
                 "",
                 `<section id="burnedarea-report-root" class="space-y-8"></section>`
+            )
+        )
+    )
+);
+
+app.get("/publications", (c) =>
+    c.html(
+        renderDocument(
+            "Publications",
+            renderLayout(
+                "",
+                `<section id="publications-root" class="space-y-8"></section>`
             )
         )
     )
