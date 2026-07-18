@@ -245,19 +245,24 @@ export function createMultiSelectField({
   const selectAllBtn = document.createElement("button");
   selectAllBtn.className = "text-sm text-muted-foreground cursor-pointer text-primary underline";
   selectAllBtn.textContent = "Select All";
-  selectAllBtn.addEventListener("click", () => {
+  selectAllBtn.addEventListener("click", (e) => {
+    e.preventDefault();
     filteredOptions.forEach((option) => selectedValues.add(option.value));
     updateSelectionCounter();
     renderDropdown();
+    onChange(Array.from(selectedValues));
   });
 
   const selectNoneBtn = document.createElement("button");
+  selectNoneBtn.type = "button";
   selectNoneBtn.className = "text-sm text-muted-foreground cursor-pointer text-primary underline";
   selectNoneBtn.textContent = "Select None";
-  selectNoneBtn.addEventListener("click", () => {
-    filteredOptions.forEach((option) => selectedValues.delete(option.value));
+  selectNoneBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    filteredOptions.forEach(() => selectedValues.clear());
     updateSelectionCounter();
     renderDropdown();
+    onChange(Array.from(selectedValues));
   });
 
   selectionSection.appendChild(selectAllBtn);
